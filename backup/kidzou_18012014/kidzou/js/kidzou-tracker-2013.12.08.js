@@ -1,1 +1,0 @@
-var kidzouTracker=function(){function a(a,b,c,d){"undefined"!=typeof _gaq?_gaq.push(["_trackEvent",a,b,c,d]):console.debug("trackEvent("+a+", "+b+", "+c+", "+d+")")}return{trackEvent:a}}();

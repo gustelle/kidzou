@@ -1,9 +1,0 @@
-@charset "utf-8";
-#LoginWithAjax_Modal {position: absolute;right:0em;width: 20em;z-index: 9999;background-color: #fff;padding: 1em;}
-#LoginWithAjax_Modal form p {margin-top: 0.3em;}
-#LoginWithAjax_Modal form .forgetmenot {float: left;}
-#LoginWithAjax_Modal form input[type="text"],#LoginWithAjax_Modal form input[type="password"] {width: 90%;height:1.5em;font-size:1.3em;margin:0;outline:0;border:1px solid #c6c6c6;padding:2px;}
-#LoginWithAjax_Modal form input[type="submit"] {float:right;}
-/*#LoginWithAjax_Modal .close { background:url(close.png) 0px 0px no-repeat; background-size:25px;position:absolute; right:10px; top:10px; cursor:pointer; height:25px; width:25px; border:none; padding:0px; margin:0px; }*/
-#LoginWithAjax_Status {border: 1px solid ;padding: 0.3em;margin-right: 2em;display:block;font-size: 0.9em; width: 85%;}
-
