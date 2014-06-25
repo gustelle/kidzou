@@ -1,0 +1,53 @@
+manager ovh 
+login : ac21746-ovh
+mdp : 424Cyf59!
+
+email
+user : postmaster@kidzou.fr
+mdp : 6y91J4vj(ancien) ou 424Cyf59!(nouveau)
+
+MySQL:
+ Serveur        : mysql51-72.perso
+ Utilisateur    : kidzoumod1
+ Nom de la base : kidzoumod1
+ Mot de passe   : LhwwHmEV
+ 
+ Lien d'accès            : http://www.kidzou.fr/wpqual
+     Lien d'administration   : http://kidzou.fr/wpqual/wp-login.php
+     Nom de l'administrateur : admin
+     Mot de passe            : qfYgqUPU
+
+Serveur ftp          : ftp.kidzou.fr  ou ftp.start1m.ovh.net
+Login ou utilisateur : kidzou
+Mot de passe         : kKFxCCzs
+
+-----------------------------------
+VPS : vps40390.ovh.net
+Identifiant client : pg70186-ovh
+Nouveau mot de passe : aMmpCm8A
+
+L'adresse IPv4 du VPS est : 37.187.63.132
+L'adresse IPv6 du VPS est : 2001:41D0:0052:0800:0000:0000:0000:0084
+
+Le nom du VPS est : vps40390.ovh.net
+
+Le compte administrateur suivant a été configuré sur le VPS :
+Nom d'utilisateur : root
+Mot de passe :      YlwyMZt7
+
+
+Les comptes supplémentaires ont été configurés sur le VPS :
+Compte administrateur MySQL :       root
+Mot de passe administrateur MySQL : YnE02VZ7
+
+Utilisateur FTP :  webmaster
+Mot de passe FTP : nY78dwTE
+
+Base de donnée MySQL pour Wordpress :    wordpress
+Compte MySQL pour la base Wordpress :    wpress
+Mot de passe du compte MySQL Wordpress : phMwDhC8
+
+L'accès au panel d'administration du logiciel Wordpress est protégé par authentification :
+http://37.187.63.132/wp-admin/ ou http://vps40390.ovh.net/wp-admin/
+Utilisateur :  admin
+Mot de passe : r0A6ONgL
