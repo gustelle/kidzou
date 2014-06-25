@@ -1,0 +1,42 @@
+@color-1: #52A4C9;
+@color-2: #A061A7;
+@color-3: #FFC709;
+@color-4: #F04947;
+@color-5: #62BB46;
+@color-6: #ED0A71;
+@color-7: #656564;
+@color-8: #ffffff;
+@color-9: #c6c6c6;
+@grey-shadow : 1px 1px 1px @color-7;
+
+@font-body : 'Droid Sans', Arial, sans-serif;
+@font-titles : 'Rancho', cursive;
+
+@font-face{
+	font-family:'Rancho';
+	src:local('Rancho'), url(http://themes.googleusercontent.com/static/fonts/rancho/v3/IhBhtOi02NLuvxWW4RuNVg.ttf) format('truetype');
+	font-style:normal;
+	font-weight:400;
+}
+
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Droid Sans'), local('DroidSans'), url(http://themes.googleusercontent.com/static/fonts/droidsans/v3/s-BiyweUPV0v-yRb-cjciBsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+}
+
+.transition-property (@p1) {
+  -webkit-transition-property: @p1;
+  -moz-transition-property: @p1;
+  -o-transition-property: @p1;
+  transition-property: @p1;
+}
+
+@import "elements.less";
+
+.background (@graddeb: @color-1; @gradfin;) {
+	color:@color-8; 
+	text-shadow: @grey-shadow; 
+	.gradient(@graddeb, @graddeb, @gradfin);
+}

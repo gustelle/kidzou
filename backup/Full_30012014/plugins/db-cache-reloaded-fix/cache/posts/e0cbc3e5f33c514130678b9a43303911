@@ -1,0 +1,14 @@
+s:1137:"a:4:{s:10:"last_query";s:285:"
+
+			SELECT key2.comment_author, key2.comment_content
+				FROM
+					wp_commentmeta key1
+				INNER JOIN
+					wp_comments key2
+				ON
+					key1.comment_id = key2.comment_id
+				WHERE
+					key1.meta_key='featured' and
+					key1.meta_value='1' and
+					key2.comment_post_ID=243
+				limit 1";s:11:"last_result";a:1:{i:0;O:8:"stdClass":2:{s:14:"comment_author";s:14:"Coisne Sidonie";s:15:"comment_content";s:53:"Le spectacle "couleurs" est déjà complet... Snif...";}}s:8:"col_info";a:2:{i:0;O:8:"stdClass":13:{s:4:"name";s:14:"comment_author";s:5:"table";s:4:"key2";s:3:"def";s:0:"";s:10:"max_length";i:14;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:1;O:8:"stdClass":13:{s:4:"name";s:15:"comment_content";s:5:"table";s:4:"key2";s:3:"def";s:0:"";s:10:"max_length";i:53;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}}s:8:"num_rows";i:1;}";

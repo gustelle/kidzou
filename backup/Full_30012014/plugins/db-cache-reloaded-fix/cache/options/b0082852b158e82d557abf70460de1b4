@@ -1,0 +1,10 @@
+s:1875:"a:4:{s:10:"last_query";s:114:"
+
+				SELECT
+					option_name
+				FROM
+					wp_options key1
+				WHERE
+					key1.option_name like 'tax_meta_%'
+
+			";s:11:"last_result";a:22:{i:0;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_10";}i:1;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_108";}i:2;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_112";}i:3;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_133";}i:4;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_134";}i:5;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_135";}i:6;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_142";}i:7;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_145";}i:8;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_146";}i:9;O:8:"stdClass":1:{s:11:"option_name";s:12:"tax_meta_147";}i:10;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_15";}i:11;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_16";}i:12;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_17";}i:13;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_19";}i:14;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_20";}i:15;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_21";}i:16;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_23";}i:17;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_31";}i:18;O:8:"stdClass":1:{s:11:"option_name";s:10:"tax_meta_4";}i:19;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_44";}i:20;O:8:"stdClass":1:{s:11:"option_name";s:11:"tax_meta_68";}i:21;O:8:"stdClass":1:{s:11:"option_name";s:10:"tax_meta_7";}}s:8:"col_info";a:1:{i:0;O:8:"stdClass":13:{s:4:"name";s:11:"option_name";s:5:"table";s:4:"key1";s:3:"def";s:0:"";s:10:"max_length";i:12;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:1;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}}s:8:"num_rows";i:22;}";

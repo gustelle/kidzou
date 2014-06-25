@@ -1,0 +1,35 @@
+1- déployer et activer les plugins nécessaires 
+	> activer batcache, memcached et le plugin GAE
+
+1- créer les users guillaume et corinne
+
+1- exporter et importer tout le contenu depuis WP
+	> assigner les posts exportés à Corinne, guillaume et admin lors de l'import
+	> y.c. les media et le ePanel lors de l'import
+	
+1- récuperer les médias
+	> recupérer les images connections 'connections_images'
+	> recuperer le contenu de "upload"
+
+1- Marquer le "Menu principal" comme "Primary Menu" (en bas)
+
+1- Configuer les Meta des catégories (pour affichage sur la home)
+	> télécharger les media associés (pub sur les cats)
+
+2- exporter et importer les données de chaque table connections
+
+1- supprimer le child CSS kidzou dans ePanel
+
+1- installer le plugin "regenerate thumbnails" et le faire tourner
+
+1- configurer les widgets du footer
+
+1- configurer les featured sliders dans ePanel > Featured Slider (vérifier l'option "Use Pages")
+
+1- configurer l'annuaire (paramètre de Connections, attention aux params "images" et "avancé" )
+	> attention au param jQuery à ne pas cocher puisque jQuery est forcé désormais
+	> verifier les catégories connections
+
+1- exporter la structure de wp_reallysimpleevents et l'importer
+
+1- Importer les events

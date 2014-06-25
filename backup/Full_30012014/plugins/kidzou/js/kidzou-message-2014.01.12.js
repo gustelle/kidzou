@@ -1,0 +1,1 @@
+var kidzouMessage=function(){function a(){var a=this;a.messageClass=ko.observable(""),a.messageContent=ko.observable(""),a.addMessage=function(b,c){a.messageClass(b),a.messageContent(c),jQuery("#messageBox").show()},a.removeMessage=function(){a.messageContent(""),jQuery("#messageBox").hide()}}return{message:a}}();

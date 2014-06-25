@@ -1,0 +1,150 @@
+s:26762:"a:4:{s:10:"last_query";s:178:"SELECT   wp_posts.* FROM wp_posts  WHERE 1=1  AND wp_posts.ID IN (2,771) AND wp_posts.post_type = 'page' AND (wp_posts.post_status = 'publish')  ORDER BY wp_posts.post_date DESC ";s:11:"last_result";a:2:{i:0;O:8:"stdClass":23:{s:2:"ID";s:1:"2";s:11:"post_author";s:1:"3";s:9:"post_date";s:19:"2013-10-10 16:09:02";s:13:"post_date_gmt";s:19:"2013-10-10 14:09:02";s:12:"post_content";s:3273:"&nbsp;
+<h3>Qui sommes-nous ?</h3>
+&nbsp;
+
+<a href="http://www.kidzou.fr/presentation/portrait-corinne/" rel="attachment wp-att-1959"><img class="alignleft size-full wp-image-1959" alt="portrait-corinne" src="http://www.kidzou.fr/wp-content/uploads/2012/12/portrait-corinne.png" width="150" height="150" /></a>
+<strong>Corinne</strong> : la maman.
+Toujours à l'affût des bonnes idées.
+Professionnellement à l'écoute des clients en tant que consultante informatique.
+Pour Kidzou à l'écoute des parents en rédigeant le contenu et en gérant la communauté.
+
+&nbsp;
+
+&nbsp;
+
+<a href="http://www.kidzou.fr/presentation/portrait-guillaume/" rel="attachment wp-att-1957"><img class="alignleft size-full wp-image-1957" alt="portrait-guillaume" src="http://www.kidzou.fr/wp-content/uploads/2012/12/portrait-guillaume.png" width="150" height="150" /></a>
+
+<strong>Guillaume</strong> : le papa.
+Le moteur de nos sorties en famille.
+15 ans d'expérience pro dans le monde du web.
+Il a développé le nouveau site de Kidzou (tout seul comme un grand et en responsive design s'il vous plait !).
+
+&nbsp;
+
+&nbsp;
+
+<a href="http://www.kidzou.fr/presentation/filles/" rel="attachment wp-att-1963"><img class="alignleft size-full wp-image-1963" alt="filles" src="http://www.kidzou.fr/wp-content/uploads/2012/12/filles1.png" width="150" height="150" /></a>
+
+<strong>Miss Curieuse</strong> : la grande soeur.
+Toujours avide de nouvelles sorties.
+
+<strong>Miss Sourire</strong> : la petite soeur.
+Découvre le monde toujours avec un grand enthousiasme.
+
+&nbsp;
+
+&nbsp;
+<h3>Pourquoi ce site ?</h3>
+&nbsp;
+
+<strong><span style="font-size: 13px; line-height: 19px;">« Je suis parent sur Lille. Comment puis-je trouver des sorties à faire avec mes enfants sur la métropole lilloise ? »</span></strong>
+
+La métropole lilloise est dynamique et les occasions de sortir en famille sont nombreuses. Mais les informations sont dispersées, pas toujours à jour ni qualitatives.
+
+Kidzou est un site Internet d’informations locales à destination des parents de la métropole lilloise. Le site propose des sorties pour les enfants et propose d’autres fonctionnalités : un agenda pour trouver un événement, un annuaire pour trouver une adresse, des <a href="http://kidzou.fr/category/offres">offres spéciales </a>et du contenu à forte valeur ajoutée.
+
+&nbsp;
+<h3>Principe de Fonctionnement</h3>
+&nbsp;
+
+<strong style="font-size: 13px; line-height: 19px;">Depuis 2010,</strong><span style="font-size: 13px; line-height: 19px;"> Kidzou propose des idées de </span><strong style="font-size: 13px; line-height: 19px;">sorties testées et sélectionnées</strong><span style="font-size: 13px; line-height: 19px;"> aux parents de la métropole lilloise.</span>
+
+La ligne éditoriale de Kidzou est indépendante et cohérente. D'abord les sorties sont testées par notre famille ou nos lecteurs. Si la sortie nous a plu, un article est alors rédigé de manière objective et avec un regard de parent. Ensuite, d'autres parents enrichissent l'article avec leurs commentaires. C'est grâce à cette authenticité que nous recueillons la confiance de nos visiteurs.
+
+&nbsp;
+<h3>On parle de nous</h3>
+<a href="http://www.kidzou.fr/category/presse/">Pour voir les différentes publications .</a>";s:10:"post_title";s:17:"Qui sommes-nous ?";s:12:"post_excerpt";s:0:"";s:11:"post_status";s:7:"publish";s:14:"comment_status";s:4:"open";s:11:"ping_status";s:4:"open";s:13:"post_password";s:0:"";s:9:"post_name";s:12:"presentation";s:7:"to_ping";s:0:"";s:6:"pinged";s:0:"";s:13:"post_modified";s:19:"2013-10-10 16:09:02";s:17:"post_modified_gmt";s:19:"2013-10-10 14:09:02";s:21:"post_content_filtered";s:0:"";s:11:"post_parent";s:1:"0";s:4:"guid";s:28:"http://kidzou.fr//?page_id=2";s:10:"menu_order";s:1:"0";s:9:"post_type";s:4:"page";s:14:"post_mime_type";s:0:"";s:13:"comment_count";s:1:"0";}i:1;O:8:"stdClass":23:{s:2:"ID";s:3:"771";s:11:"post_author";s:1:"3";s:9:"post_date";s:19:"2012-12-20 23:46:56";s:13:"post_date_gmt";s:19:"2012-12-20 22:46:56";s:12:"post_content";s:14672:"<span style="text-decoration: underline;"><strong>Mentions Légales</strong></span>
+
+<strong>Le site Internet</strong>
+Le Site http://www.kidzou.fr est soumis au régime juridique français en qualité d’éditeur de contenus.
+SIRET : 502684731 0024
+Directrice de la publication: Corinne Alexandre - contact [a] kidzou.fr
+<strong>Hébergement</strong>
+Le site est hébergé par OVH:
+SAS au capital de 500 K€
+RCS Roubaix – Tourcoing 424 761 419 00011
+Code APE 6202A
+N° TVA : FR 22 424 761 419
+Siège social : 2 rue Kellermann – 59100 Roubaix – France.
+
+&nbsp;
+
+<span style="text-decoration: underline;"><strong>Conditions Générales d'Utilisation</strong></span>
+
+Conformément aux dispositions des articles 6-III et 19 de la Loi n° 2004-575 du 21 juin 2004 pour la Confiance dans l'économie numérique, dite L.C.E.N., nous portons à la connaissance des utilisateurs et visiteurs du site : www.kidzou.fr les informations suivantes :
+
+<strong>1 - Définition</strong>
+Le présent document a pour objet de définir les modalités et conditions dans lesquelles d’une part, le Site Internet www.kidzou.fr, ci-après dénommé l’éditeur, met à la disposition de ses utilisateurs le site, et les services disponibles sur le site et d’autre part, la manière par laquelle l’utilisateur accède au site et utilise ses services.
+Toute connexion au site est subordonnée au respect des présentes conditions.
+Pour l’utilisateur, le simple accès au site de l’éditeur à l’adresse URL suivante www.kidzou.fr implique l’acceptation de l’ensemble des conditions décrites ci-après. Le membre est un utilisateur connecté ayant accès à pages particulières du Site Internet.
+
+<strong>2 - Accès au site</strong>
+L’éditeur s’efforce de permettre l’accès au site 24 heures sur 24, 7 jours sur 7, sauf en cas de force majeure ou d’un événement hors du contrôle de l’éditeur, et sous réserve des éventuelles pannes et interventions de maintenance nécessaires au bon fonctionnement du site et des services.
+Par conséquent, l’éditeur ne peut garantir une disponibilité du site et/ou des services, une fiabilité des transmissions et des performances en terme de temps de réponse ou de qualité. Il n’est prévu aucune assistance technique vis à vis de l’utilisateur que ce soit par des moyens électronique ou téléphonique.
+La responsabilité de l’éditeur ne saurait être engagée en cas d’impossibilité d’accès à ce site et/ou d’utilisation des services.
+Par ailleurs, l’éditeur peut être amené à interrompre le site ou une partie des services, à tout moment sans préavis, le tout sans droit à indemnités. L’utilisateur reconnaît et accepte que l’éditeur ne soit pas responsable des interruptions, et des conséquences qui peuvent en découler pour l’utilisateur ou tout tiers.
+
+<strong>3 - Utilisation du site</strong>
+Le Site ne peut être utilisé qu’à des fins personnelles et non commerciales. L’utilisateur ne peut en aucun cas vendre des informations, éléments ou services sur le Site, sous quelque forme que ce soit et à quelque titre que ce soit. En particulier, l’utilisateur admet ne pas être autorisé à reproduire les pages de www.kidzou.fr ou de tout site partenaire sur un quelconque autre site ou une autre page Web
+
+<strong>4 - Participation au site</strong>
+Le Site est accessible gratuitement à tout utilisateur disposant d'un accès à internet. Certaines pages du Site sont accessibles uniquement aux Membres.
+Pour devenir Membre, l’utilisateur s’engage à cet effet à communiquer des données exactes et complètes à l’éditeur. Dans le cas contraire, l’éditeur se réserve le droit de ne pas confirmer, suspendre ou de résilier l’inscription au Site.
+L’éditeur invite les Membres mineurs à recueillir l’accord préalable de leurs parents ou représentants légaux avant de communiquer leurs données personnelles, notamment pour s’inscrire au Site, participer à des jeux ou concours proposés sur le Site.
+
+<strong>5 - Clauses relatives à Facebook</strong>
+L’utilisateur du Site est autorisé à s’inscrire sur la page Facebook du Site accessible ici : http://www.facebook.com/kidzou. En adhérant à cette page Facebook, l’utilisateur s’oblige à respecter la totalité des Conditions d’utilisation de Facebook.
+En respect des Conditions d’utilisation de Facebook, nous nous engageons à ne jamais vendre des données utilisateurs provenant directement du site Facebook.
+En cas de connexion au moyen de l’interface Facebook Connect intégrée au Site, le Membre utilise son propre compte Facebook. Les données personnelles nécessaires à la Société sont directement collectées depuis le compte Facebook du Membre.
+
+<strong>6 - Commentaires et avis</strong>
+Les membres peuvent laisser leur avis sur certains éléments référencés sur le site. Pour se faire, ils doivent utiliser le formulaire prévu à cet effet présent sur les pages du site.
+Le Site est soumis à une modération. Les commentaires sont publiés immédiatement et soumis à une modération a posteriori, c'est-à-dire contributions sont publiées immédiatement et automatiquement. . La modération éventuelle se fait après publication. Si la modération a posteriori devait poser de quelconques problèmes, l’éditeur peut à tout moment opter sans préavis pour une modération priori. Les commentaires ne seraient alors publiés qu’après validation et donc après un laps de temps de quelques heures à plusieurs jours.
+
+<strong>7 - Protection des données personnelles</strong>
+Le site www.kidzou.fr a été déclaré auprès de la Commission Nationale Informatique et Libertés (CNIL) en application de la loi n°78-17 du 6 janvier 1978 relative à l’informatique, aux fichiers et aux libertés. (Déclaration no 1585928).
+Conformément à la loi « informatique et libertés » du 6 janvier 1978 modifiée en 2004, vous bénéficiez d’un droit d’accès et de rectification aux informations qui vous concernent, que vous pouvez exercer en vous à : Kidzou – 2 rue de Condé – 59110 La Madeleine. Afin de pouvoir prendre en compte votre demande, nous vous demandons, conformément à la loi, de justifier de votre identité en joignant une photocopie de votre carte d'identité ou tout autre titre d'identité. Si vous souhaitez une réponse par courrier papier, merci de joindre une enveloppe réponse suffisamment affranchie.
+
+L’éditeur utilise des "cookies" pour accélérer l'accès au Site et pour collecter des informations statistiques anonymes (web analytics). Vous pouvez vous opposer à l’enregistrement de cookies ou être prévenu avant d’accepter les cookies, en configurant votr enavigateur internet (Outils/Options/Vie privée/Gestion des cookies).
+
+Sauf autorisation des Utilisateurs via l’opt-in proposé par le Site, l’éditeur s'engage à ne pas communiquer ni céder à tout autre tiers les données personnelles communiquées par les Membres sans leur autorisation préalable, à moins qu'elle n'y soit contrainte par des dispositions légales ou par décision de justice.
+
+<strong>8 - Propriété intellectuelle</strong>
+La structure générale du site www.kidzou.fr, ainsi que les textes, graphiques, images, photographies sons et vidéos la composant, sont la propriété de l'éditeur ou de ses partenaires. Toute représentation et/ou reproduction et/ou exploitation partielle ou totale des contenus et services proposés par le s www.kidzou, par quelque procédé que ce soit, sans l'autorisation préalable et par écrit d www.kidzou.fr et/ou de ses partenaires est strictement interdite et serait susceptible de constituer une contrefaçon au sens des articles L 335-2 et suivants du Code de la propriété intellectuelle.
+
+<strong>9 - Responsabilité</strong>
+Les informations et/ou documents figurant sur ce site et/ou accessibles par ce site proviennent de sources considérées comme étant fiables. Toutefois, ces informations et/ou documents sont susceptibles de contenir des inexactitudes techniques et des erreurs typographiques. L’éditeur se réserve le droit de les corriger, dès que ces erreurs sont portées à sa connaissance. Il est fortement recommandé de vérifier l’exactitude et la pertinence des informations et/ou documents mis à disposition sur ce site. Les informations et/ou documents disponibles sur ce site sont susceptibles d’être modifiés à tout moment, et peuvent avoir fait l’objet de mises à jour. En particulier, ils peuvent avoir fait l’objet d’une mise à jour entre le moment de leur téléchargement et celui où l’utilisateur en prend connaissance.
+
+L’utilisation des informations et/ou documents disponibles sur ce site se fait sous l’entière et seule responsabilité de l’utilisateur, qui assume la totalité des conséquences pouvant en découler, sans que l’éditeur puisse être recherché à ce titre, et sans recours contre ce dernier. L’éditeur ne pourra en aucun cas être tenu responsable de tout dommage de quelque nature qu’il soit résultant de l’interprétation ou de l’utilisation des informations et/ou documents disponibles sur ce site.
+
+Toute utilisation du Site se fait aux risques et périls de l’utilisateur. Par conséquent, l’éditeur ne saurait être tenu responsable en cas de dommages directs ou indirects survenant lors de l’utilisation du Site, et notamment en cas de pertes de données ou de détérioration de tout logiciel ou matériel ou même de survenue de virus quelconque.
+
+<strong>10-Jeu-Concours</strong>
+Kidzou organise régulièrement des concours sur le site www.kidzou.fr. Ce(s) jeu(x) gratuit(s) (sans obligation d’achat) sont ouvert(s) aux internautes de kidzou.fr, âgés de 18 ans et plus, résidant dans les départements 59 et 62, et en Belgique. La société organisatrice est Kidzou - 2 rue de Condé - 59110 La Madeleine. Pour participer à ce jeu, il suffit de répondre aux questions, de remplir les coordonnées et de valider le formulaire.
+Une seule participation est autorisée par foyer : même nom et même adresse. En cas de participations multiples, une seule participation sera prise en compte. Un participant ne pourra gagner qu’un seul lot pendant la durée du concours. Les noms des gagnants sont disponibles en ligne la semaine suivant la fin du jeu. Les lots mis en jeu sont décrits précisément sur la page annonçant le(s) jeu(x). En aucun cas, les prix attribués aux gagnants ne pourront être échangés contre leur valeur en espèces.
+Les lots seront attribués aux personnes ayant donné les bonnes réponses aux questions ainsi que le chiffre le plus proche de la réalité à la question subsidiaire. Kidzou ne pourra être tenue pour responsable si, pour des raisons indépendantes de sa volonté, le jeu devait être en totalité ou partiellement reporté, modifié ou annulé. Ce jeux concours ne requière pas l'intervention d'une étude d'huissiers. D'une part car il n'y a pas de tirage au sort, le gagnant étant déterminé par la question subsidiaire.
+D'autre part, le règlement n'a pas besoin d'être déposé étant donné qu'il est intégralement consultable par les internautes sur le site. La participation à ce jeu implique une acceptation pleine et entière du présent règlement.
+Informatique et libertés : Vous disposez d’un droit d’accès, de modification, de rectification et de suppression des données qui vous concernent.
+
+<strong>11 - Liens hypertextes</strong>
+Le site www.kidzou.fr peut contenir des liens hypertextes vers d’autres sites présents sur le réseau Internet. Les liens vers ces autres ressources vous font quitter le site www.kidzou.fr
+Il est possible de créer un lien vers la page de présentation de ce site sans autorisation expresse de l’éditeur. Aucune autorisation ou demande d’information préalable ne peut être exigée par l’éditeur à l’égard d’un site qui souhaite établir un lien vers le site de l’éditeur. Il convient toutefois d’afficher ce site dans une nouvelle fenêtre du navigateur. Cependant, l’éditeur se réserve le droit de demander la suppression d’un lien qu’il estime non conforme à l’objet du site www.kidzou.fr
+
+Le Site peut héberger des liens vers des sites tiers. En cliquant sur ces liens, l’utilisateur reconnaît que l’éditeur ne peut garantir le contenu de ceux-ci, et accepte par conséquent d’y accéder à ses propres risques.
+
+<strong>12 - Règles d’usage d‘Internet</strong>
+L’utilisateur déclare accepter les caractéristiques et les limites d’Internet, et notamment reconnaît que :
+L’éditeur n’assume aucune responsabilité sur les services accessibles par Internet et n’exerce aucun contrôle de quelque forme que ce soit sur la nature et les caractéristiques des données qui pourraient transiter par l’intermédiaire de son centre serveur.
+L’utilisateur reconnaît que les données circulant sur Internet ne sont pas protégées notamment contre les détournements éventuels. La présence du logo Kidzou institue une présomption simple de validité. La communication de toute information jugée par l’utilisateur de nature sensible ou confidentielle se fait à ses risques et périls. L’utilisateur reconnaît que les données circulant sur Internet peuvent être réglementées en termes d’usage ou être protégées par un droit de propriété.
+L’utilisateur est seul responsable de l’usage des données qu’il consulte, interroge et transfère sur Internet. L’utilisateur reconnaît que l’éditeur ne dispose d’aucun moyen de contrôle sur le contenu des services accessibles sur Internet
+
+<strong>13 - Force Majeure</strong>
+A l'exception de la survenance d'un événement constitutif d'un cas de force majeure, des opérations de maintenance et d'entretien nécessaires au bon fonctionnement des services, l’éditeur ne peut être tenue pour responsable, en cas d'interruption de l’accès au Site.
+
+<strong>14 - Juridiction</strong>
+Tant le présent site que les modalités et conditions de son utilisation sont régis par le droit français, quel que soit le lieu d’utilisation. En cas de contestation éventuelle, et après l’échec de toute tentative de recherche d’une solution amiable, les tribunaux français seront seuls compétents pour connaître de ce litige.
+
+<strong>15 - Modification des CGU</strong>
+L’éditeur se réserve la possibilité de modifier, à tout moment et sans préavis, les présentes conditions d’utilisation afin de les adapter aux évolutions du site et/ou de son exploitation.
+
+&nbsp;";s:10:"post_title";s:17:"Mentions Légales";s:12:"post_excerpt";s:0:"";s:11:"post_status";s:7:"publish";s:14:"comment_status";s:4:"open";s:11:"ping_status";s:4:"open";s:13:"post_password";s:0:"";s:9:"post_name";s:16:"mentions-legales";s:7:"to_ping";s:0:"";s:6:"pinged";s:0:"";s:13:"post_modified";s:19:"2012-12-20 23:46:56";s:17:"post_modified_gmt";s:19:"2012-12-20 22:46:56";s:21:"post_content_filtered";s:0:"";s:11:"post_parent";s:1:"0";s:4:"guid";s:33:"http://www.kidzou.fr/?page_id=771";s:10:"menu_order";s:1:"0";s:9:"post_type";s:4:"page";s:14:"post_mime_type";s:0:"";s:13:"comment_count";s:1:"0";}}s:8:"col_info";a:23:{i:0;O:8:"stdClass":13:{s:4:"name";s:2:"ID";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:3;s:8:"not_null";i:1;s:11:"primary_key";i:1;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:1;s:4:"blob";i:0;s:4:"type";s:3:"int";s:8:"unsigned";i:1;s:8:"zerofill";i:0;}i:1;O:8:"stdClass":13:{s:4:"name";s:11:"post_author";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:1;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:1;s:10:"unique_key";i:0;s:7:"numeric";i:1;s:4:"blob";i:0;s:4:"type";s:3:"int";s:8:"unsigned";i:1;s:8:"zerofill";i:0;}i:2;O:8:"stdClass":13:{s:4:"name";s:9:"post_date";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:19;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:8:"datetime";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:3;O:8:"stdClass":13:{s:4:"name";s:13:"post_date_gmt";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:19;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:8:"datetime";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:4;O:8:"stdClass":13:{s:4:"name";s:12:"post_content";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:14672;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:1;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:5;O:8:"stdClass":13:{s:4:"name";s:10:"post_title";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:17;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:1;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:6;O:8:"stdClass":13:{s:4:"name";s:12:"post_excerpt";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:0;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:7;O:8:"stdClass":13:{s:4:"name";s:11:"post_status";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:7;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:8;O:8:"stdClass":13:{s:4:"name";s:14:"comment_status";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:4;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:9;O:8:"stdClass":13:{s:4:"name";s:11:"ping_status";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:4;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:10;O:8:"stdClass":13:{s:4:"name";s:13:"post_password";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:0;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:11;O:8:"stdClass":13:{s:4:"name";s:9:"post_name";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:16;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:1;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:12;O:8:"stdClass":13:{s:4:"name";s:7:"to_ping";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:0;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:13;O:8:"stdClass":13:{s:4:"name";s:6:"pinged";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:0;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:14;O:8:"stdClass":13:{s:4:"name";s:13:"post_modified";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:19;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:8:"datetime";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:15;O:8:"stdClass":13:{s:4:"name";s:17:"post_modified_gmt";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:19;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:8:"datetime";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:16;O:8:"stdClass":13:{s:4:"name";s:21:"post_content_filtered";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:0;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:1;s:4:"type";s:4:"blob";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:17;O:8:"stdClass":13:{s:4:"name";s:11:"post_parent";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:1;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:1;s:10:"unique_key";i:0;s:7:"numeric";i:1;s:4:"blob";i:0;s:4:"type";s:3:"int";s:8:"unsigned";i:1;s:8:"zerofill";i:0;}i:18;O:8:"stdClass":13:{s:4:"name";s:4:"guid";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:33;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:19;O:8:"stdClass":13:{s:4:"name";s:10:"menu_order";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:1;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:1;s:4:"blob";i:0;s:4:"type";s:3:"int";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:20;O:8:"stdClass":13:{s:4:"name";s:9:"post_type";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:4;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:1;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:21;O:8:"stdClass":13:{s:4:"name";s:14:"post_mime_type";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:0;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:0;s:4:"blob";i:0;s:4:"type";s:6:"string";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}i:22;O:8:"stdClass":13:{s:4:"name";s:13:"comment_count";s:5:"table";s:8:"wp_posts";s:3:"def";s:0:"";s:10:"max_length";i:1;s:8:"not_null";i:1;s:11:"primary_key";i:0;s:12:"multiple_key";i:0;s:10:"unique_key";i:0;s:7:"numeric";i:1;s:4:"blob";i:0;s:4:"type";s:3:"int";s:8:"unsigned";i:0;s:8:"zerofill";i:0;}}s:8:"num_rows";i:2;}";

@@ -1,0 +1,84 @@
+
+.messageBox {border: 1px solid ;padding: 0.5em;	margin: 1em;  margin-left: 50%;	width: 15em;font: 0.9em; position: fixed; right:20%; top: 10%;z-index: 1000;}
+.info {color: #c6c6c6;background-color: #ffffff; border-color: #c6c6c6; }
+.success {color: #4F8A10;background-color: #DFF2BF;border-color: #4F8A10;}
+.warning {color: #9F6000;background-color: #FFF785;border-color: #9F6000;} /* #FEEFB3*/
+.error {color: #D8000C;background-color: #FFBABA;border-color: #D8000C;}
+
+@media only screen and ( max-width: 479px ) { 
+	#messageBox {margin-left: 5%;}
+}
+
+.metabox-holder {display: none; min-height: 1000px;}
+.postbox-container {width: 45%;}
+
+.editform {
+	display: inline-block;
+	width: 100%;
+	margin-bottom: 1em;
+}
+
+.editform fieldset {
+	 padding:0 1em 1em 1em;
+	 margin-bottom:10px;
+	 border-top:1px solid #c6C6C6;
+ }
+.editform legend {
+ 	color:#656564;
+ 	font-weight:bold;
+ }
+.editform label {
+ 	margin-top:1em;
+ 	padding-bottom: 0.3em;
+ 	 	display: block;
+ }
+
+.editform input, .editform textarea, .editform select {
+ 	padding:3px;
+ }
+ .editform input[type=submit] {
+ 	float:right;
+ }
+.editform select {
+ margin-top:1em;
+ }
+
+.clients_events{width: 100%;}
+ .clients_events tr {
+ 	line-height: 1.4em;
+ 	text-align: left;
+ 	width: 100%;
+ }
+
+ .clients_events th {
+ 	border-bottom: 1px solid #656564;
+ 	font-size: 1.1em;
+ }
+
+.clients li:hover, .event_title:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+.draft {
+	font-style: italic;
+}
+
+.date {
+	color:#C6c6c6;
+}
+
+.option {display: none;}
+
+[class^="booticon-"],
+[class*=" booticon-"] 	{ display: inline-block; width: 14px; height: 14px; margin-top: 1px; *margin-right: .3em; line-height: 14px; vertical-align: text-top;  background-image: url("images/glyphicons-halflings.png"); background-position: 14px 14px; background-repeat: no-repeat; padding-right: 3px; }
+.booticon-login 		{ background-position: -168px 0px; }
+.booticon-time 			{ background-position: -48px -24px; }
+.booticon-bookmark		{ background-position: -72px -48px; }
+.booticon-map-marker 	{ background-position: -24px -72px; }
+.booticon-share 		{ background-position: -120px -72px;}
+.booticon-info 			{ background-position: -120px -96px;}
+.booticon-picture		{ background-position: -456px -48px;}
+.booticon-location		{ background-position: -336px -144px;}
+.booticon-delete 		{ background-position: -308px 0px; }
+.booticon-filter 		{ background-position: -404px -144px}

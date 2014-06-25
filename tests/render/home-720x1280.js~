@@ -1,0 +1,14 @@
+var page = new WebPage();
+page.open('http://localhost:8080/', function (status) {
+    if ('success' !== status) {
+        console.log("Error");
+    } else {
+	page.viewportSize = {
+	    width: 1280,
+	    height: 800
+	};
+       	page.render("results/home-" + page.viewportSize.width + "x" + page.viewportSize.height + ".png");
+        phantom.exit();
+    }
+});
+

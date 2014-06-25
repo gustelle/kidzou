@@ -1,0 +1,82 @@
+#adminmenu #toplevel_page_bws_plugins div.wp-menu-image {
+	background: url("../images/icon_16.png") no-repeat scroll center center transparent;
+}
+.admin-color-classic #adminmenu #toplevel_page_bws_plugins div.wp-menu-image {
+	background: url("../images/icon_16_b.png") no-repeat scroll center center transparent;
+}
+#adminmenu #toplevel_page_bws_plugins:hover div.wp-menu-image, #adminmenu #toplevel_page_bws_plugins.wp-has-current-submenu div.wp-menu-image {
+	background: url("../images/icon_16_c.png") no-repeat scroll center center transparent;
+}	
+.wrap #icon-options-general.icon32-bws {
+	background: url("../images/icon_36.png") no-repeat scroll left top transparent;
+}
+.admin-color-classic .wrap #icon-options-general.icon32-bws {
+	background: url("../images/icon_36_b.png") no-repeat scroll left top transparent;
+}
+#toplevel_page_bws_plugins .wp-submenu .wp-first-item {
+	display:none;
+}
+.bws_system_info_meta_box {
+    width: 850px;
+}
+.bws_system_info {
+    float: left;
+    margin-right: 10px;
+    width: 400px;
+}
+.bws_system_info th {
+    padding: 10px 0;
+    text-align: left;
+    width: 50%;
+}
+.bws_system_info tbody td {
+	border-bottom: 1px solid #DFDFDF;
+}
+.cptch_example_fields_actions {
+	float: left;
+    height: 18px;
+	width: 140px;
+	position:relative;
+	top: -7px;
+	padding:2px 0;
+}
+.cptch_example_fields_actions img {
+	position:relative;
+	width:30px;
+	top: 6px;
+}
+.cptch_block {
+	direction: ltr;
+}
+table.bws_pro_version {	
+    background: #E0E0E0;
+    border: 1px solid #AAAAAA;
+    margin-bottom: 5px;
+    width: auto !important;
+    float: left;
+}
+table.bws_pro_version th,
+table.bws_pro_version td {
+	color: #555555;
+}
+.bws_pro_version_tooltip:before {
+    content: url("../images/arrow.png");
+    height: 0;
+    left: -14px;
+    position: absolute;
+    top: 12px;
+    width: 0;
+}
+.bws_pro_version_tooltip {
+    background: #FFFFFF;
+    border: 1px solid #AAAAAA;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 1px 1px 2px 0 rgba(0, 0, 0, 0.1);
+    float: right;
+    left: 550px;
+    margin-top: 20px;
+    padding: 10px;
+    position: absolute;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.1);
+    width: 380px;
+}

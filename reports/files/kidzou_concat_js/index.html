@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>kidzou.concat.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">72.47</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">831</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">63.37</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">7.43</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">var kidzouActions = (function() {
+
+		//binding des elements initialement présents dans le HTML
+		/////////////// SEARCH ////////////////
+		///////////////////////////////////////
+
+		jQuery(&quot;#searchform&quot;).submit(function(){
+			// kidzouMessage.addMessage(&#039;info&#039;, kidzou_commons_jsvars.msg_wait);
+			kidzouTracker.trackEvent(&quot;Recherche&quot;, &quot;Submit&quot;, jQuery(&quot;#searchinput&quot;).val(), 0);
+		});
+
+		/////////////// Tracking du comportement ////////////////
+		//////////////////////////////////////////////////////
+
+		jQuery(&quot;.slide_wrap a&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Featured Slider&quot;, &quot;Click&quot;, jQuery(this).attr(&quot;href&quot;), 0);
+		});
+
+		jQuery(&quot;#menu-menu-principal li a&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Navigation&quot;, &quot;Menu Desktop&quot;, jQuery(this).find(&quot;.main_text&quot;).text(), 0);
+		});
+
+		jQuery(&quot;#mobile_menu li a&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Navigation&quot;, &quot;Menu Mobile&quot;, jQuery(this).find(&quot;span&quot;).text(), 0);
+		});
+
+		jQuery(&quot;#menu-menu-principal li .dropdown_5columns .col_5 article&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Navigation&quot;, &quot;MegaDropDown Article&quot;, jQuery(this).find(&quot;.entry-title a&quot;).text(), 0);
+		});
+
+		jQuery(&quot;#menu-menu-principal li .dropdown_5columns .col_3 li a&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Navigation&quot;, &quot;MegaDropDown Categorie&quot;, jQuery(this).text(), 0);
+		});
+
+		jQuery(&quot;.meta a&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Navigation&quot;, &quot;Meta&quot;, jQuery(this).text(), 0);
+		});
+
+		jQuery(&quot;.social.google&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Connexion&quot;, &quot;Google&quot;, &#039;LoginDialog&#039;, 0);
+		});
+
+		jQuery(&quot;.social.facebook&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Connexion&quot;, &quot;Facebook&quot;, &#039;LoginDialog&#039;, 0);
+		});
+
+		jQuery(&quot;.catad&quot;).click(function(){
+			kidzouTracker.trackEvent(&quot;Publicite&quot;, &quot;Categorie&quot;, jQuery(this).attr(&#039;src&#039;), 0);
+		});
+
+		//top panel
+		jQuery(&quot;#mc-embedded-subscribe-form&quot;).submit(function() {
+			kidzouTracker.trackEvent(&quot;Newsletter&quot;, &quot;Inscription&quot;, &#039;&#039;, 0);
+		});
+
+		/////////////// MEGADROPDOWN ////////////////
+		///////////////////////////////////////
+		jQuery(&quot;.rubriques &gt; ul.nav &gt; li&quot;).hover(
+			function() {
+				jQuery(this).children().show();
+			}, function() {
+				jQuery(this).children(&quot;.dropdown_5columns&quot;).hide(); //pas le &lt;a&gt; qui contient l&#039;element de nav principal
+			}	
+		);
+
+	}());
+
+var kidzouLogin = (function() {
+
+	/////////////// Login ////////////////
+	//////////////////////////////////////
+
+	jQuery(&quot;.login&quot;).click(function(){
+		openLoginDialog();
+	});
+
+
+	var openLoginDialog = function (msg) 
+	{
+		var self = this;
+		var social_login_msg = 
+			&#039;&lt;a class=&quot;social google&quot; href=&quot;http://www.kidzou.fr/wp-login.php?loginGoogle=1&quot; rel=&quot;nofollow&quot; &gt;&lt;div class=&quot;new-google-btn new-google-13&quot;&gt;&lt;div class=&quot;new-google-13-1&quot;&gt;&lt;/div&gt;&lt;/div&gt;&amp;nbsp;&amp;nbsp;Identifiez vous avec Google&lt;/a&gt;&lt;br/&gt;&#039; + 
+			&#039;&lt;a class=&quot;social facebook&quot; href=&quot;http://www.kidzou.fr/wp-login.php?loginFacebook=1&quot; rel=&quot;nofollow&quot;&gt;&lt;div class=&quot;new-fb-btn new-fb-13&quot;&gt;&lt;div class=&quot;new-fb-13-1&quot;&gt;&lt;/div&gt;&lt;/div&gt;&amp;nbsp;&amp;nbsp;Identifiez vous avec Facebook&lt;/a&gt;&#039;;
+		
+		if (typeof msg!==&quot;undefined&quot;)
+			msg = &#039;&lt;br/&gt;&lt;span class=&quot;error&quot;&gt;&#039; + msg + &#039;&lt;/span&gt;&#039;;
+		else
+			msg = &#039;&#039;;
+
+		vex.defaultOptions.contentClassName 	= &#039;login&#039;;
+		vex.defaultOptions.className 			= &#039;vex-theme-top&#039;;
+		vex.defaultOptions.overlayClosesOnClick = true;
+
+		//Recupérer le modèle message du ViewModel de ko
+		self.message = ko.dataFor( document.getElementById(&#039;messageBox&#039;) ).message;
+
+		vex.dialog.open({
+            message: &#039;&#039; +
+            	&#039;Vous pouvez vous connecter par &lt;em&gt;Google&lt;/em&gt;, &lt;em&gt;Facebook&lt;/em&gt;, ou en entrant vos &lt;em&gt;identifiants Kidzou &lt;/em&gt;:&lt;br/&gt;&#039; +
+            	social_login_msg +
+            	msg + 
+            &#039;&#039;,
+            input: &#039;&#039; +
+                &#039;&lt;input name=&quot;username&quot; type=&quot;text&quot; placeholder=&quot;Identifiant&quot; required /&gt;&#039; +
+                &#039;&lt;input name=&quot;password&quot; type=&quot;password&quot; placeholder=&quot;Mot de passe&quot; required /&gt;&#039; +
+                &#039;&lt;p class=&quot;forgetmenot&quot;&gt;&lt;label for=&quot;rememberme&quot;&gt;&lt;input name=&quot;rememberme&quot; type=&quot;checkbox&quot; id=&quot;rememberme&quot; value=&quot;1&quot;  /&gt; Se souvenir de moi&lt;/label&gt;&lt;/p&gt; &#039; +
+                &#039;&lt;p&gt;&lt;br/&gt;&lt;a href=&quot;&#039;+ kidzou_commons_jsvars.cfg_lost_password_url +&#039;&quot;&gt;Mot de passe oublié&lt;/a&gt; | &lt;a href=&quot;&#039; + kidzou_commons_jsvars.cfg_signup_url + &#039;&quot;&gt;Cr&amp;eacute;er un compte&lt;/a&gt;&lt;/p&gt;&#039; +
+            &#039;&#039;,
+            buttons: [
+                jQuery.extend({}, vex.dialog.buttons.YES, { text: &#039;Valider&#039; }),
+                jQuery.extend({}, vex.dialog.buttons.NO, { text: &#039;Abandonner&#039; })
+            ],
+            callback: function (data) {
+            	if (data) { //si on clique sur &quot;Abandonner&quot;, data=false
+            		
+            		kidzouTracker.trackEvent(&quot;Connexion&quot;, &quot;Valider&quot;, &quot;&quot;, 0);
+            		self.message.addMessage(&#039;info&#039;, kidzou_commons_jsvars.msg_auth_onprogress);
+	                
+	                jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: &#039;auth&#039;,	method: &#039;generate_auth_cookie&#039;})
+						.done(function (d) {
+							if (d!==null) {
+					           //authenticate with the nonce
+					           jQuery.getJSON(kidzou_commons_jsvars.api_generate_auth_cookie, {
+										username: data.username, 
+										password: data.password,
+										rememberme : data.rememberme,
+										nonce: d.nonce,
+										referer : location.href
+									}, function(d2) {
+										
+										if (d2!==null &amp;&amp; d2.status===&quot;ok&quot;) {
+											self.message.addMessage(&quot;info&quot;,kidzou_commons_jsvars.msg_auth_success);
+
+											//redirection guidée par le role du user
+											//la page de redirection est renvoyée par l&#039;API
+											window.location.href = d2.redirect;
+										} else {
+											self.message.addMessage(&quot;error&quot;,kidzou_commons_jsvars.msg_auth_failed);
+											kidzouLogin.openLoginDialog(d2.error);
+											self.message.removeMessage();
+										}
+									}
+								); 
+					        }
+				        });
+
+            	}
+            	else
+            		kidzouTracker.trackEvent(&quot;Connexion&quot;, &quot;Abandonner&quot;, &quot;&quot;, 0);
+            }
+        });
+	};
+
+	return {
+		openLoginDialog : openLoginDialog
+	};
+	
+}());
+
+//ne pas tracker en dev et ne pas tracker les admins
+var _do_track = !kidzou_commons_jsvars.is_admin &amp;&amp; location.hostname===&#039;www.kidzou.fr&#039;;
+
+
+if (_do_track) {
+
+	//google analytics
+	(function (i,s,o,g,r,a,m) {i[&#039;GoogleAnalyticsObject&#039;]=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,&#039;script&#039;,&#039;//www.google-analytics.com/analytics.js&#039;,&#039;ga&#039;);
+
+	ga(&#039;create&#039;, &#039;UA-23017523-1&#039;, &#039;kidzou.fr&#039;);
+	ga(&#039;send&#039;, &#039;pageview&#039;);
+}
+
+var kidzouTracker = (function() {
+
+		function trackEvent(context, action, title, loadtime) {
+			if (_do_track)
+				ga(&#039;send&#039;, &#039;event&#039;, context, action, title, loadtime);
+	        else
+	        	console.debug(&quot;trackEvent(&quot; + context + &quot;, &quot; + action + &quot;, &quot; + title + &quot;, &quot; + loadtime + &quot;)&quot;);
+	  	}
+
+	  	return {
+	  		trackEvent : trackEvent
+	  	};
+
+}());
+var kidzouMessage = (function() {
+
+	function MessageModel() {
+
+		// logger.debug(&quot;MessageModel initialisé&quot;);
+		var self = this;
+		self.messageClass 		= ko.observable(&#039;&#039;);
+		self.messageContent 	= ko.observable(&#039;&#039;);
+
+		self.addMessage	= function(_cls, _msg) {
+
+			// console.log(&#039;addMessage &#039; + _msg);
+			self.messageClass(_cls);
+			self.messageContent(_msg);
+
+			//je ne parviens pas à utiliser proprement la propriété isVisible()
+			//j&#039;ai donc positionné un &quot;display:none&quot; en css et j&#039;utilise jQuery en solution de secours
+			jQuery(&quot;#messageBox&quot;).show();
+		};
+
+		self.removeMessage = function() {
+			self.messageContent(&#039;&#039;);
+			jQuery(&quot;#messageBox&quot;).hide();
+		};
+	}
+
+	return {
+		message : MessageModel
+	};
+
+}());
+var layout = (function (){
+
+		// logger.debug(&quot;layout init&quot;);
+
+	// head.ready(function() {
+	jQuery(document).ready(function() {
+		
+		var $container;
+
+		if(jQuery(&#039;#recent-work&#039;).length) 
+		{
+			var columns    = 3;
+			setColumns = function() { columns = jQuery( window ).width() &gt; 768 ? 3 : jQuery( window ).width() &gt; 480 ? 2 : 1; };
+			setColumns();
+
+			jQuery( window ).resize( setColumns );
+
+			$container = jQuery(&#039;#recent-work&#039;);
+			$container.imagesLoaded(function(){
+			// jQuery(function(){
+			  $container.masonry({
+			    itemSelector : &#039;.compact&#039;,
+			    columnWidth:  function( containerWidth ) { return containerWidth / columns; }
+			  });
+			});
+
+		}
+		
+		/////////////////// LINKS //////////////////
+		////////////////////////////////////////////
+		
+		if ( jQuery(&#039;#links&#039;).length )
+		{
+			$container = jQuery(&#039;#links&#039;);
+			$container.imagesLoaded(function(){
+			// jQuery(function(){
+			  $container.masonry({
+			    itemSelector : &#039;.link&#039;,
+			    columnWidth: function( containerWidth ) {return containerWidth / 2;	}
+			  });
+			});
+		}
+
+
+		////////////////// PORTAGE ////////////////
+		if (jQuery(&#039;#ported&#039;).length) 
+			jQuery(&#039;#ported&#039;).portamento({wrapper: jQuery(&#039;#kz-article&#039;), gap:0, disableWorkaround: true});
+
+		////////////////// NEWSLETTER ////////////////
+		//logger.debug(&quot;kidzou_commons_jsvars.cfg_newsletter_auto_display : &quot; + kidzou_commons_jsvars.cfg_newsletter_auto_display);
+		if (kidzou_commons_jsvars.cfg_newsletter_auto_display)
+			newsletter_auto_display();
+
+		function newsletter_auto_display()
+		{
+			//console.log(&quot;*** newsletter_auto_display ***&quot;);
+			if ( storageSupport.getLocal(&quot;kz_newsletter&quot;)!=&quot;1&quot;) 
+			{
+				setTimeout(function(){kidzouModule.dialogs.openShareDialog();}, kidzou_commons_jsvars.cfg_newsletter_delay);
+				jQuery(&quot;.newsclickable&quot;).click(function(){
+					storageSupport.setLocal(&#039;kz_newsletter&#039; , &#039;1&#039;);
+				});
+			}
+			
+		}
+	});	
+
+}()); //auto-executée
+var storageSupport = (function () {
+
+		var activateSync = false;
+
+		function setLocalSupport(bool) {
+			// logger.debug(&quot;setLocalSupport &quot; + bool);
+			activateSync = bool;
+		}
+
+		/**
+		 * Gets or sets cookies
+		 * @see http://css-tricks.com/snippets/javascript/cookie-gettersetter/
+		 * @param name
+		 * @param value (null to delete or undefined to get)
+		 * @param options (domain, expire (in days))
+		 * @return value or true
+		 */
+		var cookie = function(name, value, options)
+		{
+			//logger.debug(&quot;cookie[&quot; + name + &quot;] = &quot; + value + &quot; (&quot; + ko.toJSON(options) + &quot;) &quot;);
+		    if (typeof value === &quot;undefined&quot;) {
+		        var n, v,
+		            cookies = document.cookie.split(&quot;;&quot;);
+		        for (var i = 0; i &lt; cookies.length; i++) {
+		            n = jQuery.trim(cookies[i].substr(0,cookies[i].indexOf(&quot;=&quot;)));
+		            v = cookies[i].substr(cookies[i].indexOf(&quot;=&quot;)+1);
+		            if (n === name){
+		                return unescape(v);
+		            }
+		        }
+		    } else {
+		        options = options || {};
+		        if (!value) {
+		            value = &quot;&quot;;
+		            options.expires = -365;
+		        } else {
+		            value = escape(value);
+		        }
+		        if (options.expires) {
+		            var d = new Date();
+		            d.setDate(d.getDate() + options.expires);
+		            value += &quot;; expires=&quot; + d.toUTCString();
+		        }
+		        if (options.domain) {
+		            value += &quot;; domain=&quot; + options.domain;
+		        }
+		        if (options.path) {
+		            value += &quot;; path=&quot; + options.path;
+		        }
+		        document.cookie = name + &quot;=&quot; + value;
+		    }
+		};
+
+		//utilisation du localStorage pour stocker/récupérer des données
+		//et éviter ainsi des appels JSON distants
+		//le cache expirera automatiquement à l&#039;appel de getCacheItem() selon le timing défini
+		//requiert local-cache.js
+		//voir https://code.google.com/p/local-cache/
+
+		function fromLocalData (key, model) {
+			
+			if (!supports_html5_storage() || !activateSync )
+				return null;
+
+			var localData = localStorage.getCacheItem(key);
+
+			// logger.debug(&quot;fromLocalData &quot; + localData);
+
+			if (localData===null)
+				return null;
+
+			return JSON.parse(localData);
+		}
+
+
+		//utilisation du localStorage pour stocker/récupérer des données
+		//et éviter ainsi des appels JSON distants
+		//le cache expirera automatiquement à l&#039;appel de getCacheItem() selon le timing défini
+		//requiert local-cache.js
+		//voir https://code.google.com/p/local-cache/
+		//
+		function toLocalData (key, obj) {
+			
+			if (!supports_html5_storage() || !activateSync )
+				return;
+
+			if (obj===null || key===null || key===&quot;&quot;)
+				return;
+
+			// logger.debug(&quot;toLocalData &quot; + key);
+
+			localStorage.setCacheItem(key, 
+							ko.toJSON(
+								ko.mapping.toJS(obj)
+							), 
+							{ days: 30 }
+						);
+
+		}
+
+		function removeLocalData(key) {
+
+			// logger.debug(&quot;removeLocalData &quot; + key);
+
+			if ( supports_html5_storage()  ) {
+				//pour IE8 qui considère supporter le localStorage 
+				//mais ne comprend pas les commandes ci-dessous
+				try {
+					localStorage.setCacheItem(key,&quot;&quot;, {days:0}); //ecraser la date d&#039;expiration
+		    		localStorage.getCacheItem(key); //ce touch va supprimer la clé (normalement ?!)
+		   			localStorage.removeItem(key);  
+				} catch (e) {
+					// logger.debug(&quot;removeLocalData planté : &quot; + e);
+				}
+				
+			} else {
+				removeLocal(key);
+			}
+		}
+
+		function supports_html5_storage() {
+			
+			if(typeof(Storage)!==&quot;undefined&quot;) 
+				return true;
+
+			// logger.debug(&quot;localStorage not supported &quot; );
+			return false;
+			
+		}
+
+		function setLocal(key, value) {
+			if (supports_html5_storage() )
+				localStorage.setItem(key, value);
+			else
+				setCookie(key, value);
+		}
+
+		function getLocal(key) {
+			if (supports_html5_storage() )
+				return localStorage.getItem(key);
+			else
+				getCookie(key);
+		}
+
+		function setCookie(key, value) {
+			cookie(key , value, { path: &#039;/&#039;, expires:180});
+		}
+
+		function getCookie(key) {
+			return cookie(key);
+		}
+
+
+		function removeLocal(key) {
+			// logger.debug(&quot;removeLocal &quot; + key);
+			if (supports_html5_storage() )
+				localStorage.removeItem(key);
+			else
+				cookie(key, null, { path: &#039;/&#039;, expires:-1});
+		}
+
+		return {
+			setLocalSupport : setLocalSupport,
+			setLocal : setLocal,
+			getLocal : getLocal,
+			removeLocal 	: removeLocal,
+			toLocalData 	: toLocalData,
+			fromLocalData 	: fromLocalData,
+			removeLocalData : removeLocalData,
+			setCookie 		: setCookie,
+			getCookie 		: getCookie
+		};
+}());
+
+
+//bouton de partage facebook
+function fbs_click() {u=location.href;t=document.title;window.open(&#039;http://www.facebook.com/sharer/sharer.php?u=&#039;+encodeURIComponent(u)+&#039;&amp;t=&#039;+encodeURIComponent(t),&#039;Partager Kidzou sur Facebook&#039;);return false;}
+
+
+var kidzouModule = (function() { //havre de paix
+
+
+	String.prototype.toBoolean = function()
+	{switch(this.toLowerCase()){case &quot;true&quot;: case &quot;yes&quot;: case &quot;1&quot;: return true;case &quot;false&quot;: case &quot;no&quot;: case &quot;0&quot;: case null: return false;default: return Boolean(this);}};
+
+
+	var logger = function() {
+
+		var logLevel 		= false;
+
+		function setLogging(bool) {logLevel = bool.toBoolean();}
+		function debug(msg) {if (logLevel) console.debug(msg);}
+		function info(msg) {if (logLevel) console.log(msg);}
+
+		return {
+			setLogging : setLogging,
+			debug : debug,
+			info : info
+		};
+	}();
+
+
+	var kidzou = function() {
+
+		var message			= new kidzouMessage.message();
+		var votesModel 		= new VotesModel(); 
+
+		//initialement (permettre le vote même si le user n&#039;accepte pas la geoloc)
+		feedViewModel();
+
+		function mapVotedToVotables(_voted) {
+			logger.debug(&quot;mapVotedToVotables &quot; + ko.toJSON(_voted));
+			// debug(&quot;votesModel.votableItems &quot; + ko.toJSON(votesModel.votableItems));
+			ko.utils.arrayForEach(_voted, function(item) {
+				ko.utils.arrayFirst(votesModel.votableItems, function(i) {
+		            if ( i.id == item.id) i.voted(true);    
+		        });
+			});
+		}
+
+		/**
+		* rafraichissement du nombre votes pour les éléments votables 
+		* 
+		*/
+		function refreshVotesCount() {
+			jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_status, {
+					posts_in: ko.toJSON(votesModel.votableIds)
+				},
+				function(data) {
+					setVotesCount(data.status);
+		        }
+		    );
+		}
+
+		function setVotesCount(votes) {
+			ko.utils.arrayMap(votes, function(item) {
+				var matchedItem = ko.utils.arrayFirst(votesModel.votableItems, function(i) {
+		            if (i.id == item.id) return i;
+		        });
+		        if (matchedItem!==null)
+		        	matchedItem.votes( item.votes );
+			});
+		}
+
+		/**
+		* si le localStorage n&#039;est pas supporté, les votes ne sont pas stockés en local
+		* dans ce cas on rafraichit systématiquement les données en provenance du serveur
+		*
+		* Lié avec la fonction d&#039;écriture des votes lorsque le user recommande/ne recommande pas un article
+		* @see VotableItem.prototype
+		*/
+		function refreshUserVotes() {
+
+	        var localVotes 			 = JSON.parse(storageSupport.getLocal(&quot;voted&quot;));
+	        var user_hash 			 = getUserHash();
+
+	        if (localVotes===null || localVotes.length===0) 
+			{
+				logger.debug(&quot;localVotes null pour user_hash &quot; + user_hash);
+
+				//assurer de ne pas passer la valeur &quot;null&quot; dans la requete
+				//renvoyer dans ce cas une chaine vide
+				//cela peut arriver à cause du legacy ou lorsque le user est identifié
+				if (user_hash===null || user_hash===&quot;undefined&quot; ) {
+					user_hash=&quot;&quot;;
+				}
+
+				jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_user, { user_hash: getUserHash() })
+				.done(function(d) {
+					
+					logger.debug(&quot;storeLocalVotes &quot; + ko.toJSON(d));
+					
+					//cas des users loggués : le user_hash n&#039;est pas renvoyé
+					if (d!==null &amp;&amp; d.user_hash!==null &amp;&amp; d.user_hash!==&quot;undefined&quot;)
+						setUserHash(d.user_hash); //pour réutilisation ultérieure
+					
+					if (d!==null &amp;&amp; d.voted!==null &amp;&amp; d.voted.length &gt; 0) {
+						storageSupport.toLocalData(&quot;voted&quot;, d.voted);
+						mapVotedToVotables(d.voted);
+					}
+		        });
+			}
+			else
+				mapVotedToVotables(localVotes);
+			
+		} 
+
+		/**
+		* permet d&#039;identifier un user anonyme
+		* le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
+		**/
+		function setUserHash (hash) {
+
+			if (hash===null || hash===&quot;&quot; || hash===&quot;undefined&quot;) //prevention des cas ou le user est identifié : son user_hash est null
+				return;
+
+			if (getUserHash()===null || getUserHash()===&quot;&quot; || getUserHash()===&quot;undefined&quot;) {
+				logger.debug(&quot;setUserHash : &quot; + hash);
+				storageSupport.setLocal(&quot;user_hash&quot;, hash);
+			}
+		}
+
+		/**
+		* permet d&#039;identifier un user anonyme
+		* le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
+		**/
+		function getUserHash ( ) {
+
+			if (storageSupport.getLocal(&quot;user_hash&quot;)===&quot;undefined&quot;) { //pour le legacy
+				logger.debug(&quot;user_hash undefined&quot; );
+				storageSupport.removeLocal(&quot;user_hash&quot;);
+			}
+
+			return storageSupport.getLocal(&quot;user_hash&quot;);
+		}
+
+
+		function feedViewModel() {
+
+			ko.utils.arrayMap(jQuery(&#039;.votable&#039;), function(item) {
+				votesModel.votableIds.push( jQuery(item).data(&#039;post&#039;) );
+			    votesModel.votableItems.push(new VotableItem ( jQuery(item).data(&#039;post&#039;), 0, false) );
+			}); 
+
+			refreshVotesCount();  //cached by server
+			refreshUserVotes(); //cached with local storage if supported or cookie if not
+		}
+
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////// Modele objet exposé publiquement, utilisé par le UI ////////////////////////////////
+		///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+		function VotesModel() {
+
+			var self 			= this;
+			self.votableIds 	= []; //only for JSON request
+			self.votableItems 	= [];
+
+			self.getVotableItem = function (_id) {
+				return ko.utils.arrayFirst(self.votableItems, function(item) {
+		  		    if (item.id == _id) return item;
+		    	});
+			};
+
+		}
+
+		function VotableItem ( _id, _votes, _voted) {
+
+			var self 		= this;
+
+			self.id 		= _id;
+			self.votes 		= ko.observable(_votes);
+			self.voted 		= ko.observable(_voted);
+			self.downActivated = ko.observable(false); 
+
+			self.countText 	= ko.computed(function() {
+				if (self.downActivated())
+					return kidzou_commons_jsvars.votable_countText_down;
+				else
+					return kidzou_commons_jsvars.votable_countText; 
+			});
+
+			self.iconClass = ko.computed(function() {
+				return self.voted() ? &#039;icon-alreadyvoted&#039; : &#039;icon-heart&#039;;
+			});
+
+			//si le user a deja voté et qu&#039;il survole le lien de recommandation
+			//on met à jour le lien pour qu&#039;il devienne une action de retrait du vote
+			//ce changement d&#039;action est appelé par le texte &#039;stop&#039; visible à coté du texte &#039;recommandation&#039;
+			//lorsque le user a voté
+			self.activateDown = function() {
+				if (self.voted()) {
+					self.downActivated(true);
+				}
+			};
+
+			self.doUpOrDown = function() {
+				//console.dir(this);
+				if (self.voted()) 
+					self.doWithdraw();
+				else
+					self.doVote();
+			};
+
+			//quoiqu&#039;il arrive, le countText est reinitialisé lorsque la souris est éloignée de l&#039;item
+			self.deactivateDown = function() {
+				self.downActivated(false);
+			};
+
+			self.doVote = function() {
+
+				logger.debug(&quot;doVote&quot;);
+
+				if (this.voted()) return;
+
+				var _id = this.id;
+
+				//update the UI immediatly and proceed to the vote in back-office
+				var count = parseInt(this.votes())+1;
+				this.voted(true);
+				this.votes(count);
+
+				logger.info(&quot;doVote &quot; + _id + &quot;(+1)&quot;);
+
+				//get nonce for voting and proceed to vote
+				jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: &#039;vote&#039;,	method: &#039;up&#039;})
+					.done(function (data) {
+						logger.debug(&quot;doVote &quot; + ko.toJSON(data));
+						if (data!==null) {
+				           var nonce =  data.nonce;
+				           //vote with the nonce
+				           jQuery.getJSON(kidzou_commons_jsvars.api_vote_up, {
+									post_id: _id, 
+									nonce: nonce,
+									user_hash : getUserHash()
+								}, function(data) {
+									//cas des users loggués, le user_hash n&#039;est aps renvoyé
+									if (data.user_hash!==null &amp;&amp; data.user_hash!==&quot;undefined&quot;)
+										setUserHash(data.user_hash); //pour reuntilisation ultérieure
+									
+									storageSupport.removeLocalData(&quot;voted&quot;); //pour rafraichissement à la prochaine requete
+									logger.debug(&quot;doVote executed&quot;);
+								}
+							); 
+				        }
+			        });
+			};
+
+			//retrait du vote (&#039;Je ne recommande plus&#039;)
+			self.doWithdraw = function() {
+
+				if (!this.voted()) return;
+
+				var _id = this.id;
+
+				//update the UI immediatly and proceed to the withdraw in back-office
+				var count = parseInt(this.votes())-1;
+				this.voted(false);
+				this.votes(count);
+
+				logger.info(&quot;doWithdraw &quot; + _id + &quot;(-1)&quot;);
+
+				//get nonce for voting and proceed to vote
+				jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: &#039;vote&#039;,	method: &#039;down&#039;})
+					.done(function (data) {
+			           var nonce =  data.nonce;
+			           //vote with the nonce
+			           jQuery.getJSON(kidzou_commons_jsvars.api_vote_down, {
+								post_id: _id, 
+								nonce: nonce,
+								user_hash : getUserHash()
+							}, function(data) {
+								//cas des users loggués, le user_hash n&#039;est aps renvoyé
+								if (data.user_hash!==null &amp;&amp; data.user_hash!==&quot;undefined&quot;)
+									setUserHash(data.user_hash); //pour reuntilisation ultérieure
+								
+								storageSupport.removeLocalData(&quot;voted&quot;); //pour rafraichissement à la prochaine requete
+								logger.debug(&quot;doWithdraw executed&quot;);
+							}
+						); 
+			        });
+			};
+		}
+
+		
+
+		function bindView() {
+			ko.applyBindings( viewModel() ); 
+		}
+
+		function viewModel() {
+			return {
+				message : message,
+				votes 	: votesModel
+			};
+		}
+
+		return { 
+			bindView 		: bindView
+		};
+
+	}();
+
+	var dialogs = function() {
+
+		function openShareDialog() 
+		{
+			if (jQuery(&quot;#mobile_nav&quot;).css(&quot;display&quot;)===&quot;none&quot;) {
+				//console.debug(&quot;openShareDialog : #mobile_nav non affiche&quot; );
+				vex.defaultOptions.contentClassName = &#039;&#039;;
+				vex.defaultOptions.className 			= &#039;vex-theme-top&#039;;
+				vex.defaultOptions.overlayClosesOnClick = true;
+				vex.dialog.buttons.YES.text 			= &#039;Fermer&#039;;
+
+				vex.dialog.alert({
+		            message: jQuery(&#039;.newspan&#039;).html(),
+		            callback: function (data) {
+		            	//console.debug(&quot;callback, set newsletter à 1&quot; );
+		            	storageSupport.setLocal(&#039;kz_newsletter&#039; , &#039;1&#039;);
+		            }
+		        });
+
+		    //le device est trop petit pour afficher un paneau newsletter
+		    //on n&#039;emebte pas le user
+			} else {
+				//console.debug(&quot;Smartphone en vue : set newsletter à 1 auto&quot; );
+		        storageSupport.setLocal(&#039;kz_newsletter&#039; , &#039;1&#039;);
+			}
+			
+		}
+
+		return { 
+			openShareDialog 		: openShareDialog
+		};
+
+	}();
+
+	
+	
+
+	/////////////// SHARE PANEL ////////////////
+	////////////////////////////////////////////
+
+	jQuery(&quot;.share&quot;).click(function(){
+		dialogs.openShareDialog();
+	});
+
+
+	jQuery(document).ready(function() {
+
+		logger.setLogging(kidzou_commons_jsvars.cfg_debug_mode); 
+
+		// kidzouGeoContent.getLocation(); //Refresh du contenu
+
+		kidzou.bindView();
+
+	});
+
+	return {
+		dialogs : dialogs //necessaire de fournir un acces au dialog pour interaction avec Google Maps
+	};
+
+}());  //kidzouModule</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "name": "kidzou",
+  "version": "2014.06.23",
+  "description": "Le site des parents et des enfants autour de Lille",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kidzou",
+  "license": "Copyright Kidzou",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-jshint": "~0.7.1",
+    "grunt-contrib-imagemin": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.5",
+    "grunt-contrib-cssmin": "~0.7.0",
+    "grunt-contrib-csslint": "~0.1.2",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-http": "~0.1.0",
+    "grunt-contrib-less": "~0.8.1",
+    "grunt-ftp-deploy": "0.0.10",
+    "grunt-contrib-copy": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-plato": "~0.2.1",
+    "grunt-contrib-clean": "~0.5.0"
+  }
+}

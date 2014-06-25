@@ -1,0 +1,93 @@
+@font-face {
+  font-family: 'Rancho';
+  src: local('Rancho'), url(http://themes.googleusercontent.com/static/fonts/rancho/v3/IhBhtOi02NLuvxWW4RuNVg.ttf) format('truetype');
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Droid Sans'), local('DroidSans'), url(http://themes.googleusercontent.com/static/fonts/droidsans/v3/s-BiyweUPV0v-yRb-cjciBsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+}
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+/*-------------------------------------*/
+/*----------------[CRP]----------------*/
+/*-------------------------------------*/
+@media only screen and (min-width: 480px) {
+  #crp_related {
+    margin-top: 3.5em;
+  }
+  #crp_related h1 {
+    margin-bottom: 1em;
+  }
+  #crp_related ul {
+    list-style: none;
+    float: left;
+    margin: 0;
+  }
+  #crp_related li,
+  #crp_related a {
+    float: left;
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+  }
+  #crp_related li {
+    margin: .9em;
+    border: 1px solid #ddd;
+    padding: 6px;
+  }
+  #crp_related li:hover {
+    background: #eee;
+    border-color: #bbb;
+  }
+  #crp_related a {
+    width: 130px;
+    height: 130px;
+  }
+  #crp_related a:hover {
+    text-decoration: none;
+  }
+  #crp_related img {
+    max-width: 130px;
+    margin: auto;
+  }
+  #crp_related .crp_title {
+    position: absolute;
+    height: inherit;
+    bottom: 6px;
+    left: 6px;
+    padding: 3px;
+    width: 124px;
+    color: #fff;
+    font-size: .9em;
+    text-shadow: #000 .1em .1em .2em;
+    background: #010101;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  #crp_related li:hover .crp_title {
+    background: #000000;
+    background: rgba(0, 0, 0, 0.8);
+  }
+}
+@media only screen and (max-width: 768px) {
+  /* smartphones */
+  #crp_related a {
+    height: 90px !important;
+    width: 90px !important;
+  }
+  #crp_related .crp_title {
+    width: 84px !important;
+  }
+}
+@media only screen and (max-width: 480px) {
+  .crp_related a:first-child {
+    display: none;
+  }
+}

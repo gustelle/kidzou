@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 'Rancho';
+  src: local('Rancho'), url(http://themes.googleusercontent.com/static/fonts/rancho/v3/IhBhtOi02NLuvxWW4RuNVg.ttf) format('truetype');
+  font-style: normal;
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Droid Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Droid Sans'), local('DroidSans'), url(http://themes.googleusercontent.com/static/fonts/droidsans/v3/s-BiyweUPV0v-yRb-cjciBsxEYwM7FgeyaSgU71cLG0.woff) format('woff');
+}
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+/* custom logo sur la barre d'admin */
+#wpadminbar {
+  height: 40px !important;
+}
+#wpadminbar .quicklinks a,
+#wpadminbar .quicklinks .ab-empty-item,
+#wpadminbar .shortlink-input {
+  height: 40px !important;
+}
+#wpadminbar .ab-icon {
+  margin-top: 10px !important;
+  height: 24px !important;
+}
+#wp-admin-bar-kz-logo > .ab-item .ab-icon {
+  background-image: url(images/FAVICON.png);
+  background-size: 24px auto !important;
+  width: 24px;
+  height: 24px;
+}
+#wpadminbar #wp-admin-bar-espace-membre {
+  -webkit-box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  text-shadow: 1px 1px 1px #656564;
+  background: #52a4c9;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #52a4c9), color-stop(1, #387f9f));
+  background: -ms-linear-gradient(bottom, #52a4c9, #387f9f);
+  background: -moz-linear-gradient(center bottom, #52a4c9 0%, #387f9f 100%);
+  background: -o-linear-gradient(#387f9f, #52a4c9);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#387f9f', endColorstr='#52a4c9', GradientType=0);
+}
+#wpadminbar .quicklinks a,
+#wpadminbar .quicklinks .ab-empty-item,
+#wpadminbar .shortlink-input {
+  line-height: 38px !important;
+  vertical-align: middle !important;
+}

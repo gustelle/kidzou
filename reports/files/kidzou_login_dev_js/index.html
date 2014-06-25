@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title></title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome-ie7.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/jsoverson/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>kidzou-login-dev.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"></i></a></h2>
+      <p class="stat">65.51</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h2>
+      <p class="stat">91</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty"></i></a></h2>
+      <p class="stat">16.56</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs"></i></a></h2>
+      <p class="stat">0.72</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">var kidzouLogin = (function() {
+
+	/////////////// Login ////////////////
+	//////////////////////////////////////
+
+	jQuery(&quot;.login&quot;).click(function(){
+		openLoginDialog();
+	});
+
+
+	var openLoginDialog = function (msg) 
+	{
+		var self = this;
+		var social_login_msg = 
+			&#039;&lt;a class=&quot;social google&quot; href=&quot;http://www.kidzou.fr/wp-login.php?loginGoogle=1&quot; rel=&quot;nofollow&quot; &gt;&lt;div class=&quot;new-google-btn new-google-13&quot;&gt;&lt;div class=&quot;new-google-13-1&quot;&gt;&lt;/div&gt;&lt;/div&gt;&amp;nbsp;&amp;nbsp;Identifiez vous avec Google&lt;/a&gt;&lt;br/&gt;&#039; + 
+			&#039;&lt;a class=&quot;social facebook&quot; href=&quot;http://www.kidzou.fr/wp-login.php?loginFacebook=1&quot; rel=&quot;nofollow&quot;&gt;&lt;div class=&quot;new-fb-btn new-fb-13&quot;&gt;&lt;div class=&quot;new-fb-13-1&quot;&gt;&lt;/div&gt;&lt;/div&gt;&amp;nbsp;&amp;nbsp;Identifiez vous avec Facebook&lt;/a&gt;&#039;;
+		
+		if (typeof msg!==&quot;undefined&quot;)
+			msg = &#039;&lt;br/&gt;&lt;span class=&quot;error&quot;&gt;&#039; + msg + &#039;&lt;/span&gt;&#039;;
+		else
+			msg = &#039;&#039;;
+
+		vex.defaultOptions.contentClassName 	= &#039;login&#039;;
+		vex.defaultOptions.className 			= &#039;vex-theme-top&#039;;
+		vex.defaultOptions.overlayClosesOnClick = true;
+
+		//Recupérer le modèle message du ViewModel de ko
+		self.message = ko.dataFor( document.getElementById(&#039;messageBox&#039;) ).message;
+
+		vex.dialog.open({
+            message: &#039;&#039; +
+            	&#039;Vous pouvez vous connecter par &lt;em&gt;Google&lt;/em&gt;, &lt;em&gt;Facebook&lt;/em&gt;, ou en entrant vos &lt;em&gt;identifiants Kidzou &lt;/em&gt;:&lt;br/&gt;&#039; +
+            	social_login_msg +
+            	msg + 
+            &#039;&#039;,
+            input: &#039;&#039; +
+                &#039;&lt;input name=&quot;username&quot; type=&quot;text&quot; placeholder=&quot;Identifiant&quot; required /&gt;&#039; +
+                &#039;&lt;input name=&quot;password&quot; type=&quot;password&quot; placeholder=&quot;Mot de passe&quot; required /&gt;&#039; +
+                &#039;&lt;p class=&quot;forgetmenot&quot;&gt;&lt;label for=&quot;rememberme&quot;&gt;&lt;input name=&quot;rememberme&quot; type=&quot;checkbox&quot; id=&quot;rememberme&quot; value=&quot;1&quot;  /&gt; Se souvenir de moi&lt;/label&gt;&lt;/p&gt; &#039; +
+                &#039;&lt;p&gt;&lt;br/&gt;&lt;a href=&quot;&#039;+ kidzou_commons_jsvars.cfg_lost_password_url +&#039;&quot;&gt;Mot de passe oublié&lt;/a&gt; | &lt;a href=&quot;&#039; + kidzou_commons_jsvars.cfg_signup_url + &#039;&quot;&gt;Cr&amp;eacute;er un compte&lt;/a&gt;&lt;/p&gt;&#039; +
+            &#039;&#039;,
+            buttons: [
+                jQuery.extend({}, vex.dialog.buttons.YES, { text: &#039;Valider&#039; }),
+                jQuery.extend({}, vex.dialog.buttons.NO, { text: &#039;Abandonner&#039; })
+            ],
+            callback: function (data) {
+            	if (data) { //si on clique sur &quot;Abandonner&quot;, data=false
+            		
+            		kidzouTracker.trackEvent(&quot;Connexion&quot;, &quot;Valider&quot;, &quot;&quot;, 0);
+            		self.message.addMessage(&#039;info&#039;, kidzou_commons_jsvars.msg_auth_onprogress);
+	                
+	                jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: &#039;auth&#039;,	method: &#039;generate_auth_cookie&#039;})
+						.done(function (d) {
+							if (d!==null) {
+					           //authenticate with the nonce
+					           jQuery.getJSON(kidzou_commons_jsvars.api_generate_auth_cookie, {
+										username: data.username, 
+										password: data.password,
+										rememberme : data.rememberme,
+										nonce: d.nonce,
+										referer : location.href
+									}, function(d2) {
+										
+										if (d2!==null &amp;&amp; d2.status===&quot;ok&quot;) {
+											self.message.addMessage(&quot;info&quot;,kidzou_commons_jsvars.msg_auth_success);
+
+											//redirection guidée par le role du user
+											//la page de redirection est renvoyée par l&#039;API
+											window.location.href = d2.redirect;
+										} else {
+											self.message.addMessage(&quot;error&quot;,kidzou_commons_jsvars.msg_auth_failed);
+											kidzouLogin.openLoginDialog(d2.error);
+											self.message.removeMessage();
+										}
+									}
+								); 
+					        }
+				        });
+
+            	}
+            	else
+            		kidzouTracker.trackEvent(&quot;Connexion&quot;, &quot;Abandonner&quot;, &quot;&quot;, 0);
+            }
+        });
+	};
+
+	return {
+		openLoginDialog : openLoginDialog
+	};
+	
+}());</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ complexity.cyclomatic }} <br>
+    Length : {{ complexity.halstead.length }} <br>
+    Difficulty : {{ complexity.halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ complexity.halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

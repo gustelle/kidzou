@@ -1,0 +1,221 @@
+SetEnv PHP_VER 5
+SetEnv REGISTER_GLOBALS 0
+#ajout pour optimisation cache
+SetEnv ZEND_OPTIMIZER 1
+SetEnv MAGIC_QUOTES 0
+
+#Expires
+<IfModule mod_headers.c>
+  Header append Cache-Control "public"
+</IfModule>
+<IfModule mod_expires.c>
+
+	ExpiresActive On
+	ExpiresDefault "access plus 0 days"
+	ExpiresByType image/jpg "access plus 3 months"
+	ExpiresByType image/jpeg "access plus 3 months"
+	ExpiresByType image/png "access plus 3 months"
+	ExpiresByType image/gif "access plus 3 months"
+	AddType image/x-icon .ico
+	ExpiresByType image/ico "access plus 3 months"
+	ExpiresByType image/icon "access plus 3 months"
+	ExpiresByType image/x-icon "access plus 3 months"
+	
+	ExpiresByType text/css "access plus 3 months"
+	ExpiresByType text/javascript "access plus 3 months"
+	ExpiresByType application/javascript "access plus 3 months"
+	ExpiresByType application/x-javascript "access plus 3 months"
+
+	ExpiresByType application/json "access plus 12 hours"
+	
+	ExpiresByType text/html "access plus 0 days"
+	ExpiresByType application/xhtml+xml "access plus 0 days"
+	ExpiresByType application/x-shockwave-flash "access plus 7 days"
+
+	#force reload of specific files
+	#verifier que c'est encore utile...
+	<FilesMatch "login-with-ajax.js">
+		ExpiresActive On
+		ExpiresDefault "access plus 0 days"
+		Header set Cache-Control "max-age=0, public, no-store, no-cache, must-revalidate"
+		Header set Pragma "no-cache"
+		Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
+	</FilesMatch>
+
+</IfModule>
+
+#GZIP
+# MOD_DEFLATE COMPRESSION
+SetOutputFilter DEFLATE
+AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript application/x-httpd-php
+#Pour les navigateurs incompatibles
+BrowserMatch ^Mozilla/4 gzip-only-text/html
+BrowserMatch ^Mozilla/4\.0[678] no-gzip
+BrowserMatch \bMSIE !no-gzip !gzip-only-text/html
+BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+#ne pas mettre en cache si ces fichiers le sont déjà
+SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
+#les proxies doivent donner le bon contenu
+Header append Vary User-Agent env=!dont-vary
+
+# WPhtC: Disable ServerSignature on generated error pages
+ServerSignature Off
+
+# WPhtC: Disable directory browsing
+Options All -Indexes
+
+# WPhtC: Protect WP-config.php
+<files wp-config.php>
+order allow,deny
+deny from all
+</files>
+
+# WPhtC: Protect .htaccess file
+<files ~ "^.*\.([Hh][Tt][Aa])">
+order allow,deny
+deny from all
+</files>
+
+# WPhtC: Protect comments.php
+RewriteCond %{REQUEST_METHOD} POST
+RewriteCond %{REQUEST_URI} .wp-comments-post\.php*
+RewriteCond %{HTTP_REFERER} !.*http://www.kidzou.fr.* [OR]
+RewriteCond %{HTTP_USER_AGENT} ^$
+RewriteRule (.*) ^http://%{REMOTE_ADDR}/$ [R=301,L]
+
+# GEOLOCALISATION
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+
+# ré-ecriture de la home pour référencement SEO des différentes villes
+# c'est à dire que la home n'a pas une URL unique, mais 1 URL par métropole
+
+RewriteCond %{QUERY_STRING} !.*kz_metropole=.*
+RewriteCond %{HTTP:Cookie} (^|;\ *)kz_metropole=([^;\ ]+)
+RewriteCond %2 !=-1
+RewriteRule ^/?$  %2 [L,R]  
+
+# ré-ecriture des anciennes categories et taxonomies
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^lille/rubrique/offres/?(page)?/?([0-9])?$  offres/$1/$2 [L,R] 
+RewriteRule ^lille/rubrique/a-gagner/?(.*)$  concours/$1 [L,R] 
+RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
+#RewriteRule ^ville/(.*)$  ville/$1 [L,R] 
+#RewriteRule ^age/(.*)$  age/$1 [L,R] 
+
+# présence de la ville dans la requete 
+# surcharge du cookie si la ville est forcée dans la requete
+# on ecrit donc le nouveau cookie
+# NB : cette regle evite les appels Ajax de l'API (*/api/*)
+
+RewriteCond %{REQUEST_URI} !.*/api/.*
+RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
+RewriteCond %{REQUEST_URI} ^.*/?(valenciennes|amiens|lille|Lille)/?(.*)$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ %2?kz_metropole=%1 [QSA,CO=kz_metropole:%1:localhost:0:/,S=1]
+
+# pas de reprise du cookie
+# le cookie est stocké sur le client pour se souvenir de la préférence utilisateur
+# une fois la ville dans la requete, le cookie n'est plus utilisé
+# NB : cette regle evite les appels Ajax de l'API (*/api/*)
+
+RewriteCond %{REQUEST_URI} !.*/api/.*
+RewriteCond %{QUERY_STRING} !.*kz_metropole=.*
+RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_URI} !^.*/?(valenciennes|amiens|lille|Lille)/?(.*)$
+RewriteCond %{HTTP:Cookie} (^|;\ *)kz_metropole=([^;\ ]+)
+RewriteCond %2 !=-1
+RewriteRule ^(.*)$ %{REQUEST_URI}?kz_metropole=%2 [QSA]
+
+</IfModule>
+
+# BEGIN WPSuperCache
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteBase /
+#If you serve pages from behind a proxy you may want to change 'RewriteCond %{HTTPS} on' to something more sensible
+AddDefaultCharset UTF-8
+RewriteCond %{REQUEST_URI} !^.*[^/]$
+RewriteCond %{REQUEST_URI} !^.*//.*$
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{QUERY_STRING} !.*=.*
+RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
+RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{HTTPS} on
+RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html.gz -f
+RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html.gz" [L]
+
+RewriteCond %{REQUEST_URI} !^.*[^/]$
+RewriteCond %{REQUEST_URI} !^.*//.*$
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{QUERY_STRING} !.*=.*
+RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
+RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{HTTPS} !on
+RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html.gz -f
+RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html.gz" [L]
+
+RewriteCond %{REQUEST_URI} !^.*[^/]$
+RewriteCond %{REQUEST_URI} !^.*//.*$
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{QUERY_STRING} !.*=.*
+RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
+RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTPS} on
+RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html -f
+RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html" [L]
+
+RewriteCond %{REQUEST_URI} !^.*[^/]$
+RewriteCond %{REQUEST_URI} !^.*//.*$
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteCond %{QUERY_STRING} !.*=.*
+RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
+RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
+RewriteCond %{HTTPS} !on
+RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html -f
+RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html" [L]
+</IfModule>
+
+# END WPSuperCache
+
+# BEGIN WordPress
+#<IfModule mod_rewrite.c>
+#RewriteEngine On
+#RewriteBase /
+#RewriteRule ^index\.php$ - [L]
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_FILENAME} !-d
+#RewriteRule . /index.php [L]
+#</IfModule>
+
+###########
+# Jim Morgan's wordpress htaccess
+<IfModule mod_rewrite.c>
+RewriteEngine on
+# Unless you have set a different RewriteBase preceding this point,
+# you may delete or comment-out the following RewriteBase directive:
+RewriteBase /
+# if this request is for "/" or has already been rewritten to WP
+RewriteCond $1 ^(index.php)?$ [OR]
+# or if request is for image, css, or js file
+RewriteCond $1 .(gif|jpg|jpeg|png|css|js|ico)$ [NC,OR]
+# or if URL resolves to existing file
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+# or if URL resolves to existing directory
+RewriteCond %{REQUEST_FILENAME} -d
+# then skip the rewrite to WP
+RewriteRule ^(.*)$ - [S=1]
+# else rewrite the request to WP
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
