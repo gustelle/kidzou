@@ -23,10 +23,20 @@ module.exports = function(grunt) {
 		      "themes/Trim-child/css/dist/messages.css"	: "themes/Trim-child/css/dev/messages.less",
 		      "themes/Trim-child/css/dist/votables.css"	: "themes/Trim-child/css/dev/votables.less",
 		      "themes/Trim-child/css/dist/links.css"	: "themes/Trim-child/css/dev/links.less",
+		    }
+		  },
+		  kidzou: {
+		    options: {
+		      paths: [""]
+		    },
+		    files: {
+		      "plugins/kidzou/css/kidzou-megadropdown.css"		: "plugins/kidzou/css/less/kidzou-megadropdown.less",
+		      "plugins/kidzou/css/kidzou-form.css"				: "plugins/kidzou/css/less/kidzou-form.less",
 		      "plugins/kidzou-events/css/kidzou-events.css"	: "plugins/kidzou-events/css/less/kidzou-events.less",
 		    }
 		  }
 		},
+		
 
 		//nettoyage des répertoires ou se trouvent les fichiers minifiés et les CSS compilées
 		clean: ["plugins/kidzou/js/front/dist/", 
@@ -274,7 +284,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('default', ['clean','prepjs', 'theme', 'plugins']);
 
 	grunt.registerTask('prepjs', ['concat:js','jshint','uglify','plato']); 
-	grunt.registerTask('theme', ['less:trim','concat:trim','copy:trim']); //csslint
+	grunt.registerTask('theme', ['less:trim','less:kidzou','concat:trim','copy:trim']); //csslint
 	grunt.registerTask('plugins', ['copy:kidzou','copy:nextend','copy:connections', 'copy:events', 'copy:contest','copy:users', 'copy:clients','copy:geo','copy:crp']); 
 
 };

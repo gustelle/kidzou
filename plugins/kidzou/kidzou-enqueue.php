@@ -142,6 +142,9 @@ function add_kzscripts() {
 				'is_admin' 					=> current_user_can( 'manage_options' )
 			)
 	);
+	
+	//megadropdown
+	wp_enqueue_style( 'megadd', 	WP_PLUGIN_URL.'/kidzou/css/kidzou-megadropdown.css' );
 
 	add_kz_geo_scripts();
 }

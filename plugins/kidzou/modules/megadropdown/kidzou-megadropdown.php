@@ -116,7 +116,10 @@
 			   		
 			   		$cat = get_term_by('id', $item->object_id, $taxo);
 
-			   		$metropole = kz_get_request_metropole();
+			   		if (function_exists('kz_get_request_metropole'))
+			   			$metropole = kz_get_request_metropole();
+			   		else
+			   			$metropole = '':
 
 			   		//recuperer le post type dans la classe 'menu-item-object-xxx'
 			   		// ex : menu-item-object-category
@@ -139,19 +142,26 @@
 			   			$cat_id = 0; 
 			   			$dropdown_class = $post_type;
 			   		}
-			 
-		   			$post_args = array(
-				      'numberposts' => 1,
-				      'post_type' 	=> $post_type,
-				      'category' => $cat_id,
-				      'tax_query' => array(
-					        array(
-					              'taxonomy' => 'ville',
-					              'field' => 'slug',
-					              'terms' => $metropole,
-					              )
-					        )
-				    );
+			 		
+			 		if ($metropole!='')
+			   			$post_args = array(
+					      'numberposts' => 1,
+					      'post_type' 	=> $post_type,
+					      'category' => $cat_id,
+					      'tax_query' => array(
+						        array(
+						              'taxonomy' => 'ville',
+						              'field' => 'slug',
+						              'terms' => $metropole,
+						              )
+						        )
+					    );
+			   		else 
+			   			$post_args = array(
+					      'numberposts' => 1,
+					      'post_type' 	=> $post_type,
+					      'category' => $cat_id
+					    );
 
 		   			$list ='';
 

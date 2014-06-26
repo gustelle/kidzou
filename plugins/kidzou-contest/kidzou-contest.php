@@ -155,7 +155,7 @@ function kz_enqueue_contest_scripts() {
 		wp_enqueue_script('jquery-ui-datepicker');
 
 		//mettre cette ressource en shared dans kidzou
-		wp_enqueue_script('jquery-ui-datepicker-fr', WP_PLUGIN_URL.'/kidzou-contest/js/jquery.ui.datepicker-fr.js', array('jquery-ui-datepicker'),'1.0', true);
+		wp_enqueue_script('jquery-ui-datepicker-fr', WP_PLUGIN_URL.'/kidzou/js/jquery.ui.datepicker-fr.js', array('jquery-ui-datepicker'),'1.0', true);
 
 		//necessaire pour le people picker
 		wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);

@@ -248,7 +248,7 @@ function add_events_metaboxes() {
 // add_action( 'save_post_event', 'kz_save_event_info' );
 add_action( 'save_post_event', 'kz_save_place_info' );
 add_action( 'save_post_event', 'kz_save_event_info' );
-add_action( 'save_post_event', 'kz_save_event_metropole' );
+add_action( 'save_post_event', 'kz_save_event_metropole' ); //à faire dans kidzou-geo plutot
 
 /**
  * undocumented function
@@ -440,7 +440,7 @@ function kz_enqueue_events_scripts() {
 		wp_enqueue_style( 'jquery-ui-custom', WP_PLUGIN_URL."/kidzou/css/jquery-ui-1.10.3.custom.min.css" );	
 		wp_enqueue_script('jquery-ui-core');
 		wp_enqueue_script('jquery-ui-datepicker');
-		wp_enqueue_script('jquery-ui-datepicker-fr', WP_PLUGIN_URL.'/kidzou-events/js/jquery.ui.datepicker-fr.js', array('jquery-ui-datepicker'),'1.0', true);
+		wp_enqueue_script('jquery-ui-datepicker-fr', WP_PLUGIN_URL.'/kidzou/js/jquery.ui.datepicker-fr.js', array('jquery-ui-datepicker'),'1.0', true);
 
 		wp_enqueue_script('kidzou-events', WP_PLUGIN_URL."/kidzou-events/js/kidzou-edit-event.js" ,array('jquery', 'ko', 'ko-validation'), KIDZOU_VERSION, true);
 
@@ -457,8 +457,10 @@ function kz_enqueue_events_scripts() {
  **/
 function kz_events_list( $interval_days = 7, $ppp=-1 )
 {
+	$metropole = '';
 
-	$metropole = kz_get_request_metropole();
+	if (function_exists('kz_get_request_metropole'))
+		$metropole = kz_get_request_metropole();
 
 	$interval = 'P7D';
 
@@ -484,35 +486,47 @@ function kz_events_list( $interval_days = 7, $ppp=-1 )
 
 	$end 	= $end_time->format('Y-m-d 23:59:59');
 
-	$args = array(
-		'post_type'=> 'event',
-		'meta_key' => 'kz_event_start_date' , //kz_event_featured
-		'orderby' => 'meta_value',
-		'order' => 'ASC' ,
-		'posts_per_page' => $ppp, 
-		'meta_query' => array(
-	                       array(
-	                             'key' => 'kz_event_start_date',
-	                             'value' => $end,
-	                             'compare' => '<=',
-	                             'type' => 'DATETIME'
-	                            )
-	                       ,
-							array(
-	                             'key' => 'kz_event_end_date',
-	                             'value' => $start,
-	                             'compare' => '>=',
-	                             'type' => 'DATETIME'
-	                            )
-	    ),
-	    'tax_query' => array(
-	        array(
-	              'taxonomy' => 'ville',
-	              'field' => 'slug',
-	              'terms' => $metropole,
-	              )
-	    )
-	);
+	$meta_q = array(
+                   array(
+                         'key' => 'kz_event_start_date',
+                         'value' => $end,
+                         'compare' => '<=',
+                         'type' => 'DATETIME'
+                        )
+                   ,
+					array(
+                         'key' => 'kz_event_end_date',
+                         'value' => $start,
+                         'compare' => '>=',
+                         'type' => 'DATETIME'
+                        )
+		    	);
+
+	if ($metropole!='')
+		$args = array(
+			'post_type'=> 'event',
+			'meta_key' => 'kz_event_start_date' , //kz_event_featured
+			'orderby' => 'meta_value',
+			'order' => 'ASC' ,
+			'posts_per_page' => $ppp, 
+			'meta_query' => $meta_q,
+		    'tax_query' => array(
+		        array(
+		              'taxonomy' => 'ville',
+		              'field' => 'slug',
+		              'terms' => $metropole,
+		              )
+		    )
+		);
+	else
+		$args = array(
+			'post_type'=> 'event',
+			'meta_key' => 'kz_event_start_date' , //kz_event_featured
+			'orderby' => 'meta_value',
+			'order' => 'ASC' ,
+			'posts_per_page' => $ppp, 
+			'meta_query' => $meta_q
+		);
 
 	$query = new WP_Query($args );	
 
