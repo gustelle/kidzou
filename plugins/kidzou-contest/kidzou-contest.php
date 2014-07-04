@@ -58,6 +58,7 @@ function create_concours_post_type() {
 	    'show_ui'            => true,
 	    'show_in_menu'       => true,
 	    'menu_position' 	 => 5, //sous les articles dans le menu
+	    'menu_icon'			=> 'dashicons-awards',
 	    'query_var'          => true,
 	    'has_archive'        => true,
 	    'rewrite' 			=> array('slug' => 'concours'),
