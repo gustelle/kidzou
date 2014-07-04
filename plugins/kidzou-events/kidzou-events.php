@@ -126,7 +126,7 @@ function create_events_post_type() {
 	    'show_ui'            => true,
 	    'show_in_menu'       => true,
 	    'menu_position' 	 => 5, //sous les articles dans le menu
-	    // 'menu_icon' 		 => 'dashicon-calendar', //plus tard
+	    'menu_icon' 		 => 'dashicons-calendar', //plus tard
 	    'query_var'          => true,
 	    'rewrite'            => array( 'slug' => 'event' ),
 	    'capability_type'    => 'event',
