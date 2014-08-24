@@ -18,8 +18,8 @@
  *
  * @TODO: Rename this class to a proper name for your plugin.
  *
- * @package Plugin_Name_Admin
- * @author  Your Name <email@example.com>
+ * @package Kidzou_Admin
+ * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_Admin {
 

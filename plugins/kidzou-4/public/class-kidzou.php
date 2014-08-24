@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '2014.08.16';
+	const VERSION = '2014.08.24';
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -239,9 +239,18 @@ class Kidzou {
 	private static function single_activate() {
 		// @TODO: Define activation functionality here
 
+		global $wp_rewrite;
+
+		$wp_rewrite->set_permalink_structure('/%postname%/');
+
+		//category base
+		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
+		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
+
 		//definir et flusher les rewrite rules
 		//definir les custom post types
-		//
+		
+		$wp_rewrite->flush_rules();
 	}
 
 	/**
@@ -251,6 +260,13 @@ class Kidzou {
 	 */
 	private static function single_deactivate() {
 		// @TODO: Define deactivation functionality here
+
+		global $wp_rewrite;
+
+		$wp_rewrite->set_category_base('category/');
+		$wp_rewrite->set_tag_base('tag/');
+
+		$wp_rewrite->flush_rules();
 	}
 
 	/**
