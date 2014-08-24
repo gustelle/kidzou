@@ -119,7 +119,7 @@
 			   		if (function_exists('kz_get_request_metropole'))
 			   			$metropole = kz_get_request_metropole();
 			   		else
-			   			$metropole = '':
+			   			$metropole = '';
 
 			   		//recuperer le post type dans la classe 'menu-item-object-xxx'
 			   		// ex : menu-item-object-category

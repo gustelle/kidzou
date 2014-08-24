@@ -12,9 +12,9 @@
  * @copyright 2014 Kidzou
  *
  * @wordpress-plugin
- * Plugin Name:       Kidzou
+ * Plugin Name:       Kidzou 4
  * Plugin URI:        @TODO
- * Description:       Plateforme de contenu dédié à la famille
+ * Description:       4e version de la plateforme de contenu dédié à la famille, a l'occasion du 4e anniversaire de Kidzou
  * Version:           1.0.0
  * Author:            Guillaume Patin
  * Author URI:        @gustelle

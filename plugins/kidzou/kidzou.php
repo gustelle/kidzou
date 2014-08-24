@@ -9,7 +9,7 @@ Author URI: http://www.kidzou.fr
 License: LGPL
 */
 
-define('KIDZOU_VERSION','2014.06.23');
+define('KIDZOU_VERSION','2014.08.24');
 
 require_once (plugin_dir_path( __FILE__ ) . '/kidzou-utils.php'); 
 require_once (plugin_dir_path( __FILE__ ) . '/kidzou-enqueue.php'); //styles et css
@@ -20,7 +20,7 @@ require_once (plugin_dir_path( __FILE__ ) . '/modules/featured/kidzou-featured.p
 require_once (plugin_dir_path( __FILE__ ) . '/modules/ads/kidzou-ads.php');
 require_once (plugin_dir_path( __FILE__ ) . '/modules/annuaire/kidzou-to-connections.php');
 require_once (plugin_dir_path( __FILE__ ) . '/modules/json/kidzou-to-json-api.php');
-require_once (plugin_dir_path( __FILE__ ) . '/modules/megadropdown/kidzou-megadropdown.php');
+// require_once (plugin_dir_path( __FILE__ ) . '/modules/megadropdown/kidzou-megadropdown.php');
 
 require_once (plugin_dir_path( __FILE__ ) . '/modules/post-types/kidzou-offres.php');
 
