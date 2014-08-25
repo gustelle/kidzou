@@ -9,7 +9,10 @@ var kidzouGeoContent = (function () {
 			setCurrentMetropole(jQuery(this).data('metropole'));
 		});
 
-		getLocation(); //Refresh du contenu
+		//fonction initiale au chargement de la page
+		getUserLocation(function(pos){
+			getClosestContent(pos);
+		}); 
 
 	});
 
@@ -23,7 +26,7 @@ var kidzouGeoContent = (function () {
 				var covered = false;
 
 				//verifier qu'on est dans une des metropoles couvertes
-				for (m in kidzou_geo_jsvars.geo_possible_metropoles) {
+				for (var m in kidzou_geo_jsvars.geo_possible_metropoles) {
 
 					if (kidzou_geo_jsvars.geo_possible_metropoles.hasOwnProperty(m)) {
 
@@ -37,7 +40,8 @@ var kidzouGeoContent = (function () {
 
 				if (!covered) metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
 
-				if (callback) callback(metropole);
+				//toujours renvoyer la metropole en minuscule pour analyse regexp coté serveur
+				if (callback) callback(metropole.toLowerCase());
 
 				return metropole;
 				
@@ -58,7 +62,7 @@ var kidzouGeoContent = (function () {
 					
 		if (precedenteMetropole!=metropole ) {
 
-			setCurrentMetropole(metropole);
+			setCurrentMetropole(metropole.toLowerCase()); //on force encore une fois le toLowerCase() pour assurer le regexp coté serveur
 
 			//forcer le rafraichissement si la ville diffère de la ville par défaut
 			if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
@@ -75,80 +79,24 @@ var kidzouGeoContent = (function () {
 
 		if (isMetropoleSelected==="undefined" || !isMetropoleSelected) {
 
+			//le contenu sera rafraichit (callback: "refreshGeoCookie") avec la metropole
+			//obtenue par geoloc du navigateur
 			getMetropole(position.lat, position.lng, refreshGeoCookie);
 			
-		}
+		} 
+
+		//si effectivement la metropole est pré-selectionnée, elle a été passée dans la requete, et le contenu
+		//a été distribué en en tenant compte
 
 		
 	}
 
-	//geoloc 
-	function maPosition(position) {
-		var pos = {lat : position.coords.latitude, lng : position.coords.longitude, alt : position.coords.altitude};
-		getClosestContent(pos) ;
-	}
-
-	function erreurPosition(error) {
-		var pos = {lat : kidzou_geo_jsvars.default_geo_lat, lng: kidzou_geo_jsvars.default_geo_lng, alt : 0}; //ville par defaut
-		getClosestContent(pos) ;
-	}
 
 	function setCurrentMetropole(metropole) {
 		storageSupport.setCookie(kidzou_geo_jsvars.geo_cookie_name, metropole.toLowerCase());
 		storageSupport.setCookie(kidzou_geo_jsvars.geo_select_cookie_name, true); //forcer cette ville, elle vient d'être selectionnée par le user
 	}
 
-
-	//geolocalisation du user 
-	//nb : 600000 ms = 10 minutes de cache
-	/**
-	* Déclenche un rafraichissement du contenu
-	*/
-	function getLocation() {
-
-		if (navigator.geolocation) 
-			navigator.geolocation.getCurrentPosition(maPosition, erreurPosition); //, {maximumAge:600000,enableHighAccuracy:true}
-		
-		else {
-
-			//le user refuse la geoloc, ou le navigateur ne la supporte pas...
-
-			var precedenteMetropole = storageSupport.getCookie(kidzou_geo_jsvars.geo_cookie_name);
-			var covered = false;
-			
-			//il y avait déjà une métropole dans le cookie
-			if (precedenteMetropole!=null && precedenteMetropole!='' &&  precedenteMetropole!=="undefined" ) {
-				
-				//verification de securité que la métropole du cookie est bien couverte
-				for (m in kidzou_geo_jsvars.geo_possible_metropoles) {
-
-					if (kidzou_geo_jsvars.geo_possible_metropoles.hasOwnProperty(m)) {
-
-						var uneMetro = kidzou_geo_jsvars.geo_possible_metropoles[m].toLowerCase();
-					    if (uneMetro === precedenteMetropole.toLowerCase()) {
-					    	covered = true;
-					    	break;
-					    }
-					}
-
-				    
-				}
-
-				//si pas couverte, on remet la ville par défaut et on recharge
-				if (!covered) {
-					refreshGeoCookie(kidzou_geo_jsvars.geo_default_metropole.toLowerCase());
-				}
-
-			//aucune métropole dan le cookie
-			} else {
-
-				//redirection vers la metropole par défaut
-				refreshGeoCookie(kidzou_geo_jsvars.geo_default_metropole.toLowerCase());
-					
-			}
-			
-		}
-	}
 
 	function getUserLocation(callback) {
 
@@ -182,6 +130,7 @@ var kidzouGeoContent = (function () {
 		}
 	}
 
+	//fonction utilitaire pour récuperer lat et lng à partir d'une adresse
 	function getLatLng (address,callback ) {
 
 		var defaultLoc = {
@@ -214,7 +163,6 @@ var kidzouGeoContent = (function () {
 	return {
 		setCurrentMetropole : setCurrentMetropole,
 		getMetropole : getMetropole,
-		getLocation : getLocation,
 		getLatLng : getLatLng,
 		getUserLocation : getUserLocation
 	};

@@ -247,6 +247,35 @@ class Kidzou {
 		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
 		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
 
+		$regexp = '(';
+	    $villes = Kidzou_Geo::get_metropoles();
+	    
+	    if (!empty($villes)) {
+	        $i=0;
+	        $count = count($villes);
+	        foreach ($villes as $item) {
+	            $regexp .= $item->slug;
+	            $i++;
+	            if ($regexp!=='' && $count>$i) {
+	                $regexp .= '|';
+	            }
+	        }
+	    }
+	    
+	    $regexp .= ')';
+
+	    // global $wp_rewrite;
+
+	    add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
+
+	    $wp_rewrite->add_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
+
+	    // // Add Offre archive (and pagination)
+	    // //see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
+	    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
+	    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
+
+
 		//definir et flusher les rewrite rules
 		//definir les custom post types
 		

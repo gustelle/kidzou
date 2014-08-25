@@ -79,27 +79,6 @@ function add_kzscripts() {
 	$js_path = (KIDZOU_VERSION!='dev' ? "dist/" : "" );
 	$kidzou_js 			= $js_path."kidzou.".(KIDZOU_VERSION!='dev' ? KIDZOU_VERSION : "concat" ).".js";
 
-	//notre propre version de jquery ecrase celle de wordpress
-	wp_deregister_script('jquery');
-    wp_register_script('jquery', "http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js", false, '1.8.3');
-	wp_enqueue_script('jquery');
-
-	if (is_single()) 
-		wp_enqueue_script('portamento',		WP_PLUGIN_URL.'/kidzou/js/portamento-min.js',array('jquery'), '1.0', true);
-
-	if (is_home() || is_page_template('page-links.php'))
-	{
-		wp_enqueue_script('imagesloaded',	"http://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/3.0.4/jquery.imagesloaded.min.js",	array('jquery'), '3.0.4', true);
-		wp_enqueue_script('jmasonry',		"http://cdnjs.cloudflare.com/ajax/libs/masonry/2.1.05/jquery.masonry.min.js",	array('jquery','imagesloaded'), '2.1.05', true);
-	}
-
-	//necessaire pour le paneau newsletter (openShareDialog)
-	wp_enqueue_script('vex',	 	WP_PLUGIN_URL.'/kidzou/js/vex.combined.min.js',array('jquery'), '1.3.3', true);
-	wp_enqueue_style( 'vex', 	 	WP_PLUGIN_URL.'/kidzou/css/vex.css' );
-	wp_enqueue_style( 'vex-theme', 	WP_PLUGIN_URL.'/kidzou/css/vex-theme-default.css' );
-	
-	$worker_path = (KIDZOU_VERSION=='dev') ? '/kidzou/js/worker/' : '/kidzou/js/worker/dist/';
-
 	wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 	wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 
@@ -108,7 +87,7 @@ function add_kzscripts() {
 	wp_enqueue_script('localcache',	WP_PLUGIN_URL."/kidzou/js/front/dist/local-cache.min.js", array(), '1.0', true);
 	
 	// if (!is_page_template('page-edit-events.php')) {
-	wp_enqueue_script('kidzou',		WP_PLUGIN_URL.'/kidzou/js/front/'.$kidzou_js, array('jquery','localcache', 'vex'), KIDZOU_VERSION, true);
+	wp_enqueue_script('kidzou',		WP_PLUGIN_URL.'/kidzou/js/front/'.$kidzou_js, array('jquery','localcache'), KIDZOU_VERSION, true);
 	// }
 
 	wp_localize_script('kidzou', 'kidzou_commons_jsvars', array(
@@ -143,10 +122,10 @@ function add_kzscripts() {
 			)
 	);
 	
-	//megadropdown
-	wp_enqueue_style( 'megadd', 	WP_PLUGIN_URL.'/kidzou/css/kidzou-megadropdown.css' );
+	if (function_exists('add_kz_geo_scripts'))
+		add_kz_geo_scripts(); //si le plugin est installé
 
-	add_kz_geo_scripts();
+	
 }
 
 /**

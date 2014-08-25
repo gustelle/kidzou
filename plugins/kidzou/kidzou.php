@@ -9,7 +9,7 @@ Author URI: http://www.kidzou.fr
 License: LGPL
 */
 
-define('KIDZOU_VERSION','2014.08.24');
+define('KIDZOU_VERSION','2014.08.16');
 
 require_once (plugin_dir_path( __FILE__ ) . '/kidzou-utils.php'); 
 require_once (plugin_dir_path( __FILE__ ) . '/kidzou-enqueue.php'); //styles et css
@@ -20,13 +20,15 @@ require_once (plugin_dir_path( __FILE__ ) . '/modules/featured/kidzou-featured.p
 require_once (plugin_dir_path( __FILE__ ) . '/modules/ads/kidzou-ads.php');
 require_once (plugin_dir_path( __FILE__ ) . '/modules/annuaire/kidzou-to-connections.php');
 require_once (plugin_dir_path( __FILE__ ) . '/modules/json/kidzou-to-json-api.php');
-// require_once (plugin_dir_path( __FILE__ ) . '/modules/megadropdown/kidzou-megadropdown.php');
+require_once (plugin_dir_path( __FILE__ ) . '/modules/megadropdown/kidzou-megadropdown.php');
 
 require_once (plugin_dir_path( __FILE__ ) . '/modules/post-types/kidzou-offres.php');
 
 require_once (plugin_dir_path( __FILE__ ) . '/modules/taxonomies/kidzou-taxo.php');
 require_once (plugin_dir_path( __FILE__ ) . '/modules/taxonomies/kidzou-category-tax.php');
 require_once (plugin_dir_path( __FILE__ ) . '/modules/taxonomies/kidzou-ville-tax.php');
+
+// require_once (plugin_dir_path( __FILE__ ) . '/modules/infinite-scroll/infinity.php');
 
 
 //inversion des commentaires
@@ -39,6 +41,7 @@ if (!function_exists('iweb_reverse_comments')) {
 add_filter ('comments_array', 'iweb_reverse_comments');
 
 
+
 //On plugin activation 
 //schedule the notifications to notify admins when an event is requested for pulblish
 // register_activation_hook( __FILE__, 'kz_notifications_activation' );
@@ -47,18 +50,27 @@ add_filter ('comments_array', 'iweb_reverse_comments');
 // add_filter('wp_handle_upload_prefilter', 'kz_handle_upload_prefilter');
 // add_filter('wp_handle_upload', 'kz_handle_upload');
 
+/**
+* @deprecated
+*/
 function kz_handle_upload_prefilter( $file )
 {
     add_filter('upload_dir', 'kz_custom_upload_dir');
     return $file;
 }
 
+/**
+* @deprecated
+*/
 function kz_handle_upload( $fileinfo )
 {
     remove_filter('upload_dir', 'kz_custom_upload_dir');
     return $fileinfo;
 }
 
+/**
+* @deprecated
+*/
 function kz_custom_upload_dir($path)
 {   
     /*
@@ -165,19 +177,21 @@ function rss_post_thumbnail($content) {
 	return $content;
 }
 
+
+
 /**
  * partager un post sur facebook
  *
  * @return HTML snippet
  * @author
+ * @deprecated
  **/
 function kz_fb_share ()
 {
     $out = "<a rel='nofollow' href='#' onclick='return fbs_click()' target='_blank' class='fb_share_link'>Partager sur Facebook</a>";
     return $out;
 }
-
-
+    
 
 
 

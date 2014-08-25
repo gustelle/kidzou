@@ -5,9 +5,9 @@
 // {
 
 //ajout de taxonomy ville
-// if (!taxonomy_exists('ville')) {
+if (!taxonomy_exists('ville')) {
 	add_action( 'init', 'create_city_taxonomies', 0 );
-// }
+}
 
 //create taxonomy ville
 function create_city_taxonomies()
@@ -48,9 +48,9 @@ function create_city_taxonomies()
 
 
 //ajout de taxonomy transverse (loisirs, vacances, week-end...)
-// if (!taxonomy_exists('divers')) {
+if (!taxonomy_exists('divers')) {
 	add_action( 'init', 'create_loisirs_taxonomies', 0 );
-// }
+}
 
 //create taxonomy transverse
 function create_loisirs_taxonomies()
@@ -89,9 +89,9 @@ function create_loisirs_taxonomies()
 }
 
 //ajout de taxonomy transverse (age)
-// if (!taxonomy_exists('age')) {
+if (!taxonomy_exists('age')) {
 	add_action( 'init', 'create_age_taxonomies', 0 );
-// }
+}
 
 //create taxonomy transverse
 function create_age_taxonomies()

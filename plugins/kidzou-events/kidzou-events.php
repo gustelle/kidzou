@@ -126,7 +126,7 @@ function create_events_post_type() {
 	    'show_ui'            => true,
 	    'show_in_menu'       => true,
 	    'menu_position' 	 => 5, //sous les articles dans le menu
-	    // 'menu_icon' 		 => 'dashicon-calendar', //plus tard
+	    'menu_icon' 		 => 'dashicons-calendar', 
 	    'query_var'          => true,
 	    'rewrite'            => array( 'slug' => 'event' ),
 	    'capability_type'    => 'event',
@@ -155,7 +155,7 @@ function create_events_post_type() {
 
   register_post_type( 'event', $args );
 
-  flush_rewrite_rules();
+  // flush_rewrite_rules();
 
   
 }
@@ -406,7 +406,7 @@ add_action('wp_enqueue_scripts', 'add_kz_events_scripts');
  **/
 function add_kz_events_scripts()
 {
-	wp_enqueue_style( 'kidzou-events', WP_PLUGIN_URL."/kidzou-events/css/kidzou-events.css" );
+	// wp_enqueue_style( 'kidzou-events', WP_PLUGIN_URL."/kidzou-events/css/kidzou-events.css" );
 }
 
 /**

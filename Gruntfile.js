@@ -171,7 +171,7 @@ module.exports = function(grunt) {
 
 		  divi: {
 		    files: [
-		     	{expand:true, cwd: 'themes/Divi-child/', src: ['**','!css/dev/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Divis-child/'},
+		     	{expand:true, cwd: 'themes/Divi-child/', src: ['**','!css/dev/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Divi-child/'},
 		    ]
 		  },
 

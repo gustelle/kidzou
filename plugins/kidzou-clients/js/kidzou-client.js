@@ -18,11 +18,9 @@ var router = (function() {
 		case 'createCustomer':
 			changeTab('listUsers');
 			return ('listUsers');
-			break;
 		case 'editCustomer':
 			changeTab('listEvents');
 			return ('listEvents');
-			break;
 		default:
 		  	changeTab(target);
 		  	return (target);
@@ -43,7 +41,7 @@ var router = (function() {
 		context : setCurrent,
 		next : nextScreen,
 		getContext : getCurrent
-	}
+	};
 })();
 
 var kidzouAdmin = (function() { //havre de paix
@@ -103,7 +101,7 @@ var kidzouAdmin = (function() { //havre de paix
 		self.messageClass = "messageBox " + _cls;
 		self.messageContent = _msg;
 
-	};
+	}
 
 	function Client() {
 
@@ -116,7 +114,7 @@ var kidzouAdmin = (function() { //havre de paix
 		self.users = ko.observableArray();
 		self.secondusers = ko.observableArray();
 
-	};
+	}
 
 
 	function ClientsViewModel() {
@@ -218,7 +216,7 @@ var kidzouAdmin = (function() { //havre de paix
 		   						//updater la liste des clients de la selectBox de filtrage (opérée par select2)
 		   						self.clients = ko.utils.arrayFilter(self.clients, function(item) {
 		   							return item.id !== id; 
-		   						})
+		   						});
 		    					self.addMessage("warning", "Suppression effectu&eacute;e");
 		    					resetClient();
 		    					self.currentTab(router.next("editCustomer"));
@@ -340,7 +338,7 @@ var kidzouAdmin = (function() { //havre de paix
 	    self.resetSelectedClient = function () {
 	    	//console.log("resetSelectedClient");
 	    	resetClient();
-	    }
+	    };
 
     	self.selectClient = function( d, ev ) { 
 
@@ -452,7 +450,7 @@ var kidzouAdmin = (function() { //havre de paix
     		var data = {id:0, slug:""};
     		if (self.selectedConnection()!=="") {
     			var pieces = self.selectedConnection().split(":");
-    			data = {id : pieces[0], slug : pieces[1]}
+    			data = {id : pieces[0], slug : pieces[1]};
     		}	
 	        callback(data);
 	    };
@@ -538,7 +536,7 @@ var kidzouAdmin = (function() { //havre de paix
    				}).done(function(data) {
    					self.addMessage('warning','Supprim&eacute; !');
     				//RAZ des filtres
-   					self.getAllEvents();;
+   					self.getAllEvents();
 
     			});
 		};
@@ -565,7 +563,7 @@ var kidzouAdmin = (function() { //havre de paix
 
 		self.eventDetailsLink = function(id) {
 			return "post.php?action=edit&post=" + id;
-		}
+		};
 
 		self.filterEventsByYear = function(year) {
 			// console.log(year);

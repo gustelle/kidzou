@@ -57,10 +57,10 @@ SetEnvIfNoCase Request_URI \.(?:gif|jpe?g|png)$ no-gzip
 #les proxies doivent donner le bon contenu
 Header append Vary User-Agent env=!dont-vary
 
-# GEOLOCALISATION
+# KIDZOU GEOLOCALISATION
 <IfModule mod_rewrite.c>
 RewriteEngine On
-RewriteBase /wordpress/
+RewriteBase /
 
 # ré-ecriture de la home pour référencement SEO des différentes villes
 # c'est à dire que la home n'a pas une URL unique, mais 1 URL par métropole
@@ -73,9 +73,9 @@ RewriteRule ^/?$  %2 [L,R]
 # ré-ecriture des anciennes categories et taxonomies
 
 RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^lille/rubrique/offres/?(page)?/?([0-9])?$ offres/$1/$2 [L,R] 
+RewriteRule ^lille/rubrique/a-gagner/?(.*)$ concours/$1 [L,R] 
 RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
-RewriteRule ^ville/(.*)$  lille/ville/$1 [L,R] 
-RewriteRule ^age/(.*)$  lille/age/$1 [L,R] 
 
 # présence de la ville dans la requete 
 # surcharge du cookie si la ville est forcée dans la requete
@@ -84,7 +84,7 @@ RewriteRule ^age/(.*)$  lille/age/$1 [L,R]
 
 RewriteCond %{REQUEST_URI} !.*/api/.*
 RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
-RewriteCond %{REQUEST_URI} ^.*/?(valenciennes|amiens|lille)/?(.*)$
+RewriteCond %{REQUEST_URI} ^.*/?(lille)/?(.*)$
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ %2?kz_metropole=%1 [QSA,CO=kz_metropole:%1:localhost:0:/,S=1]
 
@@ -97,12 +97,13 @@ RewriteCond %{REQUEST_URI} !.*/api/.*
 RewriteCond %{QUERY_STRING} !.*kz_metropole=.*
 RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !^.*/?(valenciennes|amiens|lille)/?(.*)$
+RewriteCond %{REQUEST_URI} !^.*/?(lille)/?(.*)$
 RewriteCond %{HTTP:Cookie} (^|;\ *)kz_metropole=([^;\ ]+)
 RewriteCond %2 !=-1
 RewriteRule ^(.*)$ %{REQUEST_URI}?kz_metropole=%2 [QSA]
 
 </IfModule>
+# END KIDZOU GEOLOCALISATION
 
 # BEGIN WPSuperCache
 <IfModule mod_rewrite.c>

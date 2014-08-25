@@ -58,6 +58,7 @@ function create_concours_post_type() {
 	    'show_ui'            => true,
 	    'show_in_menu'       => true,
 	    'menu_position' 	 => 5, //sous les articles dans le menu
+	    'menu_icon'			=> 'dashicons-awards',
 	    'query_var'          => true,
 	    'has_archive'        => true,
 	    'rewrite' 			=> array('slug' => 'concours'),
@@ -501,7 +502,7 @@ add_action('wp_enqueue_scripts', 'add_kz_concours_assets');
 function add_kz_concours_assets()
 {
 	if (!wp_style_is( 'kidzou-form', 'enqueued' ) )
-			wp_enqueue_style( 'kidzou-form', WP_PLUGIN_URL."/kidzou/css/kidzou-form.css" );
+			// wp_enqueue_style( 'kidzou-form', WP_PLUGIN_URL."/kidzou/css/kidzou-form.css" );
 
 	if (!wp_script_is( 'kidzou-contest', 'enqueued' ) ) {
 		

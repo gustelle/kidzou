@@ -1,7 +1,7 @@
 
 
 //bouton de partage facebook
-function fbs_click() {u=location.href;t=document.title;window.open('http://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(u)+'&t='+encodeURIComponent(t),'Partager Kidzou sur Facebook');return false;}
+// function fbs_click() {u=location.href;t=document.title;window.open('http://www.facebook.com/sharer/sharer.php?u='+encodeURIComponent(u)+'&t='+encodeURIComponent(t),'Partager Kidzou sur Facebook');return false;}
 
 
 var kidzouModule = (function() { //havre de paix

@@ -163,7 +163,7 @@ var kidzouContestModule = (function() { //havre de paix
 
 		    self.initSelectedWinners = function (element, callback) {
 				var data = [];
-				if(self.selectedWinners().trim()!='')
+				if(self.selectedWinners().trim()!=='')
 				{
 					ko.utils.arrayForEach(self.selectedWinners().split(","), function(item) {
 						var pieces = item.split(":");

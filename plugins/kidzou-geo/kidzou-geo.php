@@ -46,7 +46,7 @@ function add_kz_geo_scripts() {
 
         //Besoin de cela en plus pour generer une map sur les posts
         //a mettre dans le header
-        wp_enqueue_script('mapquest-map',"http://open.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=" . $mapques_key, array(), KIDZOU_GEO_VERSION, false);
+        // wp_enqueue_script('mapquest-map',"http://open.mapquestapi.com/sdk/js/v7.0.s/mqa.toolkit.js?key=" . $mapques_key, array(), KIDZOU_GEO_VERSION, false);
         // wp_enqueue_script('mapquest-mapinit', WP_PLUGIN_URL.'/kidzou/js/front/mapquest-mapinit.js' , array(), KIDZOU_VERSION, false);
 	}
 
@@ -65,20 +65,35 @@ function kz_geo_filter_query( $query ) {
     if( !is_admin() && !is_search() ) {
 
         $the_metropole = array(kz_get_request_metropole());
-        $national = (array)kz_get_national_metropoles(); //array
+        $national = (array)kz_get_national_metropoles(); 
+        $merge = array_merge( $the_metropole, $national);
 
-        //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
-        set_query_var('tax_query', array(
-            array(
-                  'taxonomy' => 'ville',
-                  'field' => 'slug',
-                  'terms' => array_merge( $the_metropole, $national)
+        if (!empty($merge))
+        {
+            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
+            set_query_var('tax_query', array(
+                array(
+                      'taxonomy' => 'ville',
+                      'field' => 'slug',
+                      'terms' => $merge
+                    )
                 )
-            )
-        );
+            );
+
+        }
         
         return $query;
     }
+}
+
+//voir http://wordpress.stackexchange.com/questions/51530/rewrite-rules-problem-when-rule-includes-homepage-slug
+add_filter('redirect_canonical', 'kz_redirect_canonical', 1, 2);
+
+function kz_redirect_canonical($redirect_url, $requested_url){
+    if( is_front_page() )
+        return $requested_url;
+    else
+        return $redirect_url;
 }
 
 
@@ -89,23 +104,42 @@ function kz_geo_rewrite()
 
 	global $wp_rewrite;
 
-	add_rewrite_tag('%kz_metropole%','(valenciennes|amiens|lille|Lille)', 'kz_metropole=');
+    $regexp = '(';
+    $villes = kz_covered_metropoles_all_fields();
+    
+    if (!empty($villes)) {
+        $i=0;
+        $count = count($villes);
+        foreach ($villes as $item) {
+            $regexp .= $item->slug;
+            $i++;
+            if ($regexp!=='' && $count>$i) {
+                $regexp .= '|';
+            }
+        }
+    }
+    
+    $regexp .= ')';
 
-	$wp_rewrite->add_rule('(valenciennes|amiens|lille|Lille)$','index.php?kz_metropole=$matches[1]','top'); //home
-	$wp_rewrite->add_rule('(valenciennes|amiens|lille|Lille)/agenda$','index.php?pagename=agenda&kz_metropole=$matches[1]','top'); //agenda
+    // global $wp_rewrite;
+
+    add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
+
+    $wp_rewrite->add_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
+    $wp_rewrite->add_rule($regexp.'/agenda$','index.php?pagename=agenda&kz_metropole=$matches[1]','top'); //agenda
 
     // // Add Offre archive (and pagination)
     // //see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
-    add_rewrite_rule("(valenciennes|amiens|lille|Lille)/offres/page/?([0-9]{1,})/?",'index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
-    add_rewrite_rule("(valenciennes|amiens|lille|Lille)/offres/?",'index.php?post_type=offres&kz_metropole=$matches[1]','top');
+    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
+    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
 
 
-	$wp_rewrite->flush_rules();
+    $wp_rewrite->flush_rules();
 
 }
 
 function kz_geo_filter_link( $permalink, $post ) {
-    
+
     // Check if the %kz_metropole% tag is present in the url:
     if ( false === strpos( $permalink, '%kz_metropole%' ) )
         return $permalink;
@@ -120,7 +154,7 @@ function kz_geo_filter_link( $permalink, $post ) {
 add_filter( 'post_link', 'kz_geo_filter_link' , 10, 2 );
 
 function kz_geo_filter_page( $link, $param ) {
-    
+      
     //on ne re-ecrit que l'agenda, car c'est la seule page (pour l'instant) dont le contenu
     //depend de la metropole
     if ( false === strpos( $link, '/agenda' ) )
@@ -137,7 +171,7 @@ function kz_geo_filter_page( $link, $param ) {
 add_filter( 'page_link', 'kz_geo_filter_page' , 10, 2 );
 
 function kz_geo_term_filter_link( $url, $term, $taxonomy ) {
-
+ 
 	// Check if the %kz_metropole% tag is present in the url:
     if ( false === strpos( $url, '%kz_metropole%' ) )
         return $url;
@@ -187,7 +221,6 @@ function kz_geo_home_url( ) {
  **/
 function kz_get_request_metropole()
 {
-
     $cook_m = strtolower($_GET['kz_metropole']);
 
     $isCovered = kz_is_metropole_covered($cook_m);
@@ -274,6 +307,8 @@ function kz_covered_metropoles()
 {        
     $result = get_transient('kz_covered_metropoles');
 
+    // print_r($result); 
+
     if (false===$result)
     {
 
@@ -283,21 +318,31 @@ function kz_covered_metropoles()
                 "fields" => "id=>slug"
             ) );
 
-        $exclude_national = array();
+        //precaution car c'est arrivé lors du passage au theme Jupiter 
+        if (!is_wp_error($villes))
+        {
+            $exclude_national = array();
 
-        //sortir les villes à couverture nationale
-        //on prend le premier de la liste
-        foreach ($villes as $key=>$value) {
-            $def = get_tax_meta($key,'kz_national_ville');
-            if ("on" ==  $def) {
-            } else {
-                $exclude_national[$key] = $value;
-            }
-        }   
+            //sortir les villes à couverture nationale
+            //on prend le premier de la liste
+            foreach ($villes as $key=>$value) {
+                $def = get_tax_meta($key,'kz_national_ville');
+                if ("on" ==  $def) {
+                } else {
+                    $exclude_national[$key] = $value;
+                }
+            }   
 
-        $result = (array)$exclude_national;
+            $result = (array)$exclude_national;
 
-        set_transient( 'kz_covered_metropoles', (array)$result, 60 * 60 * 24 ); //1 jour de cache
+            set_transient( 'kz_covered_metropoles', (array)$result, 60 * 60 * 24 ); //1 jour de cache    
+            
+        } else {
+            
+            //il y a eu une erreur sur la requete des terms
+            return array();
+        }
+
     }
 
     return $result;
