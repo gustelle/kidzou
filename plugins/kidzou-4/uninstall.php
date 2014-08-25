@@ -114,6 +114,28 @@ if ( is_multisite() ) {
 		delete_comment_meta($comment->comment_ID, 'featured');
 	}
 
+	//suppression des taxonomies 
+	global $wp_taxonomies;
+	$taxonomy = 'ville';
+	if ( taxonomy_exists( $taxonomy))
+		unset( $wp_taxonomies[$taxonomy]);
 
+	$taxonomy = 'diver';
+	if ( taxonomy_exists( $taxonomy))
+		unset( $wp_taxonomies[$taxonomy]);
+
+	$taxonomy = 'age';
+	if ( taxonomy_exists( $taxonomy))
+		unset( $wp_taxonomies[$taxonomy]);
+
+	//suppression des post types
+	// ???
+
+	global $wp_rewrite;
+
+	$wp_rewrite->set_category_base('category/');
+	$wp_rewrite->set_tag_base('tag/');
+
+	$wp_rewrite->flush_rules();
     
 }

@@ -67,6 +67,8 @@ class Kidzou {
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_action( 'init', array( $this, 'register_post_types' ) );
 
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
@@ -83,6 +85,9 @@ class Kidzou {
 		add_filter( 'excerpt_length', array( $this, 'excerpt_length' ) );
 		add_filter('the_excerpt_rss', array( $this, 'rss_post_thumbnail' ) );
 		add_filter('the_content_feed', array( $this, 'rss_post_thumbnail' ) );
+
+		add_action("edited_ville",    array( $this, 'edited_ville' ) , 10, 2);
+
 
 	}
 
@@ -238,12 +243,35 @@ class Kidzou {
 	 */
 	private static function single_activate() {
 		// @TODO: Define activation functionality here
+		self::refresh_rewrite_rules();
+	}
+
+	/**
+	 * Fired for each blog when the plugin is deactivated.
+	 *
+	 * @since    1.0.0
+	 */
+	private static function single_deactivate() {
+		// @TODO: Define deactivation functionality here
+	}
+
+	/**
+	 * rafraichir les rewrite_rules à la modification des villes 
+	 *
+	 * @since    1.0.0
+	 */
+	public function edited_ville (  $term_id, $tt_id  ) {
+
+		self::refresh_rewrite_rules();
+	}	
+
+	public static function refresh_rewrite_rules() {
 
 		global $wp_rewrite;
 
-		$wp_rewrite->set_permalink_structure('/%postname%/');
+	    add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
 
-		//category base
+		$wp_rewrite->set_permalink_structure('/%postname%/');
 		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
 		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
 
@@ -264,10 +292,6 @@ class Kidzou {
 	    
 	    $regexp .= ')';
 
-	    // global $wp_rewrite;
-
-	    add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
-
 	    $wp_rewrite->add_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
 
 	    // // Add Offre archive (and pagination)
@@ -276,26 +300,218 @@ class Kidzou {
 	    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
 
 
-		//definir et flusher les rewrite rules
-		//definir les custom post types
-		
+		//ne pas oublier 
 		$wp_rewrite->flush_rules();
 	}
 
-	/**
-	 * Fired for each blog when the plugin is deactivated.
-	 *
-	 * @since    1.0.0
-	 */
-	private static function single_deactivate() {
-		// @TODO: Define deactivation functionality here
+	public function register_taxonomies() {
 
-		global $wp_rewrite;
+		// Add new taxonomy, make it hierarchical (like categories)
+		$labels = array(
+			'name' => _x( 'Ville', 'taxonomy general name' ),
+			'singular_name' => _x( 'Ville', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Chercher par ville' ),
+			'all_items' => __( 'Toutes les villes' ),
+			'parent_item' => __( 'Ville Parent' ),
+			'parent_item_colon' => __( 'Ville Parent:' ),
+			'edit_item' => __( 'Modifier la Ville' ),
+			'update_item' => __( 'Mettre à jour la Ville' ),
+			'add_new_item' => __( 'Ajouter une ville' ),
+			'new_item_name' => __( 'Nom de la nouvelle ville' ),
+			'menu_name' => __( 'Ville' ),
+			);
 
-		$wp_rewrite->set_category_base('category/');
-		$wp_rewrite->set_tag_base('tag/');
+		//intégration avec event dans le register_post_type event
+		register_taxonomy('ville',array('post','page', 'user'), array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'ville' ),
+			));
 
-		$wp_rewrite->flush_rules();
+		// Add new taxonomy, make it hierarchical (like categories)
+		$labels = array(
+			'name' => _x( 'Divers', 'taxonomy general name' ),
+			'singular_name' => _x( 'Divers', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Chercher' ),
+			'all_items' => __( 'Tous les divers' ),
+			'parent_item' => __( 'Cat&eacute; Divers Parent' ),
+			'parent_item_colon' => __( 'Divers Parent:' ),
+			'edit_item' => __( 'Modifier une cat&eacute;gorie divers' ),
+			'update_item' => __( 'Mettre a  jour une cat&eacute;gorie divers' ),
+			'add_new_item' => __( 'Ajouter une cat&eacute;gorie divers' ),
+			'new_item_name' => __( 'Nouvelle cat&eacute;gorie divers' ),
+			'menu_name' => __( 'Divers' ),
+			);
+
+		register_taxonomy('divers',array('post','page'), array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'divers' ),
+			// 'capabilities' => array(
+			// 	'manage_terms' 	=> 'manage_categories',
+			// 	'edit_terms' 	=> 'manage_categories',
+			// 	'delete_terms' 	=> 'manage_categories',
+			// 	'assign_terms' 	=>	'edit_posts' 
+			// )
+			));
+
+		// Add new taxonomy, make it hierarchical (like categories)
+		$labels = array(
+			'name' => _x( 'Age', 'taxonomy general name' ),
+			'singular_name' => _x( 'Age', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Chercher par age' ),
+			'all_items' => __( 'Tous les ages' ),
+			'parent_item' => __( 'Age Parent' ),
+			'parent_item_colon' => __( 'Age Parent:' ),
+			'edit_item' => __( 'Modifier l&apos;age' ),
+			'update_item' => __( 'Mettre a  jour l&apos;age' ),
+			'add_new_item' => __( 'Ajouter un age' ),
+			'new_item_name' => __( 'Nom du nouvel age' ),
+			'menu_name' => __( 'Tranches d&apos;age' ),
+			);
+
+		//le cap "edit_events" peut assigner des ages aux events
+		register_taxonomy('age',array('post','page'), array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'age' ),
+			// 'capabilities' => array(
+			// 	'manage_terms' 	=> 'manage_categories',
+			// 	'edit_terms' 	=> 'manage_categories',
+			// 	'delete_terms' 	=> 'manage_categories',
+			// 	'assign_terms' 	=>	'edit_posts' 
+			// )
+			));
+	}
+
+	public function register_post_types() {
+
+		//definir les custom post types
+		//ne pas faire a chaque appel de page 
+
+		$labels = array(
+			'name'               => 'Offres',
+			'singular_name'      => 'Offre',
+			'add_new'            => 'Ajouter',
+			'add_new_item'       => 'Ajouter une offre',
+			'edit_item'          => 'Modifier l\'offre',
+			'new_item'           => 'Nouvelle offre',
+			'all_items'          => 'Toutes les offres',
+			'view_item'          => 'Voir l\'offre',
+			'search_items'       => 'Chercher des offres',
+			'not_found'          => 'Aucune offre trouvée',
+			'not_found_in_trash' => 'Aucune offre trouvée dans la corbeille',
+			'menu_name'          => 'Offres',
+			);
+
+		$args = array(
+			'labels'             => $labels,
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'menu_position' 	 => 5, //sous les articles dans le menu
+			'menu_icon' 		 => 'dashicons-smiley',
+			'query_var'          => true,
+			'has_archive'        => true,
+			'rewrite' 			=> array('slug' => 'offres'),
+			'hierarchical'       => false, //pas de hierarchie d'offres
+			'supports' 			=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions', 'post-formats'),
+			'taxonomies' 		=> array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
+			);
+
+		register_post_type( 'offres', $args );
+
+		$labels = array(
+			'name'               => 'Jeux Concours',
+			'singular_name'      => 'Jeu Concours',
+			'add_new'            => 'Ajouter',
+			'add_new_item'       => 'Ajouter un concours',
+			'edit_item'          => 'Modifier le concours',
+			'new_item'           => 'Nouveau concours',
+			'all_items'          => 'Tous les concours',
+			'view_item'          => 'Voir le concours',
+			'search_items'       => 'Chercher des concours',
+			'not_found'          => 'Aucun concours trouvé',
+			'not_found_in_trash' => 'Aucun concours trouvé dans la corbeille',
+			'menu_name'          => 'Jeux concours',
+			);
+
+		$args = array(
+			'labels'             => $labels,
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'menu_position' 	 => 5, //sous les articles dans le menu
+			'menu_icon'			=> 'dashicons-awards',
+			'query_var'          => true,
+			'has_archive'        => true,
+			'rewrite' 			=> array('slug' => 'concours'),
+			'hierarchical'       => false, //pas de hierarchie d'offres
+			'supports' 			=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions', 'post-formats'),
+			'taxonomies' 		=> array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
+			);
+
+		register_post_type( 'concours', $args );
+
+		$labels = array(
+			'name'               => 'Evénements',
+			'singular_name'      => 'Evénement',
+			'add_new'            => 'Ajouter',
+			'add_new_item'       => 'Ajouter un événement',
+			'edit_item'          => 'Modifier l\'événement',
+			'new_item'           => 'Nouvel événement',
+			'all_items'          => 'Tous les événements',
+			'view_item'          => 'Voir l\'événement',
+			'search_items'       => 'Chercher des événements',
+			'not_found'          => 'Aucun événement trouvé',
+			'not_found_in_trash' => 'Aucun événement trouvé dans la corbeille',
+			'menu_name'          => 'Evénements',
+			);
+
+		$args = array(
+			'labels'             => $labels,
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'menu_position' 	 => 5, //sous les articles dans le menu
+			'menu_icon' 		 => 'dashicons-calendar', 
+			'query_var'          => true,
+			'rewrite'            => array( 'slug' => 'event' ),
+			'capability_type'    => 'event',
+			'capabilities' 		 => array(
+								        'edit_post'			 => 'edit_event',
+								        'edit_posts' 		 => 'edit_events',
+								        'edit_others_posts'  => 'edit_others_events',
+								        'publish_posts' 	 => 'publish_events',
+								        'read_post' 		 => 'read_event',
+								        'read_private_posts' => 'read_private_events',
+								        'delete_post' 		 => 'delete_event',
+								        'delete_private_posts' 		=> 'delete_private_events',
+								        'delete_published_posts' 	=> 'delete_published_events',
+								        'delete_others_posts' 		=> 'delete_others_events',
+								        'edit_private_posts' 		=> 'edit_private_events',
+								        'edit_published_posts' 		=> 'edit_published_events',
+								        // 'assign_terms' => 'assign_terms'
+								    ),
+			'map_meta_cap' 		 => true,
+			'has_archive'        => true,
+			'hierarchical'       => false, //pas de hierarchie d'events
+			'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions'),
+			'taxonomies' 		=> array('age', 'ville', 'divers','category'), //reuse the taxo declared in kidzou plugin
+			'register_meta_box_cb' => 'add_events_metaboxes'
+		);
+
+		register_post_type( 'event', $args );
+		
 	}
 
 	/**
