@@ -44,8 +44,9 @@ class Kidzou_Geo {
 	 *
 	 * @since     1.0.0
 	 */
-	private function __construct() { }
+	private function __construct() { 
 
+	}
 
     private static function initialize()
     {
@@ -87,6 +88,175 @@ class Kidzou_Geo {
 	    return $result;
     }
 
-}
+    /**
+	 * retourne un tableau de villes à portée nationale
+	 * les villes à portée nationale ont pour vocation de porter des articles à portée nationale 
+	 * Les villes à portée nationale doivent être à la racine 
+	 *
+	 * @return array
+	 * @author 
+	 **/
+	public static function get_national_metropoles()
+	{
+
+
+	    $result = get_transient('kz_get_national_metropoles');
+
+	    if (false===$result)
+	    {
+	        $national = array();
+
+	        $villes = get_terms( array("ville"), array(
+	                    "orderby" => "count",
+	                    "parent" => 0, //only root terms,
+	                    "fields" => "ids"
+	                ) );
+
+	        //on prend le premier de la liste
+	        foreach ($villes as $key) {
+	            $def = get_tax_meta($key,'kz_national_ville');
+	            if ("on" ==  $def) {
+	                $the_term = get_term_by('id', $key, 'ville');
+	                array_push($national, $the_term->slug);
+	            }
+	        }   
+
+	        $result = $national;
+
+	        set_transient( 'kz_get_national_metropoles', (array)$result, 60 * 60 * 24 ); //1 jour de cache
+	    }
+
+	    return $result;
+	}
+
+	/**
+	 * la metropole de rattachement de la requete
+	 *
+	 * @return String (slug)
+	 * @author 
+	 **/
+	public static function get_request_metropole()
+	{
+		if (isset($_GET['kz_metropole']))
+		{
+			$cook_m = strtolower($_GET['kz_metropole']);
+
+		    $isCovered = self::is_metropole($cook_m);
+
+		    if (!$isCovered)
+		        return self::get_default_metropole();
+		    else
+		        return $cook_m;
+		}
+	    
+	    return self::get_default_metropole();
+	}
+
+	/**
+	 * la ville (slug) passee en parametre est-elle connue comme metropole dans notre système?
+	 *
+	 * @return Booléen
+	 * @author 
+	 **/
+	public static function is_metropole($m)
+	{
+
+	    if ($m==null || $m=="")
+	        return false;
+
+	    //la ville du user est-elle couverte par Kidzou
+	    $villes  = self::get_metropoles();
+	    $isCovered = false;
+	    foreach ($villes as $key => $value) {
+	        if (is_string($value) && $m==strtolower($value))
+	            $isCovered = true;
+	    }
+
+	    return $isCovered;
+	}
+
+	/**
+	 * 
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function get_default_metropole()
+	{
+
+	    $result = get_transient('kz_default_metropole');
+
+	    if (false===$result)
+	    {
+	        $villes = get_terms( array("ville"), array(
+	                    "orderby" => "count",
+	                    "parent" => 0, //only root terms,
+	                    "fields" => "ids"
+	                ) );
+
+	        //on prend le premier de la liste
+	        foreach ($villes as $key) {
+	            $def = get_tax_meta($key,'kz_default_ville');
+	            if ("on" ==  $def) {
+	                $the_term = get_term_by('id', $key, 'ville');
+	                $result = $the_term->slug;
+	                break;
+	            }
+	        }   
+
+	        set_transient( 'kz_default_metropole', $result, 60 * 60 * 24 ); //1 jour de cache
+	    }
+	    
+	    return $result;
+	}
+
+
+	public static function rewrite_post_link( $permalink, $post ) {
+
+	    // Check if the %kz_metropole% tag is present in the url:
+	    if ( false === strpos( $permalink, '%kz_metropole%' ) )
+	        return $permalink;
+	 
+	    $m = urlencode(self::get_request_metropole());
+	 
+	    // Replace '%kz_metropole%'
+	    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
+	 
+	    return $permalink;
+	}
+
+	public static function rewrite_page_link( $link, $param ) {
+	      
+	    //on ne re-ecrit que l'agenda, car c'est la seule page (pour l'instant) dont le contenu
+	    //depend de la metropole
+	    if ( false === strpos( $link, '/agenda' ) )
+	    	return $link;
+
+	    $m = urlencode(self::get_request_metropole());
+
+	    $pos = strpos( $link, '/agenda' );
+
+	    $new_link = substr_replace($link, "/".$m, $pos, 0);
+	 
+	    return $new_link;
+	}
+
+
+	public static function rewrite_term_link( $url, $term, $taxonomy ) {
+	 
+		// Check if the %kz_metropole% tag is present in the url:
+	    if ( false === strpos( $url, '%kz_metropole%' ) )
+	        return $url;
+	 
+	    $m = urlencode(self::get_request_metropole());
+	 
+	    // Replace '%kz_metropole%'
+	    $url = str_replace( '%kz_metropole%', $m , $url );
+	 
+	    return $url; 
+	}
+
+
+} //fin de classe
 
 ?>

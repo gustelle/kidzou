@@ -48,6 +48,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'public/class-kidzou.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-geo.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/vote.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/category-header.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'admin/views/metabox.php');
 
 
 /*
