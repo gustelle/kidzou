@@ -67,6 +67,8 @@ class Kidzou {
 
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
+		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_action( 'init', array( $this, 'create_rewrite_rules' ) );
 
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
@@ -252,9 +254,19 @@ class Kidzou {
 	 * @since    1.0.0
 	 */
 	private static function single_activate() {
+		
 		// @TODO: Define activation functionality here
+
+		global $wp_rewrite;
+		
+		$wp_rewrite->set_permalink_structure('/%postname%/');
+		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
+		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
+
 		self::create_rewrite_rules();
 		self::create_roles();
+
+		flush_rewrite_rules();
 	}
 
 	/**
@@ -265,6 +277,93 @@ class Kidzou {
 	private static function single_deactivate() {
 		// @TODO: Define deactivation functionality here
 		remove_role( 'pro' );
+		flush_rewrite_rules();
+	}
+
+	public function register_taxonomies() {
+
+		// Add new taxonomy, make it hierarchical (like categories)
+		$labels = array(
+			'name' => _x( 'Ville', 'taxonomy general name' ),
+			'singular_name' => _x( 'Ville', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Chercher par ville' ),
+			'all_items' => __( 'Toutes les villes' ),
+			'parent_item' => __( 'Ville Parent' ),
+			'parent_item_colon' => __( 'Ville Parent:' ),
+			'edit_item' => __( 'Modifier la Ville' ),
+			'update_item' => __( 'Mettre à jour la Ville' ),
+			'add_new_item' => __( 'Ajouter une ville' ),
+			'new_item_name' => __( 'Nom de la nouvelle ville' ),
+			'menu_name' => __( 'Ville' ),
+			);
+
+		//intégration avec event dans le register_post_type event
+		register_taxonomy('ville',array('post','page', 'user'), array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'ville' ),
+			));
+
+		// Add new taxonomy, make it hierarchical (like categories)
+		$labels = array(
+			'name' => _x( 'Divers', 'taxonomy general name' ),
+			'singular_name' => _x( 'Divers', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Chercher' ),
+			'all_items' => __( 'Tous les divers' ),
+			'parent_item' => __( 'Cat&eacute; Divers Parent' ),
+			'parent_item_colon' => __( 'Divers Parent:' ),
+			'edit_item' => __( 'Modifier une cat&eacute;gorie divers' ),
+			'update_item' => __( 'Mettre a  jour une cat&eacute;gorie divers' ),
+			'add_new_item' => __( 'Ajouter une cat&eacute;gorie divers' ),
+			'new_item_name' => __( 'Nouvelle cat&eacute;gorie divers' ),
+			'menu_name' => __( 'Divers' ),
+			);
+
+		register_taxonomy('divers',array('post','page'), array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'divers' ),
+			// 'capabilities' => array(
+			// 	'manage_terms' 	=> 'manage_categories',
+			// 	'edit_terms' 	=> 'manage_categories',
+			// 	'delete_terms' 	=> 'manage_categories',
+			// 	'assign_terms' 	=>	'edit_posts' 
+			// )
+			));
+
+		// Add new taxonomy, make it hierarchical (like categories)
+		$labels = array(
+			'name' => _x( 'Age', 'taxonomy general name' ),
+			'singular_name' => _x( 'Age', 'taxonomy singular name' ),
+			'search_items' =>  __( 'Chercher par age' ),
+			'all_items' => __( 'Tous les ages' ),
+			'parent_item' => __( 'Age Parent' ),
+			'parent_item_colon' => __( 'Age Parent:' ),
+			'edit_item' => __( 'Modifier l&apos;age' ),
+			'update_item' => __( 'Mettre a  jour l&apos;age' ),
+			'add_new_item' => __( 'Ajouter un age' ),
+			'new_item_name' => __( 'Nom du nouvel age' ),
+			'menu_name' => __( 'Tranches d&apos;age' ),
+			);
+
+		//le cap "edit_events" peut assigner des ages aux events
+		register_taxonomy('age',array('post','page'), array(
+			'hierarchical' => true,
+			'labels' => $labels,
+			'show_ui' => true,
+			'query_var' => true,
+			'rewrite' => array( 'slug' => 'age' ),
+			// 'capabilities' => array(
+			// 	'manage_terms' 	=> 'manage_categories',
+			// 	'edit_terms' 	=> 'manage_categories',
+			// 	'delete_terms' 	=> 'manage_categories',
+			// 	'assign_terms' 	=>	'edit_posts' 
+			// )
+			));
 	}
 
 	/**
@@ -274,12 +373,10 @@ class Kidzou {
 	 */
 	public function edit_tax_ville (  $term_id, $tt_id  ) {
 
-		self::create_rewrite_rules();
+		flush_rewrite_rules();
 	}	
 
 	public static function create_rewrite_rules() {
-
-		global $wp_rewrite;
 		
 	    $villes = Kidzou_Geo::get_metropoles();
 
@@ -297,24 +394,13 @@ class Kidzou {
 	        }
 	        $regexp .= ')';
 
-			// echo 'Expression : '.$regexp;
-
 			add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
-
-			$wp_rewrite->set_permalink_structure('/%postname%/');
-			$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
-			$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
 
 			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
 		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
 		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
 		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
 
-			//ne pas oublier 
-			// $wp_rewrite->flush_rules();
-			flush_rewrite_rules();
-
-			//echo 'rewrite flushed !';
 	    }
 	    
 	}
@@ -424,6 +510,8 @@ class Kidzou {
 	        $national = (array)Kidzou_Geo::get_national_metropoles(); 
 	        $merge = array_merge( $the_metropole, $national);
 
+	        // print_r($merge);
+
 	        if (!empty($merge))
 	        {
 	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
@@ -437,6 +525,8 @@ class Kidzou {
 	            );
 
 	        }
+
+	        // print_r($query);
 	        
 	        return $query;
 	    }

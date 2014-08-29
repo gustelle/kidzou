@@ -21,16 +21,15 @@ if (isset($_POST['submit']))
 
  	if ($flush==1)
  	{
+
+	    flush_rewrite_rules();
+
  		//supprimer les transients relatifs aux metropoles
  		//qui seront regenerés avec les nouvelles metropoles
  		delete_transient( 'kz_get_national_metropoles' );
 	    delete_transient( 'kz_default_metropole' );
 	    delete_transient( 'kz_covered_metropoles_all_fields' );
 	    delete_transient( 'kz_covered_metropoles' );
-
- 		
-		//les add_rewrite_tag doit etre appele aux max à l'init
-	    add_action( 'init', array( 'Kidzou', 'create_rewrite_rules' ) );
 
  	}
 }

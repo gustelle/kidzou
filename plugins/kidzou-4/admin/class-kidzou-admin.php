@@ -90,7 +90,6 @@ class Kidzou_Admin {
 		 * http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
 		 */
 
-		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'init', array( $this, 'register_post_types' ) );
 
 		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
@@ -185,14 +184,14 @@ class Kidzou_Admin {
 		$prefix = 'kz_';
 
 		$config = array(
-		'id' => 'meta_box',          // meta box id, unique per meta box
-		'title' => 'Metadonnees de Ville',          // meta box title
-		'pages' => array('ville'),        // taxonomy name, accept categories, post_tag and custom taxonomies
-		'context' => 'normal',            // where the meta box appear: normal (default), advanced, side; optional
-		'fields' => array(),            // list of meta fields (can be added by field arrays)
-		'local_images' => false,          // Use local or hosted images (meta box images for add/remove)
-		'use_with_theme' => false          //change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
-		);
+			'id' => 'meta_box',          // meta box id, unique per meta box
+			'title' => 'Metadonnees de Ville',          // meta box title
+			'pages' => array('ville'),        // taxonomy name, accept categories, post_tag and custom taxonomies
+			'context' => 'normal',            // where the meta box appear: normal (default), advanced, side; optional
+			'fields' => array(),            // list of meta fields (can be added by field arrays)
+			'local_images' => false,          // Use local or hosted images (meta box images for add/remove)
+			'use_with_theme' => false          //change path if used with theme set to true, false for a plugin or anything else for a custom path(default false).
+			);
 
 		$my_meta =  new Tax_Meta_Class($config);
 
@@ -205,91 +204,6 @@ class Kidzou_Admin {
 
 	}
 
-	public function register_taxonomies() {
-
-		// Add new taxonomy, make it hierarchical (like categories)
-		$labels = array(
-			'name' => _x( 'Ville', 'taxonomy general name' ),
-			'singular_name' => _x( 'Ville', 'taxonomy singular name' ),
-			'search_items' =>  __( 'Chercher par ville' ),
-			'all_items' => __( 'Toutes les villes' ),
-			'parent_item' => __( 'Ville Parent' ),
-			'parent_item_colon' => __( 'Ville Parent:' ),
-			'edit_item' => __( 'Modifier la Ville' ),
-			'update_item' => __( 'Mettre à jour la Ville' ),
-			'add_new_item' => __( 'Ajouter une ville' ),
-			'new_item_name' => __( 'Nom de la nouvelle ville' ),
-			'menu_name' => __( 'Ville' ),
-			);
-
-		//intégration avec event dans le register_post_type event
-		register_taxonomy('ville',array('post','page', 'user'), array(
-			'hierarchical' => true,
-			'labels' => $labels,
-			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array( 'slug' => 'ville' ),
-			));
-
-		// Add new taxonomy, make it hierarchical (like categories)
-		$labels = array(
-			'name' => _x( 'Divers', 'taxonomy general name' ),
-			'singular_name' => _x( 'Divers', 'taxonomy singular name' ),
-			'search_items' =>  __( 'Chercher' ),
-			'all_items' => __( 'Tous les divers' ),
-			'parent_item' => __( 'Cat&eacute; Divers Parent' ),
-			'parent_item_colon' => __( 'Divers Parent:' ),
-			'edit_item' => __( 'Modifier une cat&eacute;gorie divers' ),
-			'update_item' => __( 'Mettre a  jour une cat&eacute;gorie divers' ),
-			'add_new_item' => __( 'Ajouter une cat&eacute;gorie divers' ),
-			'new_item_name' => __( 'Nouvelle cat&eacute;gorie divers' ),
-			'menu_name' => __( 'Divers' ),
-			);
-
-		register_taxonomy('divers',array('post','page'), array(
-			'hierarchical' => true,
-			'labels' => $labels,
-			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array( 'slug' => 'divers' ),
-			// 'capabilities' => array(
-			// 	'manage_terms' 	=> 'manage_categories',
-			// 	'edit_terms' 	=> 'manage_categories',
-			// 	'delete_terms' 	=> 'manage_categories',
-			// 	'assign_terms' 	=>	'edit_posts' 
-			// )
-			));
-
-		// Add new taxonomy, make it hierarchical (like categories)
-		$labels = array(
-			'name' => _x( 'Age', 'taxonomy general name' ),
-			'singular_name' => _x( 'Age', 'taxonomy singular name' ),
-			'search_items' =>  __( 'Chercher par age' ),
-			'all_items' => __( 'Tous les ages' ),
-			'parent_item' => __( 'Age Parent' ),
-			'parent_item_colon' => __( 'Age Parent:' ),
-			'edit_item' => __( 'Modifier l&apos;age' ),
-			'update_item' => __( 'Mettre a  jour l&apos;age' ),
-			'add_new_item' => __( 'Ajouter un age' ),
-			'new_item_name' => __( 'Nom du nouvel age' ),
-			'menu_name' => __( 'Tranches d&apos;age' ),
-			);
-
-		//le cap "edit_events" peut assigner des ages aux events
-		register_taxonomy('age',array('post','page'), array(
-			'hierarchical' => true,
-			'labels' => $labels,
-			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array( 'slug' => 'age' ),
-			// 'capabilities' => array(
-			// 	'manage_terms' 	=> 'manage_categories',
-			// 	'edit_terms' 	=> 'manage_categories',
-			// 	'delete_terms' 	=> 'manage_categories',
-			// 	'assign_terms' 	=>	'edit_posts' 
-			// )
-			));
-	}
 
 	public function register_post_types() {
 
