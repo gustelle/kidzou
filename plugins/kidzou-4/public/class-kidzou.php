@@ -97,7 +97,6 @@ class Kidzou {
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query' ), 100 );
 
 
-
 	}
 
 
@@ -255,8 +254,6 @@ class Kidzou {
 	 */
 	private static function single_activate() {
 		
-		// @TODO: Define activation functionality here
-
 		global $wp_rewrite;
 		
 		$wp_rewrite->set_permalink_structure('/%postname%/');

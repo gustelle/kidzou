@@ -48,8 +48,9 @@ require_once( plugin_dir_path( __FILE__ ) . 'public/class-kidzou.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-geo.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/vote.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/category-header.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'admin/views/metabox.php');
 
+require_once( plugin_dir_path( __FILE__ ) . 'admin/views/metabox.php');
+require_once( plugin_dir_path( __FILE__ ) . 'includes/PageTemplater/class-page-templater.php');
 
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.
@@ -70,6 +71,8 @@ register_deactivation_hook( __FILE__, array( 'Kidzou', 'deactivate' ) );
  *   `class-plugin-name.php`
  */
 add_action( 'plugins_loaded', array( 'Kidzou', 'get_instance' ) );
+//ajouter les templates specifiques à Kidzou
+add_action( 'plugins_loaded', array( 'PageTemplater', 'get_instance' ) );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality

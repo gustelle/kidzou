@@ -225,20 +225,30 @@ class Kidzou_Geo {
 	    return $permalink;
 	}
 
+	/**
+	 * Reecriture des pages qui utilisent le tempate 'tous les contenus'
+	 * car ces pages sont geolocalisées, c'est à dire que "tous" les contenus sont en fait
+	 * filtres par la metropole de rattachement du user
+	 *
+	 */
 	public static function rewrite_page_link( $link, $param ) {
-	      
-	    //on ne re-ecrit que l'agenda, car c'est la seule page (pour l'instant) dont le contenu
-	    //depend de la metropole
-	    if ( false === strpos( $link, '/agenda' ) )
-	    	return $link;
 
-	    $m = urlencode(self::get_request_metropole());
+		$pages = get_transient('kz_page_templates');
+		$m = urlencode(self::get_request_metropole());
 
-	    $pos = strpos( $link, '/agenda' );
+		foreach($pages as $page){
 
-	    $new_link = substr_replace($link, "/".$m, $pos, 0);
-	 
-	    return $new_link;
+			$page_slug = $page->post_name;
+			if (strpos( $link, '/'.$page_slug )!==false)
+			{
+				$new_link = substr_replace($link, "/".$m, $pos, 0);
+				return $new_link;
+			}
+	   	 	
+		}
+
+		return $link;
+	    
 	}
 
 
