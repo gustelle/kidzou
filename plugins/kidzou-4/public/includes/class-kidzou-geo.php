@@ -233,18 +233,19 @@ class Kidzou_Geo {
 	 */
 	public static function rewrite_page_link( $link, $param ) {
 
-		$pages = get_transient('kz_page_templates');
 		$m = urlencode(self::get_request_metropole());
 
-		foreach($pages as $page){
+		global $post;
 
-			$page_slug = $page->post_name;
-			if (strpos( $link, '/'.$page_slug )!==false)
-			{
-				$new_link = substr_replace($link, "/".$m, $pos, 0);
-				return $new_link;
-			}
-	   	 	
+		$template = get_post_meta( 
+					$post->ID, '_wp_page_template', true 
+				);
+
+		if ($template=='all-content.php') {
+
+			$pos = strpos( $link, '/'. $post->post_name );
+			$new_link = substr_replace($link, "/".$m, $pos, 0);
+			return $new_link;
 		}
 
 		return $link;
