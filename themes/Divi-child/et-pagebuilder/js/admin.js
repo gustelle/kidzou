@@ -2203,7 +2203,7 @@ console.log(ET_PageBuilder);
 					if ( shortcode_name !== 'section' )
 						module_settings['parent'] = parent_cid;
 
-					if ( shortcode_name.indexOf( 'et_pb_' ) !== -1 ) {
+					if ( shortcode_name.indexOf( 'et_pb_' ) !== -1 || shortcode_name.indexOf( 'kz_pb_' ) !== -1) {
 						module_settings['type'] = 'module';
 
 						module_settings['admin_label'] = ET_PageBuilder_Layout.getTitleByShortcodeTag( shortcode_name );
@@ -2414,7 +2414,7 @@ console.log(ET_PageBuilder);
 			},
 
 			saveAsShortcode : function( et_model, et_collection, et_options ) {
-				console.log(et_model);
+				
 				var shortcode = '',
 					this_el = this;
 
