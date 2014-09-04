@@ -498,6 +498,8 @@ function kz_pb_filterable_portfolio( $atts ) {
 			<?php if ( 'on' === $show_categories ) : ?>
 				<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
 			<?php endif; ?>
+			<div class="votable" 	data-post="<?php echo get_the_ID(); ?>" 
+									data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></div>
 
 			</div><!-- .et_pb_portfolio_item -->
 			<?php

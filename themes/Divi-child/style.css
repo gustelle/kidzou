@@ -332,7 +332,7 @@ table.shop_table { margin-bottom: 30px !important; }
 		.et_pb_post .post-meta, .et_pb_portfolio_item .post-meta { font-size: 14px; }
 			.et_pb_post .post-meta a, .et_pb_portfolio_item .post-meta a { text-decoration: none; }
 
-		.et_pb_bg_layout_light .et_pb_post .post-meta, .et_pb_bg_layout_light .et_pb_portfolio_item .post-meta, .et_pb_bg_layout_light .et_pb_post .post-meta a, .et_pb_bg_layout_light .et_pb_portfolio_item .post-meta a, .et_pb_bg_layout_light .et_pb_post p { color: #666; }
+		.et_pb_bg_layout_light .et_pb_post .post-meta, .et_pb_bg_layout_light .et_pb_portfolio_item .post-meta, .et_pb_bg_layout_light .et_pb_post .post-meta a, .et_pb_bg_layout_light .et_pb_portfolio_item .post-meta a, .et_pb_bg_layout_light .et_pb_post p { /*color: #666;*/ color: #52a4e9; }
 		.et_pb_bg_layout_dark .et_pb_post .post-meta, .et_pb_bg_layout_dark .et_pb_portfolio_item .post-meta, .et_pb_bg_layout_dark .et_pb_post .post-meta a, .et_pb_bg_layout_dark .et_pb_portfolio_item .post-meta a, .et_pb_bg_layout_dark .et_pb_post p { color: inherit; }
 
 		.et_pb_post .more { color: #82c0c7; text-decoration: none; }
