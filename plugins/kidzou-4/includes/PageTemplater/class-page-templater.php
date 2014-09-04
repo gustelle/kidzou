@@ -75,7 +75,7 @@ class PageTemplater {
 
                 // Add your templates to this array.
                 $this->templates = array(
-                        'all-content.php'     => 'Tous les posts et &eacute;v&eacute;nements',
+                        'all-content.php'     => 'Catalogue d&apos;articles',
                 );
 				
         } 

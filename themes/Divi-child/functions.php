@@ -16,7 +16,13 @@ require_once( get_stylesheet_directory() . '/et-pagebuilder/et-pagebuilder.php' 
  * @author 
  **/ 
 function override_divi_parent_functions() 
-{
+{	
+	//surcharge pour avoir des thumbs carrées de taille 225
+	global $et_theme_image_sizes;
+	add_theme_support( 'post-thumbnails' ); //normalement déjà supporté par le parent mais bon...
+	$et_theme_image_sizes['225x225'] = "kidzou_catalog";  //nécessaire car utilisé dans la fonction print_thumbnail
+	add_image_size( 'kidzou_catalog', 225, 225, true ); //crop
+	
 	//suppression du custom post type "project"
 	remove_action('init','et_pb_register_posttypes', 0); //meme ordre que le parent
     add_action('init','kz_register_divi_layouts', 0); 
@@ -455,7 +461,7 @@ function kz_pb_filterable_portfolio( $atts ) {
 			$category_classes = implode( ' ', $category_classes );
 
 			?>
-			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item ' . $category_classes ); ?>>
+			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio ' . $category_classes ); ?>>
 			<?php
 				$thumb = '';
 
@@ -466,12 +472,13 @@ function kz_pb_filterable_portfolio( $atts ) {
 				$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
 				$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
 				$titletext = get_the_title();
-				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'Blogimage' );
+				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
 				$thumb = $thumbnail["thumb"];
 
 				if ( '' !== $thumb ) : ?>
 					<a href="<?php the_permalink(); ?>">
 					<?php if ( 'on' !== $fullwidth ) : ?>
+						<span class="hovertext">Lorem</span>
 						<span class="et_portfolio_image">
 					<?php endif; ?>
 							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
@@ -664,4 +671,8 @@ function get_portfolio_items( $args = array() ) {
 	return new WP_Query( $args );
 
 }
+
+
+
+
 ?>
