@@ -3,17 +3,17 @@
 
 
 <div id="main-content">
-	<div class="container">
-		<div id="content-area" class="clearfix">
-			<div id="left-area">
+	<!-- <div class="container">
+		<div id="content-area" class="clearfix"> -->
+			<!-- <div id="left-area"> -->
 			<?php while ( have_posts() ) : the_post(); ?>
 				<?php if (et_get_option('divi_integration_single_top') <> '' && et_get_option('divi_integrate_singletop_enable') == 'on') echo(et_get_option('divi_integration_single_top')); ?>
 
 				<article id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_post' ); ?>>
-					<h1><?php the_title(); ?></h1>
+					
 
 				<?php
-					et_divi_post_meta();
+					
 
 					$thumb = '';
 
@@ -85,14 +85,151 @@
 				?>
 
 					<div class="entry-content">
-					<?php
-						the_content();
+						<!-- template kidzou -->
+						
+						<div class="et_pb_section et_section_specialty">
+			
+			<div class="et_pb_row">
+				
+				<div class="et_pb_column et_pb_column_3_4">
+			<div class="et_pb_row_inner">
+			<div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
+			<div class="et_pb_gallery et_pb_slider et_pb_gallery_fullwidth et_pb_bg_layout_light clearfix">
+			
+			<div class="et_pb_gallery_items et_post_gallery" data-per_page="4"><div class="et_pb_gallery_item et_pb_bg_layout_light">
+			<div class='et_pb_gallery_image landscape'>
+				<a href="http://localhost/wp-content/uploads/2014/09/anniversaire-lille.jpg" title="Anniversaire Lille Enfant">
+				<img src="http://localhost/wp-content/uploads/2014/09/anniversaire-lille.jpg" alt="Anniversaire Lille Enfant" /><span class="et_overlay"></span>
+			</a>
+			</div></div><div class="et_pb_gallery_item et_pb_bg_layout_light">
+			<div class='et_pb_gallery_image landscape'>
+				<a href="http://localhost/wp-content/uploads/2014/09/Grande_fete_lilloise_cirque_2013.jpg" title="Grande Fête Lilloise du Cirque">
+				<img src="http://localhost/wp-content/uploads/2014/09/Grande_fete_lilloise_cirque_2013.jpg" alt="Grande Fête Lilloise du Cirque" /><span class="et_overlay"></span>
+			</a>
+			</div></div><div class="et_pb_gallery_item et_pb_bg_layout_light">
+			<div class='et_pb_gallery_image landscape'>
+				<a href="http://localhost/wp-content/uploads/2014/09/Coding_Scratch-e1402935538371-210x167.jpg" title="">
+				<img src="http://localhost/wp-content/uploads/2014/09/Coding_Scratch-e1402935538371-210x167.jpg" alt="" /><span class="et_overlay"></span>
+			</a>
+			</div></div><div class="et_pb_gallery_item et_pb_bg_layout_light">
+			<div class='et_pb_gallery_image landscape'>
+				<a href="http://localhost/wp-content/uploads/2014/09/Euratechnologies.jpg" title="">
+				<img src="http://localhost/wp-content/uploads/2014/09/Euratechnologies.jpg" alt="" /><span class="et_overlay"></span>
+			</a>
+			</div></div></div><!-- .et_pb_gallery_items --></div><!-- .et_pb_gallery -->
+		</div> <!-- .et_pb_column --><div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
+			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+			
+<h1><?php the_title(); ?></h1>
+<?php et_divi_post_meta(); ?>
 
-						wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'Divi' ), 'after' => '</div>' ) );
-					?>
-					</div> <!-- .entry-content -->
+		</div> <!-- .et_pb_text -->
 
-					<?php
+	<?php
+
+	if (Kidzou_Geo::has_post_location()) {
+
+		$location = Kidzou_Geo::get_post_location();
+	?>
+		<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+			<?php if (isset($location['location_address']) && $location['location_address']<>'') echo '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>'; ?>
+			<?php if (isset($location['location_tel']) && $location['location_tel']<>'')  echo '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>'; ?>
+			<?php if (isset($location['location_web']) && $location['location_web']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i>'.$location['location_web'].'</p>'; ?>
+
+		</div> <!-- .et_pb_text --><hr class="et_pb_space" />
+	
+	<?php } ?>
+
+	<?php
+
+	if (Kidzou_Events::isTypeEvent()) {
+
+		$location = Kidzou_Events::getEventDates();
+
+		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+		$formatted = '';
+		setlocale(LC_TIME, "fr_FR"); 
+
+		if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+			$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+		else
+			$formatted = __( 'Du '. strftime("%A %d %B", $start->getTimestamp()).' au '.strftime("%A %d %B", $end->getTimestamp()), 'Divi' );
+	?>
+		<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+			<?php echo '<p class="location"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
+		</div> <!-- .et_pb_text --><hr class="et_pb_space" />
+	
+	<?php } ?>
+
+
+		<ul class="et_pb_social_media_follow et_pb_bg_layout_light clearfix">
+			<li class="et_pb_social_icon et_pb_social_network_link et-social-facebook">
+			<a href="#" class="icon rounded_rectangle" title="facebook" style="background-color: #3b5998;"><span>facebook</span></a>
+			
+		</li><li class="et_pb_social_icon et_pb_social_network_link et-social-twitter">
+			<a href="#" class="icon rounded_rectangle" title="Twitter" style="background-color: #00aced;"><span>Twitter</span></a>
+			
+		</li>
+		</ul> <!-- .et_pb_counters --><div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+			<!-- <span class="big_button bg_pink"> -->
+			
+			<p class="votable et_pb_newsletter_button"  data-post="<?php echo get_the_ID(); ?>" 
+					data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
+
+		</div> <!-- .et_pb_text -->
+		</div> <!-- .et_pb_column -->
+		</div> <!-- .et_pb_row_inner --><div class="et_pb_row_inner">
+			<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
+			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+			
+<p><?php the_content(); ?>
+
+	<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'Divi' ), 'after' => '</div>' ) );?>
+
+
+				</div> <!-- .et_pb_text -->
+			</div> <!-- .et_pb_column -->
+		</div> <!-- .et_pb_row_inner -->
+		
+		<div class="et_pb_row_inner">
+			<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
+
+				<?php 
+
+					if (Kidzou_Geo::has_post_location()) { 
+
+						$location = Kidzou_Geo::get_post_location();
+
+				?>
+
+					<div class="et_pb_tabs">
+						<ul class="et_pb_tabs_controls clearfix">
+							<li class="et_pb_tab_active"><strong><?php echo $location['location_name']; ?></strong></li>
+						</ul>
+						<div class="et_pb_all_tabs">
+							<div class="et_pb_tab clearfix et_pb_active_content">
+
+								<?php 
+									echo do_shortcode('[et_pb_map admin_label="Map" address="'.$location['location_address'].'" zoom_level="15" address_lat="'.$location['location_latitude'].'" address_lng="'.$location['location_longitude'].'"][et_pb_map_pin title="'.$location['location_name'].'" pin_address="'.$location['location_address'].'" pin_address_lat="'.$location['location_latitude'].'" pin_address_lng="'.$location['location_longitude'].'"]
+										<p><strong>'.$location['location_name'].'</strong></p>'.
+											 (isset($location['location_address']) && $location['location_address']<>'' ? '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>' : '').
+											 (isset($location['location_tel']) && $location['location_tel']<>'' ? '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>':'').
+											 (isset($location['location_web']) && $location['location_web']<>'' ?  '<p class="location"><i class="fa fa-tablet"></i>'.$location['location_web'].'</p>':'').
+										'[/et_pb_map_pin]
+									[/et_pb_map]');
+								?>
+						
+								
+							</div> <!-- .et_pb_tab -->
+						</div> <!-- .et_pb_all_tabs -->
+					</div> <!-- .et_pb_tabs -->
+				
+			<!-- </div> -->
+		<!-- </div> -->
+			<?php } ?>
+
+<?php
 					if ( et_get_option('divi_468_enable') == 'on' ){
 						echo '<div class="et-single-post-ad">';
 						if ( et_get_option('divi_468_adsense') <> '' ) echo( et_get_option('divi_468_adsense') );
@@ -107,15 +244,34 @@
 						if ( comments_open() && 'on' == et_get_option( 'divi_show_postcomments', 'on' ) )
 							comments_template( '', true );
 					?>
+
+					<?php if (et_get_option('divi_integration_single_bottom') <> '' && et_get_option('divi_integrate_singlebottom_enable') == 'on') echo(et_get_option('divi_integration_single_bottom')); ?>
+
+
+		</div> <!-- .et_pb_column -->
+		</div> <!-- .et_pb_row_inner -->
+		</div> <!-- .et_pb_column -->
+		<div class="et_pb_column et_pb_column_1_4">
+			<div class="et_pb_widget_area et_pb_widget_area_right clearfix et_pb_bg_layout_light">
+				<?php get_sidebar(); ?>
+			</div>
+			<?php echo do_shortcode('[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="8874d33cf7" aweber_list="none" title="Abonnez-vous à notre newsletter" button_text="Vous inscrire" use_background_color="on" background_color="#52a4c9" background_layout="dark" text_orientation="left"]<p>Nous distribuons cette newsletter tous les 15 jours, elle contient de nombreux bons plans</p>[/et_pb_signup]'); ?>
+
+		</div> <!-- .et_pb_column -->
+			</div> <!-- .et_pb_row -->
+		</div> <!-- .et_pb_section -->
+										
+													
+					</div> <!-- .entry-content -->
+					
 				</article> <!-- .et_pb_post -->
-
-				<?php if (et_get_option('divi_integration_single_bottom') <> '' && et_get_option('divi_integrate_singlebottom_enable') == 'on') echo(et_get_option('divi_integration_single_bottom')); ?>
+				
 			<?php endwhile; ?>
-			</div> <!-- #left-area -->
+			<!-- </div> #left-area -->
 
-			<?php get_sidebar(); ?>
-		</div> <!-- #content-area -->
-	</div> <!-- .container -->
+			
+		<!-- </div> #content-area -->
+	<!-- </div> .container -->
 </div> <!-- #main-content -->
 
 <?php get_footer(); ?>

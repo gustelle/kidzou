@@ -90,11 +90,14 @@ class Kidzou_Admin {
 		 * http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
 		 */
 
-		add_action( 'init', array( $this, 'register_post_types' ) );
-
 		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
 
-		add_action('admin_init', array($this, 'add_caps'));
+		// add_action('admin_init', array($this, 'add_caps'));
+
+		/*
+		 * @TODO ce hook ne fonctionne passs
+		 */
+		add_action("edit_ville",    array( $this, 'edit_tax_ville' ) , 10, 2);
 
 
 	}
@@ -174,6 +177,16 @@ class Kidzou_Admin {
 	}
 
 	/**
+	 * pour rafraichir les rewrite_rules à la modification des villes 
+	 *
+	 * @since    1.0.0
+	 */
+	public function edit_tax_ville (  $term_id, $tt_id  ) {
+
+		flush_rewrite_rules();
+	}	
+
+	/**
 	 * la taxonomy "ville" a besoin de meta pour identifier les métropoles et les villes à portée nationale.
 	 * cela est utilisé ensuite pour filtrer les queries de contenu par métropole, la métropole étant récupérer d'un cookie en provenance de la requete
 	 *
@@ -205,99 +218,16 @@ class Kidzou_Admin {
 	}
 
 
-	public function register_post_types() {
+	// public function register_post_types() {
 
-		//definir les custom post types
-		//ne pas faire a chaque appel de page 
-
-		$labels = array(
-			'name'               => 'Offres',
-			'singular_name'      => 'Offre',
-			'add_new'            => 'Ajouter',
-			'add_new_item'       => 'Ajouter une offre',
-			'edit_item'          => 'Modifier l\'offre',
-			'new_item'           => 'Nouvelle offre',
-			'all_items'          => 'Toutes les offres',
-			'view_item'          => 'Voir l\'offre',
-			'search_items'       => 'Chercher des offres',
-			'not_found'          => 'Aucune offre trouvée',
-			'not_found_in_trash' => 'Aucune offre trouvée dans la corbeille',
-			'menu_name'          => 'Offres',
-			);
-
-		$args = array(
-			'labels'             => $labels,
-			'public'             => true,
-			'publicly_queryable' => true,
-			'show_ui'            => true,
-			'show_in_menu'       => true,
-			'menu_position' 	 => 5, //sous les articles dans le menu
-			'menu_icon' 		 => 'dashicons-smiley',
-			'query_var'          => true,
-			'has_archive'        => true,
-			'rewrite' 			=> array('slug' => 'offres'),
-			'hierarchical'       => false, //pas de hierarchie d'offres
-			'supports' 			=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions', 'post-formats'),
-			'taxonomies' 		=> array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
-			);
-
-		register_post_type( 'offres', $args );
-
-		$labels = array(
-			'name'               => 'Evénements',
-			'singular_name'      => 'Evénement',
-			'add_new'            => 'Ajouter',
-			'add_new_item'       => 'Ajouter un événement',
-			'edit_item'          => 'Modifier l\'événement',
-			'new_item'           => 'Nouvel événement',
-			'all_items'          => 'Tous les événements',
-			'view_item'          => 'Voir l\'événement',
-			'search_items'       => 'Chercher des événements',
-			'not_found'          => 'Aucun événement trouvé',
-			'not_found_in_trash' => 'Aucun événement trouvé dans la corbeille',
-			'menu_name'          => 'Evénements',
-			);
-
-		$args = array(
-			'labels'             => $labels,
-			'public'             => true,
-			'publicly_queryable' => true,
-			'show_ui'            => true,
-			'show_in_menu'       => true,
-			'menu_position' 	 => 5, //sous les articles dans le menu
-			'menu_icon' 		 => 'dashicons-calendar', 
-			'query_var'          => true,
-			'rewrite'            => array( 'slug' => 'event' ),
-			'capability_type'    => 'event',
-			'capabilities' 		 => array(
-								        'edit_post'			 => 'edit_event',
-								        'edit_posts' 		 => 'edit_events',
-								        'edit_others_posts'  => 'edit_others_events',
-								        'publish_posts' 	 => 'publish_events',
-								        'read_post' 		 => 'read_event',
-								        'read_private_posts' => 'read_private_events',
-								        'delete_post' 		 => 'delete_event',
-								        'delete_private_posts' 		=> 'delete_private_events',
-								        'delete_published_posts' 	=> 'delete_published_events',
-								        'delete_others_posts' 		=> 'delete_others_events',
-								        'edit_private_posts' 		=> 'edit_private_events',
-								        'edit_published_posts' 		=> 'edit_published_events',
-								        // 'assign_terms' => 'assign_terms'
-								    ),
-			'map_meta_cap' 		 => true,
-			'has_archive'        => true,
-			'hierarchical'       => false, //pas de hierarchie d'events
-			'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions'),
-			'taxonomies' 		=> array('age', 'ville', 'divers','category'), //reuse the taxo declared in kidzou plugin
-			// 'register_meta_box_cb' => 'add_metabox'
-		);
-
-		register_post_type( 'event', $args );
-
-		//rafraichir les rewrite rules
-		flush_rewrite_rules();
 		
-	}
+
+		
+
+	// 	//rafraichir les rewrite rules
+	// 	flush_rewrite_rules();
+		
+	// }
 
 	public function add_metaboxes() {
 
@@ -310,26 +240,7 @@ class Kidzou_Admin {
 
 	}
 
-	public function add_caps() {
-
-		$administrator     = get_role('administrator');
-		$editor     	= get_role('editor');
-		$pro 	= get_role('pro');
-
-		foreach ( array('delete_private','edit','edit_private','read_private') as $cap ) {
-			$administrator->add_cap( "{$cap}_events" );
-			$pro->add_cap("${cap}_events");
-			$editor->add_cap("${cap}_events");
-		}
-
-		//et en plus pour eux
-		foreach ( array('publish','delete','delete_others','edit_others', 'edit_published', 'delete_published') as $cap ) {
-			$administrator->add_cap( "{$cap}_events" );
-			$editor->add_cap("${cap}_events");
-		}
-
-
-	}
+	
 
 
 	/**

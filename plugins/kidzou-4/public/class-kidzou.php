@@ -68,7 +68,6 @@ class Kidzou {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
-		add_action( 'init', array( $this, 'create_rewrite_rules' ) );
 
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
@@ -86,15 +85,11 @@ class Kidzou {
 		add_filter('the_excerpt_rss', array( $this, 'rss_post_thumbnail' ) );
 		add_filter('the_content_feed', array( $this, 'rss_post_thumbnail' ) );
 
-		add_filter( 'post_link', array( 'Kidzou_Geo', 'rewrite_post_link' ) , 10, 2 );
-		add_filter( 'page_link', array( 'Kidzou_Geo', 'rewrite_page_link' ) , 10, 2 );
-		add_filter( 'term_link', array( 'Kidzou_Geo', 'rewrite_term_link' ), 10, 3 );
 
-		/*
-		 * @TODO ce hook ne fonctionne passs
-		 */
-		add_action("edit_ville",    array( $this, 'edit_tax_ville' ) , 10, 2);
-		add_action( 'pre_get_posts', array( $this, 'geo_filter_query' ), 100 );
+		add_filter('json_api_controllers', array( $this, 'add_Kidzou_controller' ));
+		add_filter('json_api_vote_controller_path', 			array( $this, 'set_vote_controller_path' )  );
+		add_filter('json_api_auth_controller_path', 			array( $this, 'set_auth_controller_path' ) );
+		add_filter('json_api_users_controller_path',            array( $this, 'set_users_controller_path' ) );
 
 
 	}
@@ -249,7 +244,8 @@ class Kidzou {
 
 	/**
 	 * Fired for each blog when the plugin is activated.
-	 *
+	 * 
+	 * @todo mettre dans Kidzou_Geo
 	 * @since    1.0.0
 	 */
 	private static function single_activate() {
@@ -260,8 +256,10 @@ class Kidzou {
 		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
 		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
 
-		self::create_rewrite_rules();
+		Kidzou_Geo::create_rewrite_rules();
+
 		self::create_roles();
+		self::add_caps();
 
 		flush_rewrite_rules();
 	}
@@ -363,46 +361,11 @@ class Kidzou {
 			));
 	}
 
+
 	/**
-	 * pour rafraichir les rewrite_rules à la modification des villes 
+	 * @todo mettre dans Kidzou_events
 	 *
-	 * @since    1.0.0
 	 */
-	public function edit_tax_ville (  $term_id, $tt_id  ) {
-
-		flush_rewrite_rules();
-	}	
-
-	public static function create_rewrite_rules() {
-		
-	    $villes = Kidzou_Geo::get_metropoles();
-
-	    if (!empty($villes)) {
-
-	    	$regexp = '(';
-	        $i=0;
-	        $count = count($villes);
-	        foreach ($villes as $item) {
-	            $regexp .= $item->slug;
-	            $i++;
-	            if ($regexp!=='' && $count>$i) {
-	                $regexp .= '|';
-	            }
-	        }
-	        $regexp .= ')';
-
-			add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
-
-			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
-		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
-		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
-		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
-		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
-
-	    }
-	    
-	}
-
 	//les caps d'edition seront ajoutes ad-hoc lors des requetes dans admin
 	public static function create_roles() {
 
@@ -415,7 +378,29 @@ class Kidzou {
 	            'upload_files'  => true,
 	        )
 	    );
+
 	    
+	}
+
+	public static function add_caps() {
+
+		$administrator     = get_role('administrator');
+		$editor     	= get_role('editor');
+		$pro 	= get_role('pro');
+
+		foreach ( array('delete_private','edit','edit_private','read_private') as $cap ) {
+			$administrator->add_cap( "{$cap}_event" );
+			$pro->add_cap("${cap}_event");
+			$editor->add_cap("${cap}_event");
+		}
+
+		//et en plus pour eux
+		foreach ( array('publish','delete','delete_others','edit_others', 'edit_published', 'delete_published') as $cap ) {
+			$administrator->add_cap( "{$cap}_event" );
+			$editor->add_cap("${cap}_event");
+		}
+
+
 	}
 
 
@@ -442,6 +427,7 @@ class Kidzou {
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );
+		wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '4.2.0' );
 	}
 
 	/**
@@ -460,8 +446,8 @@ class Kidzou {
 				'msg_auth_onprogress'			 => "Connexion en cours, merci de votre patience",
 				'msg_auth_success'				 => "Connexion r&eacute;ussie, la page va se recharger...",
 				'msg_auth_failed'				 => "Echec de connexion",
-				'votable_countText' 			 => "&nbsp;recommandations",
-				'votable_countText_down'		 => "&nbsp;Je ne recommande plus",
+				'votable_countText' 			 => "&nbsp;J&apos;aime",
+				'votable_countText_down'		 => "Je n&apos;aime pas",
 				'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
 				'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
 				'cfg_site_url'		 			 =>  site_url().'/',
@@ -517,47 +503,34 @@ class Kidzou {
 		return $content;
 	}
 
-	/**
-	 * Les Query en Base sont filtrées en tenant compte de la métropole courante
-	 * Celle-ci est soit la metropole passée dans la requete (en provenance du cookie utilisateur), soit la metropole par défaut
-	 * les contenus à portée "nationale" sont également remontés
-	 *
-	 * @since    1.0.0
-	 */
-	public function geo_filter_query( $query ) {
-
-		//les pages n'ont pas de taxo "ville", il faut les exclure du filtre
-	    if( !is_admin() && !is_search() ) {
-
-	        $the_metropole = array(Kidzou_Geo::get_request_metropole());
-	        $national = (array)Kidzou_Geo::get_national_metropoles(); 
-	        $merge = array_merge( $the_metropole, $national);
-
-	        // print_r($merge);
-
-	        if (!empty($merge))
-	        {
-	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
-	            set_query_var('tax_query', array(
-	                array(
-	                      'taxonomy' => 'ville',
-	                      'field' => 'slug',
-	                      'terms' => $merge
-	                    )
-	                )
-	            );
-
-	        }
-
-	        // print_r($query);
-	        
-	        return $query;
-	    }
-	}
+	
 
 	public static function post_types() {
 
 		return array('post', 'event');
 	}
+
+	/*JSON API*/
+	public function add_Kidzou_controller($controllers) {
+
+	  $controllers[] = 'Vote';
+	  $controllers[] = 'Auth';
+	  $controllers[] = 'Users';
+	  // $controllers[] = 'Taxo';
+
+	  return $controllers;
+	}
+
+
+	public function set_vote_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/includes/api/vote.php";
+	}
+	public function set_auth_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/includes/api/auth.php";
+	}
+	public function set_users_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/includes/api/users.php";
+	}
+
 
 }

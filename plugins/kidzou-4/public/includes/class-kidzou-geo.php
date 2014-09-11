@@ -35,7 +35,16 @@ class Kidzou_Geo {
 	const VERSION = '2014.08.24';
 
 
-	private static $initialized = false;
+	// private static $initialized = false;
+
+	/**
+	 * Instance of this class.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
+	protected static $instance = null;
 
 
 	/**
@@ -46,19 +55,83 @@ class Kidzou_Geo {
 	 */
 	private function __construct() { 
 
+		// Activate plugin when new blog is added
+
+		add_action( 'init', array( $this, 'create_rewrite_rules' ) );
+
+		add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
+		add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
+		add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
+
+		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
 	}
 
-    private static function initialize()
-    {
-        if (self::$initialized)
-            return;
+    // private static function initialize()
+    // {
+    //     if (self::$initialized)
+    //         return;
 
-        self::$initialized = true;
-    }
+    //     self::$initialized = true;
+    // }
+
+    /**
+	 * Return an instance of this class.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @return    object    A single instance of this class.
+	 */
+	public static function get_instance() {
+
+		// If the single instance hasn't been set, set it now.
+		if ( null == self::$instance ) {
+			self::$instance = new self;
+		}
+
+		return self::$instance;
+	}
+
+    /**
+	 * Les Query en Base sont filtrées en tenant compte de la métropole courante
+	 * Celle-ci est soit la metropole passée dans la requete (en provenance du cookie utilisateur), soit la metropole par défaut
+	 * les contenus à portée "nationale" sont également remontés
+	 *
+	 * @since    1.0.0
+	 */
+	public static function geo_filter_query( $query ) {
+
+		//les pages n'ont pas de taxo "ville", il faut les exclure du filtre
+	    if( !is_admin() && !is_search() ) {
+
+	        $the_metropole = array(self::get_request_metropole());
+	        $national = (array)self::get_national_metropoles(); 
+	        $merge = array_merge( $the_metropole, $national);
+
+	        // print_r($merge);
+
+	        if (!empty($merge))
+	        {
+	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
+	            set_query_var('tax_query', array(
+	                array(
+	                      'taxonomy' => 'ville',
+	                      'field' => 'slug',
+	                      'terms' => $merge
+	                    )
+	                )
+	            );
+
+	        }
+
+	        return $query;
+	    }
+
+	    return $query;
+	}
 
     public static function get_metropoles()
     {
-        self::initialize();
+        // self::initialize();
 
         $result = get_transient('kz_covered_metropoles_all_fields');
 
@@ -265,6 +338,97 @@ class Kidzou_Geo {
 	    $url = str_replace( '%kz_metropole%', $m , $url );
 	 
 	    return $url; 
+	}
+
+	/**
+	 * les infos d'emplacement géographique d'un post
+	 *
+	 * @return Tableau contenant les meta de Geoloc d'un post
+	 * @author 
+	 **/
+	public static function get_post_location($post_id=0)
+	{
+
+	    if ($post_id==0)
+	    {
+	        global $post;
+	        $post_id = $post->ID;
+	    }
+
+	    $post = get_post($post_id);
+
+	    $type = $post->post_type;
+
+	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
+	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
+	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE);
+	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
+	    $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
+	    $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
+
+	    return array(
+	        'location_name' => $location_name,
+	        "location_address" => $location_address,
+	        "location_latitude" => $location_latitude,
+	        "location_longitude" => $location_longitude,
+	        "location_tel" => $location_tel,
+	        "location_web" => $location_web
+	    );
+	}
+
+	/**
+	 * le post est-il associé à un lieu ?
+	 *
+	 * @return Tableau contenant les meta de Geoloc d'un post
+	 * @author 
+	 **/
+	public static function has_post_location($post_id=0)
+	{
+
+	    if ($post_id==0)
+	    {
+	        global $post;
+	        $post_id = $post->ID;
+	    }
+
+	    $post = get_post($post_id);
+
+	    $type = $post->post_type;
+
+	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE);
+	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
+
+	    return $location_latitude<>'' && $location_longitude<>'';
+	}
+
+	public static function create_rewrite_rules() {
+		
+	    $villes = self::get_metropoles();
+
+	    if (!empty($villes)) {
+
+	    	$regexp = '(';
+	        $i=0;
+	        $count = count($villes);
+	        foreach ($villes as $item) {
+	            $regexp .= $item->slug;
+	            $i++;
+	            if ($regexp!=='' && $count>$i) {
+	                $regexp .= '|';
+	            }
+	        }
+	        $regexp .= ')';
+
+			add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
+
+			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
+		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
+		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
+		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
+		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
+
+	    }
+	    
 	}
 
 

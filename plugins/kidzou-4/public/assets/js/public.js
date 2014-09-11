@@ -207,6 +207,7 @@ var storageSupport = (function () {
 
 var kidzouModule = (function() { //havre de paix
 
+	jQuery(document).ready(function() {
 
 	String.prototype.toBoolean = function()
 	{switch(this.toLowerCase()){case "true": case "yes": case "1": return true;case "false": case "no": case "0": case null: return false;default: return Boolean(this);}};
@@ -229,6 +230,7 @@ var kidzouModule = (function() { //havre de paix
 
 
 	var kidzou = function() {
+
 
 		var message			= new kidzouMessage.message();
 		var votesModel 		= new VotesModel(); 
@@ -344,7 +346,7 @@ var kidzouModule = (function() { //havre de paix
 
 
 		function feedViewModel() {
-
+	
 			ko.utils.arrayMap(jQuery('.votable'), function(item) {
 				votesModel.votableIds.push( jQuery(item).data('post') );
 			    votesModel.votableItems.push(new VotableItem ( jQuery(item).data('post'), 0, false) );
@@ -389,7 +391,7 @@ var kidzouModule = (function() { //havre de paix
 			});
 
 			self.iconClass = ko.computed(function() {
-				return self.voted() ? 'icon-alreadyvoted' : 'icon-heart';
+				return self.voted() ? 'fa fa-heart' : 'fa fa-heart-o';
 			});
 
 			//si le user a deja voté et qu'il survole le lien de recommandation
@@ -510,13 +512,12 @@ var kidzouModule = (function() { //havre de paix
 	}();
 
 
-	jQuery(document).ready(function() {
 
 		logger.setLogging(kidzou_commons_jsvars.cfg_debug_mode); 
 
 		kidzou.bindView();
 
-	});
+	}); // jQuery(document).ready(function() {
 
 
 }());  //kidzouModule

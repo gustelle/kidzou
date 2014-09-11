@@ -37,13 +37,13 @@
 <body <?php body_class(); ?>>
 
 	<script type="text/html" id="vote-template">
-	    <a href="#" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
-			<i 		data-bind="css : $data.iconClass"></i>
+	    <a href="#" class="vote" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
+			<i data-bind="css : $data.iconClass"></i>
 			<span 	data-bind="text: $data.votes"></span>
 			<span 	data-bind="html: $data.countText"></span>
 	    </a>
 	</script>
-	
+
 	<div id="page-container">
 <?php
 	if ( is_page_template( 'page-template-blank.php' ) ) {

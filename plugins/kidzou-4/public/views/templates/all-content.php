@@ -58,9 +58,12 @@ $is_page_builder_used = et_pb_is_pagebuilder_used( get_the_ID() ); ?>
 
 			<?php endwhile; ?>
 
+
 <?php if ( ! $is_page_builder_used ) : ?>
 
 			</div> <!-- #left-area -->
+
+			<?php echo 'sidebar'; ?>
 
 			<?php get_sidebar(); ?>
 		</div> <!-- #content-area -->

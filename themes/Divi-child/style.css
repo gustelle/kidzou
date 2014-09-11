@@ -1335,7 +1335,7 @@ li.et_pb_social_icon a span { display: none; }
 .et_pb_column_2_3 .et_pb_filterable_portfolio_grid .et_pb_portfolio_item,
 .et_pb_column_1_2 .et_pb_filterable_portfolio_grid .et_pb_portfolio_item,
 .et_pb_column_1_3 .et_pb_filterable_portfolio_grid .et_pb_portfolio_item,
-.et_pb_column_1_4 .et_pb_filterable_portfolio_grid .et_pb_portfolio_item { float: left; width: 225px; margin: 0 0px 42px 0; }
+.et_pb_column_1_4 .et_pb_filterable_portfolio_grid .et_pb_portfolio_item { float: left; width: 225px; /*margin: 0 0px 42px 0;*/margin: 0 0px 18px 0; }
 
 .et_pb_column_3_8 .et_pb_filterable_portfolio_grid .et_pb_portfolio_item,
 .et_pb_column_3_8 .et_pb_filterable_portfolio .column_width { width: 368px; }
@@ -3074,4 +3074,43 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 	.et_pb_image_container, .et_pb_blog_grid .et_main_video_container, .et_pb_blog_grid .et_audio_content, .et_pb_blog_grid .et_pb_post .et_pb_slider { margin: 0 0 10px; }
 	.et_pb_column_3_8 .et_pb_blog_grid .et_audio_container .mejs-time.mejs-currenttime-container.custom {margin-left: 0; }
 	.et_pb_column_1_4 .et_pb_blog_grid .et_pb_post { width: 100%; }
+
 }
+
+
+/* ajouts kidzou */
+.votable_template { display: inline; margin: 0 1em 0 0;  }
+/*.comments { display: inline; margin: 0 1em 0 0; }*/
+.fa {padding-right: 0.8em; } /* icons de font awesome */
+.vote { color:#ED0A71; }
+.big_button {
+	border: none ;
+    -moz-border-radius: 3px ;
+    -webkit-border-radius: 3px ;
+    border-radius: 3px ;
+    color: #FFFFFF;
+    font-size: 20px ;
+    font-weight: 500 ;
+    text-shadow: none ;
+    -moz-box-shadow: none ;
+    -webkit-box-shadow: none ;
+    box-shadow: none ;
+    padding: 13px 24px 14px ;
+    text-align: center;
+}
+.bg_pink {
+	background-color:#ED0A71;
+	color: #fff ;
+}
+.blue {color:#52A4C9;}
+/*.font-3x {font-size: 300%;}
+.font-2x {font-size: 200%;}*/
+p.votable.et_pb_newsletter_button {
+	color:#ED0A71 !important;
+	border-color: #ED0A71;
+	width: 60%; /* pas toute la largeur*/
+	padding-bottom: 6px; /* correction */
+}
+p.location {line-height: 1.3em; padding-bottom: 0.3em;}
+
+.et_pb_map.map_inside {width: auto;}

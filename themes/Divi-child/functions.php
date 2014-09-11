@@ -39,6 +39,11 @@ function override_divi_parent_functions()
     add_shortcode('kz_pb_fullwidth_portfolio','kz_pb_fullwidth_portfolio');
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
 
+    remove_shortcode('et_pb_fullwidth_map');
+    remove_shortcode('et_pb_map');
+    add_shortcode( 'et_pb_fullwidth_map', 'kz_pb_map' );
+	add_shortcode( 'et_pb_map', 'kz_pb_map' );
+
     //specific custom.js pour filtrer les posts par isotope
     // add_action('wp_enqueue_scripts', 'kz_divi_load_scripts', 100); //executer cela à la fin pour être sur de surcharger Divi
 }
@@ -495,11 +500,12 @@ function kz_pb_filterable_portfolio( $atts ) {
 				<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 			<?php endif; ?>
 
+			<p class="votable votable_template" data-post="<?php echo get_the_ID(); ?>" 
+								data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
+			<!-- <p class="comments"><a><i class='fa fa-comment-o'></i>3</a></p> -->
 			<?php if ( 'on' === $show_categories ) : ?>
-				<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
+				<!-- <p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p> -->
 			<?php endif; ?>
-			<div class="votable" 	data-post="<?php echo get_the_ID(); ?>" 
-									data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></div>
 
 			</div><!-- .et_pb_portfolio_item -->
 			<?php
@@ -674,6 +680,119 @@ function get_portfolio_items( $args = array() ) {
 
 }
 
+/**
+ * Adaptation du parent pour tenir compte des post types sur lesquels kidzou utilise le pagebuilder
+ * 
+ */
+function et_single_settings_meta_box( $post ) {
+	$post_id = get_the_ID();
+
+	wp_nonce_field( basename( __FILE__ ), 'et_settings_nonce' );
+
+	$page_layout = get_post_meta( $post_id, '_et_pb_page_layout', true );
+
+	$page_layouts = array(
+		'et_right_sidebar'   => __( 'Right Sidebar', 'Divi' ),
+   		'et_left_sidebar'    => __( 'Left Sidebar', 'Divi' ),
+   		'et_full_width_page' => __( 'Full Width', 'Divi' ),
+	);
+
+	$layouts        = array(
+		'light' => __( 'Light', 'Divi' ),
+		'dark'  => __( 'Dark', 'Divi' ),
+	);
+	$post_bg_color  = ( $bg_color = get_post_meta( $post_id, '_et_post_bg_color', true ) ) && '' !== $bg_color
+		? $bg_color
+		: '#ffffff';
+	$post_use_bg_color = get_post_meta( $post_id, '_et_post_use_bg_color', true )
+		? true
+		: false;
+	$post_bg_layout = ( $layout = get_post_meta( $post_id, '_et_post_bg_layout', true ) ) && '' !== $layout
+		? $layout
+		: 'light'; ?>
+
+	<p class="et_pb_page_settings et_pb_page_layout_settings">
+		<label for="et_pb_page_layout" style="display: block; font-weight: bold; margin-bottom: 5px;"><?php esc_html_e( 'Page Layout', 'Divi' ); ?>: </label>
+
+		<select id="et_pb_page_layout" name="et_pb_page_layout">
+		<?php
+		foreach ( $page_layouts as $layout_value => $layout_name ) {
+			printf( '<option value="%2$s"%3$s>%1$s</option>',
+				esc_html( $layout_name ),
+				esc_attr( $layout_value ),
+				selected( $layout_value, $page_layout )
+			);
+		} ?>
+		</select>
+	</p>
+<?php if ( in_array( $post->post_type, array_merge( array('page', 'project' ), Kidzou::post_types() ) ) ) : ?>
+	<p class="et_pb_page_settings" style="display: none;">
+		<input type="hidden" id="et_pb_use_builder" name="et_pb_use_builder" value="<?php echo esc_attr( get_post_meta( $post_id, '_et_pb_use_builder', true ) ); ?>" />
+		<textarea id="et_pb_old_content" name="et_pb_old_content"><?php echo esc_attr( get_post_meta( $post_id, '_et_pb_old_content', true ) ); ?></textarea>
+	</p>
+<?php endif; ?>
+
+<?php if ( 'post' === $post->post_type ) : ?>
+	<p class="et_divi_quote_settings et_divi_audio_settings et_divi_link_settings et_divi_format_setting">
+		<label for="et_post_use_bg_color" style="display: block; font-weight: bold; margin-bottom: 5px;">
+			<input name="et_post_use_bg_color" type="checkbox" id="et_post_use_bg_color" <?php checked( $post_use_bg_color ); ?> />
+			<?php esc_html_e( 'Use Background Color', 'Divi' ); ?></label>
+	</p>
+
+	<p class="et_post_bg_color_setting et_divi_format_setting">
+		<label for="et_post_bg_color" style="display: block; font-weight: bold; margin-bottom: 5px;"><?php esc_html_e( 'Background Color', 'Divi' ); ?>: </label>
+		<input id="et_post_bg_color" name="et_post_bg_color" class="color-picker-hex" type="text" maxlength="7" placeholder="<?php esc_attr_e( 'Hex Value', 'Divi' ); ?>" value="<?php echo esc_attr( $post_bg_color ); ?>" data-default-color="#ffffff" />
+	</p>
+
+	<p class="et_divi_quote_settings et_divi_audio_settings et_divi_link_settings et_divi_format_setting">
+		<label for="et_post_bg_layout" style="font-weight: bold; margin-bottom: 5px;"><?php esc_html_e( 'Text Color', 'Divi' ); ?>: </label>
+		<select id="et_post_bg_layout" name="et_post_bg_layout">
+	<?php
+		foreach ( $layouts as $layout_name => $layout_title )
+			printf( '<option value="%s"%s>%s</option>',
+				esc_attr( $layout_name ),
+				selected( $layout_name, $post_bg_layout, false ),
+				esc_html( $layout_title )
+			);
+	?>
+		</select>
+	</p>
+<?php endif;
+
+}
+
+/**
+ * surcharge du shortcode pour pouvoir l'inclure dans un tab (map_inside)
+ *
+ */
+function kz_pb_map( $atts, $content = '' ) {
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'address_lat' => '',
+			'address_lng' => '',
+			'zoom_level' => 18
+		), $atts
+	) );
+
+	wp_enqueue_script( 'google-maps-api' );
+
+	$all_pins_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
+
+	$output = sprintf(
+		'<div class="et_pb_map_container">
+			<div class="et_pb_map map_inside" data-center-lat="%1$s" data-center-lng="%2$s" data-zoom="%3$d"></div>
+			%4$s
+		</div>',
+
+		esc_attr( $address_lat ),
+		esc_attr( $address_lng ),
+		esc_attr( $zoom_level ),
+		$all_pins_content
+	);
+
+	return $output;
+}
 
 
 
