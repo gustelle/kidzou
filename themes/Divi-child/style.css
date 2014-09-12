@@ -3116,3 +3116,7 @@ p.votable.et_pb_newsletter_button {
 p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 .et_pb_map.map_inside {width: auto;}
+
+@media only screen and ( max-width: 980px  ) {
+	.content_preview {display: none;}
+}

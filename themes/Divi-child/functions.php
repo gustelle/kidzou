@@ -75,6 +75,58 @@ function kz_divi_load_scripts ()
 	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery' ), '1.0.0', true );
 
 }
+
+/**
+ * surcharge des related posts pour ajouter
+ * - un filtre sur les metropoles : seuls les contenus relatifs rattachés à une même metropole sont remontés
+ * - formatter l'affichage en utilisant les shortcodes de Divi
+ *
+ * @return void
+ * @author 
+ **/
+function kidzou_related_posts()
+{
+	add_filter('crp_posts_join', 'crp_filter_metropole');
+
+	$posts_ids_objects = get_crp_posts_id();
+	$ids = array();
+
+	foreach ($posts_ids_objects as $id_object) {
+	    $ids[]   = $id_object->ID;
+	}
+	$ids_list = implode(',', $ids);	
+
+	return do_shortcode('
+		[et_pb_section fullwidth="off" specialty="off"]
+			[et_pb_row]
+				<h2>D&apos;autres sorties sympa :</h2>
+				[et_pb_column type="4_4"]
+					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="4" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" background_layout="light" /][/et_pb_column][/et_pb_row][/et_pb_section]
+		');
+
+}
+
+/**
+ *  
+ * @see kidzou_related_posts
+ * @return void
+ * @author 
+ **/
+function crp_filter_metropole()
+{
+	$join = ''; 
+
+	if (class_exists('Kidzou_Geo'))
+			$metropole = Kidzou_Geo::get_post_metropole(); //object
+
+	if (class_exists('Kidzou_Geo') && $metropole!=null) {
+		$join .= "
+		INNER JOIN wp_term_taxonomy AS tt ON (tt.term_id=".$metropole->term_id." AND tt.taxonomy='ville')
+		INNER JOIN wp_term_relationships AS tr ON (tr.term_taxonomy_id=tt.term_taxonomy_id AND tr.object_id=ID) ";
+	}
+
+	return $join;
+}
 	
 function kz_register_divi_layouts() {
 
@@ -305,6 +357,7 @@ function kz_pb_portfolio( $atts ) {
 			'show_categories' => 'on',
 			'show_pagination' => 'on',
 			'background_layout' => 'light',
+			'post__in' => ''
 		), $atts
 	) );
 
@@ -316,6 +369,9 @@ function kz_pb_portfolio( $atts ) {
 		'posts_per_page' => (int) $posts_number,
 		'post_type'      => Kidzou::post_types(),
 	);
+
+	if ( '' !== $post__in )
+		$args['post__in'] = explode(",", $post__in);
 
 	$et_paged = is_front_page() ? get_query_var( 'page' ) : get_query_var( 'paged' );
 
@@ -337,9 +393,13 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
+	// print_r($args);
+
 	ob_start();
 
 	query_posts( $args );
+
+	// echo $GLOBALS['wp_query']->request;
 
 	if ( have_posts() ) {
 		while ( have_posts() ) {
@@ -357,8 +417,9 @@ function kz_pb_portfolio( $atts ) {
 			$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
 			$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
 			$titletext = get_the_title();
-			$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'Blogimage' );
+			$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image'  );
 			$thumb = $thumbnail["thumb"];
+
 
 			if ( '' !== $thumb ) : ?>
 				<a href="<?php the_permalink(); ?>">
@@ -518,7 +579,7 @@ function kz_pb_filterable_portfolio( $atts ) {
 								data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
 			<!-- <p class="comments"><a><i class='fa fa-comment-o'></i>3</a></p> -->
 			<?php if ( 'on' === $show_categories ) : ?>
-				<!-- <p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p> -->
+				<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p> 
 			<?php endif; ?>
 
 			</div><!-- .et_pb_portfolio_item -->
@@ -575,6 +636,10 @@ function kz_pb_filterable_portfolio( $atts ) {
 	return $output;
 }
 
+/**
+ * Option ajoutée 'post__in' pour formatter les Contextual Related Posts en portfolio
+ *
+ */
 function kz_pb_fullwidth_portfolio( $atts ) {
 	extract( shortcode_atts( array(
 			'title' => '',
@@ -588,6 +653,7 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 			'background_layout' => 'light',
 			'auto' => 'off',
 			'auto_speed' => 7000,
+			'post__in' => ''
 		), $atts
 	) );
 

@@ -439,7 +439,7 @@ class Kidzou_Geo {
 	 * @return Object
 	 * @author 
 	 **/
-	function get_post_metropole( )
+	public static function get_post_metropole( )
 	{
 	    global $post;
 

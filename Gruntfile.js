@@ -58,11 +58,11 @@ module.exports = function(grunt) {
 		        'themes/Trim/js/superfish.js': ['themes/Trim/js/superfish.source.js']
 		      }
 		    },
-		    connections: {
-		      files: {
-		        'connections_templates/cmap/template.js': ['connections_templates/cmap/template.source.js'],
-		      }
-		    },
+		    // connections: {
+		    //   files: {
+		    //     'connections_templates/cmap/template.js': ['connections_templates/cmap/template.source.js'],
+		    //   }
+		    // },
 		    localcache: {
 		      files: {
 		        'plugins/kidzou/js/front/dist/local-cache.min.js': ['plugins/kidzou/js/front/local-cache.js'],
@@ -135,16 +135,16 @@ module.exports = function(grunt) {
 				exclusions: ['./plugins/really-simple-events'] //livré une fois, pas à chauqe fois pour perf du process
 				
 			},
-			connections_templates: {
-				auth: {
-				  host: 'www.kidzou.fr',
-				  port: 21,
-				  authKey: 'prod'
-				},
-				src: './connections_templates',
-				dest: '/wp-content/connections_templates',
-				// exclusions: []
-			},
+			// connections_templates: {
+			// 	auth: {
+			// 	  host: 'www.kidzou.fr',
+			// 	  port: 21,
+			// 	  authKey: 'prod'
+			// 	},
+			// 	src: './connections_templates',
+			// 	dest: '/wp-content/connections_templates',
+			// 	// exclusions: []
+			// },
 			themes: {
 				auth: {
 				  host: 'www.kidzou.fr',
@@ -175,55 +175,55 @@ module.exports = function(grunt) {
 		    ]
 		  },
 
-		  connections: {
-		    files: [
-		      {expand:true, cwd: 'plugins/connections/images/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/connections/images/'},
-		      {expand:true, cwd: 'plugins/connections/includes/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/connections/includes/'},
-		      {expand:true, cwd: 'connections_templates/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/connections_templates/'}
-		    ]
-		  },
+		  // connections: {
+		  //   files: [
+		  //     {expand:true, cwd: 'plugins/connections/images/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/connections/images/'},
+		  //     {expand:true, cwd: 'plugins/connections/includes/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/connections/includes/'},
+		  //     {expand:true, cwd: 'connections_templates/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/connections_templates/'}
+		  //   ]
+		  // },
 		  nextend: {
 		    files: [
 		      {expand:true, cwd: 'plugins/nextend-facebook-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-facebook-connect/'},
 		      {expand:true, cwd: 'plugins/nextend-google-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-google-connect/'}
 		    ]
 		  },
-		  kidzou: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou/'}, // includes files in path and its subdirs,
-		    ]
-		  },
+		  // kidzou: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/kidzou/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
 
-		  events: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou-events/', src: ['**','less/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-events/'}, // includes files in path and its subdirs,
-		    ]
-		  },
-		  clients: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou-clients/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-clients/'}, // includes files in path and its subdirs,
-		    ]
-		  },
-		  geo: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou-geo/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-geo/'}, // includes files in path and its subdirs,
-		    ]
-		  },
-		  contest: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou-contest/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-contest/'}, // includes files in path and its subdirs,
-		    ]
-		  },
-		  users: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou-users/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-users/'}, // includes files in path and its subdirs,
-		    ]
-		  },
-		  crp: {
-		    files: [
-		    	{expand:true, cwd: 'plugins/contextual-related-posts/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/contextual-related-posts/'}, // includes files in path and its subdirs,
-		    ]
-		  },
+		  // events: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/kidzou-events/', src: ['**','less/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-events/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
+		  // clients: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/kidzou-clients/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-clients/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
+		  // geo: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/kidzou-geo/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-geo/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
+		  // contest: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/kidzou-contest/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-contest/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
+		  // users: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/kidzou-users/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-users/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
+		  // crp: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'plugins/contextual-related-posts/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/contextual-related-posts/'}, // includes files in path and its subdirs,
+		  //   ]
+		  // },
 		  kidzou4: {
 		    files: [
 		    	{expand:true, cwd: 'plugins/kidzou-4/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-4/'}, // includes files in path and its subdirs,
@@ -296,6 +296,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('prepjs', ['concat:js','jshint','uglify','plato']); 
 	grunt.registerTask('theme', ['copy:divi']); //csslint
-	grunt.registerTask('plugins', ['copy:kidzou','copy:kidzou4','copy:nextend','copy:connections', 'copy:events', 'copy:contest','copy:users', 'copy:clients','copy:geo','copy:crp']); 
+	grunt.registerTask('plugins', ['copy:kidzou4','copy:nextend']); 
 
 };

@@ -171,7 +171,7 @@
 						data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
 
 			</div> <!-- .et_pb_text -->
-			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">	
+			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left content_preview">	
 				<?php the_excerpt(); ?>
 			</div> <!-- .et_pb_text -->
 		</div> <!-- .et_pb_column -->
@@ -257,18 +257,9 @@
 			</div> <!-- .et_pb_row -->
 		</div> <!-- .et_pb_section -->
 
-		<?php if ( function_exists( 'echo_ald_crp' ) ) { ?>
-
-		<div class="et_pb_section et_section_specialty">
-			<div class="et_pb_row">
-
-				<?php echo_ald_crp();  ?>
-
-			</div>
-		</div>
-
-		<?php } ?>
-										
+		<?php 
+			echo kidzou_related_posts();
+		?>					
 													
 					</div> <!-- .entry-content -->
 					
