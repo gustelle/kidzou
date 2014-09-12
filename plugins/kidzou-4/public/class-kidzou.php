@@ -81,7 +81,7 @@ class Kidzou {
 		 */
 		// add_action( '@TODO', array( $this, 'action_method_name' ) );
 		add_filter( 'comments_array', array( $this, 'reverse_comments' ) );
-		add_filter( 'excerpt_length', array( $this, 'excerpt_length' ) );
+
 		add_filter('the_excerpt_rss', array( $this, 'rss_post_thumbnail' ) );
 		add_filter('the_content_feed', array( $this, 'rss_post_thumbnail' ) );
 
@@ -490,10 +490,6 @@ class Kidzou {
 		return array_reverse($comments);
 	}
 
-	public function kidzou_excerpt_length( $length ) {
-		return 200;
-	}
-
 	public function rss_post_thumbnail($content) {
 		global $post;
 		if(has_post_thumbnail($post->ID)) {
@@ -502,9 +498,7 @@ class Kidzou {
 		}
 		return $content;
 	}
-
 	
-
 	public static function post_types() {
 
 		return array('post', 'event');

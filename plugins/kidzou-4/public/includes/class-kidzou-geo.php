@@ -431,6 +431,71 @@ class Kidzou_Geo {
 	    
 	}
 
+	/**
+	 * la metropole du post courant
+	 * si rattaché à plusieurs metropoles (national, lille...) on prend la metropole qui dispose du meta kz_national_ville
+	 * si aucune metropole ne dispose de cette meta, on prend la premiere de la liste
+	 *
+	 * @return Object
+	 * @author 
+	 **/
+	function get_post_metropole( )
+	{
+	    global $post;
+
+	    $result = get_transient('kz_post_metropole_'. $post->ID ); 
+
+	    if (false===$result)
+	    {
+
+	        $terms = wp_get_post_terms( $post->ID, 'ville');
+
+	        $roots = array();
+
+	        foreach ($terms as $key => $value){
+	            //get top level parent
+	            $ancestors = get_ancestors( $value->term_id, 'ville' );
+	            
+	            if (count($ancestors)==0) {
+	                //le terme est déjà à la racine
+	                array_push($roots, $value);
+	            
+	            } else {
+
+	                foreach ($ancestors as $ancestor){
+	                    $ville = get_term_by('id', (int)$ancestor, 'ville');
+	                    if ($ville->parent == 0) {
+	                        array_push($roots, $ville);
+	                    }
+	                }
+	            }
+	            
+	        }
+
+	        //si le post est rattaché à plus d'une metropole
+	        if (count($roots)>1) {
+	            $i=0;
+	            $save_me = $roots[$i];
+	            foreach ($roots as $root) {
+	                if (get_tax_meta($root->term_id,'kz_national_ville')!="on") {
+	                    unset($roots[$i]);
+	                } else {
+	                    $save_me = $roots[$i];
+	                }
+	                $i++;
+	            }
+	            $roots[0] = $save_me;
+	        }
+
+	        $result = $roots[0];
+
+	        set_transient( 'kz_post_metropole_'. $post->ID , $result, 60 * 60 * 24 ); //1 jour de cache
+	        
+	    }
+	    
+	    return $result;
+	}
+
 
 } //fin de classe
 

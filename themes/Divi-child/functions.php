@@ -44,8 +44,22 @@ function override_divi_parent_functions()
     add_shortcode( 'et_pb_fullwidth_map', 'kz_pb_map' );
 	add_shortcode( 'et_pb_map', 'kz_pb_map' );
 
-    //specific custom.js pour filtrer les posts par isotope
-    // add_action('wp_enqueue_scripts', 'kz_divi_load_scripts', 100); //executer cela à la fin pour être sur de surcharger Divi
+	//image gallery incluse manuellement au bon endroit dans single.php
+	remove_filter( 'the_content', 'easy_image_gallery_append_to_content' ); 
+
+	//inviter l'utilisateur à scroller
+	add_filter( 'excerpt_length', 'custom_excerpt_length' , 999 );
+	add_filter('excerpt_more', 'excerpt_more_invite_scroll');
+
+}
+
+function custom_excerpt_length( $length ) {
+	return 180;
+}
+
+// Replaces the excerpt "more" text by a link
+function excerpt_more_invite_scroll($more) {
+	return ' ... <a href="#content_start" alt="Lire le contenu" ><i class="fa fa-arrow-down fa-3x grey overtext"></i></a>';
 }
 
 /**

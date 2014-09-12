@@ -92,105 +92,101 @@
 			<div class="et_pb_row">
 				
 				<div class="et_pb_column et_pb_column_3_4">
-			<div class="et_pb_row_inner">
-			<div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
-			<div class="et_pb_gallery et_pb_slider et_pb_gallery_fullwidth et_pb_bg_layout_light clearfix">
-			
-			<div class="et_pb_gallery_items et_post_gallery" data-per_page="4"><div class="et_pb_gallery_item et_pb_bg_layout_light">
-			<div class='et_pb_gallery_image landscape'>
-				<a href="http://localhost/wp-content/uploads/2014/09/anniversaire-lille.jpg" title="Anniversaire Lille Enfant">
-				<img src="http://localhost/wp-content/uploads/2014/09/anniversaire-lille.jpg" alt="Anniversaire Lille Enfant" /><span class="et_overlay"></span>
-			</a>
-			</div></div><div class="et_pb_gallery_item et_pb_bg_layout_light">
-			<div class='et_pb_gallery_image landscape'>
-				<a href="http://localhost/wp-content/uploads/2014/09/Grande_fete_lilloise_cirque_2013.jpg" title="Grande Fête Lilloise du Cirque">
-				<img src="http://localhost/wp-content/uploads/2014/09/Grande_fete_lilloise_cirque_2013.jpg" alt="Grande Fête Lilloise du Cirque" /><span class="et_overlay"></span>
-			</a>
-			</div></div><div class="et_pb_gallery_item et_pb_bg_layout_light">
-			<div class='et_pb_gallery_image landscape'>
-				<a href="http://localhost/wp-content/uploads/2014/09/Coding_Scratch-e1402935538371-210x167.jpg" title="">
-				<img src="http://localhost/wp-content/uploads/2014/09/Coding_Scratch-e1402935538371-210x167.jpg" alt="" /><span class="et_overlay"></span>
-			</a>
-			</div></div><div class="et_pb_gallery_item et_pb_bg_layout_light">
-			<div class='et_pb_gallery_image landscape'>
-				<a href="http://localhost/wp-content/uploads/2014/09/Euratechnologies.jpg" title="">
-				<img src="http://localhost/wp-content/uploads/2014/09/Euratechnologies.jpg" alt="" /><span class="et_overlay"></span>
-			</a>
-			</div></div></div><!-- .et_pb_gallery_items --></div><!-- .et_pb_gallery -->
-		</div> <!-- .et_pb_column --><div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
+					<div class="et_pb_row_inner">
+						<div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
+							<?php
+
+							print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , 'et_pb_image et-waypoint et_pb_image et_pb_animation_left et-animated');
+							
+							if( function_exists( 'easy_image_gallery' ) ) {
+								// echo '<div class="et_pb_gallery et_pb_slider et_pb_gallery_fullwidth clearfix et_pb_bg_layout_light">';
+							    	// echo '<div class="et_pb_gallery_items et_post_gallery">';
+							    		echo easy_image_gallery();
+							    	// echo '</div>';
+							    // echo '</div>';
+							}
+
+							?>
+						</div> <!-- .et_pb_column -->
+		<div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
 			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 			
-<h1><?php the_title(); ?></h1>
-<?php et_divi_post_meta(); ?>
+				<h1><?php the_title(); ?></h1>
+				<?php et_divi_post_meta(); ?>
 
-		</div> <!-- .et_pb_text -->
+			</div> <!-- .et_pb_text -->
 
-	<?php
+			<?php
 
-	if (Kidzou_Geo::has_post_location()) {
+			if (Kidzou_Geo::has_post_location()) {
 
-		$location = Kidzou_Geo::get_post_location();
-	?>
-		<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
-			<?php if (isset($location['location_address']) && $location['location_address']<>'') echo '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>'; ?>
-			<?php if (isset($location['location_tel']) && $location['location_tel']<>'')  echo '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>'; ?>
-			<?php if (isset($location['location_web']) && $location['location_web']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i>'.$location['location_web'].'</p>'; ?>
+				$location = Kidzou_Geo::get_post_location();
+			?>
+				<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+					<?php if (isset($location['location_address']) && $location['location_address']<>'') echo '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>'; ?>
+					<?php if (isset($location['location_tel']) && $location['location_tel']<>'')  echo '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>'; ?>
+					<?php if (isset($location['location_web']) && $location['location_web']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i>'.$location['location_web'].'</p>'; ?>
 
-		</div> <!-- .et_pb_text --><hr class="et_pb_space" />
-	
-	<?php } ?>
-
-	<?php
-
-	if (Kidzou_Events::isTypeEvent()) {
-
-		$location = Kidzou_Events::getEventDates();
-
-		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
-		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
-		$formatted = '';
-		setlocale(LC_TIME, "fr_FR"); 
-
-		if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-			$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
-		else
-			$formatted = __( 'Du '. strftime("%A %d %B", $start->getTimestamp()).' au '.strftime("%A %d %B", $end->getTimestamp()), 'Divi' );
-	?>
-		<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
-			<?php echo '<p class="location"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
-		</div> <!-- .et_pb_text --><hr class="et_pb_space" />
-	
-	<?php } ?>
-
-
-		<ul class="et_pb_social_media_follow et_pb_bg_layout_light clearfix">
-			<li class="et_pb_social_icon et_pb_social_network_link et-social-facebook">
-			<a href="#" class="icon rounded_rectangle" title="facebook" style="background-color: #3b5998;"><span>facebook</span></a>
+				</div> <!-- .et_pb_text --><hr class="et_pb_space" />
 			
-		</li><li class="et_pb_social_icon et_pb_social_network_link et-social-twitter">
-			<a href="#" class="icon rounded_rectangle" title="Twitter" style="background-color: #00aced;"><span>Twitter</span></a>
-			
-		</li>
-		</ul> <!-- .et_pb_counters --><div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
-			<!-- <span class="big_button bg_pink"> -->
-			
-			<p class="votable et_pb_newsletter_button"  data-post="<?php echo get_the_ID(); ?>" 
-					data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
+			<?php } ?>
 
-		</div> <!-- .et_pb_text -->
-		</div> <!-- .et_pb_column -->
-		</div> <!-- .et_pb_row_inner --><div class="et_pb_row_inner">
-			<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
-			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
-			
-<p><?php the_content(); ?>
+			<?php
 
-	<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'Divi' ), 'after' => '</div>' ) );?>
+			if (Kidzou_Events::isTypeEvent()) {
 
+				$location = Kidzou_Events::getEventDates();
 
+				$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+				$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+				$formatted = '';
+				setlocale(LC_TIME, "fr_FR"); 
+
+				if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+					$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+				else
+					$formatted = __( 'Du '. strftime("%A %d %B", $start->getTimestamp()).' au '.strftime("%A %d %B", $end->getTimestamp()), 'Divi' );
+			?>
+				<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+					<?php echo '<p class="location"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
 				</div> <!-- .et_pb_text -->
-			</div> <!-- .et_pb_column -->
-		</div> <!-- .et_pb_row_inner -->
+			
+			<?php } ?>
+
+
+			<ul class="et_pb_social_media_follow et_pb_bg_layout_light clearfix">
+				<li class="et_pb_social_icon et_pb_social_network_link et-social-facebook">
+				<a href="#" class="icon rounded_rectangle" title="facebook" style="background-color: #3b5998;"><span>facebook</span></a>
+				
+			</li><li class="et_pb_social_icon et_pb_social_network_link et-social-twitter">
+				<a href="#" class="icon rounded_rectangle" title="Twitter" style="background-color: #00aced;"><span>Twitter</span></a>
+				
+			</li>
+			</ul> <!-- .et_pb_counters -->
+
+			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+				<!-- <span class="big_button bg_pink"> -->
+				
+				<p class="votable et_pb_newsletter_button"  data-post="<?php echo get_the_ID(); ?>" 
+						data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
+
+			</div> <!-- .et_pb_text -->
+			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">	
+				<?php the_excerpt(); ?>
+			</div> <!-- .et_pb_text -->
+		</div> <!-- .et_pb_column -->
+	</div> <!-- .et_pb_row_inner -->
+	<div class="et_pb_row_inner">
+		<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
+			<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
+			
+				<p id="content_start"><?php the_content(); ?></p>
+
+				<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'Divi' ), 'after' => '</div>' ) );?>
+
+			</div> <!-- .et_pb_text -->
+		</div> <!-- .et_pb_column -->
+	</div> <!-- .et_pb_row_inner -->
 		
 		<div class="et_pb_row_inner">
 			<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
@@ -260,6 +256,18 @@
 		</div> <!-- .et_pb_column -->
 			</div> <!-- .et_pb_row -->
 		</div> <!-- .et_pb_section -->
+
+		<?php if ( function_exists( 'echo_ald_crp' ) ) { ?>
+
+		<div class="et_pb_section et_section_specialty">
+			<div class="et_pb_row">
+
+				<?php echo_ald_crp();  ?>
+
+			</div>
+		</div>
+
+		<?php } ?>
 										
 													
 					</div> <!-- .entry-content -->

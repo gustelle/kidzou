@@ -3102,15 +3102,17 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 	background-color:#ED0A71;
 	color: #fff ;
 }
+.grey {color:#c6c6c6;} 
 .blue {color:#52A4C9;}
-/*.font-3x {font-size: 300%;}
-.font-2x {font-size: 200%;}*/
+.overtext {vertical-align: text-top;}
+
 p.votable.et_pb_newsletter_button {
 	color:#ED0A71 !important;
 	border-color: #ED0A71;
 	width: 60%; /* pas toute la largeur*/
 	padding-bottom: 6px; /* correction */
 }
+
 p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 .et_pb_map.map_inside {width: auto;}
