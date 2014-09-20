@@ -91,6 +91,10 @@ class Kidzou {
 		add_filter('json_api_auth_controller_path', 			array( $this, 'set_auth_controller_path' ) );
 		add_filter('json_api_users_controller_path',            array( $this, 'set_users_controller_path' ) );
 
+		//insertion des template de vote
+		add_action('wp_footer', array($this, 'votable_template_mini'), 100);
+		add_action('wp_footer', array($this, 'votable_template_mega'), 100);
+
 
 	}
 
@@ -270,8 +274,70 @@ class Kidzou {
 	 * @since    1.0.0
 	 */
 	private static function single_deactivate() {
+		
 		// @TODO: Define deactivation functionality here
-		remove_role( 'pro' );
+
+		// global $wp_roles;
+
+		// $post_type_details = get_post_type_object( 'event' );
+		// $post_type_cap 	= $post_type_details->capability_type;
+		// $post_type_caps	= $post_type_details->cap;
+
+		// $administrator     	= $wp_roles->get_role('administrator');
+		// $editor     		= $wp_roles->get_role('editor');
+		// $pro 				= $wp_roles->get_role('pro');
+
+		// $roles_plus = array();
+		// $roles_plus["administrator"] = $administrator;
+		// $roles_plus["editor"] = $editor;
+
+		// foreach ( $roles_plus as $key => $role ) {
+
+		// 	// Shared capability required to see post's menu & publish posts
+		// 	$role->remove_cap( $post_type_caps->edit_posts );
+				
+		// 	// Shared capability required to delete posts
+		// 	$role->remove_cap( $post_type_caps->delete_posts );
+				
+		// 	// Allow publish
+		// 	$role->remove_cap( $post_type_caps->publish_posts );
+
+		// 	// Allow editing own posts
+		// 	$role->remove_cap( $post_type_caps->edit_published_posts );
+		// 	$role->remove_cap( $post_type_caps->edit_private_posts );
+		// 	$role->remove_cap( $post_type_caps->delete_published_posts );
+		// 	$role->remove_cap( $post_type_caps->delete_private_posts );
+				
+		// 	// Allow editing other's posts
+		// 	$role->remove_cap( $post_type_caps->edit_others_posts );
+		// 	$role->remove_cap( $post_type_caps->delete_others_posts );
+				
+		// 	// Allow reading private
+		// 	$role->remove_cap( $post_type_caps->read_private_posts);
+
+		// }
+
+		// $roles_mini = array();
+		// $roles_mini["pro"] = $pro;
+
+		// foreach ( $roles_mini as $key => $role ) {
+
+		// 	// Shared capability required to see post's menu & publish posts
+		// 	$role->remove_cap( $post_type_caps->edit_posts );
+
+		// 	// Allow editing own posts
+		// 	$role->remove_cap( $post_type_caps->edit_published_posts );
+		// 	$role->remove_cap( $post_type_caps->edit_private_posts );
+		// 	// $role->add_cap( $post_type_caps->delete_published_posts );
+		// 	$role->remove_cap( $post_type_caps->delete_private_posts );
+				
+		// 	// Allow reading private
+		// 	$role->remove_cap( $post_type_caps->read_private_posts);
+
+		// }
+
+		// remove_role( 'pro' );
+
 		flush_rewrite_rules();
 	}
 
@@ -292,7 +358,6 @@ class Kidzou {
 			'menu_name' => __( 'Ville' ),
 			);
 
-		//intégration avec event dans le register_post_type event
 		register_taxonomy('ville',array('post','page', 'user'), array(
 			'hierarchical' => true,
 			'labels' => $labels,
@@ -322,12 +387,6 @@ class Kidzou {
 			'show_ui' => true,
 			'query_var' => true,
 			'rewrite' => array( 'slug' => 'divers' ),
-			// 'capabilities' => array(
-			// 	'manage_terms' 	=> 'manage_categories',
-			// 	'edit_terms' 	=> 'manage_categories',
-			// 	'delete_terms' 	=> 'manage_categories',
-			// 	'assign_terms' 	=>	'edit_posts' 
-			// )
 			));
 
 		// Add new taxonomy, make it hierarchical (like categories)
@@ -345,61 +404,92 @@ class Kidzou {
 			'menu_name' => __( 'Tranches d&apos;age' ),
 			);
 
-		//le cap "edit_events" peut assigner des ages aux events
 		register_taxonomy('age',array('post','page'), array(
 			'hierarchical' => true,
 			'labels' => $labels,
 			'show_ui' => true,
 			'query_var' => true,
 			'rewrite' => array( 'slug' => 'age' ),
-			// 'capabilities' => array(
-			// 	'manage_terms' 	=> 'manage_categories',
-			// 	'edit_terms' 	=> 'manage_categories',
-			// 	'delete_terms' 	=> 'manage_categories',
-			// 	'assign_terms' 	=>	'edit_posts' 
-			// )
 			));
 	}
 
 
 	/**
-	 * @todo mettre dans Kidzou_events
+	 * 
 	 *
 	 */
-	//les caps d'edition seront ajoutes ad-hoc lors des requetes dans admin
 	public static function create_roles() {
 
-		add_role(
-	        'pro',
-	        __( 'Professionnel' ), 
-	        array(
-	            'read'          => true,
-	            'manage_categories' => false,
-	            'upload_files'  => true,
-	        )
-	    );
+		// add_role(
+	 //        'pro',
+	 //        __( 'Professionnel' ), 
+	 //        array(
+	 //            'read'          => true,
+	 //            'manage_categories' => false,
+	 //            'upload_files'  => true,
+	 //        )
+	 //    );
 
 	    
 	}
 
 	public static function add_caps() {
 
-		$administrator     = get_role('administrator');
-		$editor     	= get_role('editor');
-		$pro 	= get_role('pro');
+		// global $wp_roles;
 
-		foreach ( array('delete_private','edit','edit_private','read_private') as $cap ) {
-			$administrator->add_cap( "{$cap}_event" );
-			$pro->add_cap("${cap}_event");
-			$editor->add_cap("${cap}_event");
-		}
+		// $administrator     	= $wp_roles->get_role('administrator');
+		// $editor     		= $wp_roles->get_role('editor');
+		// $pro 				= $wp_roles->get_role('pro');
 
-		//et en plus pour eux
-		foreach ( array('publish','delete','delete_others','edit_others', 'edit_published', 'delete_published') as $cap ) {
-			$administrator->add_cap( "{$cap}_event" );
-			$editor->add_cap("${cap}_event");
-		}
+		// $roles_plus = array();
+		// $roles_plus["administrator"] = $administrator;
+		// $roles_plus["editor"] = $editor;
 
+		// $post_type_details = get_post_type_object( 'event' );
+		// $post_type_cap 	= $post_type_details->capability_type;
+		// $post_type_caps	= $post_type_details->cap;
+
+		// foreach ( $roles_plus as $key => $role ) {
+
+		// 	// Shared capability required to see post's menu & publish posts
+		// 	$role->add_cap( $post_type_caps->edit_posts ); 
+				
+		// 	// Shared capability required to delete posts
+		// 	$role->add_cap( $post_type_caps->delete_posts );
+				
+		// 	// Allow publish
+		// 	$role->add_cap( $post_type_caps->publish_posts );
+
+		// 	// Allow editing own posts
+		// 	$role->add_cap( $post_type_caps->edit_published_posts );
+		// 	$role->add_cap( $post_type_caps->edit_private_posts );
+		// 	$role->add_cap( $post_type_caps->delete_published_posts );
+		// 	$role->add_cap( $post_type_caps->delete_private_posts );
+				
+		// 	// Allow editing other's posts
+		// 	$role->add_cap( $post_type_caps->edit_others_posts );
+		// 	$role->add_cap( $post_type_caps->delete_others_posts );
+				
+		// 	// Allow reading private
+		// 	$role->add_cap( $post_type_caps->read_private_posts);
+
+		// }
+		
+
+		// // Shared capability required to see post's menu & publish posts
+		// $pro->add_cap( $post_type_caps->edit_posts );
+
+		// // Allow editing own posts
+		// $pro->add_cap( $post_type_caps->edit_published_posts );
+		// $pro->add_cap( $post_type_caps->edit_private_posts );
+		// // $role->add_cap( $post_type_caps->delete_published_posts );
+		// $pro->add_cap( $post_type_caps->delete_private_posts );
+			
+		// // Allow reading private
+		// $pro->add_cap( $post_type_caps->read_private_posts);
+
+		
+		
 
 	}
 
@@ -428,6 +518,7 @@ class Kidzou {
 	public function enqueue_styles() {
 		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );
 		wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '4.2.0' );
+		wp_enqueue_style( 'pnotify', "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.css", null, '2.0.0' );
 	}
 
 	/**
@@ -436,18 +527,21 @@ class Kidzou {
 	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
+
 		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION );
 		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
-	
+		wp_enqueue_script('pnotify',	"http://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js",array("jquery"), '2.0.0', true);
+
+
 		wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
 				'msg_wait'			 			 => 'Merci de patienter...',
 				'msg_loading'				 	 => 'Chargement en cours...',
 				'msg_auth_onprogress'			 => "Connexion en cours, merci de votre patience",
 				'msg_auth_success'				 => "Connexion r&eacute;ussie, la page va se recharger...",
 				'msg_auth_failed'				 => "Echec de connexion",
-				'votable_countText' 			 => "&nbsp;J&apos;aime",
-				'votable_countText_down'		 => "Je n&apos;aime pas",
+				'votable_countText' 			 => "Cool",
+				'votable_countText_down'		 => "Pas cool",
 				'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
 				'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
 				'cfg_site_url'		 			 =>  site_url().'/',
@@ -501,7 +595,7 @@ class Kidzou {
 	
 	public static function post_types() {
 
-		return array('post', 'event');
+		return array('post', ); //'event'
 	}
 
 	/*JSON API*/
@@ -526,5 +620,60 @@ class Kidzou {
 	  return plugin_dir_path( __FILE__ ) ."/includes/api/users.php";
 	}
 
+	public static function votable_template_mini() {
+
+		echo '
+		<script type="text/html" id="vote-template-mini">
+	    <span class="vote" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
+			<i data-bind="css : $data.iconClass"></i>
+			<span 	data-bind="text: $data.votes"></span>
+	    </span>
+		</script>';
+
+	}
+
+	public static function votable_template_mega() {
+
+		echo '
+		</script>
+		<script type="text/html" id="vote-template-mega">
+	    <span class="vote font-2x" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
+			<i data-bind="css : $data.iconClass"></i>
+			<span 	data-bind="text: $data.votes"></span>
+	    </span>
+		</script>';
+
+	}
+
+	public static function vote_mega($id=0, $class='') {
+
+		if ($id==0)
+		{
+			global $post;
+			$id = $post->ID;
+		}
+
+		echo '
+		<span class="votable '.$class.'"  
+				data-tooltip="'.__('Cela permet aux parents de rep&eacute;rer les sorties les plus int&eacute;ressantes','Kidzou').'"
+				data-post="'.$id.'" 
+				data-bind="template: { name: \'vote-template-mega\', data: votes.getVotableItem('.$id.') }"></span>';
+
+	}
+
+	public static function vote_mini($id=0, $class='') {
+
+		if ($id==0)
+		{
+			global $post;
+			$id = $post->ID;
+		}
+
+		echo '
+		<span class="votable '.$class.'"  
+				data-post="'.$id.'" 
+				data-bind="template: { name: \'vote-template-mini\', data: votes.getVotableItem('.$id.') }"></span>';
+
+	}
 
 }

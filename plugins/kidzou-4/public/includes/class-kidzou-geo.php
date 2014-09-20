@@ -57,7 +57,7 @@ class Kidzou_Geo {
 
 		// Activate plugin when new blog is added
 
-		add_action( 'init', array( $this, 'create_rewrite_rules' ) );
+		add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
 
 		add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
 		add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
@@ -66,13 +66,6 @@ class Kidzou_Geo {
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
 	}
 
-    // private static function initialize()
-    // {
-    //     if (self::$initialized)
-    //         return;
-
-    //     self::$initialized = true;
-    // }
 
     /**
 	 * Return an instance of this class.
@@ -401,6 +394,10 @@ class Kidzou_Geo {
 	    return $location_latitude<>'' && $location_longitude<>'';
 	}
 
+	/**
+	 * Rewrites incluant les metropoles
+	 *
+	 */
 	public static function create_rewrite_rules() {
 		
 	    $villes = self::get_metropoles();

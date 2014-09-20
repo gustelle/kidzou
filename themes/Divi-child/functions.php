@@ -20,21 +20,18 @@ function override_divi_parent_functions()
 	//surcharge pour avoir des thumbs carrées de taille 225
 	global $et_theme_image_sizes;
 	add_theme_support( 'post-thumbnails' ); //normalement déjà supporté par le parent mais bon...
-	$et_theme_image_sizes['225x225'] = "kidzou_catalog";  //nécessaire car utilisé dans la fonction print_thumbnail
-	add_image_size( 'kidzou_catalog', 225, 225, true ); //crop
+	$et_theme_image_sizes['100x100'] = "post_gallery";  //nécessaire car utilisé dans la fonction print_thumbnail
+	add_image_size( 'post_gallery', 168, 168, true ); //crop
 	
 	//suppression du custom post type "project"
 	remove_action('init','et_pb_register_posttypes', 0); //meme ordre que le parent
     add_action('init','kz_register_divi_layouts', 0); 
 
-    //shortcode pour faire une grill de posts
-    //en surcharge du parent
-    remove_shortcode('et_pb_blog');
-    add_shortcode('et_pb_blog','kz_pb_blog');
 
     //nouveau shotcode kidzou pour ajouter les post types de kidzou
     //et ne pas utiliser les taxonomies de Divi (project_category)
     //copié sur functions.php du parent
+    add_shortcode('kz_pb_blog','kz_pb_blog');
     add_shortcode('kz_pb_portfolio','kz_pb_portfolio');
     add_shortcode('kz_pb_fullwidth_portfolio','kz_pb_fullwidth_portfolio');
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
@@ -50,6 +47,10 @@ function override_divi_parent_functions()
 	//inviter l'utilisateur à scroller
 	add_filter( 'excerpt_length', 'custom_excerpt_length' , 999 );
 	add_filter('excerpt_more', 'excerpt_more_invite_scroll');
+
+	//permettre l'execution de shortcodes dans la sidebar
+	//pour notamment inclure dans la sidebar le widget newsletter
+	add_filter('widget_text', 'do_shortcode');
 
 }
 
@@ -99,7 +100,7 @@ function kidzou_related_posts()
 	return do_shortcode('
 		[et_pb_section fullwidth="off" specialty="off"]
 			[et_pb_row]
-				<h2>D&apos;autres sorties sympa :</h2>
+				<h1>D&apos;autres sorties sympa :</h1>
 				[et_pb_column type="4_4"]
 					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="4" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" background_layout="light" /][/et_pb_column][/et_pb_row][/et_pb_section]
 		');
@@ -344,6 +345,10 @@ function kz_pb_blog( $atts ) {
  * genere un portfolio incluant les post_types specifiques de Kidzou (les offres n'apparaissent pas dans le portfolio)
  * et utilise la taxonomy 'category' et non pas 'project_category'
  *
+ * nous avons étendu également les options : 
+ * post__in
+ * with_votes (true/false) pour utiliser le systeme de votes kidzou
+ *
  */
 function kz_pb_portfolio( $atts ) {
 	
@@ -357,7 +362,8 @@ function kz_pb_portfolio( $atts ) {
 			'show_categories' => 'on',
 			'show_pagination' => 'on',
 			'background_layout' => 'light',
-			'post__in' => ''
+			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
+			'with_votes' => false //systeme de vote Kidzou, par défaut non affiché
 		), $atts
 	) );
 
@@ -405,44 +411,47 @@ function kz_pb_portfolio( $atts ) {
 		while ( have_posts() ) {
 			the_post(); ?>
 
-			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item' ); ?>>
+			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio' ); ?>>
 
-		<?php
-			$thumb = '';
+				<?php
+				$thumb = '';
 
-			$width = 'on' === $fullwidth ?  1080 : 400;
-			$width = (int) apply_filters( 'et_pb_portfolio_image_width', $width );
+				$width = 'on' === $fullwidth ?  1080 : 400;
+				$width = (int) apply_filters( 'et_pb_portfolio_image_width', $width );
 
-			$height = 'on' === $fullwidth ?  9999 : 284;
-			$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
-			$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-			$titletext = get_the_title();
-			$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image'  );
-			$thumb = $thumbnail["thumb"];
+				$height = 'on' === $fullwidth ?  9999 : 284;
+				$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
+				$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+				$titletext = get_the_title();
+				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
+				$thumb = $thumbnail["thumb"];
 
+				// print_r($thumb);
 
-			if ( '' !== $thumb ) : ?>
-				<a href="<?php the_permalink(); ?>">
-				<?php if ( 'on' !== $fullwidth ) : ?>
-					<span class="et_portfolio_image">
+				if ( '' !== $thumb ) : ?>
+					<a href="<?php the_permalink(); ?>">
+					<?php if ( 'on' !== $fullwidth ) : ?>
+						<span class="et_portfolio_image">
+					<?php endif; ?>
+					<?php if ( $with_votes  ) 
+							Kidzou::vote_mini(get_the_ID(), 'hovertext votable_template'); ?>
+							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
+					<?php if ( 'on' !== $fullwidth ) : ?>
+							<span class="et_overlay"></span>
+						</span>
+					<?php endif; ?>
+					</a>
+			<?php
+				endif;
+			?>
+
+				<?php if ( 'on' === $show_title ) : ?>
+					<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 				<?php endif; ?>
-						<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
-				<?php if ( 'on' !== $fullwidth ) : ?>
-						<span class="et_overlay"></span>
-					</span>
+
+				<?php if ( 'on' === $show_categories ) : ?>
+					<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
 				<?php endif; ?>
-				</a>
-		<?php
-			endif;
-		?>
-
-			<?php if ( 'on' === $show_title ) : ?>
-				<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-			<?php endif; ?>
-
-			<?php if ( 'on' === $show_categories ) : ?>
-				<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); //project_catgeory ?></p> 
-			<?php endif; ?>
 
 			</div> <!-- .et_pb_portfolio_item -->
 <?php	}
@@ -558,10 +567,10 @@ function kz_pb_filterable_portfolio( $atts ) {
 				if ( '' !== $thumb ) : ?>
 					<a href="<?php the_permalink(); ?>">
 					<?php if ( 'on' !== $fullwidth ) : ?>
-						<span class="hovertext">Lorem</span>
 						<span class="et_portfolio_image">
 					<?php endif; ?>
-							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
+						<?php Kidzou::vote_mini(get_the_ID(), 'hovertext votable_template'); ?>
+						<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
 					<?php if ( 'on' !== $fullwidth ) : ?>
 							<span class="et_overlay"></span>
 						</span>
@@ -575,8 +584,7 @@ function kz_pb_filterable_portfolio( $atts ) {
 				<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 			<?php endif; ?>
 
-			<p class="votable votable_template" data-post="<?php echo get_the_ID(); ?>" 
-								data-bind="template: { name: 'vote-template', data: votes.getVotableItem(<?php echo get_the_ID(); ?>) }"></p>
+			
 			<!-- <p class="comments"><a><i class='fa fa-comment-o'></i>3</a></p> -->
 			<?php if ( 'on' === $show_categories ) : ?>
 				<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p> 
@@ -678,8 +686,30 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 	$projects = get_portfolio_items( $args );
 
 	ob_start();
+	
+	format_fullwidth_portolio_items($projects, $show_title, $show_date);
+
+	$posts = ob_get_clean();
+
+	$output = format_fullwidth_portfolio($background_layout, $fullwidth, $posts, $module_id, $module_class, $auto, $auto_speed, $title);
+
+	return $output;
+}
+
+/**
+ * utilisé par kz_pb_fullwidth_portfolio et par les archives
+ *
+ */
+function format_fullwidth_portolio_items($projects, $show_title = "on", $show_date = "on") {
+
+	// print_r($projects);
+
 	if( $projects->post_count > 0 ) {
+
+		//echo 'count :' .$projects->post_count;
+
 		while ( $projects->have_posts() ) {
+
 			$projects->the_post();
 			?>
 			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item ' ); ?>>
@@ -719,7 +749,9 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 		}
 	}
 
-	$posts = ob_get_clean();
+}
+
+function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $module_id, $module_class, $auto, $auto_speed, $title) {
 
 	$class = " et_pb_bg_layout_{$background_layout}";
 
@@ -741,6 +773,7 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 	);
 
 	return $output;
+
 }
 
 /**
@@ -872,6 +905,88 @@ function kz_pb_map( $atts, $content = '' ) {
 	);
 
 	return $output;
+}
+
+
+
+/**
+ * surcharge du parent 
+ *
+ */
+function et_gallery_images() {
+	$output = $images_ids = '';
+
+	if ( function_exists( 'get_post_galleries' ) ) {
+		$galleries = get_post_galleries( get_the_ID(), false );
+
+		if ( empty( $galleries ) ) return false;
+
+		foreach ( $galleries as $gallery ) {
+			// Grabs all attachments ids from one or multiple galleries in the post
+			$images_ids .= ( '' !== $images_ids ? ',' : '' ) . $gallery['ids'];
+		}
+
+		$attachments_ids = explode( ',', $images_ids );
+		// Removes duplicate attachments ids
+		$attachments_ids = array_unique( $attachments_ids );
+	} else {
+		$pattern = get_shortcode_regex();
+		preg_match( "/$pattern/s", get_the_content(), $match );
+		$atts = shortcode_parse_atts( $match[3] );
+
+		if ( isset( $atts['ids'] ) )
+			$attachments_ids = explode( ',', $atts['ids'] );
+		else
+			return false;
+	}
+
+	$slides = '';
+
+	foreach ( $attachments_ids as $attachment_id ) {
+		$attachment_attributes = wp_get_attachment_image_src( $attachment_id, 'et-pb-post-main-image-fullwidth' );
+		$attachment_image = ! is_single() ? $attachment_attributes[0] : wp_get_attachment_image( $attachment_id, 'post_gallery' ); 
+
+		if ( ! is_single() ) {
+			$slides .= sprintf(
+				'<div class="et_pb_slide" style="background: url(%1$s);"></div>',
+				esc_attr( $attachment_image )
+			);
+		} else {
+			$full_image = wp_get_attachment_image_src( $attachment_id, 'full' );
+			$full_image_url = $full_image[0];
+			$attachment = get_post( $attachment_id );
+
+			$slides .= sprintf(
+				'<li class="et_gallery_item post_gallery_item">
+					<a href="%1$s" title="%3$s">
+						<span class="et_portfolio_image">
+							%2$s
+							<span class="et_overlay"></span>
+						</span>
+					</a>
+				</li>',
+				esc_url( $full_image_url ),
+				$attachment_image,
+				esc_attr( $attachment->post_title )
+			);
+		}
+	}
+
+	if ( ! is_single() ) {
+		$output =
+			'<div class="et_pb_slider et_pb_slider_fullwidth_off">
+				<div class="et_pb_slides">
+					%1$s
+				</div>
+			</div>';
+	} else {
+		$output =
+			'<ul class="et_post_gallery clearfix">
+				%1$s
+			</ul>';
+	}
+
+	printf( $output, $slides );
 }
 
 

@@ -1,3 +1,20 @@
+var kidzouNotifications = (function(){
+
+	jQuery(document).ready(function() {
+
+		console.debug("doing");
+
+		new PNotify({
+		    title: 'Regular Notice',
+		    text: 'Check me out! I\'m a notice.'
+		});
+
+		console.debug("done");
+
+	});
+
+})();
+
 
 var kidzouMessage = (function() {
 
@@ -393,6 +410,7 @@ var kidzouModule = (function() { //havre de paix
 			self.iconClass = ko.computed(function() {
 				return self.voted() ? 'fa fa-heart' : 'fa fa-heart-o';
 			});
+
 
 			//si le user a deja voté et qu'il survole le lien de recommandation
 			//on met à jour le lien pour qu'il devienne une action de retrait du vote
