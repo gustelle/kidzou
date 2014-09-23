@@ -65,6 +65,9 @@ class Kidzou {
 	 */
 	private function __construct() {
 
+		//handle dependencies
+		add_action( 'tgmpa_register', array( $this, 'register_required_plugins' ) );
+
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
@@ -90,10 +93,6 @@ class Kidzou {
 		add_filter('json_api_vote_controller_path', 			array( $this, 'set_vote_controller_path' )  );
 		add_filter('json_api_auth_controller_path', 			array( $this, 'set_auth_controller_path' ) );
 		add_filter('json_api_users_controller_path',            array( $this, 'set_users_controller_path' ) );
-
-		//insertion des template de vote
-		add_action('wp_footer', array($this, 'votable_template_mini'), 100);
-		add_action('wp_footer', array($this, 'votable_template_mega'), 100);
 
 
 	}
@@ -125,7 +124,98 @@ class Kidzou {
 			self::$instance = new self;
 		}
 
+		do_action('kidzou_loaded');
+
 		return self::$instance;
+	}
+
+	/**
+	 * Gestion des dépendances : Liste des plugins que Kidzou requiert pour fonctionner correctement
+	 * les plugins sont téléchargés et installés automatiquement
+	 * 
+	 */
+	public function register_required_plugins() {
+
+		/**
+	     * Array of plugin arrays. Required keys are name and slug.
+	     * If the source is NOT from the .org repo, then source is also required.
+	     */
+	    $plugins = array(
+
+	        // This is an example of how to include a plugin pre-packaged with a theme.
+	        array(
+	            'name'               => 'JSON API', // The plugin name.
+	            'slug'               => 'json-api', // The plugin slug (typically the folder name).
+	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => true, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
+	        ),
+
+	        //ajouter NEXTEND, REDUX
+
+	        array(
+	            'name'               => 'Redux Framework', // The plugin name.
+	            'slug'               => 'redux-framework', // The plugin slug (typically the folder name).
+	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => true, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
+	        ),
+
+	        array(
+	            'name'               => 'Contextual Related Posts', // The plugin name.
+	            'slug'               => 'contextual-related-posts', // The plugin slug (typically the folder name).
+	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
+	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
+	        )
+
+	    );
+
+	    /**
+	     * Array of configuration settings. Amend each line as needed.
+	     * If you want the default strings to be available under your own theme domain,
+	     * leave the strings uncommented.
+	     * Some of the strings are added into a sprintf, so see the comments at the
+	     * end of each line for what each argument will be.
+	     */
+	    $config = array(
+	        'default_path' => '',                      // Default absolute path to pre-packaged plugins.
+	        'menu'         => 'tgmpa-install-plugins', // Menu slug.
+	        'has_notices'  => true,                    // Show admin notices or not.
+	        'dismissable'  => true,                    // If false, a user cannot dismiss the nag message.
+	        'dismiss_msg'  => '',                      // If 'dismissable' is false, this message will be output at top of nag.
+	        'is_automatic' => true,                   // Automatically activate plugins after installation or not.
+	        'message'      => '',                      // Message to output right before the plugins table.
+	        'strings'      => array(
+	            'page_title'                      => __( 'Installation des plugins requis par Kidzou', 'tgmpa' ),
+	            'menu_title'                      => __( 'Plugins Kidzou', 'tgmpa' ),
+	            'installing'                      => __( 'Installation de: %s', 'tgmpa' ), // %s = plugin name.
+	            'oops'                            => __( 'Something went wrong with the plugin API.', 'tgmpa' ),
+	            'notice_can_install_required'     => _n_noop( 'Kidzou requiert le plugin: %1$s.', 'Kidzou requiert les plugins suivants: %1$s.' ), // %1$s = plugin name(s).
+	            'notice_can_install_recommended'  => _n_noop( 'kidzou recommande le plugin suivant: %1$s.', 'Kidzou recommande les plugins suivants: %1$s.' ), // %1$s = plugin name(s).
+	            'notice_cannot_install'           => _n_noop( 'Vous n&apos;avez pas les drois suffisants pour installer le plugin %s.', 'Vous n&apos;avez pas les droits suffisants pour installer les plugins %s.' ), // %1$s = plugin name(s).
+	            'notice_can_activate_required'    => _n_noop( 'Le plugin suivant est requis, mais est inactif: %1$s.', 'Les plugins suivants sont requis mais inactifs: %1$s.' ), // %1$s = plugin name(s).
+	            'notice_can_activate_recommended' => _n_noop( 'Le plugin suivant est recommand&eacute; mais inactif: %1$s.', 'Les plugins suivants sont recommand&eacute;s mais inactifs: %1$s.' ), // %1$s = plugin name(s).
+	            'notice_cannot_activate'          => _n_noop( 'Vous n&apos; avez pas les drois suffisants pour activer le plugin %s.', 'Vous n&apos;avez pas les drois suffisants pour activer les plugins suivants %s' ), // %1$s = plugin name(s).
+	            'notice_ask_to_update'            => _n_noop( 'Le plugin suivant a besoin d&apos;&ecirc;tre mis a jour pour fonctionner de facon optimale: %1$s.', 'Les plugins suivants ont besoin d&apos;&ecirc;tre mis a jour pour fonctionner de facon optimale: %1$s.' ), // %1$s = plugin name(s).
+	            'notice_cannot_update'            => _n_noop( 'Vous n&apos;avez pas les droits suffisants pour mettre a jour le plugin %s', 'Vous n&apos;avez pas les droits suffisants pour mettre a jour les plugins %s' ), // %1$s = plugin name(s).
+	            'install_link'                    => _n_noop( 'Installer le plugin', 'Installer les plugins' ),
+	            'activate_link'                   => _n_noop( 'Activer le plugin', 'Activer les plugins' ),
+	            'return'                          => __( 'Revenir a l&apos;installeur des plugins requis', 'tgmpa' ),
+	            'plugin_activated'                => __( 'Activation r&eacute;ussie.', 'tgmpa' ),
+	            'complete'                        => __( 'Tous les plugins ont &eacute;t&eacute; install&eacute;s et activ&eacute;s. %s', 'tgmpa' ), // %s = dashboard link.
+	            'nag_type'                        => 'updated' // Determines admin notice type - can only be 'updated', 'update-nag' or 'error'.
+	        )
+	    );
+
+	    tgmpa( $plugins, $config );
+
 	}
 
 
@@ -257,10 +347,8 @@ class Kidzou {
 		global $wp_rewrite;
 		
 		$wp_rewrite->set_permalink_structure('/%postname%/');
-		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
-		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
-
-		Kidzou_Geo::create_rewrite_rules();
+		
+		do_action('kidzou_activate');
 
 		self::create_roles();
 		self::add_caps();
@@ -274,69 +362,6 @@ class Kidzou {
 	 * @since    1.0.0
 	 */
 	private static function single_deactivate() {
-		
-		// @TODO: Define deactivation functionality here
-
-		// global $wp_roles;
-
-		// $post_type_details = get_post_type_object( 'event' );
-		// $post_type_cap 	= $post_type_details->capability_type;
-		// $post_type_caps	= $post_type_details->cap;
-
-		// $administrator     	= $wp_roles->get_role('administrator');
-		// $editor     		= $wp_roles->get_role('editor');
-		// $pro 				= $wp_roles->get_role('pro');
-
-		// $roles_plus = array();
-		// $roles_plus["administrator"] = $administrator;
-		// $roles_plus["editor"] = $editor;
-
-		// foreach ( $roles_plus as $key => $role ) {
-
-		// 	// Shared capability required to see post's menu & publish posts
-		// 	$role->remove_cap( $post_type_caps->edit_posts );
-				
-		// 	// Shared capability required to delete posts
-		// 	$role->remove_cap( $post_type_caps->delete_posts );
-				
-		// 	// Allow publish
-		// 	$role->remove_cap( $post_type_caps->publish_posts );
-
-		// 	// Allow editing own posts
-		// 	$role->remove_cap( $post_type_caps->edit_published_posts );
-		// 	$role->remove_cap( $post_type_caps->edit_private_posts );
-		// 	$role->remove_cap( $post_type_caps->delete_published_posts );
-		// 	$role->remove_cap( $post_type_caps->delete_private_posts );
-				
-		// 	// Allow editing other's posts
-		// 	$role->remove_cap( $post_type_caps->edit_others_posts );
-		// 	$role->remove_cap( $post_type_caps->delete_others_posts );
-				
-		// 	// Allow reading private
-		// 	$role->remove_cap( $post_type_caps->read_private_posts);
-
-		// }
-
-		// $roles_mini = array();
-		// $roles_mini["pro"] = $pro;
-
-		// foreach ( $roles_mini as $key => $role ) {
-
-		// 	// Shared capability required to see post's menu & publish posts
-		// 	$role->remove_cap( $post_type_caps->edit_posts );
-
-		// 	// Allow editing own posts
-		// 	$role->remove_cap( $post_type_caps->edit_published_posts );
-		// 	$role->remove_cap( $post_type_caps->edit_private_posts );
-		// 	// $role->add_cap( $post_type_caps->delete_published_posts );
-		// 	$role->remove_cap( $post_type_caps->delete_private_posts );
-				
-		// 	// Allow reading private
-		// 	$role->remove_cap( $post_type_caps->read_private_posts);
-
-		// }
-
-		// remove_role( 'pro' );
 
 		flush_rewrite_rules();
 	}
@@ -420,76 +445,13 @@ class Kidzou {
 	 */
 	public static function create_roles() {
 
-		// add_role(
-	 //        'pro',
-	 //        __( 'Professionnel' ), 
-	 //        array(
-	 //            'read'          => true,
-	 //            'manage_categories' => false,
-	 //            'upload_files'  => true,
-	 //        )
-	 //    );
-
+		do_action('kidzou_create_roles');
 	    
 	}
 
 	public static function add_caps() {
-
-		// global $wp_roles;
-
-		// $administrator     	= $wp_roles->get_role('administrator');
-		// $editor     		= $wp_roles->get_role('editor');
-		// $pro 				= $wp_roles->get_role('pro');
-
-		// $roles_plus = array();
-		// $roles_plus["administrator"] = $administrator;
-		// $roles_plus["editor"] = $editor;
-
-		// $post_type_details = get_post_type_object( 'event' );
-		// $post_type_cap 	= $post_type_details->capability_type;
-		// $post_type_caps	= $post_type_details->cap;
-
-		// foreach ( $roles_plus as $key => $role ) {
-
-		// 	// Shared capability required to see post's menu & publish posts
-		// 	$role->add_cap( $post_type_caps->edit_posts ); 
 				
-		// 	// Shared capability required to delete posts
-		// 	$role->add_cap( $post_type_caps->delete_posts );
-				
-		// 	// Allow publish
-		// 	$role->add_cap( $post_type_caps->publish_posts );
-
-		// 	// Allow editing own posts
-		// 	$role->add_cap( $post_type_caps->edit_published_posts );
-		// 	$role->add_cap( $post_type_caps->edit_private_posts );
-		// 	$role->add_cap( $post_type_caps->delete_published_posts );
-		// 	$role->add_cap( $post_type_caps->delete_private_posts );
-				
-		// 	// Allow editing other's posts
-		// 	$role->add_cap( $post_type_caps->edit_others_posts );
-		// 	$role->add_cap( $post_type_caps->delete_others_posts );
-				
-		// 	// Allow reading private
-		// 	$role->add_cap( $post_type_caps->read_private_posts);
-
-		// }
-		
-
-		// // Shared capability required to see post's menu & publish posts
-		// $pro->add_cap( $post_type_caps->edit_posts );
-
-		// // Allow editing own posts
-		// $pro->add_cap( $post_type_caps->edit_published_posts );
-		// $pro->add_cap( $post_type_caps->edit_private_posts );
-		// // $role->add_cap( $post_type_caps->delete_published_posts );
-		// $pro->add_cap( $post_type_caps->delete_private_posts );
-			
-		// // Allow reading private
-		// $pro->add_cap( $post_type_caps->read_private_posts);
-
-		
-		
+		do_action('kidzou_add_caps');
 
 	}
 
@@ -517,8 +479,8 @@ class Kidzou {
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );
-		wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '4.2.0' );
-		wp_enqueue_style( 'pnotify', "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.css", null, '2.0.0' );
+		wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
+	
 	}
 
 	/**
@@ -531,9 +493,7 @@ class Kidzou {
 		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION );
 		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
-		wp_enqueue_script('pnotify',	"http://cdnjs.cloudflare.com/ajax/libs/pnotify/2.0.0/pnotify.all.min.js",array("jquery"), '2.0.0', true);
-
-
+	
 		wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
 				'msg_wait'			 			 => 'Merci de patienter...',
 				'msg_loading'				 	 => 'Chargement en cours...',
@@ -620,60 +580,6 @@ class Kidzou {
 	  return plugin_dir_path( __FILE__ ) ."/includes/api/users.php";
 	}
 
-	public static function votable_template_mini() {
-
-		echo '
-		<script type="text/html" id="vote-template-mini">
-	    <span class="vote" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
-			<i data-bind="css : $data.iconClass"></i>
-			<span 	data-bind="text: $data.votes"></span>
-	    </span>
-		</script>';
-
-	}
-
-	public static function votable_template_mega() {
-
-		echo '
-		</script>
-		<script type="text/html" id="vote-template-mega">
-	    <span class="vote font-2x" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
-			<i data-bind="css : $data.iconClass"></i>
-			<span 	data-bind="text: $data.votes"></span>
-	    </span>
-		</script>';
-
-	}
-
-	public static function vote_mega($id=0, $class='') {
-
-		if ($id==0)
-		{
-			global $post;
-			$id = $post->ID;
-		}
-
-		echo '
-		<span class="votable '.$class.'"  
-				data-tooltip="'.__('Cela permet aux parents de rep&eacute;rer les sorties les plus int&eacute;ressantes','Kidzou').'"
-				data-post="'.$id.'" 
-				data-bind="template: { name: \'vote-template-mega\', data: votes.getVotableItem('.$id.') }"></span>';
-
-	}
-
-	public static function vote_mini($id=0, $class='') {
-
-		if ($id==0)
-		{
-			global $post;
-			$id = $post->ID;
-		}
-
-		echo '
-		<span class="votable '.$class.'"  
-				data-post="'.$id.'" 
-				data-bind="template: { name: \'vote-template-mini\', data: votes.getVotableItem('.$id.') }"></span>';
-
-	}
+	
 
 }

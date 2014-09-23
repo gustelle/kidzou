@@ -1,5 +1,6 @@
 <?php
 
+add_action('kidzou_loaded', array('Kidzou_Events', 'get_instance'));
 
 /**
  * Kidzou
@@ -55,65 +56,7 @@ class Kidzou_Events {
 	 */
 	private function __construct() { 
 
-		// add_action('init', array($this, 'register_event_type'), 11);
-
 	}
-
-	// public function register_event_type() {
-
-	// 	$labels = array(
-	// 		'name'               => 'Evénements',
-	// 		'singular_name'      => 'Evénement',
-	// 		'add_new'            => 'Ajouter',
-	// 		'add_new_item'       => 'Ajouter un événement',
-	// 		'edit_item'          => 'Modifier l\'événement',
-	// 		'new_item'           => 'Nouvel événement',
-	// 		'all_items'          => 'Tous les événements',
-	// 		'view_item'          => 'Voir l\'événement',
-	// 		'search_items'       => 'Chercher des événements',
-	// 		'not_found'          => 'Aucun événement trouvé',
-	// 		'not_found_in_trash' => 'Aucun événement trouvé dans la corbeille',
-	// 		'menu_name'          => 'Evénements',
-	// 		);
-
-	// 	$args = array(
-	// 		'labels'             => $labels,
-	// 		'public'             => true,
-	// 		'publicly_queryable' => true,
-	// 		'show_ui'            => true,
-	// 		'show_in_menu'       => true,
-	// 		'menu_position' 	 => 5, //sous les articles dans le menu
-	// 		'menu_icon' 		 => 'dashicons-calendar', 
-	// 		'query_var'          => true,
-	// 		'rewrite'            => array( 'slug' => 'event' ),
-	// 		'capability_type'    => 'event',
-	// 		'capabilities' 		 => array(
-	// 							        'edit_post'			 => 'edit_event',
-	// 							        'edit_posts' 		 => 'edit_events',
-	// 							        'edit_others_posts'  => 'edit_others_events',
-	// 							        'publish_posts' 	 => 'publish_events',
-	// 							        'read_post' 		 => 'read_event',
-	// 							        'read_private_posts' => 'read_private_events',
-	// 							        'delete_post' 		 => 'delete_event',
-	// 							        'delete_private_posts' 		=> 'delete_private_events',
-	// 							        'delete_published_posts' 	=> 'delete_published_events',
-	// 							        'delete_others_posts' 		=> 'delete_others_events',
-	// 							        'edit_private_posts' 		=> 'edit_private_events',
-	// 							        'edit_published_posts' 		=> 'edit_published_events',
-	// 							        // 'assign_terms' => 'assign_terms'
-	// 							    ),
-	// 		'map_meta_cap' 		 => true,
-	// 		'has_archive'        => true,
-	// 		'hierarchical'       => false, //pas de hierarchie d'events
-	// 		'supports'           => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions'),
-	// 		'taxonomies' 		=> array('age', 'ville', 'divers','category'), //reuse the taxo declared in kidzou plugin
-	// 		// 'register_meta_box_cb' => 'add_metabox'
-	// 	);
-
-	// 	register_post_type( 'event', $args );
-
-	// 	flush_rewrite_rules();		
-	// }
 
 	/**
 	 * Return an instance of this class.

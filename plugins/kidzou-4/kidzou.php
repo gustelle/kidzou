@@ -43,6 +43,9 @@ if ( ! defined( 'WPINC' ) ) {
  */
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/Tax-meta-class/Tax-meta-class.php');
+require_once( plugin_dir_path( __FILE__ ) . 'includes/TGM/class-tgm-plugin-activation.php');
+require_once( plugin_dir_path( __FILE__ ) . 'includes/PageTemplater/class-page-templater.php');
+
 require_once( plugin_dir_path( __FILE__ ) . 'includes/utils.php' );
 
 require_once( plugin_dir_path( __FILE__ ) . 'public/class-kidzou.php' );
@@ -50,12 +53,14 @@ require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-geo.ph
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-events.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-customer.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-offres.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-vote.php' );
 
-require_once( plugin_dir_path( __FILE__ ) . 'public/includes/vote.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/category-header.php' );
 
 require_once( plugin_dir_path( __FILE__ ) . 'admin/views/metabox.php');
-require_once( plugin_dir_path( __FILE__ ) . 'includes/PageTemplater/class-page-templater.php');
+require_once( plugin_dir_path( __FILE__ ) . 'admin/admin-init.php');
+require_once( plugin_dir_path( __FILE__ ) . 'admin/options-init.php');
+
 
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.
@@ -76,13 +81,7 @@ register_deactivation_hook( __FILE__, array( 'Kidzou', 'deactivate' ) );
  *   `class-plugin-name.php`
  */
 add_action( 'plugins_loaded', array( 'Kidzou', 			'get_instance' ) );
-add_action( 'plugins_loaded', array( 'Kidzou_Events', 	'get_instance' ) );
-add_action( 'plugins_loaded', array( 'Kidzou_Geo', 		'get_instance' ) );
-add_action( 'plugins_loaded', array( 'Kidzou_Customer', 'get_instance' ) );
-add_action( 'plugins_loaded', array( 'Kidzou_Offres', 'get_instance' ) );
 
-//ajouter les templates specifiques à Kidzou
-add_action( 'plugins_loaded', array( 'PageTemplater', 	'get_instance' ) );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality

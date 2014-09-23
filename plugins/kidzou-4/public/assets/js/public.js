@@ -1,17 +1,6 @@
 var kidzouNotifications = (function(){
 
-	jQuery(document).ready(function() {
-
-		console.debug("doing");
-
-		new PNotify({
-		    title: 'Regular Notice',
-		    text: 'Check me out! I\'m a notice.'
-		});
-
-		console.debug("done");
-
-	});
+	console.debug('todo : handle notifications on posts ')
 
 })();
 

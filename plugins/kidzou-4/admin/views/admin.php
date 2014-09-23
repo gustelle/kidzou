@@ -34,6 +34,9 @@ if (isset($_POST['submit']))
  	}
 }
 
+global $kidzou_options;
+
+print_r($kidzou_options);
 
 ?>
 

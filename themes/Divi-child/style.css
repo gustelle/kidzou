@@ -3082,6 +3082,7 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 /*.votable_template { display: inline; margin: 0 1em 0 0;  }*/
 /*.comments { display: inline; margin: 0 1em 0 0; }*/
 .fa {padding-right: 0.3em; } /* icons de font awesome */
+.fa-stack br { display: none } /* https://github.com/FortAwesome/Font-Awesome/wiki/Troubleshooting */
 .vote { color:#ED0A71; }
 .vote:hover { cursor: pointer; }
 .font-2x { font-size: 200%; }
@@ -3104,7 +3105,7 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 	background-color:#ED0A71;
 	color: #fff ;
 }*/
-.grey {color:#c6c6c6;} 
+/*.grey {color:#c6c6c6;} */
 /*.blue {color:#52A4C9;}
 */
 .overtext {vertical-align: text-top;} /* pour la fleche du content preview */
@@ -3172,6 +3173,11 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 }
 
 *[data-tooltip]:hover::after {
-    opacity: 1;
+    opacity: 0.9;
+}
+
+.et_pb_column_4_4 .et_pb_portfolio_grid .et_pb_portfolio_item.kz_portfolio {
+	width: 300px;
+	height: 250px;
 }
 

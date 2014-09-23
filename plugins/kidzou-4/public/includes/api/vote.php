@@ -35,7 +35,7 @@ class JSON_API_Vote_Controller {
 		//on ne recalcule pas systématiquement le hash du user, 
 		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
-			$user_hash=hash_anonymous();
+			$user_hash=Kidzou_Vote::hash_anonymous();
 
 		// Use has already voted ?
 		if(!hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
@@ -119,7 +119,7 @@ class JSON_API_Vote_Controller {
 		//on ne recalcule pas systématiquement le hash du user, 
 		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
-			$user_hash=hash_anonymous();
+			$user_hash=Kidzou_Vote::hash_anonymous();
 
 		// Use has already voted ?
 		if(hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
@@ -276,7 +276,7 @@ class JSON_API_Vote_Controller {
 			//on ne recalcule pas systématiquement le hash du user, 
 			//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 			if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
-				$user_hash=hash_anonymous();
+				$user_hash=Kidzou_Vote::hash_anonymous();
 
 			//$hash = hash_anonymous();
 			// AND key1.post_id in $list LIMIT $limit

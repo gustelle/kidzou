@@ -1,5 +1,6 @@
 <?php
 
+add_action('kidzou_loaded', array('Kidzou_Geo', 'get_instance'));
 
 /**
  * Kidzou
@@ -64,6 +65,8 @@ class Kidzou_Geo {
 		add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
 
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
+
+		add_action( 'kidzou_activate', array($this, 'set_permalink_rules'));
 	}
 
 
@@ -82,6 +85,22 @@ class Kidzou_Geo {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function set_permalink_rules () {
+
+		global $wp_rewrite;
+
+		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
+		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
+
+		self::create_rewrite_rules();
 	}
 
     /**
@@ -491,6 +510,36 @@ class Kidzou_Geo {
 	    }
 	    
 	    return $result;
+	}
+
+	public static function get_related_posts() {
+
+		add_filter('crp_posts_join', array($this, 'crp_filter_metropole')) ;
+
+		return get_crp_posts_id();
+
+	}
+
+	/**
+	 * Filtrage des Contextual Related Posts par Metropole   
+	 *
+	 * @see Contextual Related Posts
+	 * @return void
+	 * @author 
+	 **/
+	protected function crp_filter_metropole()
+	{
+		$join = ''; 
+
+		$metropole = self::get_post_metropole(); //object
+
+		if ($metropole!=null) {
+			$join .= "
+			INNER JOIN wp_term_taxonomy AS tt ON (tt.term_id=".$metropole->term_id." AND tt.taxonomy='ville')
+			INNER JOIN wp_term_relationships AS tr ON (tr.term_taxonomy_id=tt.term_taxonomy_id AND tr.object_id=ID) ";
+		}
+
+		return $join;
 	}
 
 

@@ -1,5 +1,6 @@
 <?php
 
+add_action( 'kidzou_loaded', array( 'Kidzou_Offres', 'get_instance' ) );
 
 /**
  * Kidzou

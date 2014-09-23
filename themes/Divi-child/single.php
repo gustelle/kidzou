@@ -41,7 +41,7 @@
 						<div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
 							<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 							
-								<?php Kidzou::vote_mega(get_the_ID()); ?>
+								<?php Kidzou_Vote::vote(get_the_ID(), 'font-2x'); ?>
 								
 								<h1><?php the_title(); ?></h1>
 								<?php et_divi_post_meta(); ?>
@@ -214,16 +214,7 @@
 							</div> <!-- .et_pb_all_tabs -->
 						</div> <!-- .et_pb_tabs -->
 
-						<?php
-							if ( comments_open() && 'on' == et_get_option( 'divi_show_postcomments', 'on' ) )
-								comments_template( '', true );
-						?>
-					
-				<!-- </div> -->
-			<!-- </div> -->
-				<?php } ?>
-
-				
+					<?php } ?>
 
 					<?php
 						if ( et_get_option('divi_468_enable') == 'on' ){
@@ -236,9 +227,16 @@
 						}
 					?>
 
+					<?php
+						if ( comments_open() && 'on' == et_get_option( 'divi_show_postcomments', 'on' ) )
+							comments_template( '', true );
+					?>
+					
+				<!-- </div> -->
+			<!-- </div> -->
 						
 
-						<?php if (et_get_option('divi_integration_single_bottom') <> '' && et_get_option('divi_integrate_singlebottom_enable') == 'on') echo(et_get_option('divi_integration_single_bottom')); ?>
+				<?php if (et_get_option('divi_integration_single_bottom') <> '' && et_get_option('divi_integrate_singlebottom_enable') == 'on') echo(et_get_option('divi_integration_single_bottom')); ?>
 
 
 			</div> <!-- .et_pb_column -->

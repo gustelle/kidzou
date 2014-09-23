@@ -99,6 +99,8 @@ class Kidzou_Admin {
 		 */
 		add_action("edit_ville",    array( $this, 'edit_tax_ville' ) , 10, 2);
 
+		add_action('init', array( $this, 'removeReduxDemoModeLink' ));
+
 
 	}
 
@@ -174,6 +176,16 @@ class Kidzou_Admin {
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
 		}
 
+	}
+
+	public function removeReduxDemoModeLink() { // Be sure to rename this function to something more unique
+		
+	    if ( class_exists('ReduxFrameworkPlugin') ) {
+	        remove_filter( 'plugin_row_meta', array( ReduxFrameworkPlugin::get_instance(), 'plugin_metalinks'), null, 2 );
+	    }
+	    if ( class_exists('ReduxFrameworkPlugin') ) {
+	        remove_action('admin_notices', array( ReduxFrameworkPlugin::get_instance(), 'admin_notices' ) );    
+	    }
 	}
 
 	/**

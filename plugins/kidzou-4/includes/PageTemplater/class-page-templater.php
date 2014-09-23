@@ -1,5 +1,7 @@
 <?php
 
+add_action( 'kidzou_loaded', array( 'PageTemplater',   'get_instance' ) );
+
 /**
  * Modifie la liste des templates de pages disponibles dans le theme courant
  * afin d'injecter les templates specifiques à Kidzou

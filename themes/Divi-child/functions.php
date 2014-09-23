@@ -87,9 +87,8 @@ function kz_divi_load_scripts ()
  **/
 function kidzou_related_posts()
 {
-	add_filter('crp_posts_join', 'crp_filter_metropole');
 
-	$posts_ids_objects = get_crp_posts_id();
+	$posts_ids_objects = Kidzou_Geo::get_related_posts();
 	$ids = array();
 
 	foreach ($posts_ids_objects as $id_object) {
@@ -107,27 +106,7 @@ function kidzou_related_posts()
 
 }
 
-/**
- *  
- * @see kidzou_related_posts
- * @return void
- * @author 
- **/
-function crp_filter_metropole()
-{
-	$join = ''; 
 
-	if (class_exists('Kidzou_Geo'))
-			$metropole = Kidzou_Geo::get_post_metropole(); //object
-
-	if (class_exists('Kidzou_Geo') && $metropole!=null) {
-		$join .= "
-		INNER JOIN wp_term_taxonomy AS tt ON (tt.term_id=".$metropole->term_id." AND tt.taxonomy='ville')
-		INNER JOIN wp_term_relationships AS tr ON (tr.term_taxonomy_id=tt.term_taxonomy_id AND tr.object_id=ID) ";
-	}
-
-	return $join;
-}
 	
 function kz_register_divi_layouts() {
 
@@ -434,7 +413,7 @@ function kz_pb_portfolio( $atts ) {
 						<span class="et_portfolio_image">
 					<?php endif; ?>
 					<?php if ( $with_votes  ) 
-							Kidzou::vote_mini(get_the_ID(), 'hovertext votable_template'); ?>
+							Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
 							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
 					<?php if ( 'on' !== $fullwidth ) : ?>
 							<span class="et_overlay"></span>
@@ -569,7 +548,7 @@ function kz_pb_filterable_portfolio( $atts ) {
 					<?php if ( 'on' !== $fullwidth ) : ?>
 						<span class="et_portfolio_image">
 					<?php endif; ?>
-						<?php Kidzou::vote_mini(get_the_ID(), 'hovertext votable_template'); ?>
+						<?php Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
 						<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
 					<?php if ( 'on' !== $fullwidth ) : ?>
 							<span class="et_overlay"></span>
