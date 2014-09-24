@@ -101,7 +101,7 @@ function kidzou_related_posts()
 			[et_pb_row]
 				<h1>D&apos;autres sorties sympa :</h1>
 				[et_pb_column type="4_4"]
-					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="4" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" background_layout="light" /][/et_pb_column][/et_pb_row][/et_pb_section]
+					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" /][/et_pb_column][/et_pb_row][/et_pb_section]
 		');
 
 }
@@ -328,6 +328,8 @@ function kz_pb_blog( $atts ) {
  * post__in
  * with_votes (true/false) pour utiliser le systeme de votes kidzou
  *
+ * Ajout également d'un filtre de catégories configurable (show_filters = on|off)
+ *
  */
 function kz_pb_portfolio( $atts ) {
 	
@@ -342,7 +344,8 @@ function kz_pb_portfolio( $atts ) {
 			'show_pagination' => 'on',
 			'background_layout' => 'light',
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
-			'with_votes' => false //systeme de vote Kidzou, par défaut non affiché
+			'with_votes' => false, //systeme de vote Kidzou, par défaut non affiché
+			'show_filters' => 'on'
 		), $atts
 	) );
 
@@ -384,13 +387,21 @@ function kz_pb_portfolio( $atts ) {
 
 	query_posts( $args );
 
-	// echo $GLOBALS['wp_query']->request;
+	$categories_included = array();
 
 	if ( have_posts() ) {
 		while ( have_posts() ) {
-			the_post(); ?>
+			the_post(); 
 
-			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio' ); ?>>
+			$categories = get_the_terms( get_the_ID(), 'category' );
+			if ( $categories ) {
+				foreach ( $categories as $category ) {
+					$categories_included[] = $category->term_id;
+				}
+			}
+			?>
+
+			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
 
 				<?php
 				$thumb = '';
@@ -455,10 +466,40 @@ function kz_pb_portfolio( $atts ) {
 
 	ob_end_clean();
 
+	////
+	$categories_included = array_unique( $categories_included );
+	$terms_args = array(
+		'include' => $categories_included,
+		'orderby' => 'name',
+		'order' => 'ASC',
+	);
+	$terms = get_terms( 'category', $terms_args );
+
+	$category_filters = '<ul class="clearfix">';
+	// $category_filters .= sprintf( '<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#">%1$s</a></li>',
+	// 	esc_html__( 'All', 'Divi' )
+	// );
+	foreach ( $terms as $term  ) {
+		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
+			esc_attr( $term->slug ),
+			esc_html( $term->name ),
+			get_category_link( $term->term_id ),
+			__('Voir tous les articles dans ').$term->name
+		);
+	}
+	$category_filters .= '</ul>';
+
 	$class = " et_pb_bg_layout_{$background_layout}";
+
+	$filters = '';
+	if ($show_filters=='on')
+		$filters = '<div class="et_pb_portfolio_filters clearfix">%7$s</div><!-- .et_pb_portfolio_filters -->';
 
 	$output = sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">
+			<div class="et_pb_filterable_portfolio ">
+				'.$filters.'
+			</div>
 			%2$s
 		%4$s',
 		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
@@ -466,7 +507,9 @@ function kz_pb_portfolio( $atts ) {
 		esc_attr( $class ),
 		( ! $container_is_closed ? '</div> <!-- .et_pb_portfolio -->' : '' ),
 		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' )
+		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+		$category_filters
+
 	);
 
 	return $output;
@@ -529,7 +572,7 @@ function kz_pb_filterable_portfolio( $atts ) {
 			$category_classes = implode( ' ', $category_classes );
 
 			?>
-			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio ' . $category_classes ); ?>>
+			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item ' . $category_classes ); ?>>
 			<?php
 				$thumb = '';
 

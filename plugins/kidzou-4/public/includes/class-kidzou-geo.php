@@ -66,7 +66,11 @@ class Kidzou_Geo {
 
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
 
+		/* seulement à l'activation du plugin */
 		add_action( 'kidzou_activate', array($this, 'set_permalink_rules'));
+
+		add_action( 'add_meta_boxes', array($this, 'page_rewrite_metabox') );
+		add_action( 'save_post', array( $this, 'save' ) );
 	}
 
 
@@ -102,6 +106,88 @@ class Kidzou_Geo {
 
 		self::create_rewrite_rules();
 	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function page_rewrite_metabox () {
+
+		add_meta_box(
+			'page_rewrite',
+			__( 'Re-&eacute;criture d&apos;URL', 'kidzou' ),
+			array($this, 'render_rewrite_metabox'),
+			'page',
+			'normal',
+			'high'
+		);
+		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function render_rewrite_metabox ($post) {
+
+		// Add an nonce field so we can check for it later.
+		wp_nonce_field( 'rewrite_metabox', 'rewrite_metabox_nonce' );
+
+		$checkbox = get_post_meta($post->ID, 'kz_rewrite_page', TRUE);
+		echo '	
+					<label for="kz_rewrite_page">Pr&eacute;fixer l&apos;URL de cette page par la m&eacute;tropole de l&apos;utilisateur :</label>
+					<input type="checkbox" name="kz_rewrite_page"'. ( $checkbox ? 'checked="checked"' : '' ).'/>  
+				';
+		
+	}
+
+	/**
+	 *  sauvegarde des meta lors de l'enregistrement d'un post ou d'une page
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function save ($post_id) {
+
+		// Check if our nonce is set.
+		if ( ! isset( $_POST['rewrite_metabox_nonce'] ) )
+			return $post_id;
+
+		$nonce = $_POST['rewrite_metabox_nonce'];
+
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( $nonce, 'rewrite_metabox' ) )
+			return $post_id;
+
+		// If this is an autosave, our form has not been submitted,
+                //     so we don't want to do anything.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
+			return $post_id;
+
+		
+		$meta['kz_rewrite_page'] 			= ($_POST['kz_rewrite_page']=='on');
+			
+
+		// Add values of $events_meta as custom fields
+		foreach ($meta as $key => $value) { // Cycle through the $events_meta array!
+			// if( $post->post_type == 'revision' ) return; // Don't store custom data twice
+			// $value = implode(',', (array)$value); // If $value is an array, make it a CSV (unlikely)
+			$prev = get_post_meta($post_id, $key, TRUE);
+			if($prev && $prev!='') { // If the custom field already has a value
+				update_post_meta($post_id, $key, $value, $prev);
+			} else { // If the custom field doesn't have a value
+				if ($prev=='') delete_post_meta($post_id, $key);
+				add_post_meta($post_id, $key, $value, TRUE);
+			}
+			if(!$value) delete_post_meta($post_id, $key); // Delete if blank
+		}
+		
+	}
+
 
     /**
 	 * Les Query en Base sont filtrées en tenant compte de la métropole courante
@@ -322,11 +408,9 @@ class Kidzou_Geo {
 
 		global $post;
 
-		$template = get_post_meta( 
-					$post->ID, '_wp_page_template', true 
-				);
+		$rewrite = self::is_page_rewrite($post->ID);
 
-		if ($template=='all-content.php') {
+		if ($rewrite) {
 
 			$pos = strpos( $link, '/'. $post->post_name );
 			$new_link = substr_replace($link, "/".$m, $pos, 0);
@@ -386,6 +470,25 @@ class Kidzou_Geo {
 	        "location_tel" => $location_tel,
 	        "location_web" => $location_web
 	    );
+	}
+
+	/**
+	 * l'URL de la page doit-elle etre préfixée de la metropole du user ?
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function is_page_rewrite ($post_id=0)
+	{
+		if ($post_id==0)
+	    {
+	        global $post;
+	        $post_id = $post->ID;
+	    }
+
+	    $post = get_post($post_id);
+
+	    return get_post_meta($post_id, 'kz_rewrite_page', TRUE);
 	}
 
 	/**
@@ -514,7 +617,7 @@ class Kidzou_Geo {
 
 	public static function get_related_posts() {
 
-		add_filter('crp_posts_join', array($this, 'crp_filter_metropole')) ;
+		add_filter('crp_posts_join', array(self::get_instance(), 'crp_filter_metropole')) ;
 
 		return get_crp_posts_id();
 
@@ -527,7 +630,7 @@ class Kidzou_Geo {
 	 * @return void
 	 * @author 
 	 **/
-	protected function crp_filter_metropole()
+	public function crp_filter_metropole()
 	{
 		$join = ''; 
 
