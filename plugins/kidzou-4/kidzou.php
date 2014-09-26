@@ -42,9 +42,8 @@ if ( ! defined( 'WPINC' ) ) {
  *
  */
 
-require_once( plugin_dir_path( __FILE__ ) . 'includes/Tax-meta-class/Tax-meta-class.php');
+// require_once( plugin_dir_path( __FILE__ ) . 'includes/Tax-meta-class/Tax-meta-class.php');
 require_once( plugin_dir_path( __FILE__ ) . 'includes/TGM/class-tgm-plugin-activation.php');
-// require_once( plugin_dir_path( __FILE__ ) . 'includes/PageTemplater/class-page-templater.php');s
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/utils.php' );
 
@@ -57,7 +56,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'public/includes/class-kidzou-vote.p
 
 require_once( plugin_dir_path( __FILE__ ) . 'public/includes/category-header.php' );
 
-require_once( plugin_dir_path( __FILE__ ) . 'admin/views/metabox.php');
+// require_once( plugin_dir_path( __FILE__ ) . 'admin/views/metabox.php');
 require_once( plugin_dir_path( __FILE__ ) . 'admin/admin-init.php');
 require_once( plugin_dir_path( __FILE__ ) . 'admin/options-init.php');
 

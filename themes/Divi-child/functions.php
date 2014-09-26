@@ -101,7 +101,7 @@ function kidzou_related_posts()
 			[et_pb_row]
 				<h1>D&apos;autres sorties sympa :</h1>
 				[et_pb_column type="4_4"]
-					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" /][/et_pb_column][/et_pb_row][/et_pb_section]
+					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /][/et_pb_column][/et_pb_row][/et_pb_section]
 		');
 
 }
@@ -345,7 +345,8 @@ function kz_pb_portfolio( $atts ) {
 			'background_layout' => 'light',
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => false, //systeme de vote Kidzou, par défaut non affiché
-			'show_filters' => 'on'
+			'show_filters' => 'on',
+			'show_ad' => 'on'
 		), $atts
 	) );
 
@@ -389,62 +390,95 @@ function kz_pb_portfolio( $atts ) {
 
 	$categories_included = array();
 
+	$index = 0;
+
 	if ( have_posts() ) {
+
 		while ( have_posts() ) {
-			the_post(); 
 
-			$categories = get_the_terms( get_the_ID(), 'category' );
-			if ( $categories ) {
-				foreach ( $categories as $category ) {
-					$categories_included[] = $category->term_id;
+			if ($index==2 && $show_ad=='on') {
+
+				//insertion de pub
+				global $kidzou_options;
+				if ( isset($kidzou_options['pub_portfolio']) && $kidzou_options['pub_portfolio']<>'') {
+
+					$output = sprintf(
+						'<div id="pub_portfolio" class="%1$s">
+							%2$s
+						</div>',
+						'et_pb_portfolio_item kz_portfolio_item',
+						$kidzou_options['pub_portfolio']
+					);
+
+					echo $output;
+
 				}
-			}
-			?>
+					
 
-			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
+			} else {
 
+				the_post(); 
+
+				$categories = get_the_terms( get_the_ID(), 'category' );
+				if ( $categories ) {
+					foreach ( $categories as $category ) {
+						$categories_included[] = $category->term_id;
+					}
+				}
+				?>
+
+				<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
+
+					<?php
+					$thumb = '';
+
+					$width = 'on' === $fullwidth ?  1080 : 400;
+					$width = (int) apply_filters( 'et_pb_portfolio_image_width', $width );
+
+					$height = 'on' === $fullwidth ?  9999 : 284;
+					$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
+					$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+					$titletext = get_the_title();
+					$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
+					$thumb = $thumbnail["thumb"];
+
+					// print_r($thumb);
+
+					if ( '' !== $thumb ) : ?>
+						<a href="<?php the_permalink(); ?>">
+						<?php if ( 'on' !== $fullwidth ) : ?>
+							<span class="et_portfolio_image">
+						<?php endif; ?>
+						<?php if ( $with_votes  ) 
+								Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
+								<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
+						<?php if ( 'on' !== $fullwidth ) : ?>
+								<span class="et_overlay"></span>
+							</span>
+						<?php endif; ?>
+						</a>
 				<?php
-				$thumb = '';
+					endif;
+				?>
 
-				$width = 'on' === $fullwidth ?  1080 : 400;
-				$width = (int) apply_filters( 'et_pb_portfolio_image_width', $width );
-
-				$height = 'on' === $fullwidth ?  9999 : 284;
-				$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
-				$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-				$titletext = get_the_title();
-				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
-				$thumb = $thumbnail["thumb"];
-
-				// print_r($thumb);
-
-				if ( '' !== $thumb ) : ?>
-					<a href="<?php the_permalink(); ?>">
-					<?php if ( 'on' !== $fullwidth ) : ?>
-						<span class="et_portfolio_image">
+					<?php if ( 'on' === $show_title ) : ?>
+						<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
 					<?php endif; ?>
-					<?php if ( $with_votes  ) 
-							Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
-							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
-					<?php if ( 'on' !== $fullwidth ) : ?>
-							<span class="et_overlay"></span>
-						</span>
+
+					<?php if ( 'on' === $show_categories ) : ?>
+						<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
 					<?php endif; ?>
-					</a>
-			<?php
-				endif;
-			?>
 
-				<?php if ( 'on' === $show_title ) : ?>
-					<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-				<?php endif; ?>
+				</div> <!-- .et_pb_portfolio_item -->
 
-				<?php if ( 'on' === $show_categories ) : ?>
-					<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
-				<?php endif; ?>
+<?php
+			//fin de test sur $index
+			}
 
-			</div> <!-- .et_pb_portfolio_item -->
-<?php	}
+			$index++;
+
+		//fin de boucle while
+		}
 
 		if ( 'on' === $show_pagination && ! is_search() ) {
 			echo '</div> <!-- .et_pb_portfolio -->';
@@ -750,11 +784,12 @@ function format_fullwidth_portolio_items($projects, $show_title = "on", $show_da
 
 				if ( '' !== $thumb_src ) : ?>
 					<div class="et_pb_portfolio_image <?php esc_attr_e( $orientation ); ?>">
+
 						<a href="<?php the_permalink(); ?>">
+							
 							<img src="<?php esc_attr_e( $thumb_src); ?>" alt="<?php esc_attr_e( get_the_title() ); ?>"/>
 							<div class="meta">
 								<span class="et_overlay"></span>
-
 								<?php if ( 'on' === $show_title ) : ?>
 									<h3><?php the_title(); ?></h3>
 								<?php endif; ?>

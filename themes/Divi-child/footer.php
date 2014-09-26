@@ -44,5 +44,7 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 
 	<?php wp_footer(); ?>
 
+<!-- </div> .habillage -->
+
 </body>
 </html>

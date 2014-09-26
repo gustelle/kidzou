@@ -55,6 +55,7 @@ class Kidzou_Events {
 	 * @since     1.0.0
 	 */
 	private function __construct() { 
+		
 
 	}
 
@@ -151,6 +152,116 @@ class Kidzou_Events {
 
 		return $featured;
 	}
+
+	/**
+	 * Construit une WP_Query contenant des evenements sur une metropole donnée, dans un intervalle donné
+	 *
+	 * @return array()
+	 * @author 
+	 **/
+	public static function getEventsByInterval( $interval_days = 7, $ppp=-1 )
+	{
+		$metropole = Kidzou_Geo::get_request_metropole();
+
+		$interval = 'P7D';
+
+		switch ($interval_days) {
+			case 7:
+				$interval = 'P7D';
+				break;
+
+			case 30:
+				$interval = 'P30D';
+				break;
+			
+			default:
+				$interval = 'P7D';
+				break;
+		}
+
+		$current= time();
+		$start 	= date('Y-m-d 00:00:00', $current);
+		$end_time 	= new DateTime($start);
+
+		$end_time 	= $end_time->add( new DateInterval($interval) ); 
+
+		$end 	= $end_time->format('Y-m-d 23:59:59');
+
+		$meta_q = array(
+	                   array(
+	                         'key' => 'kz_event_start_date',
+	                         'value' => $end,
+	                         'compare' => '<=',
+	                         'type' => 'DATETIME'
+	                        )
+	                   ,
+						array(
+	                         'key' => 'kz_event_end_date',
+	                         'value' => $start,
+	                         'compare' => '>=',
+	                         'type' => 'DATETIME'
+	                        )
+			    	);
+
+		if ($metropole!='')
+			$args = array(
+				'post_type'=> 'event',
+				'meta_key' => 'kz_event_start_date' , //kz_event_featured
+				'orderby' => 'meta_value',
+				'order' => 'ASC' ,
+				'posts_per_page' => $ppp, 
+				'meta_query' => $meta_q,
+			    'tax_query' => array(
+			        array(
+			              'taxonomy' => 'ville',
+			              'field' => 'slug',
+			              'terms' => $metropole,
+			              )
+			    )
+			);
+		else
+			$args = array(
+				'post_type'=> 'event',
+				'meta_key' => 'kz_event_start_date' , //kz_event_featured
+				'orderby' => 'meta_value',
+				'order' => 'ASC' ,
+				'posts_per_page' => $ppp, 
+				'meta_query' => $meta_q
+			);
+
+		$query = new WP_Query($args );	
+
+		$list = 	$query->get_posts(); 
+
+		//les featured en premier
+		uasort($list, array('self', "sort_by_featured") );
+
+		return $list;
+	}
+
+	/**
+	 * compare 2 events et place les featured en premier, mais maintien l'ordre des dates (orderby kz_event_end_date)
+	 * pour rappel, un event featured à un meta "featured"='A' alors qu'un event normal a sa "featured"='B'
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function sort_by_featured($a, $b)
+	{
+		$featured_a = get_post_meta($a->ID, 'kz_event_featured', TRUE);
+		$featured_b = get_post_meta($b->ID, 'kz_event_featured', TRUE);
+
+		// pas de distinction de featured, c'est la start_date qui prime
+		if (strcmp($featured_a, $featured_b)==0) {
+
+			$start_a = get_post_meta($a->ID, 'kz_event_start_date', TRUE);
+			$start_b = get_post_meta($b->ID, 'kz_event_start_date', TRUE);
+			return strcmp($start_a, $start_b);
+		}
+
+		return strcmp($featured_a, $featured_b);
+	}
+
     
 
 } //fin de classe

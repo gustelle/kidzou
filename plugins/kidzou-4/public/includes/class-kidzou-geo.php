@@ -1,6 +1,8 @@
 <?php
 
 add_action('kidzou_loaded', array('Kidzou_Geo', 'get_instance'));
+/* seulement à l'activation du plugin */
+add_action( 'kidzou_activate', array('Kidzou_Geo', 'set_permalink_rules'));
 
 /**
  * Kidzou
@@ -66,11 +68,7 @@ class Kidzou_Geo {
 
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
 
-		/* seulement à l'activation du plugin */
-		add_action( 'kidzou_activate', array($this, 'set_permalink_rules'));
-
-		add_action( 'add_meta_boxes', array($this, 'page_rewrite_metabox') );
-		add_action( 'save_post', array( $this, 'save' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 	}
 
 
@@ -97,6 +95,38 @@ class Kidzou_Geo {
 	 * @return void
 	 * @author 
 	 **/
+	public function enqueue_geo_scripts()
+	{
+
+		wp_enqueue_script('kidzou-geo', plugins_url( 'assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), self::VERSION, true);
+
+		$villes = self::get_metropoles();
+
+		global $kidzou_options;
+  
+		$args = array(
+					'geo_mapquest_key'			=> $kidzou_options["geo_mapquest_key"],
+					'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
+					'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
+					'geo_default_lat'			=> $kidzou_options["geo_default_lat"],//50.637234, //lille //externaliser dans $kidzou_options
+					'geo_default_lng' 			=> $kidzou_options["geo_default_lng"],//3.06339, //lille //externaliser dans $kidzou_options
+					'geo_default_metropole'		=> self::get_default_metropole(),
+					'geo_cookie_name'			=> "kz_metropole",
+					'geo_select_cookie_name'	=> "kz_metropole_selected",
+					'geo_possible_metropoles'	=> $villes ,
+	                //'geo_icon_url'              => WP_PLUGIN_URL.'/kidzou-geo/images/location_icon2.png' //todo
+				);
+
+	    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
+
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
 	public static function set_permalink_rules () {
 
 		global $wp_rewrite;
@@ -105,87 +135,6 @@ class Kidzou_Geo {
 		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
 
 		self::create_rewrite_rules();
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function page_rewrite_metabox () {
-
-		add_meta_box(
-			'page_rewrite',
-			__( 'Re-&eacute;criture d&apos;URL', 'kidzou' ),
-			array($this, 'render_rewrite_metabox'),
-			'page',
-			'normal',
-			'high'
-		);
-		
-	}
-
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function render_rewrite_metabox ($post) {
-
-		// Add an nonce field so we can check for it later.
-		wp_nonce_field( 'rewrite_metabox', 'rewrite_metabox_nonce' );
-
-		$checkbox = get_post_meta($post->ID, 'kz_rewrite_page', TRUE);
-		echo '	
-					<label for="kz_rewrite_page">Pr&eacute;fixer l&apos;URL de cette page par la m&eacute;tropole de l&apos;utilisateur :</label>
-					<input type="checkbox" name="kz_rewrite_page"'. ( $checkbox ? 'checked="checked"' : '' ).'/>  
-				';
-		
-	}
-
-	/**
-	 *  sauvegarde des meta lors de l'enregistrement d'un post ou d'une page
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function save ($post_id) {
-
-		// Check if our nonce is set.
-		if ( ! isset( $_POST['rewrite_metabox_nonce'] ) )
-			return $post_id;
-
-		$nonce = $_POST['rewrite_metabox_nonce'];
-
-		// Verify that the nonce is valid.
-		if ( ! wp_verify_nonce( $nonce, 'rewrite_metabox' ) )
-			return $post_id;
-
-		// If this is an autosave, our form has not been submitted,
-                //     so we don't want to do anything.
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
-			return $post_id;
-
-		
-		$meta['kz_rewrite_page'] 			= ($_POST['kz_rewrite_page']=='on');
-			
-
-		// Add values of $events_meta as custom fields
-		foreach ($meta as $key => $value) { // Cycle through the $events_meta array!
-			// if( $post->post_type == 'revision' ) return; // Don't store custom data twice
-			// $value = implode(',', (array)$value); // If $value is an array, make it a CSV (unlikely)
-			$prev = get_post_meta($post_id, $key, TRUE);
-			if($prev && $prev!='') { // If the custom field already has a value
-				update_post_meta($post_id, $key, $value, $prev);
-			} else { // If the custom field doesn't have a value
-				if ($prev=='') delete_post_meta($post_id, $key);
-				add_post_meta($post_id, $key, $value, TRUE);
-			}
-			if(!$value) delete_post_meta($post_id, $key); // Delete if blank
-		}
-		
 	}
 
 
@@ -231,6 +180,8 @@ class Kidzou_Geo {
     {
         // self::initialize();
 
+        global $kidzou_options;
+
         $result = get_transient('kz_covered_metropoles_all_fields');
 
 	    if (false===$result)
@@ -246,8 +197,9 @@ class Kidzou_Geo {
 	        //sortir les villes à couverture nationale
 	        //on prend le premier de la liste
 	        foreach ($villes as $key=>$value) {
-	            $def = get_tax_meta($value->term_id,'kz_national_ville');
-	            if ("on" ==  $def) {
+	            $def = $kidzou_options['geo_national_metropole']; //get_tax_meta($value->term_id,'kz_national_ville');
+	            if ( intval($def) ==  intval($value->term_id) ) {
+
 	            } else {
 	                $result[$key] = $value;
 	            }
@@ -270,33 +222,14 @@ class Kidzou_Geo {
 	public static function get_national_metropoles()
 	{
 
+	    global $kidzou_options;
 
-	    $result = get_transient('kz_get_national_metropoles');
+	    $term = get_term_by('id', $kidzou_options['geo_national_metropole'], 'ville');
 
-	    if (false===$result)
-	    {
-	        $national = array();
+	    $result = array();
 
-	        $villes = get_terms( array("ville"), array(
-	                    "orderby" => "count",
-	                    "parent" => 0, //only root terms,
-	                    "fields" => "ids"
-	                ) );
-
-	        //on prend le premier de la liste
-	        foreach ($villes as $key) {
-	            $def = get_tax_meta($key,'kz_national_ville');
-	            if ("on" ==  $def) {
-	                $the_term = get_term_by('id', $key, 'ville');
-	                array_push($national, $the_term->slug);
-	            }
-	        }   
-
-	        $result = $national;
-
-	        set_transient( 'kz_get_national_metropoles', (array)$result, 60 * 60 * 24 ); //1 jour de cache
-	    }
-
+	    array_push($result, $term->slug);
+	    
 	    return $result;
 	}
 
@@ -349,36 +282,18 @@ class Kidzou_Geo {
 	/**
 	 * 
 	 *
-	 * @return void
+	 * @return le slug de la ville par defaut, selectionnée dans les options
 	 * @author 
 	 **/
 	public static function get_default_metropole()
 	{
 
-	    $result = get_transient('kz_default_metropole');
+	    global $kidzou_options;
 
-	    if (false===$result)
-	    {
-	        $villes = get_terms( array("ville"), array(
-	                    "orderby" => "count",
-	                    "parent" => 0, //only root terms,
-	                    "fields" => "ids"
-	                ) );
+	    $term = get_term_by('id', $kidzou_options['geo_default_metropole'], 'ville');
 
-	        //on prend le premier de la liste
-	        foreach ($villes as $key) {
-	            $def = get_tax_meta($key,'kz_default_ville');
-	            if ("on" ==  $def) {
-	                $the_term = get_term_by('id', $key, 'ville');
-	                $result = $the_term->slug;
-	                break;
-	            }
-	        }   
-
-	        set_transient( 'kz_default_metropole', $result, 60 * 60 * 24 ); //1 jour de cache
-	    }
 	    
-	    return $result;
+	    return $term->slug;
 	}
 
 
@@ -560,7 +475,7 @@ class Kidzou_Geo {
 	 **/
 	public static function get_post_metropole( )
 	{
-	    global $post;
+	    global $post; global $kidzou_options;
 
 	    $result = get_transient('kz_post_metropole_'. $post->ID ); 
 
@@ -596,7 +511,9 @@ class Kidzou_Geo {
 	            $i=0;
 	            $save_me = $roots[$i];
 	            foreach ($roots as $root) {
-	                if (get_tax_meta($root->term_id,'kz_national_ville')!="on") {
+	                //if (get_tax_meta($root->term_id,'kz_national_ville')!="on") {
+	            	$def = $kidzou_options['geo_national_metropole'];
+	            	if ( intval($def)!=intval($root->term_id) ) {
 	                    unset($roots[$i]);
 	                } else {
 	                    $save_me = $roots[$i];

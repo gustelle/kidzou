@@ -104,9 +104,12 @@
 							<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_justify">
 
 								<div class="post_ad">
-									<a href="#">
-										<img src='http://upload.wikimedia.org/wikipedia/commons/2/24/Ad-MediumRectangle-300x250.jpg'/>
-									</a>
+									<?php
+										global $kidzou_options;
+
+										if ( isset($kidzou_options['pub_post']) && $kidzou_options['pub_post']<>'')
+											echo $kidzou_options['pub_post'];
+									?>
 								</div>
 							
 								<?php the_content(); ?>

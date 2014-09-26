@@ -236,6 +236,105 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
+                'title'     => __('G&eacute;olocalisation', 'kidzou'),
+                'desc'      => __('lorem ipsum', 'kidzou'),
+                'icon'      => 'el-icon-home',
+                'fields'    => array(
+
+                        array(
+                            'id'        => 'geo_mapquest_key',
+                            'type'      => 'text',
+                            'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
+                            'subtitle'  => __('Cette cl&eacute; permet d&apos;utiliser l&apos;API qui fournit des adresses a partir de coordonn&eacute;es GPS et vice-versa', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'geo_default_metropole',
+                            'type'      => 'select',
+                            'data' => 'terms',
+                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
+                            'title'     => __('Ville par d&eacute;faut', 'kidzou'),
+                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'geo_default_lat',
+                            'type'      => 'text',
+                            'title'     => __('Latitude de la ville par d&eacute;faut', 'kidzou'),
+                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'geo_default_lng',
+                            'type'      => 'text',
+                            'title'     => __('Longitude de la ville par d&eacute;faut', 'kidzou'),
+                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'geo_national_metropole',
+                            'type'      => 'select',
+                            'data' => 'terms',
+                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
+                            'title'     => __('Ville &agrave; port&eacute;e nationale', 'kidzou'),
+                            'subtitle'  => __('Lorsque des contenus y sont attach&eacute;s, ils sont visibles pour tous les utilisateurs quelque soit leur m&eacute;tropole de rattachement', 'kidzou'),
+                        ),
+                    )
+                );
+
+            $this->sections[] = array(
+                'title'     => __('Publicit&eacute;', 'kidzou'),
+                'desc'      => __('lorem ipsum', 'kidzou'),
+                'icon'      => 'el-icon-home',
+                'fields'    => array(
+
+                    array(
+                        'id'        => 'pub_habillage',
+                        'type'      => 'background',
+                        'output'    => array('body'),
+                        'title'     => __('Habillage de site', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'preview_media' => true
+                    ),
+
+                    array(
+                        'id'        => 'pub_archive',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Publicit&eacute; sur Archive', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        'desc'      => 'Un bandeau 768x90 est parfait',
+                        'default'   => '<a href="#"><img src=""/></a>'
+                    ),
+
+                    array(
+                        'id'        => 'pub_portfolio',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Publicit&eacute; sur Portfolio d&apos;articles', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        'desc'      => 'Typiquement une pub 300x250',
+                        'default'   => '<a href="#"><img src=""/></a>'
+                    ),
+
+                    array(
+                        'id'        => 'pub_post',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Publicit&eacute; sur un Article', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        'desc'      => 'Typiquement une pub 300x250',
+                        'default'   => '<a href="#"><img src=""/></a>'
+                    )
+
+                )
+            );
+
+            // ACTUAL DECLARATION OF SECTIONS
+            $this->sections[] = array(
                 'title'     => __('Home Settings', 'redux-framework-demo'),
                 'desc'      => __('Redux Framework was created with the developer in mind. It allows for any theme developer to have an advanced theme panel with most of the features a developer would need. For more information check out the Github repo at: <a href="https://github.com/ReduxFramework/Redux-Framework">https://github.com/ReduxFramework/Redux-Framework</a>', 'redux-framework-demo'),
                 'icon'      => 'el-icon-home',

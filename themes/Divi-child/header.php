@@ -36,6 +36,8 @@
 </head>
 <body <?php body_class(); ?>>
 
+<!-- <div class="habillage"> -->
+
 	<div id="page-container">
 <?php
 	if ( is_page_template( 'page-template-blank.php' ) ) {

@@ -88,12 +88,11 @@ class Kidzou {
 		add_filter('the_excerpt_rss', array( $this, 'rss_post_thumbnail' ) );
 		add_filter('the_content_feed', array( $this, 'rss_post_thumbnail' ) );
 
-
 		add_filter('json_api_controllers', array( $this, 'add_Kidzou_controller' ));
-		add_filter('json_api_vote_controller_path', 			array( $this, 'set_vote_controller_path' )  );
-		add_filter('json_api_auth_controller_path', 			array( $this, 'set_auth_controller_path' ) );
-		add_filter('json_api_users_controller_path',            array( $this, 'set_users_controller_path' ) );
-
+		add_filter('json_api_vote_controller_path', 	array( $this, 'set_vote_controller_path' )  );
+		add_filter('json_api_auth_controller_path', 	array( $this, 'set_auth_controller_path' )  );
+		add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
+		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 
 	}
 
@@ -363,6 +362,8 @@ class Kidzou {
 	 */
 	private static function single_deactivate() {
 
+		do_action('kidzou_deactivate');
+
 		flush_rewrite_rules();
 	}
 
@@ -490,6 +491,8 @@ class Kidzou {
 	 */
 	public function enqueue_scripts() {
 
+		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+
 		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION );
 		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
@@ -564,7 +567,7 @@ class Kidzou {
 	  $controllers[] = 'Vote';
 	  $controllers[] = 'Auth';
 	  $controllers[] = 'Users';
-	  // $controllers[] = 'Taxo';
+	  $controllers[] = 'Clients';
 
 	  return $controllers;
 	}
@@ -579,7 +582,9 @@ class Kidzou {
 	public function set_users_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/includes/api/users.php";
 	}
-
+	public function set_clients_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/includes/api/clients.php";
+	}
 	
 
 }

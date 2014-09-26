@@ -473,7 +473,8 @@ var kidzouAdmin = (function() { //havre de paix
 	    //pour les events on utilise le pipe (|) et non : comme séparateur de données
 	    //car les données contiennes des ":" (start_date et end_date sont au format YYYY-MM-DD HH:mm:ss)
 	    self.formatEvent = function(ev) {  
-	    	var status	 	= ev.status; 
+	    	// console.debug(ev);
+			var status	 	= ev.status; 
 	    	var start  	= '';
 	    	var end 	= '';
 	    	var diff 	= '';
@@ -491,9 +492,11 @@ var kidzouAdmin = (function() { //havre de paix
 	   		
 	   		return "<span class='" + (status==="publish" ? "validated" : "draft") + "'>" + ev.title + duration + "</span>"; 
 	    };
+
 	    self.selectedEventId = function(e) { 
 	    	return e.id+"|"+e.title+"|"+e.status+"|"+e.custom_fields.kz_event_start_date+"|"+e.custom_fields.kz_event_end_date;  
 	    };
+
 	    self.initSelectedEvents = function (element, callback) {
 	    	var data = [];
 			ko.utils.arrayForEach(self.attachedEvents().split(","), function(item) {
