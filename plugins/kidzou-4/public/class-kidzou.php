@@ -491,6 +491,8 @@ class Kidzou {
 	 */
 	public function enqueue_scripts() {
 
+		global $kidzou_options;
+
 		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 
 		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION );
