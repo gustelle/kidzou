@@ -123,7 +123,7 @@ var kidzouAdmin = (function() { //havre de paix
 
 	    //temp data pour selectBox (id:name)
 	    self.selectedClient = ko.observable(""); 
-	    self.selectedConnection = ko.observable(""); 
+	    // self.selectedConnection = ko.observable(""); 
 	    self.selectedUsers = ko.observable(""); 
 	    self.selectedSecondUsers = ko.observable(""); 
 
@@ -151,9 +151,9 @@ var kidzouAdmin = (function() { //havre de paix
 		function resetClient() {
 			self.chosenClientData(null);
 	    	self.chosenClientEvents.removeAll();
-	    	self.selectedClient("");
+	    	self.selectedClient(""); //console.debug("selectedClient " + self.selectedClient())
 	    	self.selectedUsers("");
-	    	self.selectedConnection("");
+	    	// self.selectedConnection("");
 	    	self.selectedSecondUsers("");
 		}
 
@@ -281,19 +281,24 @@ var kidzouAdmin = (function() { //havre de paix
 	    	self.addMessage("warning", "Enregistrement ...");
 	    	self.releaseSubmitButton(false);
 	    	var isError = false;
-
-	   		if (self.chosenClientData().name()==="") {
+	    	// console.debug(self.chosenClientData());
+	   		if (typeof self.chosenClientData().name=="undefined" || self.chosenClientData().name()==="") {
 	    		self.addMessage("error", "Le nom du client ne peut pas &ecirc;tre vide");
 	   			isError = true;
 	   		}
 	   		
 	   		if (!isError) {
 
+	   			// console.debug("id " + self.chosenClientData().id());
+	   			// console.debug("name " + self.chosenClientData().name());
+
 	   			jQuery.get(kidzou_jsvars.api_saveClient, { 
 		   				id 	: self.chosenClientData().id(),
 		   				name: self.chosenClientData().name(),
-		   				connections_id : self.selectedConnection().split(":")[0]
+		   				// connections_id : self.selectedConnection().split(":")[0]
 	   				}).done(function(data) {
+
+	   					// console.debug(data);
 
 					    //s'il s'agit au contraire d'un nouveau client
 					    if ( data.status==="ok") {
@@ -304,7 +309,7 @@ var kidzouAdmin = (function() { //havre de paix
 					        	self.chosenClientData().id(data.id);
 
 					        	//updater le filtre de selection client 
-					        	self.selectedClient(self.chosenClientData().id() + ":" + self.chosenClientData().name());
+					        	self.selectedClientId(self.chosenClientData().id() + ":" + self.chosenClientData().name());
 
 					        	//ajouter le client à la liste des clients de la selectBox de filtrage (opérée par select2)
 					        	self.clients.push({id : self.chosenClientData().id(), text: self.chosenClientData().name()});
@@ -347,6 +352,8 @@ var kidzouAdmin = (function() { //havre de paix
 
     			self.addMessage("warning", "Patience...");
 
+    			// console.debug("selectedClient : " + ev.currentTarget.attributes.value.value);
+
 	    		self.selectedClient(ev.currentTarget.attributes.value.value);
 	    		var id = self.selectedClient().split(":")[0];
 	    		
@@ -358,8 +365,10 @@ var kidzouAdmin = (function() { //havre de paix
 
 		    			self.addMessage("warning", "Donnees client recupérées...");
 
+		    			// console.debug(data);
+
 		    			self.chosenClientData (ko.mapping.fromJS(data.client));
-		    			self.selectedConnection (data.client.connections_id + ":" + (data.client.connections_slug===null ? "" : data.client.connections_slug));
+		    			// self.selectedConnection (data.client.connections_id + ":" + (data.client.connections_slug===null ? "" : data.client.connections_slug));
 
 		    			//console.log("loading selectedConnection : " + self.selectedConnection());
 		    			
@@ -429,35 +438,6 @@ var kidzouAdmin = (function() { //havre de paix
 	    	return e.id+":"+e.user_login; 
 	    };
 
-	    self.selectConnection = function (d, ev) {
-	    	if (typeof ev.currentTarget.attributes.value !== "undefined" && 
-    			typeof ev.currentTarget.attributes.value.value === "string") 
-	    		self.selectedConnection(ev.currentTarget.attributes.value.value);
-	    };
-
-	    self.resetSelectedConnection = function (d, ev) {
-	    	self.selectedConnection("");
-	    };
-
-	    self.queryConnections = function (query) {
-	        jQuery.get(kidzou_jsvars.api_get_fiche_by_slug, { term: query.term }, function(data) {
-    			query.callback({
-                    results: data.fiches
-                });
-    		});
-	    };
-	    self.initSelectedConnection = function (element, callback) {
-    		var data = {id:0, slug:""};
-    		if (self.selectedConnection()!=="") {
-    			var pieces = self.selectedConnection().split(":");
-    			data = {id : pieces[0], slug : pieces[1]};
-    		}	
-	        callback(data);
-	    };
-	   	self.formatConnection = function(conn) { return conn.slug; };
-	    self.selectedConnectionId = function(e) { 
-	    	return e.id+":"+e.slug;
-	    };
 
 	    //events
 	    self.queryEvents = function (query) {
@@ -625,6 +605,9 @@ var kidzouAdmin = (function() { //havre de paix
 			jQuery.getJSON(kidzou_jsvars.api_getContentsByClientID, { 
 					id : client.id()
 				}, function (data) {
+
+					// console.debug('client ' + client.id());
+					// console.debug(data);
 
 					self.addMessage("warning", "Evénements chargés...");
 

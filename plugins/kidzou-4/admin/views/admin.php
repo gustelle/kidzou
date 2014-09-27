@@ -88,7 +88,7 @@ global $kidzou_options;
 		</form>
 
 		<!-- ko if: $root.currentTab() == 'editCustomer' -->
-		<div class="postbox-container" data-bind="with: chosenClientData()">
+		<div class="postbox-container" data-bind="with: $root.chosenClientData()">
 			<div class="meta-box-sortables ui-sortable">
 				<div class="postbox"> 
 					<div class="handlediv" title="Cliquer pour inverser."><br /></div>
@@ -102,20 +102,13 @@ global $kidzou_options;
 
 								<label for="name">Nom du client</label>
 								<input data-bind="value: name, enable: $root.editMode" name="name" />
-								<!-- <label for="fiche">Fiche associ&eacute;e</label>
-								<input type="hidden" name="fiche" data-bind="value: $root.selectedConnection, event: {'select2-close': $root.selectConnection, 'select2-clearing': $root.resetSelectedConnection  }, select2: { multiple: false, 
-					            																			minimumInputLength: 2, 
-					            																			id : $root.selectedConnectionId, 
-					            																			query: $root.queryConnections, 
-					            																			initSelection: $root.initSelectedConnection, 
-					            																			formatResult : $root.formatConnection, 
-					            																			formatSelection : $root.formatConnection }, enable: $root.editMode" style="width: 300px"> -->
+
 							</fieldset>
 		
 							<p>
 								<div class="submitbox">
 									<a class="submitdelete deletion" href="#" data-bind="click:$root.deleteClient, visible: $root.editMode">Supprimer ce client</a>
-									<input type="submit" class="button-primary" value="Enregistrer" data-bind="enable:$root.releaseSubmitButton, visible: $root.editMode" />
+									<input type="submit" class="button-primary" value="Enregistrer" data-bind="enable: $root.releaseSubmitButton, visible: $root.editMode" />
 								     
 								</div>
 							</p>
@@ -142,8 +135,8 @@ global $kidzou_options;
 							<fieldset>
  								<legend>Saisie des contenus</legend>     																			
 								<label for="users">
-									Utilisateurs <strong>principaux</strong> autoris&eacute;s &agrave; saisir des &eacute;v&egrave;nements<br/>
-									<em>Ces utilisateurs ont le droit de g&eacute;rer les &eacute;v&egrave;nements cr&eacute;es par les utilisateurs secondaires</em>
+									Utilisateurs <strong>principaux</strong> autoris&eacute;s &agrave; saisir des contenus<br/>
+									<em>Ces utilisateurs ont le droit de g&eacute;rer les contenus cr&eacute;es par les utilisateurs secondaires</em>
 								</label>
 								<input type="hidden" name="users" data-bind="value: $root.selectedUsers, select2: { multiple: true, 
 							            																			minimumInputLength: 2, 
@@ -153,7 +146,7 @@ global $kidzou_options;
 							            																			formatResult : $root.formatUser, 
 							            																			formatSelection : $root.formatUser }, enable: $root.editMode" style="width: 300px">
 							    <br/><br/>																		
-								<label for="secondusers">Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des &eacute;v&egrave;nements</label>
+								<label for="secondusers">Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus</label>
 								<input type="hidden" name="secondusers" data-bind="value: $root.selectedSecondUsers, select2: { multiple: true, 
 							            																			minimumInputLength: 2, 
 							            																			id : $root.selectedUserId, 
@@ -165,7 +158,7 @@ global $kidzou_options;
 							<p>
 								<div class="submitbox">
 									<a class="submitdelete deletion" href="#" data-bind="click:$root.deleteClient, visible: $root.editMode">Supprimer ce client</a>
-									<input type="submit" class="button-primary" value="Enregistrer" data-bind="enable:$root.releaseSubmitButton, visible: $root.editMode" />
+									<input type="submit" class="button-primary" value="Enregistrer" data-bind="enable: $root.releaseSubmitButton, visible: $root.editMode" />
 								     
 								</div>
 							</p>
@@ -282,7 +275,7 @@ global $kidzou_options;
 
 							</fieldset>
 							<br/>
-							<input type="submit" class="button-primary" value="Ajouter" data-bind="enable:$root.releaseAttachEventButton()"/>
+							<input type="submit" class="button-primary" value="Ajouter" data-bind="enable: $root.releaseAttachEventButton"/>
 						
 						</form>
 

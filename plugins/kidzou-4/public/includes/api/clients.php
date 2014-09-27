@@ -58,8 +58,8 @@ class JSON_API_Clients_Controller {
 		if (!current_user_can("edit_users") || !current_user_can("manage_options"))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
-		$table_clients = $wpdb->prefix . "clients";
-		$table_clients_users = $wpdb->prefix . "clients_users";
+		$table_clients = $wpdb->prefix . Kidzou_Customer::CLIENTS_TABLE;
+		$table_clients_users = $wpdb->prefix . Kidzou_Customer::CLIENTS_USERS_TABLE;
 
 		//$table_events = $wpdb->prefix . "reallysimpleevents";
 		$table_users = $wpdb->prefix . "users";
@@ -103,6 +103,13 @@ class JSON_API_Clients_Controller {
 			$res["users"] = $main_users;
 			$res["secondusers"] = $second_users;
 			$res["id"] = $id;
+
+			// $wpdb->show_errors();
+			$name = $wpdb->get_results(
+				"SELECT c.name FROM $table_clients c WHERE c.id=$id", ARRAY_A);
+			// $wpdb->print_error();
+
+			$res["name"] = $name[0]["name"];
 
 			return array(
 				"client" => $res
@@ -462,8 +469,8 @@ class JSON_API_Clients_Controller {
 		global $json_api;
 		global $wpdb;
 
-		$table_clients = $wpdb->prefix . "clients";
-		$table_clients_users = $wpdb->prefix . "clients_users";
+		$table_clients = $wpdb->prefix . Kidzou_Customer::CLIENTS_TABLE;
+		$table_clients_users = $wpdb->prefix . Kidzou_Customer::CLIENTS_USERS_TABLE;
 
 		if (!current_user_can("edit_users") || !current_user_can("manage_options"))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
@@ -481,10 +488,12 @@ class JSON_API_Clients_Controller {
 
 			if ($id==null || $id=="" || intval($id)==0) {
 
-				$id = $wpdb->insert( $table_clients , $table_clients_cols );
+				$res = $wpdb->insert( $table_clients , $table_clients_cols ); //nb of rows on success or false on failure
 
-				if (!$id)
+				if (!$res)
 					$json_api->error("erreur lors de la creation du client.");
+				else
+					$id = $wpdb->insert_id;
 
 			} else {
 
