@@ -3156,6 +3156,22 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 }
 
+.sidebar_posts_list {
+	margin-left: 0 !important;
+}
+
+.sidebar_post_item {
+	padding: 6px 0;
+	margin-bottom: 6px;
+}
+
+.sidebar_post_item img {
+	float: right;
+	padding-left: 4px;
+	width: 32px;
+	height: auto;
+}
+
 
 /*----------- Tooltips -------------*/
 *[data-tooltip] {

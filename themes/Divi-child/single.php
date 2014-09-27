@@ -80,7 +80,7 @@
 									$formatted = __( 'Du '. strftime("%A %d %B", $start->getTimestamp()).' au '.strftime("%A %d %B", $end->getTimestamp()), 'Divi' );
 							?>
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
-									<?php echo '<p class="location"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
+									<?php echo '<p class="location font-2x"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
 								</div> <!-- .et_pb_text -->
 							
 							<?php } ?>

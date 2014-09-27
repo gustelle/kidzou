@@ -716,9 +716,8 @@ class Kidzou_Admin {
 		//si le user est un client, on reprend le client associé à l'auteur
 		//en theorie il ne peut pas arriver jusqu'ici puisque le nonce n'est pas generé pour un "pro"
 		if ( !current_user_can( 'manage_options' )) {
-			
-			$customer = Kidzou_Customer::getCustomerByAuthor();
-			$events_meta[$key] = $customer["id"];
+		
+			$events_meta[$key] = Kidzou_Customer::getCustomerIDByAuthorID();;
 		
 		} else {
 			// OK, we're authenticated: we need to find and save the data
@@ -731,7 +730,6 @@ class Kidzou_Admin {
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
 			$events_meta[$key] = 0;
-
 
 		$this->save_meta($post_id, $events_meta);
 		
@@ -747,12 +745,13 @@ class Kidzou_Admin {
 
 		// Add values of $events_meta as custom fields
 		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
-			$pref_key = $prefix.$key;
+			$pref_key = $prefix.$key; 
 			// if( $post->post_type == 'revision' ) return; // Don't store custom data twice
 			// $value = implode(',', (array)$value); // If $value is an array, make it a CSV (unlikely)
 			$prev = get_post_meta($post_id, $pref_key, TRUE);
-			if($prev && $prev!='') { // If the custom field already has a value
-				update_post_meta($post_id, $pref_key, $value, $prev);
+			// if ($pref_key=='kz_event_customer') echo $prev;
+			if ($prev!='') { // If the custom field already has a value
+				update_post_meta($post_id, $pref_key, $value);
 			} else { // If the custom field doesn't have a value
 				if ($prev=='') delete_post_meta($post_id, $pref_key);
 				add_post_meta($post_id, $pref_key, $value, TRUE);

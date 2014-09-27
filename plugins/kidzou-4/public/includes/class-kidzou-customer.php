@@ -140,7 +140,7 @@ class Kidzou_Customer {
 		if ($post_id==0)
 		{
 			global $post;
-			$post_id = $post->ID;
+			$post_id = $post->ID; 
 		}
 
 		$customer = get_post_meta($post_id, 'kz_event_customer', TRUE);
@@ -177,19 +177,44 @@ class Kidzou_Customer {
 	 * @return array of posts
 	 * @author 
 	 **/
-	public static function getPostsByCustomerID($customer_id = 0) {
+	public static function getPostsByCustomerID($customer_id = 0, $args= array()) {
 
 		$posts = array();
 
-		if ($customer_id==0)
-			return $posts;
+		if ($customer_id==0) {
+			// global $post;
+
+			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
+
+			if ($customer_id==0)
+				return $posts;
+		}
+
+		global $post;
+
+		$defaults = array(
+			'posts_per_page' => 4,
+			'post__not_in' => array( $post->ID ) //exclure le post courant 
+		);
+
+		$settings = array(); //todo
+
+		$defaults = array_merge( $defaults, $settings );
+
+		// Parse incomming $args into an array and merge it with $defaults
+		$args = wp_parse_args( $args, $defaults );
+
+		// Declare each item in $args as its own variable i.e. $type, $before.
+		extract( $args, EXTR_SKIP );
 
 		//Est-ce vraiment une bonne chose de filtrer ici par metropole ?
 		// $metropole = Kidzou_Geo::get_request_metropole();
 
 		$rd_args = array(
+			'posts_per_page' => $posts_per_page,
 			'meta_key' => 'kz_event_customer',
 			'meta_value' => $customer_id,
+			'post__not_in'=> $post__not_in,
 			// 'tax_query' => array(
 			//         array(
 			//               'taxonomy' => 'ville',
@@ -201,7 +226,7 @@ class Kidzou_Customer {
 		 
 		$rd_query = new WP_Query( $rd_args );
 
-		$list = 	$query->get_posts(); 
+		$list = 	$rd_query->get_posts(); 
 
 		//Reutiliser le tri disponible dans Kidzou_Events
 		uasort($list, array( Kidzou_Events::get_instance(), "sort_by_featured" ) );
@@ -229,6 +254,19 @@ class Kidzou_Customer {
 		$customer = $wpdb->get_results("SELECT c.id, c.name FROM $table_clients_users AS u, $table_clients AS c WHERE u.user_id=$user_id AND u.customer_id=c.id", ARRAY_A);
 
 		return intval($customer[0]["id"])>0 ? intval($customer[0]["id"]) : 0;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getCustomerRelatedPosts()
+	{
+		global $post;
+
+
 	}
 
 

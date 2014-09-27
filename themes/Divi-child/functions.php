@@ -9,6 +9,11 @@ add_action( 'after_setup_theme', 'override_divi_parent_functions');
 require_once( get_stylesheet_directory() . '/et-pagebuilder/et-pagebuilder.php' );
 
 /**
+ * widget specifique pour afficher les contenus d'un client dans la sidebar
+ */
+require_once( get_stylesheet_directory() . '/widget-customer-posts.php' );
+
+/**
  * shortcodes spécifiques Kidzou
  *
  * @see http://www.themelab.com/2010/07/11/remove-code-wordpress-header/
