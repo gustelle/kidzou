@@ -3085,6 +3085,7 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 .vote { color:#ED0A71; }
 .vote:hover { cursor: pointer; }
 .font-2x { font-size: 200%; }
+.font-bigger {font-size: 120%; font-weight: bold;}
 .overtext {vertical-align: text-top;} /* pour la fleche du content preview */
 
 
@@ -3205,4 +3206,5 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 *[data-tooltip]:hover::after {
     opacity: 0.9;
 }
+
 

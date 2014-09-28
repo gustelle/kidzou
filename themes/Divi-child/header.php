@@ -88,6 +88,7 @@
 
 				<div id="et-secondary-menu">
 				<?php
+
 					if ( ! $et_contact_info_defined && true === $show_header_social_icons ) {
 						get_template_part( 'includes/social_icons', 'header' );
 					} else if ( $et_contact_info_defined && true === $show_header_social_icons ) {
@@ -112,6 +113,17 @@
 					}
 
 					et_show_cart_total();
+
+					if (!is_user_logged_in()) {
+
+						global $kidzou_options;
+						printf(
+							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-users"></i><span>Rejoignez la communaut&eacute; !</span></a>&nbsp;',
+							get_page_link($kidzou_options['login_page'])
+						);	
+						
+					}
+
 				?>
 				</div> <!-- #et-secondary-menu -->
 

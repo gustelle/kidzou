@@ -101,6 +101,10 @@ class Kidzou_Admin {
 		add_filter('default_hidden_meta_boxes', array($this,'hide_metaboxes'), 10, 2);
 		add_action('wp_dashboard_setup', array($this,'remove_dashboard_widgets') );
 
+		//http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
+		add_filter('wp_handle_upload_prefilter', array($this, 'handle_upload_prefilter'));
+		add_filter('wp_handle_upload', array($this,'handle_upload'));
+
 
 	}
 
@@ -119,6 +123,51 @@ class Kidzou_Admin {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	* @deprecated
+	*/
+	public function handle_upload_prefilter( $file )
+	{
+	    add_filter('upload_dir', 'custom_upload_dir');
+	    return $file;
+	}
+
+	/**
+	* @deprecated
+	*/
+	public function handle_upload( $fileinfo )
+	{
+	    remove_filter('upload_dir', 'custom_upload_dir');
+	    return $fileinfo;
+	}
+
+	/**
+	* Organize Upload folder per author
+	* 
+	* @deprecated
+	*/
+	public function custom_upload_dir($path)
+	{   
+	    /*
+	     * Determines if uploading from inside a post/page/cpt - if not, default Upload folder is used
+	     */
+	    $use_default_dir = ( isset($_REQUEST['post_id'] ) && $_REQUEST['post_id'] == 0 ) ? true : false; 
+	    if( !empty( $path['error'] ) || $use_default_dir )
+	        return $path; //error or uploading not from a post/page/cpt 
+
+		$the_post = get_post($_REQUEST['post_id']);
+		$the_author = get_user_by('id', $the_post->post_author);
+		$customdir = '/' . $the_author->data->user_login; //alternative : display_name
+
+	    $path['path']    = str_replace($path['subdir'], '', $path['path']); //remove default subdir (year/month)
+	    $path['url']     = str_replace($path['subdir'], '', $path['url']);      
+	    $path['subdir']  = $customdir;
+	    $path['path']   .= $customdir; 
+	    $path['url']    .= $customdir;  
+
+	    return $path;
 	}
 
 	public function hide_metaboxes($hidden, $screen) {
@@ -180,7 +229,7 @@ class Kidzou_Admin {
 			//datepicker pour les events
 			wp_enqueue_style( 'jquery-ui-custom', plugins_url( 'assets/css/jquery-ui-1.10.3.custom.min.css', __FILE__ ) );	
 
-		} elseif (condition) {
+		} elseif ($screen->id == $this->plugin_screen_hook_suffix) {
 			
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
 			wp_enqueue_style( 'kidzou-admin', plugins_url( 'assets/css/kidzou-client.css', __FILE__ ) );
@@ -401,7 +450,7 @@ class Kidzou_Admin {
 		<div class="kz_form" id="event_form">';
 
 			//si le user n'est pas un "pro", on permet des fonctions d'administration supplémentaires
-			if (!current_user_can('pro')) {
+			if (current_user_can('manage_options')) {
 
 				echo '<h4>Fonctions client</h4>
 						<ul>';
@@ -419,13 +468,13 @@ class Kidzou_Admin {
 			<ul>
 				<li>
 					<label for="start_date">Date de d&eacute;but:</label>
-			    	<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().start_date, datepickerOptions: { dateFormat: \'dd MM yy\' }" required />
+			    	<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().start_date, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> <!-- required -->
 			    	<input type="hidden" name="kz_event_start_date"  data-bind="value: eventData().formattedStartDate" />
 			    	<span data-bind="validationMessage: eventData().formattedStartDate" class="form_hint"></span>
 				</li>
 				<li>
 					<label for="end_date">Date de fin</label>
-			    	<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().end_date, datepickerOptions: { dateFormat: \'dd MM yy\' }" required />
+			    	<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().end_date, datepickerOptions: { dateFormat: \'dd MM yy\' }" />
 					<input type="hidden" name="kz_event_end_date"  data-bind="value: eventData().formattedEndDate" />
 					<em data-bind="if: eventData().eventDuration()!==\'\'">(<span data-bind="text: eventData().eventDuration"></span>)</em>
 					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>

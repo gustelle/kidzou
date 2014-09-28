@@ -234,6 +234,24 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 $sampleHTML = $wp_filesystem->get_contents(dirname(__FILE__) . '/info-html.html');
             }
 
+            $this->sections[] = array(
+                'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
+                'desc'      => __('Page de login, etc..', 'kidzou'),
+                'icon'      => 'el-icon-cog',
+                'fields'    => array(
+
+                        array(
+                            'id'        => 'login_page',
+                            'type'      => 'select',
+                            'data'      => 'page',
+                            'title'     => __('Page de login', 'kidzou'),
+                            'subtitle'  => __('Ben c&apos;est l&agrave; qu&apos;on se connecte', 'kidzou'),
+                        ),
+
+                        
+                    )
+                );
+
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
                 'title'     => __('G&eacute;olocalisation', 'kidzou'),

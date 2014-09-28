@@ -44,6 +44,8 @@ if ( ! defined( 'WPINC' ) ) {
 
 // require_once( plugin_dir_path( __FILE__ ) . 'includes/Tax-meta-class/Tax-meta-class.php');
 require_once( plugin_dir_path( __FILE__ ) . 'includes/TGM/class-tgm-plugin-activation.php');
+// require_once( plugin_dir_path( __FILE__ ) . 'includes/cron/class-redrokk-cron.php');
+// require_once( plugin_dir_path( __FILE__ ) . 'includes/logger/class-wplogger.php');
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/utils.php' );
 

@@ -98,7 +98,7 @@ class Kidzou_Geo {
 	public function enqueue_geo_scripts()
 	{
 
-		wp_enqueue_script('kidzou-geo', plugins_url( 'assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), self::VERSION, true);
+		wp_enqueue_script('kidzou-geo', plugins_url( '../../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), self::VERSION, true);
 
 		$villes = self::get_metropoles();
 

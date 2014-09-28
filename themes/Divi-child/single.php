@@ -254,13 +254,7 @@
 			</div> <!-- .et_pb_row -->
 		</div> <!-- .et_pb_section -->
 
-		<?php 
-			echo kidzou_related_posts();
-		?>					
-							
-		<?php 
-			echo do_shortcode('[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="8874d33cf7" aweber_list="none" title="Inscrivez-vous à notre Newsletter" button_text="Inscrivez-vous " use_background_color="on" background_color="#ed0a71" background_layout="dark" text_orientation="left"]<p>Nous distribuons la newsletter 1 à 2 fois par mois, elle contient les meilleures recommandations de la communauté des parents Kidzou, ainsi que des jeux concours de temps en temps ! </p>[/et_pb_signup]');
-		?>						
+		<?php get_post_footer(); ?>						
 					</div> <!-- .entry-content -->
 					
 				</article> <!-- .et_pb_post -->

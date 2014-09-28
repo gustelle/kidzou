@@ -21,12 +21,12 @@
 	public function form( $instance ) {
 		$title = isset( $instance['title'] ) ? esc_attr( $instance['title'] ) : '';
 		$limit = isset( $instance['limit'] ) ? esc_attr( $instance['limit'] ) : '';
-		$show_excerpt = isset( $instance['show_excerpt'] ) ? esc_attr( $instance['show_excerpt'] ) : '';
-		$show_author = isset( $instance['show_author'] ) ? esc_attr( $instance['show_author'] ) : '';
-		$show_date = isset( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
-		$post_thumb_op = isset( $instance['post_thumb_op'] ) ? esc_attr( $instance['post_thumb_op'] ) : '';
-		$thumb_height = isset( $instance['thumb_height'] ) ? esc_attr( $instance['thumb_height'] ) : '';
-		$thumb_width = isset( $instance['thumb_width'] ) ? esc_attr( $instance['thumb_width'] ) : '';
+		//$show_excerpt = isset( $instance['show_excerpt'] ) ? esc_attr( $instance['show_excerpt'] ) : '';
+		//$show_author = isset( $instance['show_author'] ) ? esc_attr( $instance['show_author'] ) : '';
+		//$show_date = isset( $instance['show_date'] ) ? esc_attr( $instance['show_date'] ) : '';
+		//$post_thumb_op = isset( $instance['post_thumb_op'] ) ? esc_attr( $instance['post_thumb_op'] ) : '';
+		//$thumb_height = isset( $instance['thumb_height'] ) ? esc_attr( $instance['thumb_height'] ) : '';
+		//$thumb_width = isset( $instance['thumb_width'] ) ? esc_attr( $instance['thumb_width'] ) : '';
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
@@ -38,7 +38,7 @@
 			<?php _e( 'No. of posts', 'Divi' ); ?>: <input class="widefat" id="<?php echo $this->get_field_id( 'limit' ); ?>" name="<?php echo $this->get_field_name( 'limit' ); ?>" type="text" value="<?php echo esc_attr( $limit ); ?>" />
 			</label>
 		</p>
-		<p>
+		<!-- <p>
 			<label for="<?php echo $this->get_field_id( 'show_excerpt' ); ?>">
 			<input id="<?php echo $this->get_field_id( 'show_excerpt' ); ?>" name="<?php echo $this->get_field_name( 'show_excerpt' ); ?>" type="checkbox" <?php if ( $show_excerpt ) echo 'checked="checked"' ?> /> <?php _e( ' Show excerpt?', CRP_LOCAL_NAME ); ?>
 			</label>
@@ -61,7 +61,7 @@
 			  <option value="thumbs_only" <?php if ( 'thumbs_only' == $post_thumb_op ) echo 'selected="selected"' ?>><?php _e( 'Only thumbnails, no text', 'Divi' ); ?></option>
 			  <option value="text_only" <?php if ( 'text_only' == $post_thumb_op ) echo 'selected="selected"' ?>><?php _e( 'No thumbnails, only text.', 'Divi' ); ?></option>
 			</select>
-		</p>
+		</p> 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'thumb_height' ); ?>">
 			<?php _e( 'Thumbnail height', 'Divi' ); ?>: <input class="widefat" id="<?php echo $this->get_field_id( 'thumb_height' ); ?>" name="<?php echo $this->get_field_name( 'thumb_height' ); ?>" type="text" value="<?php echo esc_attr( $thumb_height ); ?>" />
@@ -71,7 +71,7 @@
 			<label for="<?php echo $this->get_field_id( 'thumb_width' ); ?>">
 			<?php _e( 'Thumbnail width', 'Divi' ); ?>: <input class="widefat" id="<?php echo $this->get_field_id( 'thumb_width' ); ?>" name="<?php echo $this->get_field_name( 'thumb_width' ); ?>" type="text" value="<?php echo esc_attr( $thumb_width ); ?>" />
 			</label>
-		</p>
+		</p>-->
 		<?php
 	} //ending form creation
 
@@ -89,12 +89,12 @@
 		$instance = $old_instance;
 		$instance['title'] = strip_tags( $new_instance['title'] );
 		$instance['limit'] = $new_instance['limit'];
-		$instance['show_excerpt'] = $new_instance['show_excerpt'];
-		$instance['show_author'] = $new_instance['show_author'];
-		$instance['show_date'] = $new_instance['show_date'];
-		$instance['post_thumb_op'] = $new_instance['post_thumb_op'];
-		$instance['thumb_height'] = $new_instance['thumb_height'];
-		$instance['thumb_width'] = $new_instance['thumb_width'];
+		// $instance['show_excerpt'] = $new_instance['show_excerpt'];
+		// $instance['show_author'] = $new_instance['show_author'];
+		// $instance['show_date'] = $new_instance['show_date'];
+		// $instance['post_thumb_op'] = $new_instance['post_thumb_op'];
+		// $instance['thumb_height'] = $new_instance['thumb_height'];
+		// $instance['thumb_width'] = $new_instance['thumb_width'];
 		delete_post_meta_by_key( 'kz_client_related_posts_widget' ); // Delete the cache
 		return $instance;
 	} //ending update
@@ -125,8 +125,6 @@
 			$limit = $instance['limit'];
 			if ( empty( $limit ) ) $limit = 5;//$crp_settings['limit'];
 
-			$output = $before_widget;
-			$output .= $before_title . $title . $after_title;
 			// $output .= ald_crp( array(
 			// 	'is_widget' => 1,
 			// 	'limit' => $limit,
@@ -140,12 +138,16 @@
 
 			$posts = Kidzou_Customer::getPostsByCustomerID();
 
+			$output = '';
+
 			if (count($posts)>0) {
+				$output = $before_widget;
+				$output .= $before_title . $title . $after_title;
 				$output .= "<div class='et_pb_widget woocommerce widget_products sidebar_posts_list'><ul class='product_list_widget'>";
 			}
 
 			foreach ($posts as $post) {
-				$thumbnail = get_thumbnail( 157, 157, 'attachment-shop_thumbnail wp-post-image', $post->post_title, $post->post_title, false, 'thumbnail' );
+				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', $post->post_title, $post->post_title, false, 'thumbnail' );
 				$thumb = $thumbnail["thumb"];
 				$output .= "<li class='sidebar_post_item'><a href='".get_permalink()."'>";
 				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, $instance['thumb_width'], $instance['thumb_height'], '', false); 

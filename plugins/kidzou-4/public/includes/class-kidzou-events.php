@@ -2,6 +2,14 @@
 
 add_action('kidzou_loaded', array('Kidzou_Events', 'get_instance'));
 
+// schedule the feedburner_refresh event only once
+if( !wp_next_scheduled( 'unpublish_posts' ) ) {
+   wp_schedule_event( time(), 'twicedaily', 'unpublish_posts' );
+}
+ 
+add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
+
+
 /**
  * Kidzou
  *
@@ -56,7 +64,8 @@ class Kidzou_Events {
 	 */
 	private function __construct() { 
 		
-
+		// do_action( 'wp_logger_add', 'kidzou', 'test', 'coucou');
+		
 	}
 
 	/**
@@ -75,6 +84,8 @@ class Kidzou_Events {
 
 		return self::$instance;
 	}
+
+	
 
 	/**
 	 * ON considere un post de type evenement si les dates ne sont pas nulles
@@ -205,7 +216,6 @@ class Kidzou_Events {
 
 		if ($metropole!='')
 			$args = array(
-				'post_type'=> 'event',
 				'meta_key' => 'kz_event_start_date' , //kz_event_featured
 				'orderby' => 'meta_value',
 				'order' => 'ASC' ,
@@ -221,7 +231,6 @@ class Kidzou_Events {
 			);
 		else
 			$args = array(
-				'post_type'=> 'event',
 				'meta_key' => 'kz_event_start_date' , //kz_event_featured
 				'orderby' => 'meta_value',
 				'order' => 'ASC' ,
@@ -237,6 +246,64 @@ class Kidzou_Events {
 		uasort($list, array('self', "sort_by_featured") );
 
 		return $list;
+	}
+
+	/**
+	 * Construit une WP_Query contenant des evenements sur une metropole donnée, dans un intervalle donné
+	 *
+	 * @return array()
+	 * @author 
+	 **/
+	public static function getObsoletePosts( )
+	{
+
+		
+		$current= time();
+		$now 	= date('Y-m-d 00:00:00', $current);
+
+		$meta_q = array(
+						array(
+	                         'key' => 'kz_event_end_date',
+	                         'value' => $now,
+	                         'compare' => '<',
+	                         'type' => 'DATETIME'
+	                        )
+			    	);
+
+		$args = array(
+			'posts_per_page' => -1, 
+			'post_status' => 'publish',
+			'meta_query' => $meta_q,
+		);
+
+		$query = new WP_Query($args );	
+
+		$list = 	$query->get_posts(); 
+
+		return $list;
+	}
+
+	/**
+	 * dépublie les events dont la date est dépassée
+	 *
+	 */
+	public static function unpublish_obsolete_posts() {
+
+		global $wpdb;
+		
+		$obsoletes = self::getObsoletePosts();
+
+		foreach ($obsoletes as $event) {
+						
+			$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
+
+			clean_post_cache( $event->ID );
+				
+			$old_status = $event->post_status;
+			$event->post_status = 'draft';
+			wp_transition_post_status( 'draft', $old_status, $event );
+		}
+
 	}
 
 	/**

@@ -94,6 +94,8 @@ class Kidzou {
 		add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 
+		//ecran de login custom sur wp-admin
+		add_action( 'login_enqueue_scripts', array($this,'login_logo') );
 	}
 
 
@@ -126,6 +128,24 @@ class Kidzou {
 		do_action('kidzou_loaded');
 
 		return self::$instance;
+	}
+
+	public function login_logo() { 
+
+		echo '
+	    <style type="text/css">
+	        body.login div#login h1 a {
+	            background-image: url('.content_url().'/uploads/2012/12/LOGO-130X360PX-BL.png);
+	            background-size: 320px auto;
+	            margin-bottom: 30px;
+	            height: 130px;
+	            width: auto;
+	        } 
+	        body.login div#login h1 + a, body.login div#login h1 + a+a {padding: 0 0.3em 0.5em 1em;display: block; text-decoration: none;}
+
+	    </style>
+	    <!-- add also Nextend Connect -->
+	    ';
 	}
 
 	/**
@@ -172,7 +192,18 @@ class Kidzou {
 	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
 	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
 	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
-	        )
+	        ),
+
+	        // array(
+	        //     'name'               => 'WP-Logger', // The plugin name.
+	        //     'slug'               => 'wp-logger', // The plugin slug (typically the folder name).
+	        //     'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	        //     'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	        //     'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	        //     'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	        //     //'external_url'       => 'https://github.com/ebinnion/WP-Logger', // If set, overrides default API URL and points to an external URL.
+	        // 	'source'			 => 'https://github.com/ebinnion/WP-Logger/archive/master.zip'
+	        // )
 
 	    );
 

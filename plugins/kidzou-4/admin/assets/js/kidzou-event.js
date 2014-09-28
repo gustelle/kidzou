@@ -60,6 +60,11 @@ var kidzouEventsModule = (function() { //havre de paix
 	//extension ko-validation
 	ko.validation.rules.dateAfter = {
 	    validator: function (val, other) {
+	    	
+	    	//prevenir les champs vides ou invalides
+	    	if (!moment(val).isValid() || !moment(val).isValid(other))
+	    		return true;
+
 	        return moment(val).isAfter(moment(other)); // true
 	    },
 	    message: 'La date doit être postérieure à la date de début'
@@ -91,34 +96,44 @@ var kidzouEventsModule = (function() { //havre de paix
 			// self.place 				= ko.observable(new Place());
 			
 			//les dates sont des JS dates
-		    self.start_date 	 	= ko.observable(moment().startOf("day").toDate());
-		    self.end_date 			= ko.observable(moment().endOf("day").toDate()); //controler que n'est pas inférieure à eventStartDate 
+		    self.start_date 	 	= ko.observable("");//= ko.observable(moment().startOf("day").toDate());
+		    self.end_date 			= ko.observable("");//= ko.observable(moment().endOf("day").toDate()); //controler que n'est pas inférieure à eventStartDate 
    		    
-
 		    self.formattedStartDate 	= ko.computed({
 		    	read: function() {
-		    		// console.log(self.start_date());
-		    		return moment(self.start_date()).startOf("day").format("YYYY-MM-DD HH:mm:ss");
+		    		if ( moment( self.start_date() ).isValid() )
+		    			return moment(self.start_date()).startOf("day").format("YYYY-MM-DD HH:mm:ss");
+		    		return '';
 		    	},
 		    	write: function(value) {
-		    		self.start_date(moment(value).startOf("day").format("YYYY-MM-DD HH:mm:ss"));
-		    		self.start_date.notifySubscribers();
+		    		if ( moment(value).isValid() ) {
+						self.start_date(moment(value).startOf("day").format("YYYY-MM-DD HH:mm:ss"));
+		    			self.start_date.notifySubscribers();
+					} else {
+						self.start_date("");
+					}
 		    	},
 		    	owner:self
 			});
-			self.formattedStartDate.extend({ required: true, notify: 'always'}); 
+			self.formattedStartDate.extend({ required: false, notify: 'always'}); 
 
 		    self.formattedEndDate 	= ko.computed({
 		    	read: function() {
-		    		return moment(self.end_date()).endOf('day').format("YYYY-MM-DD HH:mm:ss");
+		    		if ( moment( self.end_date() ).isValid() )
+		    			return moment(self.end_date()).endOf('day').format("YYYY-MM-DD HH:mm:ss");
+		    		return '';
 		    	},
 		    	write: function(value) {
-		    		self.end_date(moment(value).endOf('day').format("YYYY-MM-DD HH:mm:ss"));
-		    		self.end_date.notifySubscribers();
+		    		if ( moment(value).isValid() ) {
+		    			self.end_date(moment(value).endOf('day').format("YYYY-MM-DD HH:mm:ss"));
+		    			self.end_date.notifySubscribers();
+		    		} else {
+						self.end_date("");
+					}
 		    	},
 		    	owner:self
 		    });
-		    self.formattedEndDate.extend({ required: true, dateAfter : self.formattedStartDate, notify: 'always' });
+		    self.formattedEndDate.extend({ required: false, dateAfter : self.formattedStartDate, notify: 'always' });
 
 		    self.eventDuration = ko.computed(function() {
 
@@ -150,19 +165,16 @@ var kidzouEventsModule = (function() { //havre de paix
 				
 				var start_mom, end_mom;
 
-				if (start==='')
-					start_mom = moment();
-				else
+				if (start!=='' && moment(start).isValid()) {
 					start_mom = moment(start);
+					self.eventData().start_date(start_mom.toDate());
+				}
 
-				if (end==='')
-					end_mom = moment();
-				else
+				if (end!=='' && moment(end).isValid()) {
 					end_mom = moment(end);
-
-
-				self.eventData().start_date(start_mom.toDate());
-				self.eventData().end_date(end_mom.toDate());
+					self.eventData().end_date(end_mom.toDate());
+				}
+				
 			};
 
 

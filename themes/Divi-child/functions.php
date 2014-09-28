@@ -25,8 +25,8 @@ function override_divi_parent_functions()
 	//surcharge pour avoir des thumbs carrées de taille 225
 	global $et_theme_image_sizes;
 	add_theme_support( 'post-thumbnails' ); //normalement déjà supporté par le parent mais bon...
-	$et_theme_image_sizes['100x100'] = "post_gallery";  //nécessaire car utilisé dans la fonction print_thumbnail
-	add_image_size( 'post_gallery', 168, 168, true ); //crop
+	$et_theme_image_sizes['400x284'] = "post_gallery";  //nécessaire car utilisé dans la fonction print_thumbnail
+	add_image_size( 'post_gallery', 400, 284, true ); //crop
 	
 	//suppression du custom post type "project"
 	remove_action('init','et_pb_register_posttypes', 0); //meme ordre que le parent
@@ -82,16 +82,17 @@ function kz_divi_load_scripts ()
 
 }
 
+
 /**
- * surcharge des related posts pour ajouter
- * - un filtre sur les metropoles : seuls les contenus relatifs rattachés à une même metropole sont remontés
- * - formatter l'affichage en utilisant les shortcodes de Divi
+ * undocumented function
  *
  * @return void
  * @author 
  **/
-function kidzou_related_posts()
+function get_post_footer()
 {
+	$lists = et_pb_get_mailchimp_lists();
+	$key = array_keys($lists)[0];
 
 	$posts_ids_objects = Kidzou_Geo::get_related_posts();
 	$ids = array();
@@ -101,14 +102,20 @@ function kidzou_related_posts()
 	}
 	$ids_list = implode(',', $ids);	
 
-	return do_shortcode('
+	echo do_shortcode('
 		[et_pb_section fullwidth="off" specialty="off"]
 			[et_pb_row]
-				<h1>D&apos;autres sorties sympa :</h1>
+			<h2>D&apos;autres sorties sympa :</h2>
 				[et_pb_column type="4_4"]
-					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /][/et_pb_column][/et_pb_row][/et_pb_section]
-		');
-
+					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
+				[/et_pb_column]
+			[/et_pb_row]
+			[et_pb_row]
+				[et_pb_column type="4_4"]
+					[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="'.$key.'" aweber_list="none" title="'.__('Inscrivez-vous à notre Newsletter','Divi').'" button_text="'.__('Inscrivez-vous ','Divi').'" use_background_color="on" background_color="#ed0a71" background_layout="dark" text_orientation="left"]'.__('<p>Nous distribuons la newsletter 1 à 2 fois par mois, elle contient les meilleures recommandations de la communaut&eacute; des parents Kidzou, ainsi que des jeux concours de temps en temps ! </p>','Divi').'[/et_pb_signup]
+				[/et_pb_column]
+			[/et_pb_row]
+		[/et_pb_section]');
 }
 
 
@@ -506,23 +513,24 @@ function kz_pb_portfolio( $atts ) {
 	ob_end_clean();
 
 	////
-	$categories_included = array_unique( $categories_included );
-	$terms_args = array(
-		'include' => $categories_included,
-		'orderby' => 'name',
-		'order' => 'ASC',
-	);
-	$terms = get_terms( 'category', $terms_args );
+	// $categories_included = array_unique( $categories_included );
+	// $terms_args = array(
+	// 	'include' => $categories_included,
+	// 	'orderby' => 'name',
+	// 	'order' => 'ASC',
+	// );
+
+	$tax = 'divers';
+
+	$terms = get_terms( $tax ); //, $terms_args 
 
 	$category_filters = '<ul class="clearfix">';
-	// $category_filters .= sprintf( '<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#">%1$s</a></li>',
-	// 	esc_html__( 'All', 'Divi' )
-	// );
+	
 	foreach ( $terms as $term  ) {
 		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
 			esc_attr( $term->slug ),
 			esc_html( $term->name ),
-			get_category_link( $term->term_id ),
+			get_term_link( $term, $tax ),
 			__('Voir tous les articles dans ').$term->name
 		);
 	}
@@ -548,7 +556,6 @@ function kz_pb_portfolio( $atts ) {
 		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
 		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
 		$category_filters
-
 	);
 
 	return $output;
@@ -972,7 +979,7 @@ function kz_pb_map( $atts, $content = '' ) {
 
 
 /**
- * surcharge du parent 
+ * surcharge du parent pour les galleries d'image dans les posts (utilisation du format post_gallery)
  *
  */
 function et_gallery_images() {
@@ -1016,7 +1023,7 @@ function et_gallery_images() {
 		} else {
 			$full_image = wp_get_attachment_image_src( $attachment_id, 'full' );
 			$full_image_url = $full_image[0];
-			$attachment = get_post( $attachment_id );
+			// $attachment = get_post( $attachment_id );
 
 			$slides .= sprintf(
 				'<li class="et_gallery_item post_gallery_item">
