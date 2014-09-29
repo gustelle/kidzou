@@ -131,7 +131,7 @@
 									} else if ( ! in_array( $post_format, array( 'gallery', 'link', 'quote' ) ) && 'on' === et_get_option( 'divi_thumbnails', 'on' ) && '' !== $thumb ) {
 										print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height );
 									} else if ( 'gallery' === $post_format ) {
-										 _e('<h2>Quelques photos :</h2>','Divi');
+										// _e('<h2>Quelques photos :</h2>','Divi');
 										et_gallery_images();
 									}
 

@@ -161,13 +161,13 @@ module.exports = function(grunt) {
 
 		//tache de déploiement en local
 		copy: {
-		  trim: {
-		    files: [
-		    	{expand:true, cwd: 'themes/Trim/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Trim/'}, // includes files in path and its subdirs,
-		     	{expand:true, cwd: 'themes/Trim-child/', src: ['**','!css/dev/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Trim-child/'},
-		    	// {expand:true, cwd: 'themes/Trim-child/css/dist', src: ['style.css'], dest: '../../themes/Trim-child/'},
-		    ]
-		  },
+		  // trim: {
+		  //   files: [
+		  //   	{expand:true, cwd: 'themes/Trim/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Trim/'}, // includes files in path and its subdirs,
+		  //    	{expand:true, cwd: 'themes/Trim-child/', src: ['**','!css/dev/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Trim-child/'},
+		  //   	// {expand:true, cwd: 'themes/Trim-child/css/dist', src: ['style.css'], dest: '../../themes/Trim-child/'},
+		  //   ]
+		  // },
 
 		  divi: {
 		    files: [
@@ -182,12 +182,12 @@ module.exports = function(grunt) {
 		  //     {expand:true, cwd: 'connections_templates/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/connections_templates/'}
 		  //   ]
 		  // },
-		  // nextend: {
-		  //   files: [
-		  //     {expand:true, cwd: 'plugins/nextend-facebook-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-facebook-connect/'},
-		  //     {expand:true, cwd: 'plugins/nextend-google-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-google-connect/'}
-		  //   ]
-		  // },
+		  nextend: {
+		    files: [
+		      {expand:true, cwd: 'plugins/nextend-facebook-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-facebook-connect/'},
+		      // {expand:true, cwd: 'plugins/nextend-google-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-google-connect/'}
+		    ]
+		  },
 		  // kidzou: {
 		  //   files: [
 		  //   	{expand:true, cwd: 'plugins/kidzou/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou/'}, // includes files in path and its subdirs,
@@ -296,6 +296,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('prepjs', ['concat:js','jshint','uglify','plato']); 
 	grunt.registerTask('theme', ['copy:divi']); //csslint
-	grunt.registerTask('plugins', ['copy:kidzou4']); 
+	grunt.registerTask('plugins', ['copy:kidzou4'],['copy:nextend']); 
 
 };

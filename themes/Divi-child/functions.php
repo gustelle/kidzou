@@ -1023,7 +1023,7 @@ function et_gallery_images() {
 		} else {
 			$full_image = wp_get_attachment_image_src( $attachment_id, 'full' );
 			$full_image_url = $full_image[0];
-			// $attachment = get_post( $attachment_id );
+			$attachment = get_post( $attachment_id );
 
 			$slides .= sprintf(
 				'<li class="et_gallery_item post_gallery_item">

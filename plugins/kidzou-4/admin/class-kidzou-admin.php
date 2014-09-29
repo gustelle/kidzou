@@ -658,11 +658,15 @@ class Kidzou_Admin {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
 			return $post_id;
 
-		
-		$meta['rewrite_page'] 			= ($_POST['kz_rewrite_page']=='on');
+		$meta = array();
+
+		if (!isset($_POST['kz_rewrite_page']))
+			$meta['rewrite_page'] = false;
+		else
+			$meta['rewrite_page'] = ($_POST['kz_rewrite_page']=='on');
 			
 
-		$this->save_meta($post_id, $events_meta, "kz_");
+		$this->save_meta($post_id, $meta, "kz_");
 		
 	}
 
@@ -675,6 +679,9 @@ class Kidzou_Admin {
 	public function save_event_meta($post_id)
 	{
 
+		if ( ! isset( $_POST['eventmeta_noncename'] ) )
+			return $post_id;
+
 		// verify this came from the our screen and with proper authorization,
 		// because save_post can be triggered at other times
 		if ( !wp_verify_nonce( $_POST['eventmeta_noncename'], plugin_basename(__FILE__) )) {
@@ -683,6 +690,7 @@ class Kidzou_Admin {
 		// Is the user allowed to edit the post or page?
 		if ( !current_user_can( 'edit_post', $post_id ))
 			return $post_id;
+
 
 		//formatter les dates avant de les sauvegarder 
 		//input : 23 Février 2014
@@ -713,6 +721,9 @@ class Kidzou_Admin {
 	 **/
 	public function save_place_meta($post_id)
 	{
+
+		if ( ! isset( $_POST['placemeta_noncename'] ) )
+			return $post_id;
 
 		// verify this came from the our screen and with proper authorization,
 		// because save_post can be triggered at other times
@@ -749,6 +760,9 @@ class Kidzou_Admin {
 	 **/
 	public function save_client_meta ($post_id)
 	{
+
+		if ( ! isset( $_POST['clientmeta_noncename'] ) )
+			return $post_id;
 
 		// verify this came from the our screen and with proper authorization,
 		// because save_post can be triggered at other times

@@ -114,8 +114,8 @@ For login page
 */
 
 function new_fb_login() {
-
-  if ($_REQUEST['loginFacebook'] == '1') {
+  //correction Kidzou : tester par isset()
+  if (isset($_REQUEST['loginFacebook']) && $_REQUEST['loginFacebook'] == '1') {
     new_fb_login_action();
   }
 }
@@ -365,10 +365,10 @@ function new_add_fb_login_form() {
   </script>
   <?php
 }
-// add_action('login_form', 'new_add_fb_login_form');
-// add_action('register_form', 'new_add_fb_login_form');
-// add_action('bp_sidebar_login_form', 'new_add_fb_login_form');
-// add_filter('get_avatar', 'new_fb_insert_avatar', 5, 5);
+add_action('login_form', 'new_add_fb_login_form');
+add_action('register_form', 'new_add_fb_login_form');
+add_action('bp_sidebar_login_form', 'new_add_fb_login_form');
+add_filter('get_avatar', 'new_fb_insert_avatar', 5, 5);
 
 function new_fb_insert_avatar($avatar = '', $id_or_email, $size = 96, $default = '', $alt = false) {
 
