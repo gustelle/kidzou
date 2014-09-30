@@ -6,6 +6,8 @@ Description: Adaptation Kidzou du theme Divi de Elegant Themes
 Author: Elegant Themes, adapté par Kidzou
 Author URI: http://www.elegantthemes.com
 Template: Divi
+License: Tous drois réservés Kidzou 2014
+License URI: http://www.kidzou.fr
 */
 
 /*------------------------------------------------*/
@@ -3079,6 +3081,9 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 
 
 /* ajouts kidzou */
+
+.sticky{} /* requis par ThemeCheck */
+.bypostauthor {} /* requis par ThemeCheck */
 
 .fa {padding-right: 0.3em; } /* icons de font awesome */
 .fa-stack br { display: none } /* https://github.com/FortAwesome/Font-Awesome/wiki/Troubleshooting */

@@ -69,6 +69,19 @@ class Kidzou_Admin {
 		$plugin = Kidzou::get_instance();
 		$this->plugin_slug = $plugin->get_plugin_slug();
 
+		/**
+		 * certains hook ont besoin d'etre déclarés tres tot
+		 * par secu je les déclar là
+		 * @see  http://wordpress.stackexchange.com/questions/50738/why-do-some-hooks-not-work-inside-class-context
+		 * 
+		 */ 
+		add_action('wp_loaded', array(&$this, 'init'));
+
+
+	}
+
+	function init() {
+
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
@@ -98,14 +111,40 @@ class Kidzou_Admin {
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
 		//affichage
-		add_filter('default_hidden_meta_boxes', array($this,'hide_metaboxes'), 10, 2);
-		add_action('wp_dashboard_setup', array($this,'remove_dashboard_widgets') );
+		// add_filter('default_hidden_meta_boxes', array($this,'hide_metaboxes'), 10, 2);
+		// add_action('wp_dashboard_setup', array($this,'remove_dashboard_widgets') );
 
 		//http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
 		add_filter('wp_handle_upload_prefilter', array($this, 'handle_upload_prefilter'));
 		add_filter('wp_handle_upload', array($this,'handle_upload'));
 
+		
 
+		/**
+		 * les users sont rattachés à une metropole  
+		 * cela permet de rattacher automatiquement des contenus edités par les contrib à des metropoles
+		 * sans que les contrib aient à saisir cette métadata
+		 *
+		 * Ajout également d'une metadata pour savoir si le user
+		 * a la carte famille
+		 *
+		 **/
+		add_action( 'edit_user_profile', array($this,'enrich_profile') );
+		add_action( 'edit_user_profile_update', array($this,'save_user_profile') );
+
+		/**
+		 * custom view pour les contribs
+		 *
+		 */
+		// add_action( 'admin_menu' , array($this,'remove_metaboxes' ) );
+		// add_action( 'admin_bar_menu', array($this, 'remove_media_node') , 999 );
+		// add_action( 'wp_dashboard_setup', array($this,'wptutsplus_add_dashboard_widgets' ));
+
+		/**
+		 * filtre la liste des evenements dans l'écran d'admin pour que les 'pro', contrib et auteurs
+		 * ne voient que LEURS contenus, et pas ceux saisis par les autres dans l'admin
+		 **/
+		add_filter('parse_query', array($this, 'contrib_contents_filter' ));
 	}
 
 	/**
@@ -124,6 +163,230 @@ class Kidzou_Admin {
 
 		return self::$instance;
 	}
+	
+
+	/**
+	 * filtre la liste des evenements dans l'écran d'admin pour que les 'pro', contrib et auteurs
+	 * ne voient que LEURS contenus, et pas ceux saisis par les autres dans l'admin
+	 *
+	 * @return void
+	 * @see http://shinephp.com/hide-draft-and-pending-posts-from-other-authors/ 
+	 **/
+	public function contrib_contents_filter( $wp_query ) {
+	    if ( is_admin() && strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false && 
+	        ( !current_user_can('manage_options') ) ) {
+	        global $current_user;
+	        $wp_query->set( 'author', $current_user->id );
+	        print_r($wp_query);
+	    }
+	}
+
+	/**
+	 * Adds an additional settings section on the edit user/profile page in the admin.  This section allows admins to 
+	 * select a metropole from a checkbox of terms from the profession taxonomy.  This is just one example of 
+	 * many ways this can be handled.
+	 *
+	 * @param object $user The user object currently being edited.
+	 */
+	public function enrich_profile( $user ) {
+
+	    $tax = get_taxonomy( 'ville' );
+
+	    /* Make sure the user is admin. */
+	    if ( !current_user_can( 'edit_user' ) )
+	        return;
+
+	    /* Get the terms of the 'profession' taxonomy. */
+	    $values = Kidzou_Geo::get_metropoles();
+
+	    //valeur déjà enregistrée pour l'event ?
+	    $metros = wp_get_object_terms($user->ID, 'ville', array("fields" => "all"));
+	    $metro = $metros[0]; //le premier (normalement contient 1 seul resultat)
+
+	    $radio = empty($metro) ? '' : $metro->term_id;
+
+	    wp_nonce_field( 'kz_save_user_nonce', 'kz_user_info_nonce' );
+
+	    echo '<h3>Infos Kidzou</h3>';
+	    echo '<table class="form-table">';
+
+	    if ( user_can( $user->ID, 'edit_posts' )  ) {
+
+	        echo '<tr><th><label for="kz_user_metropole">M&eacute;tropole sur laquelle le user pourra publier</label></th><td>';
+	        foreach ($values as $value) {
+	            $id = $value->term_id;
+	        ?>  
+	                <input type="radio" name="kz_user_metropole" id="kz_user_metropole_<?php echo $value->slug; ?>" value="<?php echo $id; ?>" <?php echo ($radio == $id)? 'checked="checked"':''; ?>/> <?php echo $value->name; ?><br />
+	            
+	        <?php   
+	        }
+	    }
+	    
+	    $card = get_user_meta( $user->ID, 'kz_has_family_card', TRUE );
+	    $val = '1';
+	    if (!$card || $card!=='1') $val = '0';
+
+	    echo '</td/></tr>';
+
+
+	    echo '<tr><th><label for="kz_has_family_card">L&apos;utilisateur a la carte famille</label></th><td>';
+	    echo '<input type="checkbox" name="kz_has_family_card" value="1" '.($val !== "0" ? 'checked="checked"':'').'/> <br />';
+	    echo '</td></tr>';
+
+	    // //infos de participation aux jeux concours
+	    // $contests = get_user_meta( $user->ID, 'kz_contests', TRUE );
+	    // echo '<tr><th><label for="kz_contests">Participation aux Jeux Concours</label></th><td>';
+	    // if (is_array($contests) && count($contests)>0)
+	    // {
+	    //     foreach ($contests as $contest) {
+	    //         $post = get_post($contest); 
+	    //         echo '<a href="'.get_permalink( $contest ).'">'.$post->post_title.'</a> , ';
+	    //     }
+	    // }
+	    // echo '</td></tr>';
+
+	    // //les concours gagnés par le user
+	    // $won = get_user_meta( $user->ID, 'kz_contests_winners', TRUE );
+	    // echo '<tr><th><label for="kz_contests_winners">Concours gagn&eacute;s</label></th><td>';
+	    // if (is_array($won) && count($won)>0)
+	    // {
+	    //     foreach ($won as $awon) {
+	    //         $post = get_post($awon); 
+	    //         echo '<a href="'.get_permalink( $awon ).'">'.$post->post_title.'</a> , ';
+	    //     }
+	    // }
+	    // echo '</td></tr>';
+
+	    echo '</table>';
+	}
+
+	/**
+	 * déclenchée sur la sauvegarde du user profile dans l'admin
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function save_user_profile($user_id) {
+
+	    if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
+	    	return;
+	    
+	    if( !isset( $_POST['kz_user_info_nonce'] ) || !wp_verify_nonce( $_POST['kz_user_info_nonce'], 'kz_save_user_nonce' ) ) 
+	    	return;
+
+	    if ( !current_user_can( 'edit_user', $user_id )) 
+	    	return;
+
+	    //meta metropole
+	    if (!isset(['kz_user_metropole'])) {
+	    	$metropole_slug = Kidzou_Geo::get_default_metropole();
+	    	$metropole = get_term_by( 'slug', $metropole_slug, 'ville' );
+	    } else {
+	    	$metropole = $_POST['kz_user_metropole'];
+	    }
+	    	
+	    $result = wp_set_object_terms( $user_id, array( intval($metropole) ), 'ville' );
+
+	    // meta de la carte famille
+	    if (!isset(['kz_has_family_card'])) {
+	    	$card = '0';
+	    } else {
+	    	$card = $_POST['kz_has_family_card']; 
+	    }
+
+	    update_user_meta( $user_id, 'kz_has_family_card', $card );
+	    
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function get_user_metropoles ($user_id)
+	{
+	    if (!$user_id)
+	        $user_id = get_current_user_id();
+
+	    $meta = wp_get_object_terms( $user_id, 'ville', array('fields' => 'all') );
+
+	    return (array)$meta;
+	}
+
+
+	// public function remove_metaboxes() {
+
+	//     //suppression de la meta native "Ville" afin de simplifier la saisie de l'evenement 
+	//     //pour les users non admin, la ville est la ville de rattachement du user
+	//     if (!current_user_can('manage_options')) {
+
+	//     	remove_menu_page('upload.php'); //ne pas afficher le menu "media"
+
+	//         //les taxos standards ne sont de toute façon pas editables par les "pro" 
+	//         remove_meta_box( 'categorydiv' , 'post' , 'side' );
+	//         remove_meta_box( 'agediv' , 'post' , 'side' ); 
+	//         remove_meta_box( 'diversdiv' , 'post' , 'side' );  
+	//         remove_meta_box( 'crp_metabox' , 'post' , 'advanced' );  // ??marche pas
+
+	//         remove_meta_box( 'postcustom' , 'post' , 'normal' ); //removes custom fields 
+	//         // remove_meta_box( 'postcustom' , 'event' , 'normal' );
+	//         remove_meta_box( 'postcustom' , 'offres' , 'normal' ); 
+	//         // remove_meta_box( 'postcustom' , 'concours' , 'normal' ); 
+
+	//         remove_meta_box( 'villediv' , 'post' , 'side' ); //removes ville tax
+	//         // remove_meta_box( 'villediv' , 'event' , 'side' );
+	//         remove_meta_box( 'villediv' , 'offres' , 'side' ); 
+	//         // remove_meta_box( 'villediv' , 'concours' , 'side' );  
+
+	//     }
+
+	// }
+
+	// public function remove_media_node( $wp_admin_bar ) {
+	//     $wp_admin_bar->remove_node( 'new-media' ); //ne pas afficher le medu "media" dans la top bar
+	// }
+	
+	/**
+	 * pour les users contribs, rattachement automatique du post à la metropole du contrib
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function set_post_metropole($post_id)
+	{
+	    if (!$post_id) return;
+
+	    if (!current_user_can('manage_options')) {
+
+	    	//la metropole est la metropole de rattachement du user
+		    $metropoles = (array)get_user_metropoles();
+		    $ametro = $metropoles[0];
+		    $metro_id = $ametro->term_id;
+
+		    $result = wp_set_post_terms( $post_id, array( intval($metro_id) ), 'ville' );
+	    }
+
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function has_family_card()
+	{
+
+	    if (current_user_can('manage_options'))
+	        return true;
+
+	    $current_user = wp_get_current_user();
+
+	    $umeta = get_user_meta($current_user->ID, 'kz_has_family_card', TRUE);
+
+	    return ($umeta!='' && intval($umeta)==1);
+	}	
 
 	/**
 	* @deprecated
@@ -170,34 +433,34 @@ class Kidzou_Admin {
 	    return $path;
 	}
 
-	public function hide_metaboxes($hidden, $screen) {
+	// public function hide_metaboxes($hidden, $screen) {
        
-        $hidden = array('slugdiv');
+ //        $hidden = array('slugdiv');
                 
-        return $hidden;
-	}
+ //        return $hidden;
+	// }
 
 
-	function remove_dashboard_widgets() {
+	// function remove_dashboard_widgets() {
 
-		if (!current_user_can('manage_options')) {
+	// 	if (!current_user_can('manage_options')) {
 
-			global $wp_meta_boxes;
+	// 		global $wp_meta_boxes;
 
-			unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
-			unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
-			unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
-			unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
-			unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_drafts']);
-			unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-			unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
-			unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
+	// 		unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
+	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
+	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
+	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
+	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_drafts']);
+	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
+	// 		unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
+	// 		unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
 
-			remove_meta_box( 'dashboard_activity', 'dashboard', 'normal');
+	// 		remove_meta_box( 'dashboard_activity', 'dashboard', 'normal');
 
-		}
+	// 	}
 
-	}
+	// }
 
 	/**
 	 * Register and enqueue admin-specific style sheet.
@@ -632,6 +895,7 @@ class Kidzou_Admin {
 		$this->save_place_meta($post_id);
 		$this->save_client_meta($post_id);
 		$this->save_post_metropole($post_id);
+		$this->set_post_metropole($post_id);
 		
 	}
 

@@ -122,6 +122,13 @@
 							get_page_link($kidzou_options['login_page'])
 						);	
 						
+					} else {
+
+						printf(
+							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-cog"></i><span>Votre profil</span></a>&nbsp;', 
+							get_admin_url()
+						);	
+
 					}
 
 				?>
