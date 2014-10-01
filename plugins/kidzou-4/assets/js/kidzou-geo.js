@@ -19,20 +19,25 @@ var kidzouGeoContent = (function () {
 	function getMetropole(lat, lng, callback) {
 
 		var pos = lat + "," + lng; 
+
 		jQuery.getJSON(kidzou_geo_jsvars.geo_mapquest_reverse_url + "?key=" + kidzou_geo_jsvars.geo_mapquest_key + "&location=" + pos,{})
 			.done(function (data) {
 
-				var metropole = data.results[0].locations[0].adminArea4;
+				var metropole = (typeof data.results[0].locations[0]!=="undefined" ? data.results[0].locations[0].adminArea4 : kidzou_geo_jsvars.geo_default_metropole);
 				var covered = false;
+				// console.debug(metropole);
 
 				//verifier qu'on est dans une des metropoles couvertes
 				for (var m in kidzou_geo_jsvars.geo_possible_metropoles) {
 
 					if (kidzou_geo_jsvars.geo_possible_metropoles.hasOwnProperty(m)) {
 
-					    var uneMetro = kidzou_geo_jsvars.geo_possible_metropoles[m].toLowerCase();
+						// console.debug(kidzou_geo_jsvars.geo_possible_metropoles[m]);
+
+					    var uneMetro = kidzou_geo_jsvars.geo_possible_metropoles[m].slug.toLowerCase();
 					    if (uneMetro === metropole.toLowerCase()) {
-					    	covered = true;
+					    	covered = true; 
+					    	// console.debug(covered);
 					    	break;
 					    }
 					}

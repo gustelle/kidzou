@@ -57,6 +57,9 @@ function override_divi_parent_functions()
 	//pour notamment inclure dans la sidebar le widget newsletter
 	add_filter('widget_text', 'do_shortcode');
 
+	//surcharge des JS du parent
+	add_action( 'wp_enqueue_scripts', 'kz_divi_load_scripts' ,99);
+
 }
 
 function custom_excerpt_length( $length ) {
@@ -80,6 +83,18 @@ function kz_divi_load_scripts ()
 	wp_dequeue_script( 'divi-custom-script' );
 	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery' ), '1.0.0', true );
 
+	wp_localize_script( 'kidzou-custom-script', 'et_custom', array(
+		'ajaxurl'             => admin_url( 'admin-ajax.php' ),
+		'images_uri'          => get_template_directory_uri() . '/images',
+		'et_load_nonce'       => wp_create_nonce( 'et_load_nonce' ),
+		'subscription_failed' => __( 'Please, check the fields below to make sure you entered the correct information.', 'Divi' ),
+		'fill'                => esc_html__( 'Fill', 'Divi' ),
+		'field'               => esc_html__( 'field', 'Divi' ),
+		'invalid'             => esc_html__( 'Invalid email', 'Divi' ),
+		'captcha'             => esc_html__( 'Captcha', 'Divi' ),
+		'prev'				  => esc_html__( 'Prev', 'Divi' ),
+		'next'				  => esc_html__( 'Next', 'Divi' ),
+	) );
 }
 
 

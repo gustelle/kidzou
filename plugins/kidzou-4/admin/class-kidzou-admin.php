@@ -177,7 +177,7 @@ class Kidzou_Admin {
 	        ( !current_user_can('manage_options') ) ) {
 	        global $current_user;
 	        $wp_query->set( 'author', $current_user->id );
-	        print_r($wp_query);
+	        // print_r($wp_query);
 	    }
 	}
 
@@ -278,7 +278,8 @@ class Kidzou_Admin {
 	    	return;
 
 	    //meta metropole
-	    if (!isset(['kz_user_metropole'])) {
+	    $set = isset( $_POST['kz_user_metropole']) ;
+	    if ( !$set ) {
 	    	$metropole_slug = Kidzou_Geo::get_default_metropole();
 	    	$metropole = get_term_by( 'slug', $metropole_slug, 'ville' );
 	    } else {
@@ -288,7 +289,7 @@ class Kidzou_Admin {
 	    $result = wp_set_object_terms( $user_id, array( intval($metropole) ), 'ville' );
 
 	    // meta de la carte famille
-	    if (!isset(['kz_has_family_card'])) {
+	    if (!isset($_POST['kz_has_family_card'])) {
 	    	$card = '0';
 	    } else {
 	    	$card = $_POST['kz_has_family_card']; 
@@ -304,7 +305,7 @@ class Kidzou_Admin {
 	 * @return void
 	 * @author 
 	 **/
-	public function get_user_metropoles ($user_id)
+	public static function get_user_metropoles ($user_id)
 	{
 	    if (!$user_id)
 	        $user_id = get_current_user_id();
@@ -360,7 +361,7 @@ class Kidzou_Admin {
 	    if (!current_user_can('manage_options')) {
 
 	    	//la metropole est la metropole de rattachement du user
-		    $metropoles = (array)get_user_metropoles();
+		    $metropoles = (array)self::get_user_metropoles();
 		    $ametro = $metropoles[0];
 		    $metro_id = $ametro->term_id;
 

@@ -526,9 +526,8 @@ class Kidzou {
 
 		global $kidzou_options;
 
-		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ), array( 'jquery' ), self::VERSION );
-
-		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION );
+		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( 'kidzou-4/assets/js/kidzou-storage.js' ), array( 'jquery' ), self::VERSION, true);
+		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION, true );
 		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 	
@@ -543,7 +542,7 @@ class Kidzou {
 				'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
 				'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
 				'cfg_site_url'		 			 =>  site_url().'/',
-				'cfg_debug_mode' 	 			 =>  (bool)get_option("kz_debug_mode"),
+				// 'cfg_debug_mode' 	 			 =>  (bool)get_option("kz_debug_mode"),
 				'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
 				'api_get_event'					 =>  site_url().'/api/events/get_event/',
 				'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 

@@ -51,7 +51,7 @@ var kidzouModule = (function() { //havre de paix
 
 		var logLevel 		= false;
 
-		function setLogging(bool) {logLevel = bool.toBoolean();}
+		function setLogging(_bool) {var bool;if(typeof _bool=='undefined'){bool="false";}else{bool=_bool}; logLevel = bool.toBoolean();}
 		function debug(msg) {if (logLevel) console.debug(msg);}
 		function info(msg) {if (logLevel) console.log(msg);}
 

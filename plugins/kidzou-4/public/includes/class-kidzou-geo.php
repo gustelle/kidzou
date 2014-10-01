@@ -299,15 +299,20 @@ class Kidzou_Geo {
 
 	public static function rewrite_post_link( $permalink, $post ) {
 
-	    // Check if the %kz_metropole% tag is present in the url:
-	    if ( false === strpos( $permalink, '%kz_metropole%' ) )
-	        return $permalink;
-	 
-	    $m = urlencode(self::get_request_metropole());
-	 
-	    // Replace '%kz_metropole%'
-	    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
-	 
+		//pas dans l'admin !
+		if (!is_admin()) {
+
+		    // Check if the %kz_metropole% tag is present in the url:
+		    if ( false === strpos( $permalink, '%kz_metropole%' ) )
+		        return $permalink;
+		 
+		    $m = urlencode(self::get_request_metropole());
+		 
+		    // Replace '%kz_metropole%'
+		    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
+
+		}
+		 
 	    return $permalink;
 	}
 
@@ -317,19 +322,24 @@ class Kidzou_Geo {
 	 * filtres par la metropole de rattachement du user
 	 *
 	 */
-	public static function rewrite_page_link( $link, $param ) {
+	public static function rewrite_page_link( $link, $page ) {
 
-		$m = urlencode(self::get_request_metropole());
+		//pas dans l'admin !
+		if (!is_admin()) {
 
-		global $post;
+			$m = urlencode(self::get_request_metropole());
 
-		$rewrite = self::is_page_rewrite($post->ID);
+			$rewrite = self::is_page_rewrite($page);
 
-		if ($rewrite) {
+			$post = get_post($page);
 
-			$pos = strpos( $link, '/'. $post->post_name );
-			$new_link = substr_replace($link, "/".$m, $pos, 0);
-			return $new_link;
+			if ($rewrite) {
+
+				$pos = strpos( $link, '/'. $post->post_name );
+				$new_link = substr_replace($link, "/".$m, $pos, 0);
+				return $new_link;
+			}
+
 		}
 
 		return $link;
@@ -338,15 +348,19 @@ class Kidzou_Geo {
 
 
 	public static function rewrite_term_link( $url, $term, $taxonomy ) {
-	 
-		// Check if the %kz_metropole% tag is present in the url:
-	    if ( false === strpos( $url, '%kz_metropole%' ) )
-	        return $url;
-	 
-	    $m = urlencode(self::get_request_metropole());
-	 
-	    // Replace '%kz_metropole%'
-	    $url = str_replace( '%kz_metropole%', $m , $url );
+
+		if (!is_admin()) {
+
+			// Check if the %kz_metropole% tag is present in the url:
+		    if ( false === strpos( $url, '%kz_metropole%' ) )
+		        return $url;
+		 
+		    $m = urlencode(self::get_request_metropole());
+		 
+		    // Replace '%kz_metropole%'
+		    $url = str_replace( '%kz_metropole%', $m , $url );
+
+		}
 	 
 	    return $url; 
 	}
@@ -400,8 +414,6 @@ class Kidzou_Geo {
 	        global $post;
 	        $post_id = $post->ID;
 	    }
-
-	    $post = get_post($post_id);
 
 	    return get_post_meta($post_id, 'kz_rewrite_page', TRUE);
 	}

@@ -866,7 +866,7 @@
 			});
 		}
 
-		if ( $et_pb_filterable_portfolio.length ) {
+		if ( $et_pb_filterable_portfolio.length ) { 
 
 			$(window).load(function(){
 
@@ -874,62 +874,69 @@
 					var $the_portfolio = $(this),
 					$the_portfolio_items = $the_portfolio.find('.et_pb_portfolio_items');
 
-					$the_portfolio_items.imagesLoaded( function() {
+					//j'ai cronstruit un portfolio avec des filtres débrayables
+					//donc on peut avoir un $et_pb_filterable_portfolio vide (voir le shortcode kz_pb_portfolio)
+					if ($the_portfolio_items.length) {
 
-						$the_portfolio.show(); //after all the content is loaded we can show the portfolio
+						$the_portfolio_items.imagesLoaded( function() {
 
-						$the_portfolio_items.masonry({
-							itemSelector : '.et_pb_portfolio_item',
-							columnWidth : $the_portfolio.find('.column_width').innerWidth(),
-							gutter : $the_portfolio.find('.gutter_width').innerWidth(),
-							transitionDuration: 0
+							$the_portfolio.show(); //after all the content is loaded we can show the portfolio
+
+							$the_portfolio_items.masonry({
+								itemSelector : '.et_pb_portfolio_item',
+								columnWidth : $the_portfolio.find('.column_width').innerWidth(),
+								gutter : $the_portfolio.find('.gutter_width').innerWidth(),
+								transitionDuration: 0
+							});
+
+							set_filterable_grid_items( $the_portfolio );
+
 						});
 
-						set_filterable_grid_items( $the_portfolio );
+						$the_portfolio.on('click', '.et_pb_portfolio_filter a', function(e){
+							e.preventDefault();
+							var category_slug = $(this).data('category-slug');
+							$the_portfolio_items = $(this).parents('.et_pb_filterable_portfolio').find('.et_pb_portfolio_items');
 
-					});
+							if ( 'all' == category_slug ) {
+								$the_portfolio.find('.et_pb_portfolio_filter a').removeClass('active');
+								$the_portfolio.find('.et_pb_portfolio_filter_all a').addClass('active');
+								$the_portfolio.find('.et_pb_portfolio_item').show();
+							} else {
+								$the_portfolio.find('.et_pb_portfolio_filter_all').removeClass('active');
+								$the_portfolio.find('.et_pb_portfolio_filter a').removeClass('active');
+								$the_portfolio.find('.et_pb_portfolio_filter_all a').removeClass('active');
+								$(this).addClass('active');
 
-					$the_portfolio.on('click', '.et_pb_portfolio_filter a', function(e){
-						e.preventDefault();
-						var category_slug = $(this).data('category-slug');
-						$the_portfolio_items = $(this).parents('.et_pb_filterable_portfolio').find('.et_pb_portfolio_items');
+								$the_portfolio_items.find('.et_pb_portfolio_item').hide();
+								$the_portfolio_items.find('.et_pb_portfolio_item.project_category_' + $(this).data('category-slug') ).show();
+							}
 
-						if ( 'all' == category_slug ) {
-							$the_portfolio.find('.et_pb_portfolio_filter a').removeClass('active');
-							$the_portfolio.find('.et_pb_portfolio_filter_all a').addClass('active');
-							$the_portfolio.find('.et_pb_portfolio_item').show();
-						} else {
-							$the_portfolio.find('.et_pb_portfolio_filter_all').removeClass('active');
-							$the_portfolio.find('.et_pb_portfolio_filter a').removeClass('active');
-							$the_portfolio.find('.et_pb_portfolio_filter_all a').removeClass('active');
-							$(this).addClass('active');
-
-							$the_portfolio_items.find('.et_pb_portfolio_item').hide();
-							$the_portfolio_items.find('.et_pb_portfolio_item.project_category_' + $(this).data('category-slug') ).show();
-						}
-
-						set_filterable_grid_items( $the_portfolio );
-						setTimeout(function(){
-							set_filterable_portfolio_hash( $the_portfolio );
-						}, 500 );
-					});
-
-					$(this).on('et_hashchange', function( event ){
-						var params = event.params;
-						$the_portfolio = $( '#' + event.target.id );
-
-						if ( !$the_portfolio.find('.et_pb_portfolio_filter a[data-category-slug="' + params[0] + '"]').hasClass('active') ){
-							$the_portfolio.find('.et_pb_portfolio_filter a[data-category-slug="' + params[0] + '"]').click();
-						}
-
-						if ( params[1] ) {
+							set_filterable_grid_items( $the_portfolio );
 							setTimeout(function(){
-								if ( !$the_portfolio.find('.et_pb_portofolio_pagination a.page-' + params[1]).hasClass('active') ) {
-									$the_portfolio.find('.et_pb_portofolio_pagination a.page-' + params[1]).addClass('active').click();
-								}
-							}, 300 );
-						}
-					});
+								set_filterable_portfolio_hash( $the_portfolio );
+							}, 500 );
+						});
+
+						$(this).on('et_hashchange', function( event ){
+							var params = event.params;
+							$the_portfolio = $( '#' + event.target.id );
+
+							if ( !$the_portfolio.find('.et_pb_portfolio_filter a[data-category-slug="' + params[0] + '"]').hasClass('active') ){
+								$the_portfolio.find('.et_pb_portfolio_filter a[data-category-slug="' + params[0] + '"]').click();
+							}
+
+							if ( params[1] ) {
+								setTimeout(function(){
+									if ( !$the_portfolio.find('.et_pb_portofolio_pagination a.page-' + params[1]).hasClass('active') ) {
+										$the_portfolio.find('.et_pb_portofolio_pagination a.page-' + params[1]).addClass('active').click();
+									}
+								}, 300 );
+							}
+						});
+
+					}
+
 				});
 
 			}); // End $(window).load()
@@ -1509,8 +1516,10 @@
 						});
 
 						setTimeout(function(){
-							if ( !$this_map_container.data('map').getBounds().contains( $this_map_container.data('bounds').getNorthEast() ) || !$this_map_container.data('map').getBounds().contains( $this_map_container.data('bounds').getSouthWest() ) ) {
-								$this_map_container.data('map').fitBounds( $this_map_container.data('bounds') );
+							if (typeof $this_map_container.data('map').getBounds()!=="undefined") {
+								if ( !$this_map_container.data('map').getBounds().contains( $this_map_container.data('bounds').getNorthEast() ) || !$this_map_container.data('map').getBounds().contains( $this_map_container.data('bounds').getSouthWest() ) ) {
+									$this_map_container.data('map').fitBounds( $this_map_container.data('bounds') );
+								}
 							}
 						}, 200 );
 				});
@@ -2104,4 +2113,6 @@
 
 		} );
 	} );
+
+	
 })(jQuery)
