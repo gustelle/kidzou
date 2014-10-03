@@ -5,70 +5,10 @@ module.exports = function(grunt) {
 
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		cfg: grunt.file.readJSON('config.json'),
 
 		//compilation des CSS pour le theme
-		less: {
-		  trim: {
-		    options: {
-		      paths: [""]
-		    },
-		    files: {
-		      "themes/Trim-child/css/dist/main.css"		: "themes/Trim-child/css/dev/main.less",
-		      "themes/Trim-child/css/dist/ads.css"		: "themes/Trim-child/css/dev/ads.less",
-		      "themes/Trim-child/css/dist/admin.css"	: "themes/Trim-child/css/dev/admin.less",
-		      "themes/Trim-child/css/dist/nav.css"		: "themes/Trim-child/css/dev/nav.less",
-		      "themes/Trim-child/css/dist/crp.css"		: "themes/Trim-child/css/dev/crp.less",
-		      "themes/Trim-child/css/dist/panels.css"	: "themes/Trim-child/css/dev/panels.less",
-		      "themes/Trim-child/css/dist/icons.css"	: "themes/Trim-child/css/dev/icons.less",
-		      "themes/Trim-child/css/dist/messages.css"	: "themes/Trim-child/css/dev/messages.less",
-		      "themes/Trim-child/css/dist/votables.css"	: "themes/Trim-child/css/dev/votables.less",
-		      "themes/Trim-child/css/dist/links.css"	: "themes/Trim-child/css/dev/links.less",
-		    }
-		  },
-		  kidzou: {
-		    options: {
-		      paths: [""]
-		    },
-		    files: {
-		      "plugins/kidzou/css/kidzou-megadropdown.css"		: "plugins/kidzou/css/less/kidzou-megadropdown.less",
-		      "plugins/kidzou/css/kidzou-form.css"				: "plugins/kidzou/css/less/kidzou-form.less",
-		      "plugins/kidzou-events/css/kidzou-events.css"	: "plugins/kidzou-events/css/less/kidzou-events.less",
-		    }
-		  }
-		},
-		
-
-		//nettoyage des répertoires ou se trouvent les fichiers minifiés et les CSS compilées
-		clean: ["plugins/kidzou/js/front/dist/", 
-				"plugins/kidzou/js/worker/dist/", 
-				"themes/Trim-child/js/dist/",
-				"themes/Trim-child/css/dist/"],
-		
-		//minification
-		uglify: {
-
-		    kidzou: {
-		      files: {
-		        'plugins/kidzou/js/front/dist/<%= pkg.name %>.<%= pkg.version %>.js': ['plugins/kidzou/js/front/<%= pkg.name %>.concat.js'],
-		      }
-		    },
-		    theme: {
-		      files: {
-		        'themes/Trim-child/js/dist/custom.<%= pkg.version %>.min.js': ['themes/Trim-child/js/custom.dev.min.js'],
-		        'themes/Trim/js/superfish.js': ['themes/Trim/js/superfish.source.js']
-		      }
-		    },
-		    // connections: {
-		    //   files: {
-		    //     'connections_templates/cmap/template.js': ['connections_templates/cmap/template.source.js'],
-		    //   }
-		    // },
-		    localcache: {
-		      files: {
-		        'plugins/kidzou/js/front/dist/local-cache.min.js': ['plugins/kidzou/js/front/local-cache.js'],
-		      }
-		    }
-		},
+	
 
 		//quality check pour les JS
 		jshint: {
@@ -77,17 +17,14 @@ module.exports = function(grunt) {
 		      "-W065": true,	//radix param sur la fonction parseInt(),
 		      "-W044": true  //escapes dans les regex
 		    },
-			all: ['js/kidzou-dev.js',
-				  'themes/Trim-child/js/custom.dev.min.js',
-				  'js/kidzou-actions-dev.js',
-				  'js/kidzou-login-dev.js',
-				  'js/kidzou-message-dev.js',
-				  'js/kidzou-tracker-dev.js',
-				  'js/kidzou-layout-dev.js',
-				  'js/kidzou-storage-dev.js',
-				  // 'js/kidzou-geo-dev.js',
-				  // 'js/kidzou-map-dev.js',
-				  ] //,'plugins_integration/login-with-ajax/login-with-ajax.source.js'
+			all: ['<%= cfg.kidzou_path %>/public/asets/js/public.js',
+				  '<%= cfg.kidzou_path %>/asets/js/kidzou-geo.js.js',
+				  '<%= cfg.kidzou_path %>/asets/js/kidzou-storage.js',
+				  '<%= cfg.kidzou_path %>/asets/js/kidzou-client.js',
+				  '<%= cfg.kidzou_path %>/asets/js/kidzou-events.js',
+				  '<%= cfg.kidzou_path %>/asets/js/kidzou-place.js',
+				  // '<%= cfg.theme_path %>/js/custom.js',
+				  ] 
 		},
 
 		//quality reports pour les JS
@@ -109,17 +46,9 @@ module.exports = function(grunt) {
 		      import: false,
 		      "unique-headings": false,
 		    },
-		    src: ['themes/Trim-child/css/dist/nav.css'] //'css/vex.css','css/vex-theme-default.css','css/vex-theme-top-w750.css'
+		    src: ['<%= cfg.theme_path %>/style.css'] //'css/vex.css','css/vex-theme-default.css','css/vex-theme-top-w750.css'
 		  }
 		},
-
-		// cssmin: {
-		//   minify: {
-		//     expand: true,
-		//     src: ['**/*.css', '!*.min.css','!plugins/foxycomplete/css/foxycomplete.css'],
-		//     ext: '.min.css'
-		//   }
-		// },
 		
 
 		//tache de déploiement en prod
@@ -135,16 +64,7 @@ module.exports = function(grunt) {
 				exclusions: ['./plugins/really-simple-events'] //livré une fois, pas à chauqe fois pour perf du process
 				
 			},
-			// connections_templates: {
-			// 	auth: {
-			// 	  host: 'www.kidzou.fr',
-			// 	  port: 21,
-			// 	  authKey: 'prod'
-			// 	},
-			// 	src: './connections_templates',
-			// 	dest: '/wp-content/connections_templates',
-			// 	// exclusions: []
-			// },
+			
 			themes: {
 				auth: {
 				  host: 'www.kidzou.fr',
@@ -164,57 +84,25 @@ module.exports = function(grunt) {
 
 		  divi: {
 		    files: [
-		     	{expand:true, cwd: 'themes/Divi-child/', src: ['**','!css/dev/**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/themes/Divi-child/'},
+		     	{expand:true, cwd: '<%= cfg.theme_path %>', src: ['**','!css/dev/**'], dest: '<%= cfg.wp_theme_root %>'},
 		    ]
 		  },
 
-		  nextend: {
+		  deps: {
 		    files: [
-		      {expand:true, cwd: 'plugins/nextend-facebook-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-facebook-connect/'},
-		      // {expand:true, cwd: 'plugins/nextend-google-connect/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/nextend-google-connect/'}
+		      {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-facebook-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-facebook-connect/'},
+		      {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-google-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-google-connect/'},
+		      // {expand:true, cwd: '<%= cfg.plugins_root %>/seo-automatic-links/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/seo-automatic-links/'}
 		    ]
 		  },
 
 		  k4: {
 		    files: [
-		    	{expand:true, cwd: 'plugins/kidzou-4/', src: ['**'], dest: '/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-4/'}, // includes files in path and its subdirs,
+		    	{expand:true, cwd: '<%= cfg.kidzou_path %>', src: ['**'], dest: '<%= cfg.wp_kidzou_root %>'}, // includes files in path and its subdirs,
 		    ]
 		  },
 
 		},
-
-		concat: {
-			trim: {
-			  src: ['themes/Trim-child/css/dist/main.css',
-			  		'themes/Trim-child/css/dist/links.css',
-			  		'themes/Trim-child/css/dist/messages.css',
-			  		'themes/Trim-child/css/dist/votables.css',
-			  		'themes/Trim-child/css/dist/icons.css',
-			  		'themes/Trim-child/css/dist/events.css',
-			  		'themes/Trim-child/css/dist/panels.css',
-			  		'themes/Trim-child/css/dist/crp.css',
-			  		'themes/Trim-child/css/dist/ads.css',
-			  		'themes/Trim-child/css/dist/admin.css',
-			  		'themes/Trim-child/css/dist/nav.css',
-			  		'themes/Trim-child/css/vex.css',
-			  		'themes/Trim-child/css/vex-theme-default.css',
-			  		'themes/Trim-child/css/vex-theme-top-w750.css'],
-			  dest: 'themes/Trim-child/style.css',
-			},
-			js: {
-			  src: ['plugins/kidzou/js/front/<%= pkg.name %>-actions-dev.js',
-			  		'plugins/kidzou/js/front/<%= pkg.name %>-login-dev.js',
-			  		'plugins/kidzou/js/front/<%= pkg.name %>-tracker-dev.js',
-			  		'plugins/kidzou/js/front/<%= pkg.name %>-message-dev.js',
-			  		'plugins/kidzou/js/front/<%= pkg.name %>-layout-dev.js',
-			  		'plugins/kidzou/js/front/<%= pkg.name %>-storage-dev.js',
-			  		// 'plugins/kidzou/js/front/<%= pkg.name %>-geo-dev.js',
-			  		// 'plugins/kidzou/js/front/<%= pkg.name %>-map-dev.js',
-			  		'plugins/kidzou/js/front/<%= pkg.name %>-dev.js'],
-			  dest: 'plugins/kidzou/js/front/<%= pkg.name %>.concat.js',
-			},
-		},
-
 		
 
 	});
@@ -238,10 +126,10 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	//lancement de grunt par defaut
-	grunt.registerTask('default', ['clean','prepjs', 'theme', 'plugins']);
+	grunt.registerTask('default', ['prepjs','theme', 'plugins']);
 
-	grunt.registerTask('prepjs', ['concat:js','jshint','uglify','plato']);
+	grunt.registerTask('prepjs', ['jshint','plato']);
 	grunt.registerTask('theme',  ['copy:divi']); //csslint
-	grunt.registerTask('plugins',['copy:nextend'],['copy:k4']);
+	grunt.registerTask('plugins',['copy:deps', 'copy:k4']);
 
 };

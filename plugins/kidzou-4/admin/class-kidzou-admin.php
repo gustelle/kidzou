@@ -960,13 +960,13 @@ class Kidzou_Admin {
 		//formatter les dates avant de les sauvegarder 
 		//input : 23 Février 2014
 		//output : 2014-02-23 00:00:01 (start_date) ou 2014-02-23 23:59:59 (end_date)
-		$events_meta['start_date'] 			= $_POST['kz_event_start_date'];
-		$events_meta['end_date'] 				= $_POST['kz_event_end_date'];
+		$events_meta['start_date'] 			= (isset($_GET['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
+		$events_meta['end_date'] 				= (isset($_GET['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admin
 		if ( current_user_can( 'manage_options' ) ) 
-			$events_meta['featured'] 			= ($_POST['kz_event_featured']=='on' ? "A" : "B");
+			$events_meta['featured'] 			= (isset($_GET['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
 		else {
 			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='')
 				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
@@ -1003,13 +1003,13 @@ class Kidzou_Admin {
 
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
-		$events_meta['location_name'] 			= $_POST['kz_location_name'];
-		$events_meta['location_address'] 		= $_POST['kz_location_address'];
-		$events_meta['location_website'] 		= $_POST['kz_location_website'];
-		$events_meta['location_phone_number'] 	= $_POST['kz_location_phone_number'];
-		$events_meta['location_city'] 			= $_POST['kz_location_city'];
-		$events_meta['location_latitude'] 		= $_POST['kz_location_latitude'];
-		$events_meta['location_longitude'] 		= $_POST['kz_location_longitude'];
+		$events_meta['location_name'] 			= (isset($_GET['kz_location_name']) ? $_POST['kz_location_name'] : '');
+		$events_meta['location_address'] 		= (isset($_GET['kz_location_address']) ? $_POST['kz_location_address'] : '');
+		$events_meta['location_website'] 		= (isset($_GET['kz_location_website']) ? $_POST['kz_location_website'] : '');
+		$events_meta['location_phone_number'] 	= (isset($_GET['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
+		$events_meta['location_city'] 			= (isset($_GET['kz_location_city']) ? $_POST['kz_location_city'] : '');
+		$events_meta['location_latitude'] 		= (isset($_GET['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
+		$events_meta['location_longitude'] 		= (isset($_GET['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
 
 		$prefix = 'kz_' . $type . '_';
 

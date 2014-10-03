@@ -228,9 +228,13 @@ class Kidzou_Geo {
 
 	    $result = array();
 
-	    array_push($result, $term->slug);
-	    
+	    if (!is_wp_error($term) && is_object($term)) {
+			array_push($result, $term->slug);
+	    }
+
 	    return $result;
+
+
 	}
 
 	/**
@@ -292,8 +296,10 @@ class Kidzou_Geo {
 
 	    $term = get_term_by('id', $kidzou_options['geo_default_metropole'], 'ville');
 
-	    
-	    return $term->slug;
+	    if (!is_wp_error($term) && is_object($term))
+	    	return $term->slug;
+
+	    return '';
 	}
 
 

@@ -112,8 +112,8 @@ For login page
 add_action('login_init', 'new_google_login');
 
 function new_google_login() {
-
-  if ($_REQUEST['loginGoogle'] == '1') {
+  //correction Kidzou : tester par isset()
+  if (isset($_REQUEST['loginGoogle']) && $_REQUEST['loginGoogle'] == '1') {
     new_google_login_action();
   }
 }
@@ -360,10 +360,10 @@ function new_add_google_login_form() {
   </script>
   <?php
 }
-// add_action('login_form', 'new_add_google_login_form');
-// add_action('register_form', 'new_add_google_login_form');
-// add_action('bp_sidebar_login_form', 'new_add_google_login_form');
-// add_filter('get_avatar', 'new_google_insert_avatar', 5, 5);
+add_action('login_form', 'new_add_google_login_form');
+add_action('register_form', 'new_add_google_login_form');
+add_action('bp_sidebar_login_form', 'new_add_google_login_form');
+add_filter('get_avatar', 'new_google_insert_avatar', 5, 5);
 
 function new_google_insert_avatar($avatar = '', $id_or_email, $size = 96, $default = '', $alt = false) {
 
