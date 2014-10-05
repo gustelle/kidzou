@@ -166,7 +166,7 @@ class Kidzou_Customer {
 			$table_clients 		 = $wpdb->prefix . self::CLIENTS_TABLE;
 			$customer 	= $wpdb->get_results("SELECT c.id, c.name FROM $table_clients AS c WHERE c.id=$customer_id", ARRAY_A);
 
-			return $customer[0]["name"];
+			return (isset($customer[0]) && isset($customer[0]['name']) ? $customer[0]["name"] : '');
 		}
 	}
 

@@ -94,8 +94,7 @@ class Kidzou {
 		add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 
-		//ecran de login custom sur wp-admin
-		// add_action( 'login_enqueue_scripts', array($this,'login_logo') );
+		
 	}
 
 
@@ -552,8 +551,10 @@ class Kidzou {
 				'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
 				'is_admin' 					=> current_user_can( 'manage_options' )
 			)
-	);
+		);
 	}
+
+	
 
 	/**
 	 * NOTE:  Actions are points in the execution of a page or process

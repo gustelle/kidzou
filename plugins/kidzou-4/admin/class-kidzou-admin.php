@@ -233,30 +233,6 @@ class Kidzou_Admin {
 	    echo '<input type="checkbox" name="kz_has_family_card" value="1" '.($val !== "0" ? 'checked="checked"':'').'/> <br />';
 	    echo '</td></tr>';
 
-	    // //infos de participation aux jeux concours
-	    // $contests = get_user_meta( $user->ID, 'kz_contests', TRUE );
-	    // echo '<tr><th><label for="kz_contests">Participation aux Jeux Concours</label></th><td>';
-	    // if (is_array($contests) && count($contests)>0)
-	    // {
-	    //     foreach ($contests as $contest) {
-	    //         $post = get_post($contest); 
-	    //         echo '<a href="'.get_permalink( $contest ).'">'.$post->post_title.'</a> , ';
-	    //     }
-	    // }
-	    // echo '</td></tr>';
-
-	    // //les concours gagnés par le user
-	    // $won = get_user_meta( $user->ID, 'kz_contests_winners', TRUE );
-	    // echo '<tr><th><label for="kz_contests_winners">Concours gagn&eacute;s</label></th><td>';
-	    // if (is_array($won) && count($won)>0)
-	    // {
-	    //     foreach ($won as $awon) {
-	    //         $post = get_post($awon); 
-	    //         echo '<a href="'.get_permalink( $awon ).'">'.$post->post_title.'</a> , ';
-	    //     }
-	    // }
-	    // echo '</td></tr>';
-
 	    echo '</table>';
 	}
 
@@ -315,38 +291,6 @@ class Kidzou_Admin {
 	    return (array)$meta;
 	}
 
-
-	// public function remove_metaboxes() {
-
-	//     //suppression de la meta native "Ville" afin de simplifier la saisie de l'evenement 
-	//     //pour les users non admin, la ville est la ville de rattachement du user
-	//     if (!current_user_can('manage_options')) {
-
-	//     	remove_menu_page('upload.php'); //ne pas afficher le menu "media"
-
-	//         //les taxos standards ne sont de toute façon pas editables par les "pro" 
-	//         remove_meta_box( 'categorydiv' , 'post' , 'side' );
-	//         remove_meta_box( 'agediv' , 'post' , 'side' ); 
-	//         remove_meta_box( 'diversdiv' , 'post' , 'side' );  
-	//         remove_meta_box( 'crp_metabox' , 'post' , 'advanced' );  // ??marche pas
-
-	//         remove_meta_box( 'postcustom' , 'post' , 'normal' ); //removes custom fields 
-	//         // remove_meta_box( 'postcustom' , 'event' , 'normal' );
-	//         remove_meta_box( 'postcustom' , 'offres' , 'normal' ); 
-	//         // remove_meta_box( 'postcustom' , 'concours' , 'normal' ); 
-
-	//         remove_meta_box( 'villediv' , 'post' , 'side' ); //removes ville tax
-	//         // remove_meta_box( 'villediv' , 'event' , 'side' );
-	//         remove_meta_box( 'villediv' , 'offres' , 'side' ); 
-	//         // remove_meta_box( 'villediv' , 'concours' , 'side' );  
-
-	//     }
-
-	// }
-
-	// public function remove_media_node( $wp_admin_bar ) {
-	//     $wp_admin_bar->remove_node( 'new-media' ); //ne pas afficher le medu "media" dans la top bar
-	// }
 	
 	/**
 	 * pour les users contribs, rattachement automatique du post à la metropole du contrib
@@ -433,35 +377,6 @@ class Kidzou_Admin {
 
 	    return $path;
 	}
-
-	// public function hide_metaboxes($hidden, $screen) {
-       
- //        $hidden = array('slugdiv');
-                
- //        return $hidden;
-	// }
-
-
-	// function remove_dashboard_widgets() {
-
-	// 	if (!current_user_can('manage_options')) {
-
-	// 		global $wp_meta_boxes;
-
-	// 		unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_quick_press']);
-	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_incoming_links']);
-	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_right_now']);
-	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_plugins']);
-	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_drafts']);
-	// 		unset($wp_meta_boxes['dashboard']['normal']['core']['dashboard_recent_comments']);
-	// 		unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_primary']);
-	// 		unset($wp_meta_boxes['dashboard']['side']['core']['dashboard_secondary']);
-
-	// 		remove_meta_box( 'dashboard_activity', 'dashboard', 'normal');
-
-	// 	}
-
-	// }
 
 	/**
 	 * Register and enqueue admin-specific style sheet.
@@ -700,7 +615,8 @@ class Kidzou_Admin {
 		$checkbox = false;
 
 		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="eventmeta_noncename" id="eventmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+		wp_nonce_field( 'event_metabox', 'event_metabox_nonce' );
+		//echo '<input type="hidden" name="eventmeta_noncename" id="eventmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 		
 		$start_date		= get_post_meta($post->ID, 'kz_event_start_date', TRUE);
 		$end_date 		= get_post_meta($post->ID, 'kz_event_end_date', TRUE);
@@ -943,30 +859,43 @@ class Kidzou_Admin {
 	 **/
 	public function save_event_meta($post_id)
 	{
+		// echo 'save_event_meta';
 
-		if ( ! isset( $_POST['eventmeta_noncename'] ) )
+		// if ( ! isset( $_POST['eventmeta_noncename'] ) )
+		// 	return $post_id;
+
+		// // verify this came from the our screen and with proper authorization,
+		// // because save_post can be triggered at other times
+		// if ( !wp_verify_nonce( $_POST['eventmeta_noncename'], plugin_basename(__FILE__) )) {
+		// 	return $post_id;
+		// }
+
+		// Check if our nonce is set.
+		if ( ! isset( $_POST['event_metabox_nonce'] ) )
 			return $post_id;
 
-		// verify this came from the our screen and with proper authorization,
-		// because save_post can be triggered at other times
-		if ( !wp_verify_nonce( $_POST['eventmeta_noncename'], plugin_basename(__FILE__) )) {
+		$nonce = $_POST['event_metabox_nonce'];
+
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( $nonce, 'event_metabox' ) )
 			return $post_id;
-		}
+
 		// Is the user allowed to edit the post or page?
-		if ( !current_user_can( 'edit_post', $post_id ))
-			return $post_id;
+		// if ( !current_user_can( 'edit_post', $post_id ))
+		// 	return $post_id;
 
 
 		//formatter les dates avant de les sauvegarder 
 		//input : 23 Février 2014
 		//output : 2014-02-23 00:00:01 (start_date) ou 2014-02-23 23:59:59 (end_date)
-		$events_meta['start_date'] 			= (isset($_GET['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
-		$events_meta['end_date'] 				= (isset($_GET['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
+		$events_meta['start_date'] 			= (isset($_POST['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
+		$events_meta['end_date'] 				= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
-		//uniquement si le user est admin
+		//uniquement si le user est admi
+		// echo ''
 		if ( current_user_can( 'manage_options' ) ) 
-			$events_meta['featured'] 			= (isset($_GET['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
+			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
 		else {
 			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='')
 				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
@@ -1003,13 +932,13 @@ class Kidzou_Admin {
 
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
-		$events_meta['location_name'] 			= (isset($_GET['kz_location_name']) ? $_POST['kz_location_name'] : '');
-		$events_meta['location_address'] 		= (isset($_GET['kz_location_address']) ? $_POST['kz_location_address'] : '');
-		$events_meta['location_website'] 		= (isset($_GET['kz_location_website']) ? $_POST['kz_location_website'] : '');
-		$events_meta['location_phone_number'] 	= (isset($_GET['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
-		$events_meta['location_city'] 			= (isset($_GET['kz_location_city']) ? $_POST['kz_location_city'] : '');
-		$events_meta['location_latitude'] 		= (isset($_GET['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
-		$events_meta['location_longitude'] 		= (isset($_GET['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
+		$events_meta['location_name'] 			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
+		$events_meta['location_address'] 		= (isset($_POST['kz_location_address']) ? $_POST['kz_location_address'] : '');
+		$events_meta['location_website'] 		= (isset($_POST['kz_location_website']) ? $_POST['kz_location_website'] : '');
+		$events_meta['location_phone_number'] 	= (isset($_POST['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
+		$events_meta['location_city'] 			= (isset($_POST['kz_location_city']) ? $_POST['kz_location_city'] : '');
+		$events_meta['location_latitude'] 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
+		$events_meta['location_longitude'] 		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
 
 		$prefix = 'kz_' . $type . '_';
 

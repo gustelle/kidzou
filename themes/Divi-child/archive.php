@@ -8,9 +8,6 @@
 				<?php 
 
 					global $wp_query;
-					//pas de limite sur le nombre de posts dans un categorie
-					$wp_query->set(	'nopaging', true);
-					$wp_query->set( 'posts_per_page', '-1' ); 
 
 					$object = $wp_query->queried_object;
 
@@ -31,6 +28,8 @@
 								<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
 
 									<?php
+										// echo $GLOBALS['wp_query']->request; 
+
 										global $kidzou_options;
 
 										if ( isset($kidzou_options['pub_archive']) && $kidzou_options['pub_archive']<>'')
@@ -39,6 +38,7 @@
 										ob_start();
 			
 										format_fullwidth_portolio_items($wp_query, "on", "off");
+	// echo $GLOBALS['wp_query']->request; 
 
 										$posts = ob_get_clean();
 

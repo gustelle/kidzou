@@ -60,6 +60,9 @@ function override_divi_parent_functions()
 	//surcharge des JS du parent
 	add_action( 'wp_enqueue_scripts', 'kz_divi_load_scripts' ,99);
 
+	//Alterer les queries pour les archives afin de trier par reco count
+	add_action( "pre_get_posts", "filter_archive_query" );
+
 }
 
 function custom_excerpt_length( $length ) {
@@ -69,6 +72,24 @@ function custom_excerpt_length( $length ) {
 // Replaces the excerpt "more" text by a link
 function excerpt_more_invite_scroll($more) {
 	return ' ... <a href="#content_start" alt="Lire le contenu" ><i class="fa fa-arrow-down fa-3x grey overtext"></i></a>';
+}
+
+/**
+ * undocumented function
+ *
+ * @return void
+ * @author 
+ **/
+function filter_archive_query($query)
+{
+	if (is_archive() && $query->is_main_query()) {
+		//pas de limite sur le nombre de posts dans un categorie
+		$query->set(	'nopaging', true);
+		$query->set( 'posts_per_page', '-1' ); 
+		$query->set('meta_key' , Kidzou_Vote::$meta_vote_count );
+		$query->set('orderby' , 'meta_value_num');
+		$query->set( 'order' , 'DESC' );
+	}
 }
 
 /**
@@ -371,7 +392,7 @@ function kz_pb_portfolio( $atts ) {
 			'show_pagination' => 'on',
 			'background_layout' => 'light',
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
-			'with_votes' => false, //systeme de vote Kidzou, par défaut non affiché
+			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
 			'show_filters' => 'on',
 			'show_ad' => 'on'
 		), $atts
@@ -384,6 +405,9 @@ function kz_pb_portfolio( $atts ) {
 	$args = array(
 		'posts_per_page' => (int) $posts_number,
 		'post_type'      => Kidzou::post_types(),
+		'meta_key' => Kidzou_Vote::$meta_vote_count,
+		'orderby' => 'meta_value_num',
+		'order' => 'DESC' 
 	);
 
 	if ( '' !== $post__in )
@@ -413,7 +437,12 @@ function kz_pb_portfolio( $atts ) {
 
 	ob_start();
 
+	//classement des queries par nb de reco
+	// add_action( 'pre_get_posts', array( Kidzou_Vote::get_instance(), 'filter_query_orderby_reco_count') );
+
 	query_posts( $args );
+
+	// echo $GLOBALS['wp_query']->request; 
 
 	$categories_included = array();
 
@@ -430,11 +459,12 @@ function kz_pb_portfolio( $atts ) {
 				if ( isset($kidzou_options['pub_portfolio']) && $kidzou_options['pub_portfolio']<>'') {
 
 					$output = sprintf(
-						'<div id="pub_portfolio" class="%1$s">
+						'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
 							%2$s
 						</div>',
-						'et_pb_portfolio_item kz_portfolio_item',
-						$kidzou_options['pub_portfolio']
+						'et_pb_portfolio_item kz_portfolio_item ad',
+						$kidzou_options['pub_portfolio'],
+						__('Publicite','Divi')
 					);
 
 					echo $output;

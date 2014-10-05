@@ -44,6 +44,8 @@ class Kidzou_Vote {
 	 */
 	protected static $is_template_inserted = false;
 
+	public static $meta_vote_count = 'kz_reco_count';
+
 
 	// private static $initialized = false;
 
@@ -85,6 +87,24 @@ class Kidzou_Vote {
 
 		return self::$instance;
 	}
+
+	// /**
+	//  * toutes les queries de posts sont triées par nb de reco
+	//  *
+	//  * @return void
+	//  * @author 
+	//  **/
+	// public static function filter_query_orderby_reco_count($query) 
+	// {
+		
+	// 	$query->set('meta_key' , 'kz_reco_count');
+	// 	$query->set('orderby' , 'meta_value_num');
+	// 	$query->set( 'order' , 'DESC' );
+	
+	// 	// print_r($query);		
+
+	// 	return $query;
+	// }
 
 	protected static function set_template($class='', $useCountText=false) {
 

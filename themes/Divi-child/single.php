@@ -103,7 +103,7 @@
 						<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
 							<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_justify">
 
-								<div class="post_ad">
+								<div class="post_ad ad" data-content="<?php _e('Publicite','Divi'); ?>">
 									<?php
 										global $kidzou_options;
 

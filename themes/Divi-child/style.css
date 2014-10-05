@@ -3110,7 +3110,9 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 .et_pb_text_align_justify{ text-align: justify; }
 
-.post_ad {float: right; max-width: 300px; max-height: 250px; padding: 0 0 20px 20px;}
+.post_ad {float: right; max-width: 300px; max-height: 250px; margin: 0 0 20px 20px;}
+.ad {padding:2px 6px 30px 6px;background-color: #c6c6c6;}
+.ad:before {content: attr(data-content); font-size: 12px;} /*'Publicite'*/
 
 /* ---- Portfolio sur 3 colonnes --- */
 
@@ -3118,11 +3120,11 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	width: 300px;
 	height: 250px;
 	margin-bottom: 70px;
-	margin-right: 60px;
+	margin-right: 50px;
 }
 
 .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(4n){
-	margin-right: 60px;
+	margin-right: 50px;
 	float: left;
 }
 
@@ -3135,11 +3137,11 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	/* ---- Portfolio sur 4 colonnes --- */
 	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {
 		width: 195px;
-		margin-right: 40px;
+		margin-right: 30px;
 		margin-bottom: 32px;
 	}
 	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(3n){
-		margin-right: 40px;
+		margin-right: 30px;
 	}
 	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(4n){
 		margin-right: 0px ;
@@ -3148,8 +3150,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 @media only screen and ( max-width: 980px ) {
 	/* ---- Portfolio sur 2 colonnes --- */
-	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(2n+1) { margin-right: 60px; float: left; }
-	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(3n) { margin-right: 60px; }
+	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(2n+1) { margin-right: 50px; float: left; }
+	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(3n) { margin-right: 50px; }
 	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(4n){ margin-right: 0px; }
 }
 
@@ -3177,6 +3179,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	width: 32px;
 	height: auto;
 }
+
 
 /*-----------Cookie Notice----------*/
 .cookie-notice-container{font-size: 14px;}

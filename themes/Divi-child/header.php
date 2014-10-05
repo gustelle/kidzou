@@ -118,7 +118,7 @@
 
 						global $kidzou_options;
 						printf(
-							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-users"></i><span>Rejoignez la communaut&eacute; !</span></a>&nbsp;',
+							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-users"></i><span>Connexion | Inscription</span></a>&nbsp;',
 							get_page_link($kidzou_options['login_page'])
 						);	
 						

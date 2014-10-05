@@ -63,8 +63,13 @@ class Kidzou_Events {
 	 * @since     1.0.0
 	 */
 	private function __construct() { 
+
+		//tri des posts dans la requete: par featured, puis par date
+		// add_filter('posts_orderby', array( $this, 'query_orderby'), 100 );
 		
-		// do_action( 'wp_logger_add', 'kidzou', 'test', 'coucou');
+		// tri des posts par meta 
+		//d'abord les featured, puis par date
+		add_filter( 'posts_results', array( $this, 'sort_query_results'), 100  );
 		
 	}
 
@@ -312,6 +317,7 @@ class Kidzou_Events {
 	 *
 	 * @return void
 	 * @author 
+	 * @todo retravailler ce tri pour limiter les events qui sont remontés (uniquemnet sur la semaine courante)
 	 **/
 	public static function sort_by_featured($a, $b)
 	{
@@ -322,12 +328,20 @@ class Kidzou_Events {
 		if (strcmp($featured_a, $featured_b)==0) {
 
 			$start_a = get_post_meta($a->ID, 'kz_event_start_date', TRUE);
-			$start_b = get_post_meta($b->ID, 'kz_event_start_date', TRUE);
+			$start_b = get_post_meta($b->ID, 'kz_event_start_date', TRUE); //echo strcmp($start_a, $start_b);
 			return strcmp($start_a, $start_b);
 		}
 
 		return strcmp($featured_a, $featured_b);
 	}
+
+	public function sort_query_results($posts) {
+
+		uasort($posts, array('self', "sort_by_featured") );
+		
+		return $posts;
+	}
+
 
     
 
