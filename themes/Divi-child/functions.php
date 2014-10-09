@@ -456,7 +456,8 @@ function kz_pb_portfolio( $atts ) {
 
 				//insertion de pub
 				global $kidzou_options;
-				if ( isset($kidzou_options['pub_portfolio']) && $kidzou_options['pub_portfolio']<>'') {
+
+				if ( isset($kidzou_options['pub_portfolio']) && trim($kidzou_options['pub_portfolio'])!='') {
 
 					$output = sprintf(
 						'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
@@ -1101,6 +1102,52 @@ function et_gallery_images() {
 	}
 
 	printf( $output, $slides );
+}
+
+/**
+ * inclusion des custom taxonomies de Kidzou
+ *
+ * @return void
+ * @author 
+ **/
+function et_postinfo_meta( $postinfo, $date_format, $comment_zero, $comment_one, $comment_more ){
+	global $themename;
+
+	$postinfo_meta = '';
+
+	if ( in_array( 'author', $postinfo ) )
+		$postinfo_meta .= ' ' . esc_html__('by',$themename) . ' ' . et_get_the_author_posts_link();
+
+	if ( in_array( 'date', $postinfo ) ) {
+		if ( in_array( 'author', $postinfo ) ) $postinfo_meta .= ' | ';
+		$postinfo_meta .= get_the_time( $date_format );
+	}
+
+	if ( in_array( 'categories', $postinfo ) ){
+		if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) ) $postinfo_meta .= ' | ';
+		$postinfo_meta .= get_the_category_list(', ');
+		global $post;
+		$terms_d = wp_get_post_terms( $post->ID, 'divers' );
+		$terms_a = wp_get_post_terms( $post->ID, 'age' );
+		$terms = array_merge($terms_d, $terms_a);
+		foreach ($terms as $term) {
+			$term_link = get_term_link( $term );
+   
+		    // If there was an error, continue to the next term.
+		    if ( is_wp_error( $term_link ) ) {
+		        continue;
+		    }
+			$postinfo_meta .= ', <a href="' . esc_url( $term_link ) . '">'.$term->name.'</a>';
+		}
+	}
+
+	if ( in_array( 'comments', $postinfo ) ){
+		if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) || in_array( 'categories', $postinfo ) ) 
+			$postinfo_meta .= ' <br/><i class="fa fa-comments-o"></i> ';
+		$postinfo_meta .= et_get_comments_popup_link( $comment_zero, $comment_one, $comment_more );
+	}
+
+	echo $postinfo_meta;
 }
 
 

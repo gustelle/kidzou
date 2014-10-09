@@ -9,12 +9,38 @@
 
 					global $wp_query;
 
-					$object = $wp_query->queried_object;
+					$name = '';
+					// print_r($wp_query);
 
-					echo do_shortcode(
-					'[et_pb_section fullwidth="on" specialty="off" background_color="#2ea3f2" inner_shadow="on" parallax="off"]
-						[et_pb_fullwidth_header admin_label="Fullwidth Header" title="Vous cherchez une sortie '.$object->cat_name.'" subhead="Près de chez vous" background_layout="dark" text_orientation="left" /]
-					[/et_pb_section]');
+					if (is_tax()) {
+						
+						$taxes = $wp_query->tax_query->queries;
+						foreach ($taxes as $tax) {
+							if ($tax['taxonomy']!='ville') {
+								$slug = $tax['terms'][0];
+								$term = get_term_by('slug', $slug, $tax['taxonomy']);
+								$name = $term->name;
+							}	
+						}
+
+					} elseif (is_category() ) {
+						$name = $wp_query->queried_object->name;
+					} else {
+						//
+					}
+					
+					if ($name != '') {
+						echo do_shortcode(
+						'[et_pb_section fullwidth="on" specialty="off" background_color="#2ea3f2" inner_shadow="on" parallax="off"]
+							[et_pb_fullwidth_header admin_label="Fullwidth Header" title="Vous cherchez une sortie '.$name.'" subhead="Près de chez vous" background_layout="dark" text_orientation="left" /]
+						[/et_pb_section]');
+					} else {
+						echo do_shortcode(
+						'[et_pb_section fullwidth="on" specialty="off" background_color="#2ea3f2" inner_shadow="on" parallax="off"]
+							[et_pb_fullwidth_header admin_label="Fullwidth Header" title="" subhead="" background_layout="dark" text_orientation="left" /]
+						[/et_pb_section]');
+					}
+					
 
 				?>
 				<div class="et_pb_section et_section_regular">
@@ -48,7 +74,7 @@
 										$module_class = "";
 										$auto = "off";
 										$auto_speed = 7000;
-										$title = __('Tous nos articles dans la rubrique ' .$object->cat_name , 'Divi');
+										$title = ($name != '' ? __('Tous nos articles dans la rubrique ' .$name , 'Divi') : '&nbsp;');
 
 										echo format_fullwidth_portfolio($background_layout, $fullwidth, $posts, $module_id, $module_class, $auto, $auto_speed, $title);
 

@@ -102,15 +102,16 @@
 					<div class="et_pb_row_inner">
 						<div class="et_pb_column et_pb_column_4_4 et_pb_column_inner">
 							<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_justify">
-
-								<div class="post_ad ad" data-content="<?php _e('Publicite','Divi'); ?>">
 									<?php
 										global $kidzou_options;
 
-										if ( isset($kidzou_options['pub_post']) && $kidzou_options['pub_post']<>'')
-											echo $kidzou_options['pub_post'];
+										if ( isset($kidzou_options['pub_post']) && trim($kidzou_options['pub_post'])!='') {
+											echo '<div class="post_ad ad" data-content="'.__('Publicite','Divi').'">';
+												echo $kidzou_options['pub_post'];
+											echo '</div>';
+										}
+											
 									?>
-								</div>
 							
 								<?php the_content(); ?>
 

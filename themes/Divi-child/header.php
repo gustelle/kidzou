@@ -67,27 +67,52 @@
 		<div id="top-header" class="<?php echo esc_attr( $secondary_nav_class ); ?>">
 			<div class="container clearfix">
 
-			<?php if ( $et_contact_info_defined ) : ?>
-
 				<div id="et-info">
-				<?php if ( '' !== ( $et_phone_number = et_get_option( 'phone_number' ) ) ) : ?>
-					<span id="et-info-phone"><?php echo esc_html( $et_phone_number ); ?></span>
-				<?php endif; ?>
+				<?php if ( $et_contact_info_defined ) : ?>
+					<?php if ( '' !== ( $et_phone_number = et_get_option( 'phone_number' ) ) ) : ?>
+						<span id="et-info-phone"><?php echo esc_html( $et_phone_number ); ?></span>
+					<?php endif; ?>
 
-				<?php if ( '' !== ( $et_email = et_get_option( 'header_email' ) ) ) : ?>
-					<span id="et-info-email"><?php echo esc_html( $et_email ); ?></span>
-				<?php endif; ?>
+					<?php if ( '' !== ( $et_email = et_get_option( 'header_email' ) ) ) : ?>
+						<span id="et-info-email"><?php echo esc_html( $et_email ); ?></span>
+					<?php endif; ?>
 
+					<?php
+					if ( true === $show_header_social_icons ) {
+						get_template_part( 'includes/social_icons', 'header' );
+					} ?>
+				<?php endif; // true === $et_contact_info_defined ?>
 				<?php
-				if ( true === $show_header_social_icons ) {
-					get_template_part( 'includes/social_icons', 'header' );
-				} ?>
+					if ( '' !== $et_secondary_nav ) {
+						echo $et_secondary_nav;
+					}
+				?>
 				</div> <!-- #et-info -->
 
-			<?php endif; // true === $et_contact_info_defined ?>
 
 				<div id="et-secondary-menu">
 				<?php
+
+					if (!is_user_logged_in()) {
+
+						global $kidzou_options;
+						printf(
+							'<i class="fa fa-users font-bigger"></i><a href="%1$s" class="et_nav_text_color_light font-bigger">Connexion</a>',
+							get_page_link($kidzou_options['login_page'])
+						);	
+
+						echo '&nbsp;|&nbsp;<a href="'.wp_registration_url().'" class="et_nav_text_color_light font-bigger">Inscription</a>';
+						
+					} else {
+
+						printf(
+							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-cog"></i><span>Votre profil</span></a>&nbsp;', 
+							get_admin_url()
+						);	
+
+						echo '&nbsp;|&nbsp;<a class="et_nav_text_color_light font-bigger" href="'.wp_logout_url( get_permalink() ).'" title="'.__('Deconnexion','Divi').'">'.__('Deconnexion','Divi').'</a>';
+
+					}
 
 					if ( ! $et_contact_info_defined && true === $show_header_social_icons ) {
 						get_template_part( 'includes/social_icons', 'header' );
@@ -108,28 +133,11 @@
 						);
 					}
 
-					if ( '' !== $et_secondary_nav ) {
-						echo $et_secondary_nav;
-					}
+					
 
 					et_show_cart_total();
 
-					if (!is_user_logged_in()) {
-
-						global $kidzou_options;
-						printf(
-							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-users"></i><span>Connexion | Inscription</span></a>&nbsp;',
-							get_page_link($kidzou_options['login_page'])
-						);	
-						
-					} else {
-
-						printf(
-							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-cog"></i><span>Votre profil</span></a>&nbsp;', 
-							get_admin_url()
-						);	
-
-					}
+					
 
 				?>
 				</div> <!-- #et-secondary-menu -->

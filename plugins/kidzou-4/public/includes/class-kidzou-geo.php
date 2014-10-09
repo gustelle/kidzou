@@ -65,6 +65,7 @@ class Kidzou_Geo {
 		add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
 		add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
 		add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
+		// add_filter( 'divers_rewrite_rules', array( $this, 'divers_rewrite_rules' ), 10, 3 );
 
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
 
@@ -105,7 +106,7 @@ class Kidzou_Geo {
 		global $kidzou_options;
   
 		$args = array(
-					'geo_mapquest_key'			=> $kidzou_options["geo_mapquest_key"],
+					'geo_mapquest_key'			=> $kidzou_options["geo_mapquest_key"], //Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6
 					'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
 					'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
 					'geo_default_lat'			=> $kidzou_options["geo_default_lat"],//50.637234, //lille //externaliser dans $kidzou_options
@@ -308,15 +309,16 @@ class Kidzou_Geo {
 		//pas dans l'admin !
 		if (!is_admin()) {
 
-		    // Check if the %kz_metropole% tag is present in the url:
-		    if ( false === strpos( $permalink, '%kz_metropole%' ) )
-		        return $permalink;
-		 
-		    $m = urlencode(self::get_request_metropole());
-		 
-		    // Replace '%kz_metropole%'
-		    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
+			$m = urlencode(self::get_request_metropole());
 
+		    // Check if the %kz_metropole% tag is present in the url:
+		    if ( true === strpos( $permalink, '%kz_metropole%' ) ) {
+
+			    // Replace '%kz_metropole%'
+			    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
+
+		    } 
+		    
 		}
 		 
 	    return $permalink;
@@ -357,6 +359,8 @@ class Kidzou_Geo {
 
 		if (!is_admin()) {
 
+			// echo ' ? ' . $url;
+
 			// Check if the %kz_metropole% tag is present in the url:
 		    if ( false === strpos( $url, '%kz_metropole%' ) )
 		        return $url;
@@ -370,6 +374,13 @@ class Kidzou_Geo {
 	 
 	    return $url; 
 	}
+
+	// public static function divers_rewrite_rules( $url, $term, $taxonomy ) {
+
+	// 	echo $url;
+	 
+	//     return $url; 
+	// }
 
 	/**
 	 * les infos d'emplacement géographique d'un post

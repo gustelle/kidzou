@@ -390,7 +390,7 @@ table.shop_table { margin-bottom: 30px !important; }
 			.et_pb_widget li a:hover { color: #82c0c7; }
 			.et_pb_widget ul li { margin-bottom: 6px; }
 				.et_pb_widget ul li ul li { margin-left:15px; }
-			.tagcloud a {font-size: 12px !important; padding: 2px 8px; background: rgba(0,0,0,.05); display: inline-block; margin-bottom: 4px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;-moz-transition: all 0.2s ease-in-out; -webkit-transition: all 0.2s ease-in-out; transition: all 0.2s ease-in-out; }
+			.tagcloud a {font-size: 12px !important; padding: 2px 8px; background: rgba(0,0,0,.05); display: inline-block; margin-bottom: 4px; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;-moz-transition: all 0.2s ease-in-out; -webkit-transition: all 0.2s ease-in-out; transition: all 0.2s ease-in-out; color:#7EBEC5;}
 				.tagcloud a:hover { background: rgba(0,0,0,.15);}
 	.et_pb_widget_area_right { border-left: 1px solid #e2e2e2; }
 	.et_pb_widget_area_left, .et_pb_widget_area_right { border-color: rgba(0, 0, 0, 0.1); }

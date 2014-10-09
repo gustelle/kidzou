@@ -420,8 +420,8 @@ class Kidzou {
 			'hierarchical' => true,
 			'labels' => $labels,
 			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array( 'slug' => 'ville' ),
+			'query_var' => 'ville',
+			// 'rewrite' => array( 'slug' => 'ville' ),
 			));
 
 		// Add new taxonomy, make it hierarchical (like categories)
@@ -443,8 +443,8 @@ class Kidzou {
 			'hierarchical' => true,
 			'labels' => $labels,
 			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array( 'slug' => 'divers' ),
+			'query_var' => 'cat',
+			// 'rewrite' => false //array( 'slug' => 'divers' ),
 			));
 
 		// Add new taxonomy, make it hierarchical (like categories)
@@ -466,8 +466,8 @@ class Kidzou {
 			'hierarchical' => true,
 			'labels' => $labels,
 			'show_ui' => true,
-			'query_var' => true,
-			'rewrite' => array( 'slug' => 'age' ),
+			'query_var' => 'age',
+			// 'rewrite' => array( 'slug' => 'age' ),
 			));
 	}
 
