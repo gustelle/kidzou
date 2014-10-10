@@ -338,7 +338,7 @@ class Kidzou_Admin {
 	*/
 	public function handle_upload_prefilter( $file )
 	{
-	    add_filter('upload_dir', 'custom_upload_dir');
+	    add_filter('upload_dir', array($this,'custom_upload_dir'));
 	    return $file;
 	}
 
@@ -347,7 +347,7 @@ class Kidzou_Admin {
 	*/
 	public function handle_upload( $fileinfo )
 	{
-	    remove_filter('upload_dir', 'custom_upload_dir');
+	    remove_filter('upload_dir', array($this,'custom_upload_dir'));
 	    return $fileinfo;
 	}
 
