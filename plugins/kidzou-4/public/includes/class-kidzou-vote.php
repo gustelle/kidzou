@@ -3,8 +3,8 @@
 add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
 
 // rafraichir l'index featured en fonction des votes
-if( !wp_next_scheduled( 'featured_index' ) ) {
-   wp_schedule_event( time(), 'hourly', 'set_featured_index' );
+if( !wp_next_scheduled( 'set_featured_index' ) ) {
+   wp_schedule_event( time(), 'daily', 'set_featured_index' );
 }
  
 add_action( 'set_featured_index', array( Kidzou_Vote::get_instance(), 'set_featured_index') );
