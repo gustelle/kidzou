@@ -61,7 +61,7 @@ module.exports = function(grunt) {
 				},
 				src: './plugins',
 				dest: '/wp-content/plugins',
-				exclusions: ['./plugins/really-simple-events'] //livré une fois, pas à chauqe fois pour perf du process
+				exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'] //livré une fois, pas à chauqe fois pour perf du process
 				
 			},
 			
@@ -73,8 +73,7 @@ module.exports = function(grunt) {
 				},
 				src: './themes',
 				dest: '/wp-content/themes',
-				exclusions: ['./themes/Trim-child/css/dev', 
-							 './themes/Trim-child/css/dist']
+				exclusions: ['./themes/Trim-child', './themes/Trim']
 
 			}
 		},
@@ -85,6 +84,8 @@ module.exports = function(grunt) {
 		  divi: {
 		    files: [
 		     	{expand:true, cwd: '<%= cfg.theme_path %>', src: ['**','!css/dev/**'], dest: '<%= cfg.wp_theme_root %>'},
+		     	{expand:true, cwd: '<%= cfg.theme_parent_path %>', src: ['**','!css/dev/**'], dest: '<%= cfg.wp_theme_parent_root %>'},
+
 		    ]
 		  },
 
@@ -92,6 +93,7 @@ module.exports = function(grunt) {
 		    files: [
 		      {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-facebook-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-facebook-connect/'},
 		      {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-google-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-google-connect/'},
+		      {expand:true, cwd: '<%= cfg.plugins_root %>/ajaxed-comments/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/ajaxed-comments/'}, // includes files in path and its subdirs,
 		      // {expand:true, cwd: '<%= cfg.plugins_root %>/seo-automatic-links/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/seo-automatic-links/'}
 		    ]
 		  },

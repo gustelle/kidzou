@@ -2,7 +2,9 @@
 "plugins_root" : "plugins",
 "kidzou_path" : "plugins/kidzou-4/",
 "theme_path" : "themes/Divi-child/",
+"theme_parent_path" : "themes/Divi/",
 "wp_theme_root" : "/Users/guillaume/Sites/wordpress/wp-content/themes/Divi-child/",
+"wp_theme_parent_root" : "/Users/guillaume/Sites/wordpress/wp-content/themes/Divi/",
 "wp_plugins_root" : "/Users/guillaume/Sites/wordpress/wp-content/plugins/",
 "wp_kidzou_root" : "/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-4"
 }
