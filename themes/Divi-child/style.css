@@ -3180,6 +3180,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	height: auto;
 }
 
+.comment_avatar img {max-width: 80px;}
+
 
 /*-----------Cookie Notice----------*/
 .cookie-notice-container{font-size: 14px;}

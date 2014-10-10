@@ -847,7 +847,7 @@ class Kidzou_Admin {
 			$meta['rewrite_page'] = ($_POST['kz_rewrite_page']=='on');
 			
 
-		$this->save_meta($post_id, $meta, "kz_");
+		self::save_meta($post_id, $meta, "kz_");
 		
 	}
 
@@ -895,16 +895,23 @@ class Kidzou_Admin {
 		//uniquement si le user est admi
 		// echo ''
 		if ( current_user_can( 'manage_options' ) ) 
-			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
+			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : ($events_meta['start_date']!='' ? "B" : "Z"));
 		else {
-			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='')
-				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
-			else
-				$events_meta['featured'] 		= "B";
-		}
-			
+			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='') {
 
-		$this->save_meta($post_id, $events_meta, "kz_event_");
+				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
+				
+				if ($events_meta['featured']!='A')
+					$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
+			}
+				
+			else {
+				$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
+			}
+				
+		}
+
+		self::save_meta($post_id, $events_meta, "kz_event_");
 	}
 
 	/**
@@ -942,7 +949,7 @@ class Kidzou_Admin {
 
 		$prefix = 'kz_' . $type . '_';
 
-		$this->save_meta($post_id, $events_meta, $prefix);
+		self::save_meta($post_id, $events_meta, $prefix);
 		
 	}
 
@@ -988,14 +995,14 @@ class Kidzou_Admin {
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
 			$events_meta[$key] = 0;
 
-		$this->save_meta($post_id, $events_meta);
+		self::save_meta($post_id, $events_meta);
 		
 	}
 
 	/**
 	 * fonction utilitaire
 	 */
-	protected function save_meta($post_id = 0, $arr = array(), $prefix = '') {
+	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
 
 		if ($post_id==0)
 			return;

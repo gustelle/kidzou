@@ -82,13 +82,13 @@ function excerpt_more_invite_scroll($more) {
  **/
 function filter_archive_query($query)
 {
-	if (is_archive() && $query->is_main_query()) {
+	if (is_archive() && $query->is_main_query() && !is_admin()) {
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set(	'nopaging', true);
 		$query->set( 'posts_per_page', '-1' ); 
-		$query->set('meta_key' , Kidzou_Vote::$meta_vote_count );
-		$query->set('orderby' , 'meta_value_num');
-		$query->set( 'order' , 'DESC' );
+		$query->set('meta_key' , Kidzou_Events::$meta_featured );
+		$query->set('orderby' , array('meta_value'=>'ASC') );
+		$query->set( 'order' , 'ASC' );
 	}
 }
 
@@ -410,9 +410,9 @@ function kz_pb_portfolio( $atts ) {
 	$args = array(
 		'posts_per_page' => (int) $posts_number,
 		'post_type'      => Kidzou::post_types(),
-		'meta_key' => Kidzou_Vote::$meta_vote_count,
-		'orderby' => 'meta_value_num',
-		'order' => 'DESC' 
+		'meta_key' => Kidzou_Events::$meta_featured,
+		'orderby' => array('meta_value'=>'ASC'),
+		'order' => 'ASC' 
 	);
 
 	if ( '' !== $post__in )
@@ -590,7 +590,8 @@ function kz_pb_portfolio( $atts ) {
 	$class = " et_pb_bg_layout_{$background_layout}";
 
 	$filters = '';
-	if ($show_filters=='on')
+	// echo $module_class." ".stristr($module_class,'nofilter');
+	if ($show_filters=='on' && !stristr($module_class,'nofilter'))
 		$filters = '<div class="et_pb_portfolio_filters clearfix">%7$s</div><!-- .et_pb_portfolio_filters -->';
 
 	$output = sprintf(

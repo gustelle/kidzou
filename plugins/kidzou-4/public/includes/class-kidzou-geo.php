@@ -158,7 +158,26 @@ class Kidzou_Geo {
 	        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
 	        //d'ou l'importance d'executer celle-ci en dernier
 	        $vars = get_query_var('tax_query'); 
-	        $vars[] = array(
+
+	        // print_r($vars);
+
+	        $ville_tax_present = false;
+
+	        // echo (isset($vars['taxonomy']) && $vars['taxonomy']=='ville' ? 'nin' : 'ta');
+
+	        if (isset($vars['taxonomy']) && $vars['taxonomy']=='ville')
+	        	$ville_tax_present = true;
+	        else if (is_array($vars)) {
+	        	foreach ($vars as $key => $value) {
+		        	// print_r($var);
+		        	if ($key == 'taxonomy' && $value=='ville')
+		        		$ville_tax_present = true;
+		        }
+
+	        }
+	        
+	        if (!$ville_tax_present)
+	        	$vars[] = array(
 	                      'taxonomy' => 'ville',
 	                      'field' => 'slug',
 	                      'terms' => $merge

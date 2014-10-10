@@ -55,6 +55,8 @@ class Kidzou_Events {
 	 */
 	protected static $instance = null;
 
+	public static $meta_featured = 'kz_event_featured';
+
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -106,7 +108,7 @@ class Kidzou_Events {
 
 		$dates = (array)self::getEventDates($event_id);
 
-		return ($dates['start_date']!=='') || ($dates['end_date']!=='') ;
+		return ($dates['start_date']!=='') && ($dates['end_date']!=='') ;
 
     }
 
@@ -168,6 +170,7 @@ class Kidzou_Events {
 
 		return $featured;
 	}
+
 
 	/**
 	 * Construit une WP_Query contenant des evenements sur une metropole donnée, dans un intervalle donné
@@ -324,24 +327,41 @@ class Kidzou_Events {
 	 **/
 	public static function sort_by_featured($a, $b)
 	{
-		$featured_a = get_post_meta($a->ID, 'kz_event_featured', TRUE);
-		$featured_b = get_post_meta($b->ID, 'kz_event_featured', TRUE);
+		// $featured_a = (string)get_post_meta($a->ID, 'kz_event_featured', TRUE);
+		// $featured_b = (string)get_post_meta($b->ID, 'kz_event_featured', TRUE);
 
-		// pas de distinction de featured, c'est la start_date qui prime
-		if (strcmp($featured_a, $featured_b)==0) {
+		// $need_date_cmp = false;
 
-			$start_a = get_post_meta($a->ID, 'kz_event_start_date', TRUE);
-			$start_b = get_post_meta($b->ID, 'kz_event_start_date', TRUE); //echo strcmp($start_a, $start_b);
-			return strcmp($start_a, $start_b);
-		}
+		// //comparons par date si une des 2 meta n'est pas positionnée
+		// if ($featured_a=='')
+		// 	$featured_a = 'B';
+		// if ($featured_b=='')
+		// 	$featured_b = 'B';
 
-		return strcmp($featured_a, $featured_b);
+		// // pas de distinction de featured, c'est la start_date qui prime
+		// if (strcmp($featured_a, $featured_b)==0) {
+
+		// 	$start_a = (string)get_post_meta($a->ID, 'kz_event_start_date', TRUE);
+		// 	$start_b = (string)get_post_meta($b->ID, 'kz_event_start_date', TRUE); //echo strcmp($start_a, $start_b);
+
+		// 	if ($start_a=='')
+		// 		return 1;
+		// 	if ($start_b=='')
+		// 		return -1;
+
+
+		// 	return strcmp($start_a, $start_b);
+		// } 
+
+		// return strcmp($featured_a, $featured_b);
 	}
 
 	public function sort_query_results($posts) {
 
+		//inefficace sur les listes paginées
+		//puisque les featured ne remontent pas dans les résultats en 1ere page...
 		if (!is_admin()) {
-			uasort($posts, array('self', "sort_by_featured") );
+			//usort($posts, array('self', "sort_by_featured") );
 		}
 		
 		return $posts;

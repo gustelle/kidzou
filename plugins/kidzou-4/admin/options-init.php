@@ -385,7 +385,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'admin_bar' => false,
                 'menu_type' => 'menu',
                 'menu_title' => 'Kidzou',
-                'menu_icon' => 'http://www.kidzou.fr/wp-content/plugins/kidzou/images/kidzou_16.png',
+                'menu_icon' => 'http://www.kidzou.fr/wp-content/uploads/2014/10/Favicon_Kidzou_2014.ico',
                 'allow_sub_menu' => true,
                 // 'page_parent_post_type' => 'your_post_type',
                 'customizer' => true,
