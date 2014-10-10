@@ -306,15 +306,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'icon'      => 'el-icon-bullhorn',
                 'fields'    => array(
 
-                    // array(
-                    //     'id'        => 'pub_habillage',
-                    //     'type'      => 'background',
-                    //     'output'    => array('body'),
-                    //     'title'     => __('Habillage de site', 'kidzou'),
-                    //     'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                    //     'preview_media' => true
-                    // ),
-
                     array(
                         'id'        => 'pub_archive',
                         'type'      => 'ace_editor',
@@ -434,8 +425,9 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'page_permissions' => 'manage_options',
                 'save_defaults' => true,
                 'show_import_export' => true,
-                'transient_time' => '3600',
+                // 'transient_time' => '3600',
                 'network_sites' => true,
+                'database' => 'network'
               );
 
             // SOCIAL ICONS -> Setup custom links in the footer for quick links in your panel footer icons.

@@ -94,7 +94,6 @@ class Kidzou {
 		add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 
-		
 	}
 
 
@@ -426,25 +425,25 @@ class Kidzou {
 
 		// Add new taxonomy, make it hierarchical (like categories)
 		$labels = array(
-			'name' => _x( 'Divers', 'taxonomy general name' ),
-			'singular_name' => _x( 'Divers', 'taxonomy singular name' ),
+			'name' => _x( 'Famille', 'taxonomy general name' ),
+			'singular_name' => _x( 'Famille', 'taxonomy singular name' ),
 			'search_items' =>  __( 'Chercher' ),
-			'all_items' => __( 'Tous les divers' ),
-			'parent_item' => __( 'Cat&eacute; Divers Parent' ),
-			'parent_item_colon' => __( 'Divers Parent:' ),
-			'edit_item' => __( 'Modifier une cat&eacute;gorie divers' ),
-			'update_item' => __( 'Mettre a  jour une cat&eacute;gorie divers' ),
-			'add_new_item' => __( 'Ajouter une cat&eacute;gorie divers' ),
-			'new_item_name' => __( 'Nouvelle cat&eacute;gorie divers' ),
-			'menu_name' => __( 'Divers' ),
+			'all_items' => __( 'Toutes les categories Famille' ),
+			'parent_item' => __( 'Cat&eacute;gorie Famille Parent' ),
+			'parent_item_colon' => __( 'Famille Parent:' ),
+			'edit_item' => __( 'Modifier une cat&eacute;gorie Famille' ),
+			'update_item' => __( 'Mettre a  jour une cat&eacute;gorie Famille' ),
+			'add_new_item' => __( 'Ajouter une cat&eacute;gorie Famille' ),
+			'new_item_name' => __( 'Nouvelle cat&eacute;gorie Famille' ),
+			'menu_name' => __( 'Rubrique Famille' ),
 			);
 
 		register_taxonomy('divers',array('post','page'), array(
 			'hierarchical' => true,
 			'labels' => $labels,
 			'show_ui' => true,
-			'query_var' => 'cat',
-			// 'rewrite' => false //array( 'slug' => 'divers' ),
+			// 'query_var' => 'famille',
+			'rewrite' => array( 'slug' => 'famille' ),
 			));
 
 		// Add new taxonomy, make it hierarchical (like categories)

@@ -153,7 +153,7 @@ class Kidzou_Geo {
 
 	        $the_metropole = array(self::get_request_metropole());
 	        $national = (array)self::get_national_metropoles(); 
-	       	$merge = array_merge( $the_metropole, $national);
+	       	$merge = array_merge( $the_metropole, $national );
 
 	        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
 	        //d'ou l'importance d'executer celle-ci en dernier

@@ -14,7 +14,7 @@
 
 					if (is_tax()) {
 						
-						$taxes = $wp_query->tax_query->queries;
+						$taxes = $wp_query->tax_query->queries; //print_r($wp_query);
 						foreach ($taxes as $tax) {
 							if ($tax['taxonomy']!='ville') {
 								$slug = $tax['terms'][0];
@@ -32,7 +32,7 @@
 					if ($name != '') {
 						echo do_shortcode(
 						'[et_pb_section fullwidth="on" specialty="off" background_color="#2ea3f2" inner_shadow="on" parallax="off"]
-							[et_pb_fullwidth_header admin_label="Fullwidth Header" title="Vous cherchez une sortie '.$name.'" subhead="Près de chez vous" background_layout="dark" text_orientation="left" /]
+							[et_pb_fullwidth_header admin_label="Fullwidth Header" title="'.$name.'" subhead="Près de chez vous" background_layout="dark" text_orientation="left" /]
 						[/et_pb_section]');
 					} else {
 						echo do_shortcode(
@@ -74,7 +74,7 @@
 										$module_class = "";
 										$auto = "off";
 										$auto_speed = 7000;
-										$title = ($name != '' ? __('Tous nos articles dans la rubrique ' .$name , 'Divi') : '&nbsp;');
+										$title = ($name != '' ? __('Tous nos articles dans la rubrique &laquo; ' .$name .' &raquo;' , 'Divi') : '&nbsp;');
 
 										echo format_fullwidth_portfolio($background_layout, $fullwidth, $posts, $module_id, $module_class, $auto, $auto_speed, $title);
 
