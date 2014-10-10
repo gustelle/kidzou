@@ -128,30 +128,34 @@ function kz_divi_load_scripts ()
 function get_post_footer()
 {
 	$lists = et_pb_get_mailchimp_lists();
-	$key = array_keys($lists)[0];
 
-	$posts_ids_objects = Kidzou_Geo::get_related_posts();
-	$ids = array();
+	if(!empty($lists)) {
+		$key = array_keys($lists)[0];
 
-	foreach ($posts_ids_objects as $id_object) {
-	    $ids[]   = $id_object->ID;
+		$posts_ids_objects = Kidzou_Geo::get_related_posts();
+		$ids = array();
+
+		foreach ($posts_ids_objects as $id_object) {
+		    $ids[]   = $id_object->ID;
+		}
+		$ids_list = implode(',', $ids);	
+
+		echo do_shortcode('
+			[et_pb_section fullwidth="off" specialty="off"]
+				[et_pb_row]
+				<h2>D&apos;autres sorties sympa :</h2>
+					[et_pb_column type="4_4"]
+						[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
+					[/et_pb_column]
+				[/et_pb_row]
+				[et_pb_row]
+					[et_pb_column type="4_4"]
+						[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="'.$key.'" aweber_list="none" title="'.__('Inscrivez-vous à notre Newsletter','Divi').'" button_text="'.__('Inscrivez-vous ','Divi').'" use_background_color="on" background_color="#ed0a71" background_layout="dark" text_orientation="left"]'.__('<p>Nous distribuons la newsletter 1 à 2 fois par mois, elle contient les meilleures recommandations de la communaut&eacute; des parents Kidzou, ainsi que des jeux concours de temps en temps ! </p>','Divi').'[/et_pb_signup]
+					[/et_pb_column]
+				[/et_pb_row]
+			[/et_pb_section]');
 	}
-	$ids_list = implode(',', $ids);	
-
-	echo do_shortcode('
-		[et_pb_section fullwidth="off" specialty="off"]
-			[et_pb_row]
-			<h2>D&apos;autres sorties sympa :</h2>
-				[et_pb_column type="4_4"]
-					[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
-				[/et_pb_column]
-			[/et_pb_row]
-			[et_pb_row]
-				[et_pb_column type="4_4"]
-					[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="'.$key.'" aweber_list="none" title="'.__('Inscrivez-vous à notre Newsletter','Divi').'" button_text="'.__('Inscrivez-vous ','Divi').'" use_background_color="on" background_color="#ed0a71" background_layout="dark" text_orientation="left"]'.__('<p>Nous distribuons la newsletter 1 à 2 fois par mois, elle contient les meilleures recommandations de la communaut&eacute; des parents Kidzou, ainsi que des jeux concours de temps en temps ! </p>','Divi').'[/et_pb_signup]
-				[/et_pb_column]
-			[/et_pb_row]
-		[/et_pb_section]');
+	
 }
 
 
