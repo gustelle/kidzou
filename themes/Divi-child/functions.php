@@ -129,8 +129,9 @@ function get_post_footer()
 {
 	$lists = et_pb_get_mailchimp_lists();
 
-	if(!empty($lists)) {
-		$key = array_keys($lists)[0];
+	if(!empty($lists) && is_array($lists)) {
+		$keys = array_keys($lists);
+		$key = $keys[0];
 
 		$posts_ids_objects = Kidzou_Geo::get_related_posts();
 		$ids = array();

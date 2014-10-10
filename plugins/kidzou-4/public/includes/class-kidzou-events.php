@@ -340,7 +340,9 @@ class Kidzou_Events {
 
 	public function sort_query_results($posts) {
 
-		uasort($posts, array('self', "sort_by_featured") );
+		if (!is_admin()) {
+			uasort($posts, array('self', "sort_by_featured") );
+		}
 		
 		return $posts;
 	}
