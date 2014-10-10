@@ -48,6 +48,15 @@ class Kidzou_Customer {
 	 */
 	protected static $instance = null;
 
+	/**
+	 * Instance of this class.
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
+	protected static $meta = '';
+
 	const CLIENTS_TABLE = "clients";
 	const CLIENTS_USERS_TABLE = "clients_users";
 
@@ -59,6 +68,7 @@ class Kidzou_Customer {
 	 */
 	private function __construct() { 
 
+		add_action('init', array($this, 'register_customer_type'));
 
 	}
 
@@ -77,6 +87,46 @@ class Kidzou_Customer {
 		}
 
 		return self::$instance;
+	}
+
+	public function register_customer_type() {
+
+		//definir les custom post types
+		//ne pas faire a chaque appel de page 
+
+		$labels = array(
+			'name'               => 'Clients &amp; Partenaires',
+			'singular_name'      => 'Client ou Partenaire',
+			'add_new'            => 'Ajouter',
+			'add_new_item'       => 'Ajouter un client/partenaire',
+			'edit_item'          => 'Modifier le client/partenaire',
+			'new_item'           => 'Nouveau client/partenaire',
+			'all_items'          => 'Tous les clients/partenaires',
+			'view_item'          => 'Voir le client/partenaire',
+			'search_items'       => 'Chercher des clients/partenaires',
+			'not_found'          => 'Aucun client ou partenaire trouvé',
+			'not_found_in_trash' => 'Aucun client our partenaire trouvé dans la corbeille',
+			'menu_name'          => 'Clients &amp; Partenaires',
+			);
+
+		$args = array(
+			'labels'             => $labels,
+			'public'             => false,
+			'publicly_queryable' => false,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'menu_position' 	 => 20, //sous les pages
+			'menu_icon' 		 => 'dashicons-businessman',
+			// 'query_var'          => true,
+			// 'has_archive'        => true,
+			// 'rewrite' 			=> array('slug' => 'offres'),
+			// 'hierarchical'       => false, //pas de hierarchie de clients
+			'supports' 			=> array( 'title', 'author', 'revisions'),
+			// 'taxonomies' 		=> array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
+			);
+
+		register_post_type( 'customer', $args );
+
 	}
 
 	/**
