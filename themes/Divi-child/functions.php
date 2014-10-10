@@ -442,7 +442,7 @@ function kz_pb_portfolio( $atts ) {
 
 	query_posts( $args );
 
-	print_r($GLOBALS['wp_query']); 
+	// print_r($GLOBALS['wp_query']); 
 
 	$categories_included = array();
 

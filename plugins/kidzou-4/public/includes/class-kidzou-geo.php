@@ -67,7 +67,7 @@ class Kidzou_Geo {
 		add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
 		// add_filter( 'divers_rewrite_rules', array( $this, 'divers_rewrite_rules' ), 10, 3 );
 
-		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 100 );
+		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 	}
@@ -153,21 +153,21 @@ class Kidzou_Geo {
 
 	        $the_metropole = array(self::get_request_metropole());
 	        $national = (array)self::get_national_metropoles(); 
-	        $merge = array_merge( $the_metropole, $national);
+	       	$merge = array_merge( $the_metropole, $national);
 
-	        // print_r($merge);
-
-	        if (!empty($merge))
-	        {
-	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
-	            set_query_var('tax_query', array(
-	                array(
+	        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
+	        //d'ou l'importance d'executer celle-ci en dernier
+	        $vars = get_query_var('tax_query'); 
+	        $vars[] = array(
 	                      'taxonomy' => 'ville',
 	                      'field' => 'slug',
 	                      'terms' => $merge
-	                    )
-	                )
-	            );
+	                    );
+
+	        if (!empty($vars))
+	        {
+	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
+	            set_query_var('tax_query', $vars);
 
 	        }
 
