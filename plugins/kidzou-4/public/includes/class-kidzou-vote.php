@@ -2,12 +2,14 @@
 
 add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
 
+// wp_clear_scheduled_hook( 'set_featured_index' );
+
 // rafraichir l'index featured en fonction des votes
-if( !wp_next_scheduled( 'set_featured_index' ) ) {
-   wp_schedule_event( time(), 'daily', 'set_featured_index' );
+if( !wp_next_scheduled( 'featured_index' ) ) {
+   wp_schedule_event( time(), 'twicedaily', 'featured_index' );
 }
  
-add_action( 'set_featured_index', array( Kidzou_Vote::get_instance(), 'set_featured_index') );
+add_action( 'featured_index', array( Kidzou_Vote::get_instance(), 'update_featured_index') );
 
 /**
  * Kidzou
@@ -104,7 +106,7 @@ class Kidzou_Vote {
 	 * Z0x à Z1 = Evenement au dela de 7 jours, selon recommandation
 	 *
 	 */
-	public static function set_featured_index() {
+	public static function update_featured_index() {
 		
 		//le post le plus recommandé est en index S
 		$args = array(
@@ -125,16 +127,32 @@ class Kidzou_Vote {
 
 		foreach ($posts as $post) {
 
-			$message = "set_featured_index {" . $post->ID . "} " ;
-
-			//if ( !Kidzou_Events::isFeatured($post->ID)  ) { //&& !Kidzou_Events::isTypeEvent($post->ID)
+			$message = "update_featured_index {" . $post->ID . "} " ;
 
 			$count = (int)self::getVoteCount($post->ID);
-			$index = (float)($count==0 ? 1 : 1/$count);
-
+			$index = (float)($count<2 ? 1 : (1/$count));
 			$dec = strstr ( $index, '.' );
 
-			$prefix =  (Kidzou_Events::isFeatured($post->ID) ? "A" : (Kidzou_Events::isTypeEvent($post->ID) ? "B" : "C"));
+			$is_event_7D = false;
+
+			//l'evenement est-il proche ?
+			if (Kidzou_Events::isTypeEvent($post->ID)) {
+
+				$current= time();
+				$now 	= date('Y-m-d 00:00:00', $current);
+				$now_time = new DateTime($now);
+				$now_time_plus7 = $now_time->add( new DateInterval('P7D') ); 
+
+				$event_dates = Kidzou_Events::getEventDates($post->ID);
+				$event_start = new DateTime($event_dates['start_date']);
+
+				if ($event_start < $now_time_plus7)
+					$is_event_7D = true;
+			}
+
+			$message .= ' - '.$is_event_7D;
+			
+			$prefix =  (Kidzou_Events::isFeatured($post->ID) ? "A" : ($is_event_7D ? "B" : "C"));
 
 			$arr['kz_index'] = $prefix.$dec;
 
