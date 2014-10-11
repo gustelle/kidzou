@@ -3091,7 +3091,19 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 .vote:hover { cursor: pointer; }
 .font-2x { font-size: 200%; }
 .font-bigger {font-size: 120%; font-weight: bold;}
+/*.font-small {font-size: 70%;}*/
 .overtext {vertical-align: text-top;} /* pour la fleche du content preview */
+.portfolio_dates {
+	/*position:relative;*/
+	/*top: -50px;*/
+	/*background: #1ea4e8;*/
+	/*color:#fff;*/
+	/*width:100%;*/
+	/*padding: px 10px;*/
+	font-size: 90%;
+	/*opacity: 0.9;*/
+}
+.portfolio_dates:before {content: ' ';}
 
 
 p.location {line-height: 1.3em; padding-bottom: 0.3em;}
@@ -3118,7 +3130,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {
 	width: 300px;
-	height: 250px;
+	height: 280px;
 	margin-bottom: 70px;
 	margin-right: 50px;
 }

@@ -532,6 +532,26 @@ function kz_pb_portfolio( $atts ) {
 						<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
 					<?php endif; ?>
 
+					<?php
+
+					if (Kidzou_Events::isTypeEvent()) {
+
+						$location = Kidzou_Events::getEventDates(get_the_ID());
+
+						$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+						$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+						$formatted = '';
+						setlocale(LC_TIME, "fr_FR"); 
+
+						if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+							$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+						else
+							$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
+					?>
+						<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
+					
+					<?php } ?>
+
 				</div> <!-- .et_pb_portfolio_item -->
 
 <?php
