@@ -86,7 +86,7 @@ function filter_archive_query($query)
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set(	'nopaging', true);
 		$query->set( 'posts_per_page', '-1' ); 
-		$query->set('meta_key' , Kidzou_Events::$meta_featured );
+		$query->set('meta_key' , 'kz_index' );
 		$query->set('orderby' , array('meta_value'=>'ASC') );
 		$query->set( 'order' , 'ASC' );
 	}
@@ -131,7 +131,7 @@ function get_post_footer()
 
 	if(!empty($lists) && is_array($lists)) {
 		$keys = array_keys($lists);
-		$key = $keys[0];
+		$key = $keys[1];
 
 		$posts_ids_objects = Kidzou_Geo::get_related_posts();
 		$ids = array();
@@ -410,7 +410,7 @@ function kz_pb_portfolio( $atts ) {
 	$args = array(
 		'posts_per_page' => (int) $posts_number,
 		'post_type'      => Kidzou::post_types(),
-		'meta_key' => Kidzou_Events::$meta_featured,
+		'meta_key' => 'kz_index',
 		'orderby' => array('meta_value'=>'ASC'),
 		'order' => 'ASC' 
 	);

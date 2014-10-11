@@ -99,16 +99,9 @@ class Kidzou_Vote {
 	 * positionne l'index "featured" en fonction du nombre de votes
 	 * les posts featured A et B ne sont pas touchés 
 	 * A = Featured
-	 * B = Evenement
-	 * C -> Z = Selon vote des users
-	 * 		<20 : Z
-	 * 		<50 : Y
-	 * 		<100 : X
-	 * 		<200 : W
-	 * 		<300 : V
-	 * 		<400 : U
-	 * 		<500 : T
-	 * 		>500 : S
+	 * B0x à B1 = Evenement dans les 7 jours, selon recommandation
+	 * C0x à C1 = Post recommandés
+	 * Z0x à Z1 = Evenement au dela de 7 jours, selon recommandation
 	 *
 	 */
 	public static function set_featured_index() {
@@ -134,35 +127,19 @@ class Kidzou_Vote {
 
 			$message = "set_featured_index {" . $post->ID . "} " ;
 
-			if ( !Kidzou_Events::isFeatured($post->ID) && !Kidzou_Events::isTypeEvent($post->ID) ) {
+			//if ( !Kidzou_Events::isFeatured($post->ID)  ) { //&& !Kidzou_Events::isTypeEvent($post->ID)
 
-				$count = self::getVoteCount($post->ID);
-				
-				if ($count<20) {
-					$arr[Kidzou_Events::$meta_featured] = 'Z';
-				} elseif ($count<50) {
-					$arr[Kidzou_Events::$meta_featured] = 'Y';
-				} elseif ($count<100) {
-					$arr[Kidzou_Events::$meta_featured] = 'X';
-				} elseif ($count<200) {
-					$arr[Kidzou_Events::$meta_featured] = 'W';
-				} elseif ($count<300) {
-					$arr[Kidzou_Events::$meta_featured] = 'V';
-				} elseif ($count<400) {
-					$arr[Kidzou_Events::$meta_featured] = 'U';
-				} elseif ($count<500) {
-					$arr[Kidzou_Events::$meta_featured] = 'T';
-				} else {
-					$arr[Kidzou_Events::$meta_featured] = 'S';
-				}
+			$count = (int)self::getVoteCount($post->ID);
+			$index = (float)($count==0 ? 1 : 1/$count);
 
-				$message .= " : ".$arr[Kidzou_Events::$meta_featured];
+			$dec = strstr ( $index, '.' );
 
-				Kidzou_Admin::save_meta($post->ID, $arr);
-			}
+			$prefix =  (Kidzou_Events::isFeatured($post->ID) ? "A" : (Kidzou_Events::isTypeEvent($post->ID) ? "B" : "C"));
 
-			else 
-				$message .= " : already existing";
+			$arr['kz_index'] = $prefix.$dec;
+
+			$message .= " : ".$arr['kz_index'];
+			Kidzou_Admin::save_meta($post->ID, $arr);
 
 			if ( WP_DEBUG === true )
 				error_log( $message );

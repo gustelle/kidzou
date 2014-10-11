@@ -895,18 +895,18 @@ class Kidzou_Admin {
 		//uniquement si le user est admi
 		// echo ''
 		if ( current_user_can( 'manage_options' ) ) 
-			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : ($events_meta['start_date']!='' ? "B" : "Z"));
+			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
 		else {
 			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='') {
 
 				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
 				
-				if ($events_meta['featured']!='A')
-					$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
+				// if ($events_meta['featured']!='A')
+				// 	$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
 			}
 				
 			else {
-				$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
+				$events_meta['featured'] = "B";//($events_meta['start_date']!='' ? "B" : "Z");
 			}
 				
 		}
