@@ -57,6 +57,8 @@ class Kidzou_Customer {
 	 */
 	protected static $meta = '';
 
+	public static $meta_customer = 'kz_event_customer';
+
 	const CLIENTS_TABLE = "clients";
 	const CLIENTS_USERS_TABLE = "clients_users";
 
@@ -193,7 +195,7 @@ class Kidzou_Customer {
 			$post_id = $post->ID; 
 		}
 
-		$customer = get_post_meta($post_id, 'kz_event_customer', TRUE);
+		$customer = get_post_meta($post_id, self::$meta_customer, TRUE);
 
 		return intval($customer)>0 ? intval($customer) : 0;
 	}
@@ -262,7 +264,7 @@ class Kidzou_Customer {
 
 		$rd_args = array(
 			'posts_per_page' => $posts_per_page,
-			'meta_key' => 'kz_event_customer',
+			'meta_key' => self::$meta_customer,
 			'meta_value' => $customer_id,
 			'post__not_in'=> $post__not_in,
 			// 'tax_query' => array(
@@ -279,7 +281,7 @@ class Kidzou_Customer {
 		$list = 	$rd_query->get_posts(); 
 
 		//Reutiliser le tri disponible dans Kidzou_Events
-		uasort($list, array( Kidzou_Events::get_instance(), "sort_by_featured" ) );
+		//uasort($list, array( Kidzou_Events::get_instance(), "sort_by_featured" ) );
 
 		return $list;
 
