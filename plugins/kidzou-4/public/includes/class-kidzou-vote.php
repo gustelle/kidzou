@@ -55,6 +55,10 @@ class Kidzou_Vote {
 
 	public static $meta_vote_count = 'kz_reco_count';
 
+	public static $meta_user_votes = 'kz_reco_post_id';
+
+	public static $meta_anomymous_vote = 'kz_anonymous_user';
+
 
 	// private static $initialized = false;
 
@@ -254,6 +258,293 @@ class Kidzou_Vote {
 	  $ua = $_SERVER['HTTP_USER_AGENT'];
 
 	  return md5( $ip . $ua );
+	}
+
+	public static function plusOne($id=0, $user_hash='') {
+
+		if ($id==0) 
+		{
+			return array();
+		}
+
+
+	  	$user_id 	= get_user("ID");
+	  	$loggedIn 	= is_user_logged_in();
+
+		// Get votes count for the current post
+		$meta_count = get_post_meta($id, self::$meta_vote_count, true);
+		// $message 	= '';
+
+		//on ne recalcule pas systématiquement le hash du user, 
+		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
+		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
+			$user_hash = self::hash_anonymous();
+
+		// Use has already voted ?
+		if(!self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
+		{
+			update_post_meta($id, self::$meta_vote_count, ++$meta_count);
+
+			//update les user meta pour indiquer les posts qu'il recommande
+			//cela améliore les perfs à terme par rapport à updater les meta du posts avec la liste des users
+			//car la liste des posts recommandés est chargée au chargement de la page si le user n'a pas de cookie
+			//afin qu il retrouve ses petits...par ex si son cookie est expiré ou si il utilise un autre device
+
+			if ($loggedIn)
+			{
+				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
+				
+				//print_r($wpdb->queries);
+				
+				$voted_posts = $meta_posts[0]; //print_r($voted_posts);
+				//$index_posts = count($voted_posts);
+
+				if(!is_array($voted_posts))
+					$voted_posts = array();
+
+				array_push($voted_posts, $id) ;
+
+				// $voted_posts[$index_posts] = $id;
+
+				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
+			}
+			else
+			{
+
+				if ( !update_post_meta (intval($id), self::$meta_anomymous_vote, $user_hash ) ) add_post_meta( intval($id), self::$meta_anomymous_vote, $user_hash );
+			}
+
+		}
+		
+		return array('user_hash' => $user_hash);
+	}
+
+	public static function minusOne($id=0, $user_hash='') {
+
+		if ($id==0) 
+		{
+			return array();
+		}
+
+		$user_id = get_user("ID");
+	  	$loggedIn = is_user_logged_in();
+
+		// Get votes count for the current post
+		$meta_count = get_post_meta($id, self::$meta_vote_count, true);
+		$message 	= '';
+
+		//on ne recalcule pas systématiquement le hash du user, 
+		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
+		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
+			$user_hash = self::hash_anonymous();
+
+		// Use has already voted ?
+		if(self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
+		{
+			update_post_meta($id, self::$meta_vote_count, --$meta_count);
+
+			//update les user meta pour indiquer les posts qu'il recommande
+			//cela améliore les perfs à terme par rapport à updater les meta du posts avec la liste des users
+			//car la liste des posts recommandés est chargée au chargement de la page si le user n'a pas de cookie
+			//afin qu il retrouve ses petits...par ex si son cookie est expiré ou si il utilise un autre device
+
+			if ($loggedIn)
+			{
+				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
+				
+				//print_r($wpdb->queries);
+				
+				$voted_posts = $meta_posts[0];
+				//$index_posts = count($voted_posts);
+
+				if(!is_array($voted_posts))
+					$voted_posts = array();
+
+				foreach ($voted_posts as $i => $value) {
+				    //retrait du vote sur le user
+				    if ( intval($value)==intval($id) )
+						unset($voted_posts[$i]);
+				}
+
+				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
+			}
+			else
+				delete_post_meta(intval($id), self::$meta_anomymous_vote, $user_hash );
+
+			//kz_clear_cache();
+
+		}
+		
+		return array("user_hash" => $user_hash);
+
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getPostVotes($post_id=0)
+	{
+		if ($post_id==0)
+			return ;
+
+		global $wpdb;
+			
+			$res = $wpdb->get_results(
+				"SELECT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id = $id", ARRAY_A);
+
+		return array(
+				"id" 	=> $res[0]['id'],
+		      	"votes"	=> $res[0]['votes']
+			);
+
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getPostsListVotes($list_array=array())
+	{
+		if (empty($list_array))
+			return ;
+
+		global $wpdb;
+		$list  = '('.implode(",", $list_array).')'; //echo $list;
+
+		//attention à cette requete
+		//ajout de DISTINCT et suppression de la limite car certains couples ID|META_VALUE peuvent être multiples !?
+		$res = $wpdb->get_results(
+			"SELECT DISTINCT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id in $list ", ARRAY_A); //LIMIT $limit
+		
+		$status = array();
+
+		$status['status'] = array(); $i=0;
+		foreach ($res as &$ares) 
+		{
+			$status['status'][$i] = &$ares;
+			$i++;
+		}
+
+		return $status;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getUserVotes($user_hash='') 
+	{
+
+		$loggedIn   = is_user_logged_in();
+		$voted_posts= array();
+
+		if ($loggedIn)
+		//recup des posts recommandes
+		//par le user courant, si celui-ci n'est pas anonyme
+		{
+			//les posts que le user courant recommande sont dans les meta users
+			//et non dans les meta post !
+			$user_id = intval(get_user('ID'));
+
+			global $wpdb;
+			$res = $wpdb->get_results(
+								"SELECT meta_value as serialized FROM $wpdb->usermeta WHERE user_id=$user_id AND meta_key='kz_reco_post_id'",
+								ARRAY_A
+							);
+			$unserialized = maybe_unserialize($res[0]['serialized']);//print_r($unserialized);
+			$voted = array();
+			if ($unserialized!=null)
+			{ 
+				foreach ($unserialized as &$ares) 
+					array_push($voted, array ('id' => intval($ares))) ;
+			}
+
+			$voted_posts['voted'] = $voted;
+			$voted_posts['user'] = $user_id;
+		}
+		else 
+		//le user est anonyme, on travaille avec son IP+UA pour l'identifier
+		{
+				
+			//verification des données en base
+			//le PK pour vérifier les données étant md5(IP+UA)
+			global $wpdb;
+
+			//on ne recalcule pas systématiquement le hash du user, 
+			//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
+			if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
+				$user_hash=Kidzou_Vote::hash_anonymous();
+
+			//$hash = hash_anonymous();
+			// AND key1.post_id in $list LIMIT $limit
+			$res = $wpdb->get_results(
+								"SELECT DISTINCT post_id as id FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_anonymous_user' AND key1.meta_value='$user_hash' ", 
+								ARRAY_A
+							);
+
+			$voted_posts['voted'] 		= $res;
+			$voted_posts['user_hash'] 	= $user_hash;
+		}
+
+		return $voted_posts;
+	}
+
+	/**
+	 * - si le user est loguué, on utilise son ID
+	 * - si le user est anonymous, on utilise son hash
+	 *
+	 * @return TRUE si le user a déjà voté le post
+	 * @author Kidzou
+	 **/
+	public static function hasAlreadyVoted($post_id, $loggedIn, $user_id, $user_hash)
+	{
+
+		if ($loggedIn)
+		{
+			//check DB
+			$meta_posts = get_user_meta($user_id, self::$meta_user_votes);
+			$voted_posts = $meta_posts[0];
+
+			if(!is_array($voted_posts))
+				$voted_posts = array();
+
+			if(in_array($post_id, $voted_posts))
+				return true;
+
+		}
+		else
+			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
+
+		return false;
+
+	}
+
+
+	/**
+	 * checke if un user anonyme a deja vote pour le poste concerné
+	 *
+	 * @return TRUE si le user anonyme a deja voté
+	 * @author Kidzou
+	 **/
+	public static function hasAnonymousAlreadyVoted($post_id, $user_hash)
+	{
+		global $wpdb;
+		// $hash = hash_anonymous();
+		$res = $wpdb->get_var(
+			"SELECT count(*) FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_anonymous_user' AND key1.meta_value='$user_hash' AND key1.post_id=$post_id LIMIT 1"
+		);
+
+		if (intval($res)>0)
+			return true;
+
+		return false;
 	}
 
     
