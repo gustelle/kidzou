@@ -42,13 +42,24 @@ class Kidzou_Admin {
 	protected $plugin_screen_hook_suffix = null;
 
 	/**
-	 * les ecrans qui meritent qu'on y ajoute des meta
+	 * les ecrans qui meritent qu'on y ajoute des meta 
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      string
 	 */
 	protected $screen_with_meta = array('post', 'offres');
+
+	/**
+	 * les ecrans customer, ils sont particuliers et ne bénéficient pas des 
+	 * meta communes aux écrans $screen_with_meta
+	 * 
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      string
+	 */
+	protected $customer_screen = array('customer');
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
@@ -466,7 +477,7 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', __FILE__ ), array('jquery-ui-datepicker'),'1.0', true);
 
-		} elseif ( $screen->id == $this->plugin_screen_hook_suffix ) {
+		} elseif ( $screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 
 			//ecran de gestion des clients
 
@@ -483,21 +494,16 @@ class Kidzou_Admin {
 			wp_enqueue_script('moment-locale',	"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
 
 			wp_localize_script('kidzou-client', 'kidzou_jsvars', array(
-					// 'api_publishEvent'		 		 => site_url().'/api/events/publishEvent/',
-					// 'api_unpublishEvent'			 => site_url().'/api/events/unpublishEvent/',
 					'api_getClients'				=> site_url()."/api/clients/getClients/",
 					'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
 					'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
 					'api_saveClient'				=> site_url().'/api/clients/saveClient/',
 					'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
 					'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
-					// 'api_get_fiche_by_slug' 		=> site_url().'/api/connections/get_fiche_by_slug/',
 					'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
 					'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
 					'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
 					'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
-					// 'api_publishRequests' => site_url()."/api/events/publishRequests/",
-
 				)
 			);
 
@@ -515,8 +521,38 @@ class Kidzou_Admin {
 			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
+		
+		} elseif ( in_array($screen->id, $this->customer_screen) ) {
+			
+			add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
+			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
 		}
 
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function customer_posts_metabox()
+	{
+		echo 'coucou';
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function customer_apis()
+	{
+		echo 'les apis';
+		echo 'generer token';
+		echo 'API disponibles';
+		echo 'quota';
 	}
 
 	/**
@@ -859,16 +895,7 @@ class Kidzou_Admin {
 	 **/
 	public function save_event_meta($post_id)
 	{
-		// echo 'save_event_meta';
-
-		// if ( ! isset( $_POST['eventmeta_noncename'] ) )
-		// 	return $post_id;
-
-		// // verify this came from the our screen and with proper authorization,
-		// // because save_post can be triggered at other times
-		// if ( !wp_verify_nonce( $_POST['eventmeta_noncename'], plugin_basename(__FILE__) )) {
-		// 	return $post_id;
-		// }
+		
 
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['event_metabox_nonce'] ) )
@@ -879,10 +906,6 @@ class Kidzou_Admin {
 		// Verify that the nonce is valid.
 		if ( ! wp_verify_nonce( $nonce, 'event_metabox' ) )
 			return $post_id;
-
-		// Is the user allowed to edit the post or page?
-		// if ( !current_user_can( 'edit_post', $post_id ))
-		// 	return $post_id;
 
 
 		//formatter les dates avant de les sauvegarder 

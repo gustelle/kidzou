@@ -314,12 +314,12 @@ class Kidzou_Customer {
 	 * @return void
 	 * @author 
 	 **/
-	public static function getCustomerRelatedPosts()
-	{
-		global $post;
+	// public static function getCustomerRelatedPosts()
+	// {
+	// 	global $post;
 
 
-	}
+	// }
 
 
 } //fin de classe

@@ -93,6 +93,7 @@ class Kidzou {
 		add_filter('json_api_auth_controller_path', 	array( $this, 'set_auth_controller_path' )  );
 		add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
+		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 
 	}
 
@@ -602,6 +603,7 @@ class Kidzou {
 	  $controllers[] = 'Auth';
 	  $controllers[] = 'Users';
 	  $controllers[] = 'Clients';
+	  $controllers[] = 'Search';
 
 	  return $controllers;
 	}
@@ -618,6 +620,9 @@ class Kidzou {
 	}
 	public function set_clients_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/includes/api/clients.php";
+	}
+	public function set_search_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/includes/api/search.php";
 	}
 	
 

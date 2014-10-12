@@ -311,7 +311,8 @@ class Kidzou_Events {
 			$event->post_status = 'draft';
 			wp_transition_post_status( 'draft', $old_status, $event );
 
-			write_log('Unpublished : ' . $event->ID. '['. $event->post_name .']' );
+			if ( WP_DEBUG === true )
+				error_log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
 
 		}
 

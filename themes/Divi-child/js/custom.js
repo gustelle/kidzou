@@ -2114,5 +2114,45 @@
 		} );
 	} );
 
+	//searchbox
+	$(document).ready(function() {
+
+		if ($(".kz_searchbox").length) {
+			
+			var options, a;
+			options = { 
+				source: kidzou_suggest.terms_list ,
+				messages: {
+			        noResults: kidzou_suggest.no_results,
+			        results: function() {return kidzou_suggest.results;}
+			    },
+			    minLength: 1,
+			    select: function(event, ui) {
+			    	// console.debug(ui.item.id);
+			    	kidzouTracker.trackEvent("Filtre Home", "Categorie", ui.item.id, 0);
+	                window.location.href = kidzou_suggest.site_url + "/" + ui.item.id;
+	                return false;
+	            }
+			
+			};
+			$('.kz_searchbox input').autocomplete(options).data('ui-autocomplete')._renderMenu = function( ul, items ) {
+				  var that = this;
+				  $.each( items, function( index, item ) {
+				    that._renderItemData( ul, item );
+				  });
+				  $(ul).prepend("<h4>" + kidzou_suggest.suggest_title + "</h4>");
+				  // console.log("inserted");
+				};
+
+			//submission du formulaire
+			jQuery(".kz_searchbox").submit(function(){
+				// kidzouMessage.addMessage('info', kidzou_commons_jsvars.msg_wait);
+				kidzouTracker.trackEvent("Filtre Home", "Recherche", $("#kz_searchinput").val(), 0);
+			});	
+			
+		}
+
+	});
+
 	
 })(jQuery)

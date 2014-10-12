@@ -1063,7 +1063,7 @@ echo <<<END
 
 		<div class="et-pb-main-settings">
 			<div class="et-pb-option">
-				<label for="et_pb_heading">Heading: </label>
+				<label for="et_pb_heading">Headingue: </label>
 				<div class="et-pb-option-container">
 					<input id="et_pb_heading" type="text" class="regular-text" value="<%= typeof( et_pb_heading ) !== 'undefined' ?  et_pb_heading : '' %>" />
 

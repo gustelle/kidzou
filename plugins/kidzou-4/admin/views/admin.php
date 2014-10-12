@@ -13,48 +13,6 @@
  */
 ?>
 
-<?php
-// if (isset($_POST['submit']))
-// {
-
-//  	$flush = trim($_POST['flush_rules']);   
-
-//  	if ($flush==1)
-//  	{
-
-// 	    flush_rewrite_rules();
-
-//  		//supprimer les transients relatifs aux metropoles
-//  		//qui seront regenerés avec les nouvelles metropoles
-//  		delete_transient( 'kz_get_national_metropoles' );
-// 	    delete_transient( 'kz_default_metropole' );
-// 	    delete_transient( 'kz_covered_metropoles_all_fields' );
-// 	    delete_transient( 'kz_covered_metropoles' );
-
-//  	}
-// }
-
-// global $kidzou_options;
-
-
-?>
-
-<!-- <div class="wrap">
-
-
-	<form method="POST" action="< ?php echo $_SERVER['REQUEST_URI']; ?>" >
-
-	 	<p>
-	 		<input type="checkbox" value="1"  id="flush_rules" name="flush_rules">
-	 		<span style="padding-left:5px;"><?php _e('Rafraichir les r&egrave;gles de permaliens.<br/><em>Cela est n&eacute;cessaire lorsque vous changez, ajoutez ou supprimez une m&eacute;tropole</em>','Kidzou'); ?></span>
-	 	</p>
-
-		 <input name="submit" id="submit" value="Mettre &agrave; jour" type="submit" class="button-primary">
-
-	</form>
-
-</div> -->
-
 
 <div class="wrap" >
 

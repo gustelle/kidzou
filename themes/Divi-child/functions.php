@@ -40,6 +40,7 @@ function override_divi_parent_functions()
     add_shortcode('kz_pb_portfolio','kz_pb_portfolio');
     add_shortcode('kz_pb_fullwidth_portfolio','kz_pb_fullwidth_portfolio');
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
+    add_shortcode('searchbox','searchbox');
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
@@ -159,7 +160,46 @@ function get_post_footer()
 	
 }
 
+/**
+ * undocumented function
+ *
+ * @return void
+ * @author 
+ **/
+function searchbox()
+{
+	wp_enqueue_script( 'jquery-ui-autocomplete' );	
 
+	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
+
+	$items = array();
+
+	foreach ($terms as $term) {
+		$tax = ($term->taxonomy == 'divers' ? 'famille' : $term->taxonomy);
+		$items[] = array("id" => $tax.'/'.$term->slug, "label" => $term->name);
+	}
+
+	$args = array( 
+		"terms_list" => $items, 
+		'no_results'=> __('Aucun r&eacute;sultat trouv&eacute; !','Divi'),
+		'results' => __('Utilisez les fl&egrave;ches pour naviguer dans les resultats', 'Divi'),
+		'suggest_title' => __('Quelques suggestions de cat&eacute;gories : ','Divi'),
+		'site_url' => site_url()
+		);			
+
+	wp_localize_script(  'jquery-ui-autocomplete', 'kidzou_suggest', $args );
+
+	$output = sprintf(
+		'<form class="kz_searchbox" method="get" action="%2$s">
+			<input id="kz_searchinput" placeholder="%1$s" type="text" autocomplete="off" name="s">
+		</form>
+		',
+		__('Ex: Roubaix, Ferme, 3-6 ans...','Divi'),
+		site_url()
+	);
+
+	return $output ;
+}
 	
 function kz_register_divi_layouts() {
 
