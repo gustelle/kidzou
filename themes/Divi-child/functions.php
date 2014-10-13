@@ -84,12 +84,21 @@ function excerpt_more_invite_scroll($more) {
 function filter_archive_query($query)
 {
 	if (is_archive() && $query->is_main_query() && !is_admin()) {
+
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set('nopaging', true);
 		$query->set('posts_per_page', '-1' ); 
-		$query->set('meta_key' , 'kz_index' );
-		$query->set('orderby' , array('meta_value'=>'ASC') );
-		$query->set('order' , 'ASC' );
+
+		//sur les offres, on met tout a plat
+		//l'ordre est naturel
+
+		if ( get_queried_object()->name != 'offres' ) {
+
+			$query->set('meta_key' , 'kz_index' );
+			$query->set('orderby' , array('meta_value'=>'ASC') );
+			$query->set('order' , 'ASC' );
+		}
+		
 	}
 }
 
