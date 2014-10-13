@@ -2127,11 +2127,18 @@
 			        results: function() {return kidzou_suggest.results;}
 			    },
 			    minLength: 1,
+			    delay : 100,
 			    select: function(event, ui) {
-			    	// console.debug(ui.item.id);
+			    	
 			    	kidzouTracker.trackEvent("Filtre Home", "Categorie", ui.item.id, 0);
+			    	$("#kz_searchinput").val( ui.item.label );
+			    	$('<i class="fa fa-circle-o-notch fa-spin font-bigger"></i>').insertAfter("#kz_searchinput");
+			    	
 	                window.location.href = kidzou_suggest.site_url + "/" + ui.item.id;
-	                return false;
+	            },
+	            //si le user lance une recherche sans selectionner d'item, et sans valider le formulaire
+	            search: function( event, ui ) {
+	            	$('#kz_searchbutton').attr('href', kidzou_suggest.site_url + "/?s=" + $("#kz_searchinput").val());
 	            }
 			
 			};
@@ -2141,12 +2148,12 @@
 				    that._renderItemData( ul, item );
 				  });
 				  $(ul).prepend("<h4>" + kidzou_suggest.suggest_title + "</h4>");
-				  // console.log("inserted");
+				  
 				};
 
 			//submission du formulaire
 			jQuery(".kz_searchbox").submit(function(){
-				// kidzouMessage.addMessage('info', kidzou_commons_jsvars.msg_wait);
+				
 				kidzouTracker.trackEvent("Filtre Home", "Recherche", $("#kz_searchinput").val(), 0);
 			});	
 			

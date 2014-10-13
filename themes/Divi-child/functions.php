@@ -192,6 +192,7 @@ function searchbox()
 	$output = sprintf(
 		'<form class="kz_searchbox" method="get" action="%2$s">
 			<input id="kz_searchinput" placeholder="%1$s" type="text" autocomplete="off" name="s">
+			<a id="kz_searchbutton" class="et_pb_more_button" href="#">Rechercher</a>
 		</form>
 		',
 		__('Ex: Roubaix, Ferme, 3-6 ans...','Divi'),
