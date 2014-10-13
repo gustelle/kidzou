@@ -85,11 +85,11 @@ function filter_archive_query($query)
 {
 	if (is_archive() && $query->is_main_query() && !is_admin()) {
 		//pas de limite sur le nombre de posts dans un categorie
-		$query->set(	'nopaging', true);
-		$query->set( 'posts_per_page', '-1' ); 
+		$query->set('nopaging', true);
+		$query->set('posts_per_page', '-1' ); 
 		$query->set('meta_key' , 'kz_index' );
 		$query->set('orderby' , array('meta_value'=>'ASC') );
-		$query->set( 'order' , 'ASC' );
+		$query->set('order' , 'ASC' );
 	}
 }
 

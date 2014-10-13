@@ -112,17 +112,18 @@ class Kidzou_Vote {
 	 */
 	public static function update_featured_index() {
 		
-		//le post le plus recommandé est en index S
+		//ne pas baser la requete sur une meta
+		//car certains posts n'ont pas de meta...
 		$args = array(
-			'meta_key'   => self::$meta_vote_count,
-			'orderby'    => 'meta_value_num',
-			'order'      => 'DESC',
 			'posts_per_page' => -1 //no limit
 		);
 
 		$query = new WP_Query( $args );
 
 		$posts = $query->get_posts();
+
+		if ( WP_DEBUG === true )
+			error_log( 'update_featured_index : ' . $query->found_posts . ' posts a indexer' );
 
 		$arr = array();
 
