@@ -3235,7 +3235,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 .kz_searchbox {background: rgba( 255, 255, 255, 0.6 ); border: 2px solid transparent; border-radius:3px; padding: 20px 34px 20px 14px !important; margin: 30px auto;  width:70%;}
 .kz_searchbox input[type="text"] {
 	padding: 0 0 0 15px;
-	width: 70%;
+	width: 65%;
 	height: 46px;
 	border: 1px solid #CBD3DD;
 	font-size: 1.125em;

@@ -2132,7 +2132,7 @@
 			    	
 			    	kidzouTracker.trackEvent("Filtre Home", "Categorie", ui.item.id, 0);
 			    	$("#kz_searchinput").val( ui.item.label );
-			    	$('<i class="fa fa-circle-o-notch fa-spin font-bigger"></i>').insertAfter("#kz_searchinput");
+			    	$('#kz_searchbutton').html('<i class="fa fa-circle-o-notch fa-spin"></i> Recherche');
 			    	
 	                window.location.href = kidzou_suggest.site_url + "/" + ui.item.id;
 	            },
