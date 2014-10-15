@@ -7,11 +7,17 @@ define( 'KZ_PB_URI', get_stylesheet_directory_uri() . '/et-pagebuilder' );
 function kz_pb_setup_theme(){
 	remove_action('add_meta_boxes','et_pb_add_custom_box', 10); //meme ordre que le parent
 	add_action( 'add_meta_boxes', 'kz_pb_add_custom_box' );
-
-	remove_action( 'admin_enqueue_scripts', 'et_pb_admin_scripts_styles', 10 );
-	add_action( 'admin_enqueue_scripts', 'kz_pb_admin_scripts_styles' , 10, 1);
 }
-add_action( 'after_setup_theme', 'kz_pb_setup_theme', 11 );
+add_action( 'after_setup_theme', 'kz_pb_setup_theme', 99 );
+
+// function kz_pb_override_enqueue(){
+// 	// echo 'kz_pb_override_enqueue';
+	
+
+// }
+// add_action( 'admin_enqueue_scripts', 'kz_pb_override_enqueue', 1 );
+// add_action( 'admin_enqueue_scripts', 'kz_pb_admin_scripts_styles' , 99, 1);
+add_action( 'wp_print_scripts', 'kz_pb_admin_scripts_styles', 100 );
 
 function kz_pb_add_custom_box() {
 	$post_types = apply_filters( 'et_pb_builder_post_types', array(
@@ -27,66 +33,11 @@ function kz_pb_add_custom_box() {
 	}
 }
 
-/**
- * tout ca pour surcharger le admin.js avec les specifiques Kidzou au travers de kz_pb_add_builder_page_js_css
- */
-function kz_pb_admin_scripts_styles( $hook ) {
-	global $typenow;
 
-	if ( $hook === 'widgets.php' ) {
-		wp_enqueue_script( 'et_pb_widgets_js', ET_PB_URI . '/js/widgets.js', array( 'jquery' ), ET_PB_VERSION, true );
+function kz_pb_admin_scripts_styles(){ 
 
-		wp_localize_script( 'et_pb_widgets_js', 'et_pb_options', array(
-			'ajaxurl'       => admin_url( 'admin-ajax.php' ),
-			'et_load_nonce' => wp_create_nonce( 'et_load_nonce' ),
-		) );
-
-		wp_enqueue_style( 'et_pb_widgets_css', ET_PB_URI . '/css/widgets.css', array(), ET_PB_VERSION );
-
-		return;
-	}
-
-	if ( ! in_array( $hook, array( 'post-new.php', 'post.php' ) ) ) return;
-
-	$post_types = apply_filters( 'et_pb_builder_post_types', array(
-		'page',
-		'project',
-	) );
-
-	/*
-	 * Load the builder javascript and css files for custom post types
-	 * custom post types can be added using et_pb_builder_post_types filter
-	*/
-	if ( isset( $typenow ) && in_array( $typenow, $post_types ) )
-		kz_pb_add_builder_page_js_css();
-}
-
-function kz_pb_add_builder_page_js_css(){
-	wp_enqueue_script( 'jquery-ui-core' );
-	wp_enqueue_script( 'underscore' );
-	wp_enqueue_script( 'backbone' );
-
-	wp_enqueue_script( 'google-maps-api', add_query_arg( array( 'v' => 3, 'sensor' => 'false' ), is_ssl() ? 'https://maps-api-ssl.google.com/maps/api/js' : 'http://maps.google.com/maps/api/js' ), array(), '3', true );
-	wp_enqueue_script( 'wp-color-picker' );
-	wp_enqueue_style( 'wp-color-picker' );
-
-	wp_enqueue_script( 'et_pb_admin_js', KZ_PB_URI . '/js/admin.js', array( 'jquery', 'jquery-ui-core', 'underscore', 'backbone' ), ET_PB_VERSION, true );
-	wp_enqueue_script( 'et_pb_admin_date_js', ET_PB_URI . '/js/jquery-ui-1.10.4.custom.min.js', array( 'jquery' ), ET_PB_VERSION, true );
-	wp_enqueue_script( 'et_pb_admin_date_addon_js', ET_PB_URI . '/js/jquery-ui-timepicker-addon.js', array( 'et_pb_admin_date_js' ), ET_PB_VERSION, true );
-
-	wp_localize_script( 'et_pb_admin_js', 'et_pb_options', array(
-		'ajaxurl'                       => admin_url( 'admin-ajax.php' ),
-		'et_load_nonce'                 => wp_create_nonce( 'et_load_nonce' ),
-		'images_uri'                    => get_template_directory_uri() . '/images',
-		'section_only_row_dragged_away' => __( 'The section should have at least one row.', 'Divi' ),
-		'fullwidth_module_dragged_away' => __( 'Fullwidth module can\'t be used outside of the Fullwidth Section.', 'Divi' ),
-		'stop_dropping_3_col_row'       => __( '3 column row can\'t be used in this column.', 'Divi' ),
-		'preview_image'                 => __( 'Preview', 'Divi' ),
-		'empty_admin_label'             => __( 'Module', 'Divi' ),
-	) );
-
-	wp_enqueue_style( 'et_pb_admin_css', ET_PB_URI . '/css/style.css', array(), ET_PB_VERSION );
-	wp_enqueue_style( 'et_pb_admin_date_css', ET_PB_URI . '/css/jquery-ui-1.10.4.custom.css', array(), ET_PB_VERSION );
+	wp_deregister_script("et_pb_admin_js");
+	wp_enqueue_script( 'kz_pb_admin_js', KZ_PB_URI . '/js/admin.js', array( 'jquery', 'jquery-ui-core', 'underscore', 'backbone' ), ET_PB_VERSION, true );
 }
 
 function kz_pb_pagebuilder_meta_box() {
@@ -2612,7 +2563,7 @@ echo <<<END
 	</script>
 
 	<script type="text/template" id="et-builder-kz_pb_portfolio-module-template">
-		<h3 class="et-pb-settings-heading">Portfolio Module Settings</h3>
+		<h3 class="et-pb-settings-heading">Portfolio Kidzou</h3>
 
 		<div class="et-pb-main-settings">
 			<div class="et-pb-option">
@@ -2633,6 +2584,30 @@ echo <<<END
 					<input id="et_pb_posts_number" type="text" class="regular-text" value="<%= typeof( et_pb_posts_number ) !== 'undefined' ?  et_pb_posts_number : '10' %>" />
 
 					<p class="description">Define the number of projects that should be displayed per page.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_filter">Filtre de navigation: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_filter" id="et_pb_filter">
+						<option value="none"<%= typeof( et_pb_filter ) !== 'undefined' && 'none' === et_pb_filter ?  ' selected="selected"' : '' %>>Aucun</option>
+						<option value="ville"<%= typeof( et_pb_filter ) !== 'undefined' && 'ville' === et_pb_filter ?  ' selected="selected"' : '' %>>Ville</option>
+						<option value="age"<%= typeof( et_pb_filter ) !== 'undefined' && 'age' === et_pb_filter ?  ' selected="selected"' : '' %>>Age</option>
+						<option value="divers"<%= typeof( et_pb_filter ) !== 'undefined' && 'divers' === et_pb_filter ?  ' selected="selected"' : '' %>>Famille</option>
+						<option value="category"<%= typeof( et_pb_filter ) !== 'undefined' && 'category' === et_pb_filter ?  ' selected="selected"' : '' %>>Category</option>
+					</select>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_orderby">Tri des articles: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_orderby" id="et_pb_orderby">
+						<option value="publish_date"<%= typeof( et_pb_orderby ) !== 'undefined' && 'publish_date' === et_pb_orderby ?  ' selected="selected"' : '' %>>Ordre naturel (dates de publication)</option>
+						<option value="reco"<%= typeof( et_pb_orderby ) !== 'undefined' && 'reco' === et_pb_orderby ?  ' selected="selected"' : '' %>>Nombre de recommandations</option>
+						<option value="event_dates"<%= typeof( et_pb_orderby ) !== 'undefined' && 'event_dates' === et_pb_orderby ?  ' selected="selected"' : '' %>>Dates d&apos;&eacute;v&eacute;nement</option>
+					</select>
 				</div> <!-- .et-pb-option-container -->
 			</div> <!-- .et-pb-option -->
 

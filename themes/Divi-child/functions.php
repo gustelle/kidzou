@@ -448,8 +448,10 @@ function kz_pb_portfolio( $atts ) {
 			'background_layout' => 'light',
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
-			'show_filters' => 'on',
-			'show_ad' => 'on'
+			// 'show_filters' => 'on',
+			'show_ad' => 'on',
+			'filter' => 'none',
+			'orderby' => 'publish_date'
 		), $atts
 	) );
 
@@ -457,13 +459,37 @@ function kz_pb_portfolio( $atts ) {
 
 	$container_is_closed = false;
 
-	$args = array(
+	$base_args = array(
 		'posts_per_page' => (int) $posts_number,
 		'post_type'      => Kidzou::post_types(),
-		'meta_key' => 'kz_index',
-		'orderby' => array('meta_value'=>'ASC'),
-		'order' => 'ASC' 
 	);
+
+	$args = array();
+
+	switch ($orderby) {
+		case 'reco':
+			$args = array_merge($base_args, array(
+					'meta_key' => Kidzou_Vote::$meta_vote_count,
+					'orderby' => array('meta_value_num'=>'DESC'),
+				)
+			);
+			break;
+
+		case 'event_dates':
+			$args = array_merge($base_args, array(
+					'meta_key' => 'kz_event_start_date' , //kz_event_featured
+					'orderby' => 'meta_value',
+				)
+			);
+			break;
+		
+		default:
+			$args = array_merge($base_args, array(
+					'orderby' => array('date'=>'DESC'),
+				)
+			);
+			break;
+	}
 
 	if ( '' !== $post__in )
 		$args['post__in'] = explode(",", $post__in);
@@ -633,41 +659,37 @@ function kz_pb_portfolio( $atts ) {
 
 	ob_end_clean();
 
-	////
-	// $categories_included = array_unique( $categories_included );
-	// $terms_args = array(
-	// 	'include' => $categories_included,
-	// 	'orderby' => 'name',
-	// 	'order' => 'ASC',
-	// );
-
-	$tax = 'divers';
-
-	$terms = get_terms( $tax ); //, $terms_args 
-
-	$category_filters = '<ul class="clearfix">';
 	
-	foreach ( $terms as $term  ) {
-		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
-			esc_attr( $term->slug ),
-			esc_html( $term->name ),
-			get_term_link( $term, $tax ),
-			__('Voir tous les articles dans ').$term->name
-		);
-	}
-	$category_filters .= '</ul>';
 
 	$class = " et_pb_bg_layout_{$background_layout}";
 
-	$filters = '';
+	$filters_html = '';
+	$category_filters = '';
 	// echo $module_class." ".stristr($module_class,'nofilter');
-	if ($show_filters=='on' && !stristr($module_class,'nofilter'))
-		$filters = '<div class="et_pb_portfolio_filters clearfix">%7$s</div><!-- .et_pb_portfolio_filters -->';
+	if ($filter!='none' ) {
+
+		$terms = get_terms( $filter ); //, $terms_args 
+
+		$category_filters = '<ul class="clearfix">';
+		
+		foreach ( $terms as $term  ) {
+			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
+				esc_attr( $term->slug ),
+				esc_html( $term->name ),
+				get_term_link( $term, $tax ),
+				__('Voir tous les articles dans ').$term->name
+			);
+		}
+		$category_filters .= '</ul>';
+
+		$filters_html = '<div class="et_pb_portfolio_filters clearfix">%7$s</div><!-- .et_pb_portfolio_filters -->';
+	}
+		
 
 	$output = sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">
 			<div class="et_pb_filterable_portfolio ">
-				'.$filters.'
+				'.$filters_html.'
 			</div>
 			%2$s
 		%4$s',

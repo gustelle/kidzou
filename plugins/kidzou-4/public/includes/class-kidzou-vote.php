@@ -5,11 +5,11 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
 // wp_clear_scheduled_hook( 'set_featured_index' );
 
 // rafraichir l'index featured en fonction des votes
-if( !wp_next_scheduled( 'featured_index' ) ) {
-   wp_schedule_event( time(), 'twicedaily', 'featured_index' );
+if( !wp_next_scheduled( 'init_vote' ) ) {
+   wp_schedule_event( time(), 'twicedaily', 'init_vote' );
 }
  
-add_action( 'featured_index', array( Kidzou_Vote::get_instance(), 'update_featured_index') );
+add_action( 'init_vote', array( Kidzou_Vote::get_instance(), 'init_vote_meta') );
 
 /**
  * Kidzou
@@ -102,20 +102,26 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * positionne l'index "featured" en fonction du nombre de votes
-	 * les posts featured A et B ne sont pas touchés 
-	 * A = Featured
-	 * B0x à B1 = Evenement dans les 7 jours, selon recommandation
-	 * C0x à C1 = Post recommandés
-	 * Z0x à Z1 = Evenement au dela de 7 jours, selon recommandation
+	 * positionne la meta pour les posts qui n'ont jamais été recommandés
 	 *
 	 */
-	public static function update_featured_index() {
+	public static function init_vote_meta() {
 		
-		//ne pas baser la requete sur une meta
-		//car certains posts n'ont pas de meta...
+		//voir http://wordpress.stackexchange.com/questions/80303/query-all-posts-where-a-meta-key-does-not-exist
 		$args = array(
-			'posts_per_page' => -1 //no limit
+			'posts_per_page' => -1,
+			'meta_query' => array(
+			   'relation' => 'OR',
+			    array(
+			     'key' => self::$meta_vote_count,
+			     'compare' => 'NOT EXISTS', // works!
+			     'value' => '' // This is ignored, but is necessary...
+			    ),
+			    array(
+			     'key' => self::$meta_vote_count,
+			     'value' => 1
+			    )
+			)
 		);
 
 		$query = new WP_Query( $args );
@@ -123,46 +129,12 @@ class Kidzou_Vote {
 		$posts = $query->get_posts();
 
 		if ( WP_DEBUG === true )
-			error_log( 'update_featured_index : ' . $query->found_posts . ' posts a indexer' );
-
-		$arr = array();
-
-		//ne pas oublier
-		require_once( plugin_dir_path( __FILE__ ) . '../../admin/class-kidzou-admin.php' );
+			error_log( 'init_vote_meta : ' . $query->found_posts . ' meta a creer' );
 
 		foreach ($posts as $post) {
 
-			$message = "update_featured_index {" . $post->ID . "} " ;
-
-			$count = (int)self::getVoteCount($post->ID);
-			$index = (float)($count<2 ? 1 : (1/$count));
-			$dec = strstr ( $index, '.' );
-
-			$is_event_7D = false;
-
-			//l'evenement est-il proche ?
-			if (Kidzou_Events::isTypeEvent($post->ID)) {
-
-				$current= time();
-				$now 	= date('Y-m-d 00:00:00', $current);
-				$now_time = new DateTime($now);
-				$now_time_plus7 = $now_time->add( new DateInterval('P7D') ); 
-
-				$event_dates = Kidzou_Events::getEventDates($post->ID);
-				$event_start = new DateTime($event_dates['start_date']);
-
-				if ($event_start < $now_time_plus7)
-					$is_event_7D = true;
-			}
-
-			$message .= ' - '.$is_event_7D;
-			
-			$prefix =  (Kidzou_Events::isFeatured($post->ID) ? "A" : ($is_event_7D ? "B" : "C"));
-
-			$arr['kz_index'] = $prefix.$dec;
-
-			$message .= " : ".$arr['kz_index'];
-			Kidzou_Admin::save_meta($post->ID, $arr);
+			$message = "init_vote_meta {" . $post->ID . "} " ;
+			add_post_meta($post->ID, $meta_vote_count, 0, TRUE);
 
 			if ( WP_DEBUG === true )
 				error_log( $message );
@@ -180,6 +152,9 @@ class Kidzou_Vote {
 		}
 
 		$count		= get_post_meta($post_id, self::$meta_vote_count, TRUE);
+
+		if ($count=='')
+			$count=0;
 
 		return intval($count);
 	}

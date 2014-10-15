@@ -72,7 +72,7 @@ console.log(ET_PageBuilder);
 						'label' : 'et_pb_login'
 					},
 					{
-						'title' : 'Portfolio',
+						'title' : 'Portfolio Kidzou',
 						'label' : 'kz_pb_portfolio'
 					},
 					{
@@ -2521,6 +2521,7 @@ console.log(ET_PageBuilder);
 					shortcode;
 
 				module_settings = module.attributes;
+				// console.log(module_settings);
 
 				for ( var key in module_settings ) {
 					var setting_name = key,
@@ -2550,6 +2551,7 @@ console.log(ET_PageBuilder);
 				if ( ! open_tag_only )
 					shortcode += content + '[/' + prefix + module_type + ']';
 
+				// console.log(shortcode);
 				return shortcode;
 			},
 
