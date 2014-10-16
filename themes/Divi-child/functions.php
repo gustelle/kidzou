@@ -514,24 +514,9 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
-	// print_r($args);
-
 	ob_start();
 
-	//classement des queries par nb de reco
-	// add_action( 'pre_get_posts', array( Kidzou_Vote::get_instance(), 'filter_query_orderby_reco_count') );
-
-	//$featured = Kidzou_Events::getFeatured();
-
 	query_posts( $args );
-
-	// global $wp_query;
-
-	// $posts = $wp_query->get_posts();
-
-	// array_push($posts, $featured);
-
-	// print_r($GLOBALS['wp_query']); 
 
 	$categories_included = array();
 
@@ -666,8 +651,6 @@ function kz_pb_portfolio( $atts ) {
 	$posts = ob_get_contents();
 
 	ob_end_clean();
-
-	
 
 	$class = " et_pb_bg_layout_{$background_layout}";
 
