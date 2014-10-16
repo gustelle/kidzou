@@ -66,12 +66,8 @@ class Kidzou_Events {
 	 */
 	private function __construct() { 
 
-		//tri des posts dans la requete: par featured, puis par date
-		// add_filter('posts_orderby', array( $this, 'query_orderby'), 100 );
-		
-		// tri des posts par meta 
-		//d'abord les featured, puis par date
-		add_filter( 'posts_results', array( $this, 'sort_query_results'), 100  );
+		//mise en avant de posts
+		add_filter( 'posts_results', array( $this, 'order_by_featured'), PHP_INT_MAX, 2  );
 		
 	}
 
@@ -165,10 +161,29 @@ class Kidzou_Events {
 			$post_id = $post->ID;
 		}
 
-		$featured_index		= get_post_meta($post_id, 'kz_event_featured', TRUE);
+		$featured_index		= get_post_meta($post_id, self::$meta_featured, TRUE);
 		$featured 			= ($featured_index == 'A');
 
 		return $featured;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getFeatured( )
+	{
+		$args = array(
+			'meta_key'   => self::$meta_featured,
+			'meta_value'	=> 'A',
+			'meta_compare'    => '=',
+			// 'posts_per_page' => 1
+		);
+		$query = new WP_Query( $args );
+
+		return $query->get_posts();
 	}
 
 
@@ -318,51 +333,32 @@ class Kidzou_Events {
 
 	}
 
+	
+
 	/**
-	 * compare 2 events et place les featured en premier, mais maintien l'ordre des dates (orderby kz_event_end_date)
-	 * pour rappel, un event featured à un meta "featured"='A' alors qu'un event normal a sa "featured"='B'
+	 * les loops secondaires sont tries pour mettre les featured en 1er
 	 *
-	 * @return void
-	 * @author 
-	 * @todo retravailler ce tri pour limiter les events qui sont remontés (uniquemnet sur la semaine courante)
-	 **/
-	public static function sort_by_featured($a, $b)
-	{
-		// $featured_a = (string)get_post_meta($a->ID, 'kz_event_featured', TRUE);
-		// $featured_b = (string)get_post_meta($b->ID, 'kz_event_featured', TRUE);
-
-		// $need_date_cmp = false;
-
-		// //comparons par date si une des 2 meta n'est pas positionnée
-		// if ($featured_a=='')
-		// 	$featured_a = 'B';
-		// if ($featured_b=='')
-		// 	$featured_b = 'B';
-
-		// // pas de distinction de featured, c'est la start_date qui prime
-		// if (strcmp($featured_a, $featured_b)==0) {
-
-		// 	$start_a = (string)get_post_meta($a->ID, 'kz_event_start_date', TRUE);
-		// 	$start_b = (string)get_post_meta($b->ID, 'kz_event_start_date', TRUE); //echo strcmp($start_a, $start_b);
-
-		// 	if ($start_a=='')
-		// 		return 1;
-		// 	if ($start_b=='')
-		// 		return -1;
+	 */ 
+	public function order_by_featured($posts, $query) {
 
 
-		// 	return strcmp($start_a, $start_b);
-		// } 
+		if (!is_admin() && !$query->is_main_query()) {
 
-		// return strcmp($featured_a, $featured_b);
-	}
+			// echo 'order_by_featured';
+			
+			remove_filter( current_filter(), __FUNCTION__, PHP_INT_MAX, 2 );
+		    $nonfeatured = array();
+		    $featured = array();
+		    foreach ( $posts as $post ) {
+		      if ( self::isFeatured($post->ID) ) {
+		        $featured[] = $post;
+		      } else {
+		        $nonfeatured[] = $post;
+		      }
+		    }
+		    
+		    $posts = array_merge( $featured, $nonfeatured );
 
-	public function sort_query_results($posts) {
-
-		//inefficace sur les listes paginées
-		//puisque les featured ne remontent pas dans les résultats en 1ere page...
-		if (!is_admin()) {
-			//usort($posts, array('self', "sort_by_featured") );
 		}
 		
 		return $posts;

@@ -5,11 +5,11 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
 // wp_clear_scheduled_hook( 'set_featured_index' );
 
 // rafraichir l'index featured en fonction des votes
-if( !wp_next_scheduled( 'init_vote' ) ) {
+if( !wp_next_scheduled( 'init_vote_meta' ) ) {
    wp_schedule_event( time(), 'twicedaily', 'init_vote' );
 }
  
-add_action( 'init_vote', array( Kidzou_Vote::get_instance(), 'init_vote_meta') );
+add_action( 'init_vote_meta', array( Kidzou_Vote::get_instance(), 'set_vote_meta') );
 
 /**
  * Kidzou
@@ -105,7 +105,7 @@ class Kidzou_Vote {
 	 * positionne la meta pour les posts qui n'ont jamais été recommandés
 	 *
 	 */
-	public static function init_vote_meta() {
+	public static function set_vote_meta() {
 		
 		//voir http://wordpress.stackexchange.com/questions/80303/query-all-posts-where-a-meta-key-does-not-exist
 		$args = array(
@@ -129,11 +129,11 @@ class Kidzou_Vote {
 		$posts = $query->get_posts();
 
 		if ( WP_DEBUG === true )
-			error_log( 'init_vote_meta : ' . $query->found_posts . ' meta a creer' );
+			error_log( 'set_vote_meta : ' . $query->found_posts . ' meta a creer' );
 
 		foreach ($posts as $post) {
 
-			$message = "init_vote_meta {" . $post->ID . "} " ;
+			$message = "set_vote_meta {" . $post->ID . "} " ;
 			add_post_meta($post->ID, $meta_vote_count, 0, TRUE);
 
 			if ( WP_DEBUG === true )
@@ -270,24 +270,30 @@ class Kidzou_Vote {
 			{
 				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
 				
-				//print_r($wpdb->queries);
-				
-				$voted_posts = $meta_posts[0]; //print_r($voted_posts);
-				//$index_posts = count($voted_posts);
+				$voted_posts = $meta_posts[0]; 
 
 				if(!is_array($voted_posts))
 					$voted_posts = array();
 
 				array_push($voted_posts, $id) ;
 
-				// $voted_posts[$index_posts] = $id;
-
 				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
 			}
 			else
 			{
+				//vote anonyme
+				$found = false;
+				$hashes = get_post_meta(intval($id), self::$meta_anomymous_vote, FALSE); //il y a plusieurs votes anonymes par post
+				foreach ($hashes as $hash) {
+					if ($hash==$user_hash)
+						$found=true;
+				}
 
-				if ( !update_post_meta (intval($id), self::$meta_anomymous_vote, $user_hash ) ) add_post_meta( intval($id), self::$meta_anomymous_vote, $user_hash );
+				if ($found) { // If the custom field already has a value
+					//ben rien, le user avait déjà voté
+				} else { 
+					add_post_meta( intval($id), self::$meta_anomymous_vote, $user_hash, FALSE ); //plusieurs valeurs possibles sur cette meta
+				}
 			}
 
 		}

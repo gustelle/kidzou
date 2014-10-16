@@ -204,7 +204,7 @@ function searchbox()
 			<a id="kz_searchbutton" class="et_pb_more_button" href="#">Rechercher</a>
 		</form>
 		',
-		__('Ex: Roubaix, Ferme, 3-6 ans...','Divi'),
+		__('Ex: Roubaix, Animaux, 3-6 ans...','Divi'),
 		site_url()
 	);
 
@@ -478,7 +478,7 @@ function kz_pb_portfolio( $atts ) {
 		case 'event_dates':
 			$args = array_merge($base_args, array(
 					'meta_key' => 'kz_event_start_date' , //kz_event_featured
-					'orderby' => 'meta_value',
+					'orderby' => array('meta_value' => 'ASC'),
 				)
 			);
 			break;
@@ -521,7 +521,15 @@ function kz_pb_portfolio( $atts ) {
 	//classement des queries par nb de reco
 	// add_action( 'pre_get_posts', array( Kidzou_Vote::get_instance(), 'filter_query_orderby_reco_count') );
 
+	//$featured = Kidzou_Events::getFeatured();
+
 	query_posts( $args );
+
+	// global $wp_query;
+
+	// $posts = $wp_query->get_posts();
+
+	// array_push($posts, $featured);
 
 	// print_r($GLOBALS['wp_query']); 
 
@@ -676,7 +684,7 @@ function kz_pb_portfolio( $atts ) {
 			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
 				esc_attr( $term->slug ),
 				esc_html( $term->name ),
-				get_term_link( $term, $tax ),
+				get_term_link( $term, $filter ),
 				__('Voir tous les articles dans ').$term->name
 			);
 		}

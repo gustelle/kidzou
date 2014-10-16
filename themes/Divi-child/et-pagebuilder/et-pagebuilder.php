@@ -2611,6 +2611,8 @@ echo <<<END
 				</div> <!-- .et-pb-option-container -->
 			</div> <!-- .et-pb-option -->
 
+			
+
 			<div class="et-pb-option">
 				<label for="et_pb_include_categories">Include Categories: </label>
 				<div class="et-pb-option-container">
