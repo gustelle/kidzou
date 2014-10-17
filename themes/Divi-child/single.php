@@ -57,7 +57,7 @@
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php if (isset($location['location_address']) && $location['location_address']<>'') echo '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>'; ?>
 									<?php if (isset($location['location_tel']) && $location['location_tel']<>'')  echo '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>'; ?>
-									<?php if (isset($location['location_web']) && $location['location_web']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i><a href="'.$location['location_web'].'">'.__('Visiter le site web','Divi').'</a></p>'; ?>
+									<?php if (isset($location['location_web']) && $location['location_web']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i><a target="_blank" href="'.$location['location_web'].'">'.__('Visiter le site web','Divi').'</a></p>'; ?>
 
 								</div> <!-- .et_pb_text --><hr class="et_pb_space" />
 							

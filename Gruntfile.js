@@ -23,7 +23,7 @@ module.exports = function(grunt) {
 				  '<%= cfg.kidzou_path %>/asets/js/kidzou-client.js',
 				  '<%= cfg.kidzou_path %>/asets/js/kidzou-events.js',
 				  '<%= cfg.kidzou_path %>/asets/js/kidzou-place.js',
-				  // '<%= cfg.theme_path %>/js/custom.js',
+				  '<%= cfg.theme_path %>/js/custom.js',
 				  ] 
 		},
 

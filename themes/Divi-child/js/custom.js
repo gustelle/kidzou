@@ -51,7 +51,7 @@
 			}
 
 			if ( settings.use_arrows && et_slides_number > 1 ) {
-				if ( settings.manual_arrows == '' )
+				if ( settings.manual_arrows === '' )
 					$et_slider.append( '<div class="et-pb-slider-arrows"><a class="et-pb-arrow-prev" href="#">' + '<span>' +settings.previous_text + '</span>' + '</a><a class="et-pb-arrow-next" href="#">' + '<span>' + settings.next_text + '</span>' + '</a></div>' );
 				else
 					$et_slider.append( settings.manual_arrows );
@@ -87,14 +87,15 @@
 						controls_html +
 					'</div>';
 
-				if ( settings.append_controls_to == '' )
+				if ( settings.append_controls_to === '' )
 					$et_slider.append( controls_html );
 				else
 					$( settings.append_controls_to ).append( controls_html );
 
-				$et_slider_controls	= $et_slider.find( settings.controls ),
+				$et_slider_controls	= $et_slider.find( settings.controls );
 
 				$et_slider_controls.click( function(){
+
 					if ( $et_slider.et_animation_running )	return false;
 
 					$et_slider.et_slider_move_to( $(this).index() );
@@ -128,12 +129,12 @@
 			}
 
 			function et_fix_slider_content_images() {
-				var $this_slider           = $et_slider,
-					$slide_image_container = $this_slider.find( '.et-pb-active-slide .et_pb_slide_image' );
-					$slide                 = $slide_image_container.closest( '.et_pb_slide' ),
-					$slider                = $slide.closest( '.et_pb_slider' ),
-					slide_height           = $slider.innerHeight(),
-					image_height           = parseInt( slide_height * 0.8 );
+				var $this_slider           = $et_slider;
+				var $slide_image_container = $this_slider.find( '.et-pb-active-slide .et_pb_slide_image' );
+				var $slide                 = $slide_image_container.closest( '.et_pb_slide' );
+				var $slider                = $slide.closest( '.et_pb_slider' );
+				var slide_height           = $slider.innerHeight();
+				var image_height           = parseInt( slide_height * 0.8 );
 
 				$slide_image_container.find( 'img' ).css( 'maxHeight', image_height + 'px' );
 
@@ -229,24 +230,26 @@
 				}
 
 				et_slider_auto_rotate();
-			}
-	}
+			};
+	};
 
 	$.fn.et_pb_simple_slider = function( options ) {
 		return this.each(function() {
 			new $.et_pb_simple_slider(this, options);
 		});
-	}
+	};
 
 	var et_hash_module_seperator = '||',
 		et_hash_module_param_seperator = '|';
 
 	function process_et_hashchange( hash ) {
+		var module_params ;
+		var element;
 		if ( ( hash.indexOf( et_hash_module_seperator, 0 ) ) !== -1 ) {
 			modules = hash.split( et_hash_module_seperator );
 			for ( var i = 0; i < modules.length; i++ ) {
-				var module_params = modules[i].split( et_hash_module_param_seperator );
-				var element = module_params[0];
+				module_params = modules[i].split( et_hash_module_param_seperator );
+				element = module_params[0];
 				module_params.shift();
 				if ( $('#' + element ).length ) {
 					$('#' + element ).trigger({
@@ -257,7 +260,7 @@
 			}
 		} else {
 			module_params = hash.split( et_hash_module_param_seperator );
-			var element = module_params[0];
+			element = module_params[0];
 			module_params.shift();
 			if ( $('#' + element ).length ) {
 				$('#' + element ).trigger({
@@ -274,15 +277,19 @@
 			return;
 		}
 
+		var hash; var new_hash;
+
 		if ( window.location.hash ) {
-			var hash = window.location.hash.substring(1), //Puts hash in variable, and removes the # character
-				new_hash = [];
+			hash = window.location.hash.substring(1); //Puts hash in variable, and removes the # character
+			new_hash = [];
+
+			var element;
 
 			if( ( hash.indexOf( et_hash_module_seperator, 0 ) ) !== -1 ) {
 				modules = hash.split( et_hash_module_seperator );
 				var in_hash = false;
 				for ( var i = 0; i < modules.length; i++ ) {
-					var element = modules[i].split( et_hash_module_param_seperator )[0];
+					element = modules[i].split( et_hash_module_param_seperator )[0];
 					if( element === module_id ) {
 						new_hash.push( module_state_hash );
 						in_hash = true;
@@ -295,7 +302,7 @@
 				}
 			} else {
 				module_params = hash.split( et_hash_module_param_seperator );
-				var element = module_params[0];
+				element = module_params[0];
 				if ( element !== module_id ) {
 					new_hash.push( hash );
 				}
@@ -370,7 +377,7 @@
 			$( '.et_pb_section_video_bg' ).each( function() {
 				var $this_el = $(this);
 
-				$this_el.css( 'visibility', 'hidden' ).closest( '.et_pb_preload' ).removeClass( 'et_pb_preload' )
+				$this_el.css( 'visibility', 'hidden' ).closest( '.et_pb_preload' ).removeClass( 'et_pb_preload' );
 			} );
 
 			$( 'body' ).addClass( 'et_mobile_device' );
@@ -446,7 +453,7 @@
 					et_slider_settings = {
 						fade_speed 		: 700,
 						slide			: '.et_pb_slide'
-					}
+					};
 
 				if ( $this_slider.hasClass('et_pb_slider_no_arrows') )
 					et_slider_settings.use_arrows = false;
@@ -477,9 +484,12 @@
 			} );
 		}
 
+		var set_fullwidth_portfolio_columns;
+		var et_carousel_auto_rotate;
+
 		if ( $et_pb_fullwidth_portfolio.length ) {
 
-			function set_fullwidth_portfolio_columns( $the_portfolio, carousel_mode ) {
+			set_fullwidth_portfolio_columns = function ( $the_portfolio, carousel_mode ) {
 				var columns,
 					$portfolio_items = $the_portfolio.find('.et_pb_portfolio_items'),
 					portfolio_items_width = $portfolio_items.width(),
@@ -501,7 +511,7 @@
 
 				// set height of items
 				portfolio_item_width = portfolio_items_width / columns;
-				portfolio_item_height = portfolio_item_width * .75;
+				portfolio_item_height = portfolio_item_width * 0.75;
 
 				if ( carousel_mode ) {
 					$portfolio_items.css({ 'height' : portfolio_item_height });
@@ -564,9 +574,9 @@
 
 				$the_portfolio.data('columns_setting_up', false );
 
-			}
+			};
 
-			function et_carousel_auto_rotate( $carousel ) {
+			et_carousel_auto_rotate = function ( $carousel ) {
 				if ( 'on' === $carousel.data('auto-rotate') && $carousel.find('.et_pb_portfolio_item').length > $carousel.find('.et_pb_carousel_group .et_pb_portfolio_item').length && ! $carousel.hasClass( 'et_carousel_hovered' ) ) {
 
 					et_carousel_timer = setTimeout( function() {
@@ -575,7 +585,7 @@
 
 					$carousel.data('et_carousel_timer', et_carousel_timer);
 				}
-			}
+			};
 
 			$et_pb_fullwidth_portfolio.each(function(){
 				var $the_portfolio = $(this),
@@ -784,7 +794,7 @@
 									break;
 								}
 
-								if ( x == 0 ) {
+								if ( x === 0 ) {
 									x = items.length;
 								}
 							}
@@ -866,6 +876,10 @@
 			});
 		}
 
+		var set_filterable_grid_items;
+		var set_filterable_grid_pages;
+		var set_filterable_portfolio_hash;
+
 		if ( $et_pb_filterable_portfolio.length ) { 
 
 			$(window).load(function(){
@@ -941,7 +955,7 @@
 
 			}); // End $(window).load()
 
-			function set_filterable_grid_items( $the_portfolio ) {
+			set_filterable_grid_items = function( $the_portfolio ) {
 				var min_height = 0,
 					$the_portfolio_items = $the_portfolio.find('.et_pb_portfolio_items'),
 					active_category = $the_portfolio.find('.et_pb_portfolio_filter > a.active').data('category-slug'),
@@ -999,9 +1013,9 @@
 				}).hide();
 
 				$the_portfolio_items.masonry();
-			}
+			};
 
-			function set_filterable_grid_pages( $the_portfolio, pages ) {
+			set_filterable_grid_pages = function ( $the_portfolio, pages ) {
 				$pagination = $the_portfolio.find('.et_pb_portofolio_pagination');
 
 				if ( !$pagination.length ){
@@ -1022,7 +1036,7 @@
 					$pagination_list.append('<li' + hidden_page_class + ' class="page page-' + page + '"><a href="#" data-page="' + page + '" class="page-' + page + first_page_class + last_page_class + '">' + page + '</a></li>');
 				}
 				$pagination_list.append('<li class="next"><a href="#" data-page="next" class="page-next">Next</a></li>');
-			}
+			};
 
 			$et_pb_filterable_portfolio.on('click', '.et_pb_portofolio_pagination a', function(e){
 				e.preventDefault();
@@ -1089,7 +1103,7 @@
 				}, 500 );
 			});
 
-			function set_filterable_portfolio_hash( $the_portfolio ) {
+			set_filterable_portfolio_hash = function ( $the_portfolio ) {
 
 				if ( !$the_portfolio.attr('id') ) {
 					return;
@@ -1108,24 +1122,11 @@
 				this_portfolio_state = this_portfolio_state.join( et_hash_module_param_seperator );
 
 				et_set_hash( this_portfolio_state );
-			}
+			};
 		} /*  end if ( $et_pb_filterable_portfolio.length ) */
 
 		/* Portfolio Kidzou */
 		if ( $('.kz_pb_filterable_portfolio').length ) {
-
-			// console.debug(typeof(infinite_scroll));
-
-			// $( '.et_pb_blog_grid' ).infinitescroll( 
-			// 	infinite_scroll, function(newElements, data, url) { 
-			// 		// function(newElements){
-		 //                 console.log('Elements Retrieved:');
-		 //                 var $newElems = $(newElements);
-		 //                 $container.imagesLoaded(function(){
-		 //                         $container.isotope('appended', $newElems, function(){console.log('Appended');});
-		 //                 });
-		 //             // });
-			// });
 	
 
 			var $kz_portfolio = $('.kz_pb_filterable_portfolio');
@@ -1153,9 +1154,13 @@
 								
 		}
 
+		var set_gallery_grid_items;
+		var set_gallery_grid_pages;
+		var set_gallery_hash;
+
 		if ( $et_pb_gallery.length ) {
 
-			function set_gallery_grid_items( $the_gallery ) {
+			set_gallery_grid_items = function ( $the_gallery ) {
 				var $the_gallery_items_container = $the_gallery.find('.et_pb_gallery_items'),
 					$the_gallery_items = $the_gallery_items_container.find('.et_pb_gallery_item');
 
@@ -1193,9 +1198,9 @@
 				}).hide();
 
 				$the_gallery_items_container.masonry();
-			}
+			};
 
-			function set_gallery_grid_pages( $the_gallery, pages ) {
+			set_gallery_grid_pages = function ( $the_gallery, pages ) {
 				$pagination = $the_gallery.find('.et_pb_gallery_pagination');
 
 				if ( !$pagination.length ){
@@ -1217,9 +1222,9 @@
 					$pagination_list.append('<li' + hidden_page_class + ' class="page page-' + page + '"><a href="#" data-page="' + page + '" class="page-' + page + first_page_class + last_page_class + '">' + page + '</a></li>');
 				}
 				$pagination_list.append('<li class="next"><a href="#" data-page="next" class="page-next">Next</a></li>');
-			}
+			};
 
-			function set_gallery_hash( $the_gallery ) {
+			set_gallery_hash = function ( $the_gallery ) {
 
 				if ( !$the_gallery.attr('id') ) {
 					return;
@@ -1237,7 +1242,7 @@
 				this_gallery_state = this_gallery_state.join( et_hash_module_param_seperator );
 
 				et_set_hash( this_gallery_state );
-			}
+			};
 
 			$et_pb_gallery.each(function(){
 				var $the_gallery = $(this);
@@ -1387,7 +1392,7 @@
 			seconds = parseInt(seconds_left % 60);
 			seconds = seconds > 0 ? seconds : 0;
 
-			if( days == 0 ) {
+			if( days === 0 ) {
 				if ( !timer.find('.days > .value').parent('.section').hasClass('zero') ) {
 					timer.find('.days > .value').html( '000' ).parent('.section').addClass('zero').next().addClass('zero');
 				}
@@ -1395,7 +1400,7 @@
 				timer.find('.days > .value').html( ('000' + days).slice(-3) );
 			}
 
-			if( days == 0 && hours == 0 ) {
+			if( days === 0 && hours === 0 ) {
 				if ( !timer.find('.hours > .value').parent('.section').hasClass('zero') ) {
 					timer.find('.hours > .value').html('00').parent('.section').addClass('zero').next().addClass('zero');
 				}
@@ -1403,7 +1408,7 @@
 				timer.find('.hours > .value').html( ( '0' + hours ).slice(-2) );
 			}
 
-			if( days == 0 && hours == 0 && minutes == 0 ) {
+			if( days === 0 && hours === 0 && minutes === 0 ) {
 				if ( !timer.find('.minutes > .value').parent('.section').hasClass('zero') ) {
 					timer.find('.minutes > .value').html('00').parent('.section').addClass('zero').next().addClass('zero');
 				}
@@ -1411,7 +1416,7 @@
 				timer.find('.minutes > .value').html( ( '0' + minutes ).slice(-2) );
 			}
 
-			if ( days == 0 && hours == 0 && minutes == 0 && seconds == 0 ) {
+			if ( days === 0 && hours === 0 && minutes === 0 && seconds === 0 ) {
 				if ( !timer.find('.seconds > .value').parent('.section').hasClass('zero') ) {
 					timer.find('.seconds > .value').html('00').parent('.section').addClass('zero');
 				}
@@ -1526,9 +1531,10 @@
 			} );
 		}
 
+		var et_pb_circle_counter_init;
 		if ( $et_pb_circle_counter.length ){
 
-			function et_pb_circle_counter_init($the_counter, animate) {
+			et_pb_circle_counter_init = function($the_counter, animate) {
 				$the_counter.easyPieChart({
 					easing: 'easeInOutCirc',
 					animate: {
@@ -1553,7 +1559,7 @@
 				});
 
 				$the_counter.data('easyPieChart').update( $the_counter.data('number-value') );
-			}
+			};
 
 			$et_pb_circle_counter.each(function(){
 				var $the_counter = $(this);
@@ -1679,7 +1685,7 @@
 						et_contact_error = true;
 
 						var default_value = $(this).siblings('label').text();
-						if ( default_value == '' ) default_value = et_custom.captcha;
+						if ( default_value === '' ) default_value = et_custom.captcha;
 
 						et_message += '<li>' + et_custom.fill + ' ' + default_value + ' ' + et_custom.field + '</li>';
 					}
@@ -1720,13 +1726,9 @@
 
 			$element.each( function() {
 				var $this_el = $(this),
-					ratio = ( typeof $this_el.attr( 'data-ratio' ) !== 'undefined' )
-						? $this_el.attr( 'data-ratio' )
-						: $this_el.find('video').attr( 'width' ) / $this_el.find('video').attr( 'height' ),
+					ratio = ( typeof $this_el.attr( 'data-ratio' ) !== 'undefined' ) ? $this_el.attr( 'data-ratio' ) : $this_el.find('video').attr( 'width' ) / $this_el.find('video').attr( 'height' ),
 					$video_elements = $this_el.find( '.mejs-video, video, object' ).css( 'margin', 0 ),
-					$container = $this_el.closest( '.et_pb_section' ).length
-						? $this_el.closest( '.et_pb_section' )
-						: $this_el.closest( '.et_pb_slides' ),
+					$container = $this_el.closest( '.et_pb_section' ).length ? $this_el.closest( '.et_pb_section' ) : $this_el.closest( '.et_pb_slides' ),
 					body_width = $container.width(),
 					container_height = $container.innerHeight(),
 					width, height;
@@ -1900,18 +1902,18 @@
 
 			et_pb_remove_placeholder_text( $(this).closest( '.et_pb_newsletter_form' ) );
 
-			if ( $firstname.val() == '' || $email.val() == '' || list_id === '' ) {
-				if ( $firstname.val() == '' ) $firstname.addClass( 'et_pb_signup_error' );
+			if ( $firstname.val() === '' || $email.val() === '' || list_id === '' ) {
+				if ( $firstname.val() === '' ) $firstname.addClass( 'et_pb_signup_error' );
 
-				if ( $email.val() == '' ) $email.addClass( 'et_pb_signup_error' );
+				if ( $email.val() === '' ) $email.addClass( 'et_pb_signup_error' );
 
-				if ( $firstname.val() == '' )
+				if ( $firstname.val() === '' )
 					$firstname.val( $firstname.siblings( '.et_pb_contact_form_label' ).text() );
 
-				if ( $lastname.val() == '' )
+				if ( $lastname.val() === '' )
 					$lastname.val( $lastname.siblings( '.et_pb_contact_form_label' ).text() );
 
-				if ( $email.val() == '' )
+				if ( $email.val() === '' )
 					$email.val( $email.siblings( '.et_pb_contact_form_label' ).text() );
 
 				return;
@@ -2162,4 +2164,4 @@
 	});
 
 	
-})(jQuery)
+})(jQuery);

@@ -21,8 +21,8 @@
 
 										$show_thumbnail = 'on';
 										$fullwidth = 'off';
-										$show_author = 'on';
-										$show_date = 'on';
+										$show_author = 'off';
+										$show_date = 'off';
 										$show_categories = 'on';
 										$show_content = 'off';
 										$show_pagination = 'on';
