@@ -11,144 +11,126 @@
 
 						<div class="et_pb_column et_pb_column_4_4">
 
-							<!-- <div class="et_pb_row_inner"> -->
+							<div class="et_pb_blog_grid_wrapper" id='et_pb_blog_grid_wrapper'>
 
-								<div class="et_pb_portfolio_grid clearfix et_pb_bg_layout_light ">
+								<div class="et_pb_blog_grid clearfix et_pb_bg_layout_light">
 
 									<?php
 
-										global $kidzou_options;
+										// global $kidzou_options;
 
-										$with_votes = true;
-										$show_title = 'on';
-										$show_categories = 'on';
-										$show_pagination = 'on';
-										$filter = 'none';
+										$show_thumbnail = 'on';
 										$fullwidth = 'off';
+										$show_author = 'on';
+										$show_date = 'on';
+										$show_categories = 'on';
+										$show_content = 'off';
+										$show_pagination = 'on';
 										$background_layout = 'light';
-										$module_id ='';
+										$module_id = '';
 										$module_class = '';
-										$show_ad = 'on';
+										$container_is_closed = false;
+										$meta_date = 'j M';
 
-										if ( isset($kidzou_options['pub_archive']) && $kidzou_options['pub_archive']<>'')
-											echo $kidzou_options['pub_archive'];
+										wp_enqueue_script( 'jquery-masonry-3' );
 
 										ob_start();
 
-										$categories_included = array();
-
-										$index = 0;
-
 										if ( have_posts() ) {
-
 											while ( have_posts() ) {
+												the_post();
 
-												if ($index==2 && $show_ad=='on') {
+												$post_format = get_post_format();
 
-													//insertion de pub
-													global $kidzou_options;
+												$thumb = '';
 
-													if ( isset($kidzou_options['pub_portfolio']) && trim($kidzou_options['pub_portfolio'])!='') {
+												$width = 400;
+												// $width = (int) apply_filters( 'et_pb_blog_image_width', $width );
 
-														$output = sprintf(
-															'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
-																%2$s
+												$height = 250;
+												// $height = (int) apply_filters( 'et_pb_blog_image_height', $height );
+												$classtext = '';
+												$titletext = get_the_title();
+												$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'Blogimage' );
+												$thumb = $thumbnail["thumb"];
+
+												$no_thumb_class = '' === $thumb || 'off' === $show_thumbnail ? ' et_pb_no_thumb' : '';
+
+												if ( in_array( $post_format, array( 'video', 'gallery' ) ) ) {
+													$no_thumb_class = '';
+												} ?>
+
+											<article id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_post kz_search' . $no_thumb_class ); ?>>
+
+											<?php
+												et_divi_post_format_content();
+
+												if ( ! in_array( $post_format, array( 'link', 'audio', 'quote' ) ) ) {
+													if ( 'video' === $post_format && false !== ( $first_video = et_get_first_video() ) ) :
+														printf(
+															'<div class="et_main_video_container">
+																%1$s
 															</div>',
-															'et_pb_portfolio_item kz_portfolio_item ad',
-															$kidzou_options['pub_portfolio'],
-															__('Publicite','Divi')
+															$first_video
 														);
-
-														echo $output;
-
-													}
-														
-
-												} else {
-
-													the_post(); 
-
-													$categories = get_the_terms( get_the_ID(), 'category' );
-													if ( $categories ) {
-														foreach ( $categories as $category ) {
-															$categories_included[] = $category->term_id;
-														}
-													}
-													?>
-
-													<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
-
-														<?php
-														$thumb = '';
-
-														$width = 400;
-														$height = 284;
-
-														$classtext = '';
-														$titletext = get_the_title();
-														$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
-														$thumb = $thumbnail["thumb"];
-
-														// print_r($thumb);
-
-														if ( '' !== $thumb ) : ?>
+													elseif ( 'gallery' === $post_format ) :
+														et_gallery_images();
+													elseif ( '' !== $thumb && 'on' === $show_thumbnail ) :
+														if ( 'on' !== $fullwidth ) echo '<div class="et_pb_image_container">'; ?>
 															<a href="<?php the_permalink(); ?>">
-															<?php if ( 'on' !== $fullwidth ) : ?>
-																<span class="et_portfolio_image">
-															<?php endif; ?>
-															<?php if ( $with_votes  ) 
-																	Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
-																	<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
-															<?php if ( 'on' !== $fullwidth ) : ?>
-																	<span class="et_overlay"></span>
-																</span>
-															<?php endif; ?>
+																<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
 															</a>
 													<?php
-														endif;
-													?>
+														if ( 'on' !== $fullwidth ) echo '</div> <!-- .et_pb_image_container -->';
+													endif;
+												} ?>
 
-														<?php if ( 'on' === $show_title ) : ?>
-															<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-														<?php endif; ?>
+											<?php if ( 'off' === $fullwidth || ! in_array( $post_format, array( 'link', 'audio', 'quote', 'gallery' ) ) ) { ?>
+												<?php if ( ! in_array( $post_format, array( 'link', 'audio' ) ) ) { ?>
+													<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+												<?php } ?>
 
-														<?php if ( 'on' === $show_categories ) : ?>
-															<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
-														<?php endif; ?>
+												<?php
+													if ( 'on' === $show_author || 'on' === $show_date || 'on' === $show_categories ) {
+														printf( '<p class="post-meta">%1$s %2$s %3$s</p>',
+															(
+																'on' === $show_author
+																	? sprintf( __( 'by %s |', 'Divi' ), et_get_the_author_posts_link() )
+																	: ''
+															),
+															(
+																'on' === $show_date
+																	? sprintf( __( '%s |', 'Divi' ), get_the_date( $meta_date ) )
+																	: ''
+															),
+															(
+																'on' === $show_categories
+																	? get_the_category_list(', ')
+																	: ''
+															)
+														);
+													}
 
-														<?php
+													if ( 'on' === $show_content ) {
+														global $more;
+														$more = null;
 
-														if (Kidzou_Events::isTypeEvent()) {
+														the_content( __( 'read more...', 'Divi' ) );
+													} else {
+														if ( has_excerpt() ) {
+															the_excerpt();
+														} else {
+															truncate_post( 270 );
+														}
+													} ?>
+											<?php } // 'off' === $fullwidth || ! in_array( $post_format, array( 'link', 'audio', 'quote', 'gallery' ?>
 
-															$location = Kidzou_Events::getEventDates(get_the_ID());
-
-															$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
-															$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
-															$formatted = '';
-															setlocale(LC_TIME, "fr_FR"); 
-
-															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-																$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
-															else
-																$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
-														?>
-															<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
-														
-														<?php } ?>
-
-													</div> <!-- .et_pb_portfolio_item -->
-
+											</article> <!-- .et_pb_post -->
 									<?php
-												//fin de test sur $index
-												}
-
-												$index++;
-
-											//fin de boucle while
-											}
+											} // endwhile
 
 											if ( 'on' === $show_pagination && ! is_search() ) {
-												echo '</div> <!-- .et_pb_portfolio -->';
+												echo '</div> <!-- .et_pb_posts -->';
 
 												$container_is_closed = true;
 
@@ -169,47 +151,23 @@
 
 										$class = " et_pb_bg_layout_{$background_layout}";
 
-										$filters_html = '';
-										$category_filters = '';
-										// echo $module_class." ".stristr($module_class,'nofilter');
-										if ($filter!='none' ) {
-
-											$terms = get_terms( $filter ); //, $terms_args 
-
-											$category_filters = '<ul class="clearfix">';
-											
-											foreach ( $terms as $term  ) {
-												$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
-													esc_attr( $term->slug ),
-													esc_html( $term->name ),
-													get_term_link( $term, $filter ),
-													__('Voir tous les articles dans ').$term->name
-												);
-											}
-											$category_filters .= '</ul>';
-
-											$filters_html = '<div class="et_pb_portfolio_filters clearfix">%7$s</div><!-- .et_pb_portfolio_filters -->';
-										}
-											
-
 										$output = sprintf(
 											'<div%5$s class="%1$s%3$s%6$s">
-												<div class="et_pb_filterable_portfolio ">
-													'.$filters_html.'
-												</div>
 												%2$s
 											%4$s',
-											( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
+											( 'on' === $fullwidth ? 'et_pb_posts' : 'et_pb_blog_grid clearfix' ),
 											$posts,
 											esc_attr( $class ),
-											( ! $container_is_closed ? '</div> <!-- .et_pb_portfolio -->' : '' ),
+											( ! $container_is_closed ? '</div> <!-- .et_pb_posts -->' : '' ),
 											( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-											( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-											$category_filters
+											( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' )
 										);
+
+										if ( 'on' !== $fullwidth )
+											$output = sprintf( '<div id="et_pb_blog_grid_wrapper" class="et_pb_blog_grid_wrapper">%1$s</div>', $output );
 								
 
-									echo $output;
+										echo $output;
 
 									?>
 
@@ -227,7 +185,7 @@
 
 								<!-- </div> -->
 
-							<!-- </div> -->
+							</div>
 
 						</div>
 

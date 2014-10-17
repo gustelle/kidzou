@@ -3145,7 +3145,13 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	clear: none;
 }
 
+.et_pb_bg_layout_light .et_pb_post.kz_search p {
+	color:#666;
+}
 
+.kz_search p strong {
+	background-color: yellow;
+}
 
 /*
 .et_section_regular .et_pb_column_3_4 .et_pb_portfolio_grid .kz_portfolio_item:nth-child(3n) {

@@ -240,6 +240,14 @@ var kidzouModule = (function() { //havre de paix
 			};
 
 			self.doUpOrDown = function() {
+
+				var upOrdown = '+1';
+
+				if (self.voted())
+					upOrdown = '-1';
+
+				kidzouTracker.trackEvent("Recommandation", upOrdown, '' , 0);
+
 				//console.dir(this);
 				if (self.voted()) 
 					self.doWithdraw();
