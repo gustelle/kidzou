@@ -5,18 +5,17 @@ define( 'KZ_PB_URI', get_stylesheet_directory_uri() . '/et-pagebuilder' );
  *
  */
 function kz_pb_setup_theme(){
-	remove_action('add_meta_boxes','et_pb_add_custom_box', 10); //meme ordre que le parent
-	add_action( 'add_meta_boxes', 'kz_pb_add_custom_box' );
+
+	//seulement sur les écrans d'admin
+	if (is_admin()) {
+		remove_action('add_meta_boxes','et_pb_add_custom_box', 10); //meme ordre que le parent
+		add_action( 'add_meta_boxes', 'kz_pb_add_custom_box' );
+	}
+
 }
 add_action( 'after_setup_theme', 'kz_pb_setup_theme', 99 );
 
-// function kz_pb_override_enqueue(){
-// 	// echo 'kz_pb_override_enqueue';
-	
 
-// }
-// add_action( 'admin_enqueue_scripts', 'kz_pb_override_enqueue', 1 );
-// add_action( 'admin_enqueue_scripts', 'kz_pb_admin_scripts_styles' , 99, 1);
 add_action( 'wp_print_scripts', 'kz_pb_admin_scripts_styles', 100 );
 
 function kz_pb_add_custom_box() {
@@ -36,8 +35,11 @@ function kz_pb_add_custom_box() {
 
 function kz_pb_admin_scripts_styles(){ 
 
-	wp_deregister_script("et_pb_admin_js");
-	wp_enqueue_script( 'kz_pb_admin_js', KZ_PB_URI . '/js/admin.js', array( 'jquery', 'jquery-ui-core', 'underscore', 'backbone' ), ET_PB_VERSION, true );
+	//seulement sur les écrans d'admin
+	if (is_admin()) {
+		wp_deregister_script("et_pb_admin_js");
+		wp_enqueue_script( 'kz_pb_admin_js', KZ_PB_URI . '/js/admin.js', array( 'jquery', 'jquery-ui-core', 'underscore', 'backbone' ), ET_PB_VERSION, true );
+	}
 }
 
 function kz_pb_pagebuilder_meta_box() {
