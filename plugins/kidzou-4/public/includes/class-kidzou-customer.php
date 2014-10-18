@@ -59,6 +59,7 @@ class Kidzou_Customer {
 
 	public static $meta_customer = 'kz_event_customer';
 	public static $meta_customer_users = 'kz_customer_users';
+	public static $meta_customer_posts = 'kz_customer_posts';
 
 	const CLIENTS_TABLE = "clients";
 	const CLIENTS_USERS_TABLE = "clients_users";

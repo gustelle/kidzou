@@ -489,8 +489,6 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
-
-			global $post;
 	
 			wp_localize_script('kidzou-admin-script', 'kidzou_jsvars', array(
 					// 'api_getClients'				=> site_url()."/api/clients/getClients/",
@@ -500,12 +498,11 @@ class Kidzou_Admin {
 					// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
 					'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
 					'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
+					'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
 					'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
 					'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
 					'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
-					'customer_id' 					=> $post->ID,
-					'main_users'					=> array(array("id"=>1, "text"=>"guillaume")),
-					'second_users'					=> array(array("id"=>1, "text"=>"guillaume"))
+
 				)
 			);
 
@@ -541,6 +538,41 @@ class Kidzou_Admin {
 	 **/
 	public function customer_posts_metabox()
 	{
+
+		global $post;
+
+		$posts = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_posts, TRUE);
+
+		$posts_list = '';
+
+		if ( !empty($posts) ) {
+			foreach ($posts as $mypost) {
+				
+				if ($posts_list!='')
+					$posts_list .= ',';
+
+				$post_o = get_post( $mypost );
+				$posts_list .= $mypost.':'.$post_o->post_title; 
+			}
+		}
+
+		// Noncename needed to verify where the data originated
+		wp_nonce_field( 'customer_posts_metabox', 'customer_posts_metabox_nonce' );
+
+		$output = sprintf('
+			<ul>
+				<li>
+					<label for="customer_posts" style="display:block;">
+						Articles appartenant au client :
+					</label>
+					<input type="hidden" name="customer_posts" id="customer_posts" value="%1$s" style="width:50%% ; display:block;" />
+				</li>
+				
+			</ul>',
+			$posts_list
+			);
+
+		echo $output;
 		
 	}
 
@@ -552,8 +584,36 @@ class Kidzou_Admin {
 	 **/
 	public function customer_users_metabox()
 	{	
-		$main_users = "1:guillaume, 2:corinne";
-		$second_users = "3:test";
+
+		global $post;
+
+		$users = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_users, TRUE);
+		$main_users = "";
+		$second_users = "";
+
+		// print_r($users);
+
+		if (!empty($users) && isset($users['main'])) {
+			foreach ($users['main'] as $main) {
+				
+				if ($main_users!='')
+					$main_users .= ',';
+
+				$user = get_user_by( "id", $main );
+				$main_users .= $main.':'.$user->user_login; 
+			}
+			// echo 'main:'.$main_users;
+		}
+		if (!empty($users) && isset($users['second'])) {
+			foreach ($users['second'] as $second) {
+				if ($second_users!='')
+					$second_users .= ',';
+
+				$user = get_user_by( "id", $second );
+				$second_users .= $second.':'.$user->user_login; 
+			}
+			// echo 'second:'.$second_users;
+		}
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
@@ -893,6 +953,7 @@ class Kidzou_Admin {
 
 		//et pour les clients
 		$this->set_customer_users($post_id);
+		$this->set_customer_posts($post_id);
 		
 	}
 
@@ -1104,21 +1165,68 @@ class Kidzou_Admin {
 
 		$tmp_post = $_POST['main_users_input'];
 		$tmp_token = explode(",", $tmp_post );
-		foreach ($tmp_token as $key => $value) {
-			$pieces = explode(":", $value );
+		foreach ($tmp_token as $tok) {
+			$pieces = explode(":", $tok );
 			$main[] = $pieces[0];
 		}
 
 		$tmp_post = $_POST['second_users_input'];
 		$tmp_token = explode(",", $tmp_post );
-		foreach ($tmp_token as $key => $value) {
-			$pieces = explode(":", $value );
+		foreach ($tmp_token as $tok) {
+			$pieces = explode(":", $tok );
 			$second[] = $pieces[0];
 		}
 
 		$tmp_users = array("main" => $main, "second" => $second);
 		
 		$meta[Kidzou_Customer::$meta_customer_users] 	= $tmp_users;
+
+		self::save_meta($post_id, $meta);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	function set_customer_posts ($post_id)
+	{
+		$slug = 'customer';
+
+	    // If this isn't a 'book' post, don't update it.
+	    if ( $slug != $_POST['post_type'] ) {
+	        return;
+	    }
+
+		if ( ! isset( $_POST['customer_posts_metabox_nonce'] ) )
+			return $post_id;
+
+		$nonce = $_POST['customer_posts_metabox_nonce'];
+
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( $nonce, 'customer_posts_metabox' ) )
+			return $post_id;
+
+		// seuls les users sont autorisés
+		if ( !current_user_can( 'manage_options', $post_id ) )
+			return $post_id;
+
+		// OK, we're authenticated: we need to find and save the data
+		// We'll put it into an array to make it easier to loop though.
+
+		$posts = array();
+		$meta = array();
+
+		$tmp_post = $_POST['customer_posts'];
+		$tmp_token = explode(",", $tmp_post );
+
+		foreach ($tmp_token as $tok) {
+			$pieces = explode(":", $tok );
+			$posts[] = $pieces[0];
+		}
+		
+		$meta[Kidzou_Customer::$meta_customer_posts] 	= $posts;
 
 		self::save_meta($post_id, $meta);
 	}

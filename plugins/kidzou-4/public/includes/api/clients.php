@@ -124,6 +124,7 @@ class JSON_API_Clients_Controller {
 	 *
 	 * @return void
 	 * @author 
+	 * @deprecated
 	 **/
 	public function queryAttachableContents( )
 	{
@@ -186,6 +187,64 @@ class JSON_API_Clients_Controller {
 			"sql" => $sql_query
 		);
 	} 
+
+	/**
+	 * liste des contenus que l'on peut rattacher à un client
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function queryAttachablePosts( )
+	{
+		global $json_api;
+
+		$term 		= $json_api->query->term;
+
+		if (!current_user_can("edit_users") || !current_user_can("manage_options"))
+			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
+
+		if ($term=='')
+			return array(
+				"posts" => array(),
+			);
+
+		add_filter( 'posts_where', array($this, 'query_where_title_like'), 10, 2 );
+
+		$posts = $json_api->introspector->get_posts( array(
+				'post_title' => $term,
+				'posts_per_page' => 10,
+				'meta_query' => array(
+			        'relation' => 'OR',
+			            array( // new and edited posts
+			                'key' => Kidzou_Customer::$meta_customer_posts,
+			                'compare' => 'NOT EXISTS', // works!
+     						'value' => '' // This is ignored, but is necessary...
+			            ),
+
+			            array( // get old posts w/out custom field
+			                'key' => Kidzou_Customer::$meta_customer_posts,
+			               	'value' => 'hackme'
+			            ) 
+			        ),
+			) 
+		);
+
+		global $wp_query;
+
+		return array(
+			"posts" => $posts,
+			"query" => $wp_query->request
+		);
+	} 
+
+	public function query_where_title_like( $where, &$wp_query )
+	{
+	    global $wpdb;
+	    if ( $post_title = $wp_query->get( 'post_title' ) ) {
+	        $where .= ' AND ' . $wpdb->posts . '.post_title LIKE \'%' . esc_sql( like_escape( $post_title ) ) . '%\'';
+	    }
+	    return $where;
+	}
 
 	//update event (meta 'kz_event_customer' supprimée ou mise à 0)
 	public function detachFromClient() {
