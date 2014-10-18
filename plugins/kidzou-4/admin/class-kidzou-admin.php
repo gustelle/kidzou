@@ -449,7 +449,6 @@ class Kidzou_Admin {
 
 		if ( in_array($screen->id , $this->screen_with_meta) ) {
 
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
 			
 			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
@@ -480,30 +479,33 @@ class Kidzou_Admin {
 		} elseif ( $screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 
 			//ecran de gestion des clients
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
+
 
 			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 
+			//requis par placecomplete
 			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
+			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
 
-			wp_enqueue_script('kidzou-client', plugins_url( 'assets/js/kidzou-client.js', __FILE__ ) , array("jquery","ko"), '0.1', true);
-
-			wp_enqueue_script('jmasonry',		"http://cdnjs.cloudflare.com/ajax/libs/masonry/3.1.2/masonry.pkgd.js",	array('jquery'), '3.1.2', true);
-			wp_enqueue_script('moment',			"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
-			wp_enqueue_script('moment-locale',	"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
-
-			wp_localize_script('kidzou-client', 'kidzou_jsvars', array(
-					'api_getClients'				=> site_url()."/api/clients/getClients/",
-					'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
+			global $post;
+	
+			wp_localize_script('kidzou-admin-script', 'kidzou_jsvars', array(
+					// 'api_getClients'				=> site_url()."/api/clients/getClients/",
+					// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
 					'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
 					'api_saveClient'				=> site_url().'/api/clients/saveClient/',
-					'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
+					// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
 					'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
 					'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
 					'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
 					'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
 					'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
+					'customer_id' 					=> $post->ID,
+					'main_users'					=> array(array("id"=>1, "text"=>"guillaume")),
+					'second_users'					=> array(array("id"=>1, "text"=>"guillaume"))
 				)
 			);
 
@@ -526,6 +528,7 @@ class Kidzou_Admin {
 			
 			add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
+			add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
 		}
 
 	}
@@ -538,7 +541,45 @@ class Kidzou_Admin {
 	 **/
 	public function customer_posts_metabox()
 	{
-		echo 'coucou';
+		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function customer_users_metabox()
+	{	
+		$main_users = "1:guillaume, 2:corinne";
+		$second_users = "3:test";
+
+		// Noncename needed to verify where the data originated
+		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
+
+		$output = sprintf('
+			<ul>
+				<li>
+					<label for="users" style="display:block;">
+						Utilisateurs <strong>principaux</strong> autoris&eacute;s &agrave; saisir des contenus<br/>
+						<em>Ces utilisateurs ont le droit de g&eacute;rer les contenus cr&eacute;es par les utilisateurs secondaires</em>
+					</label>
+					<input type="hidden" name="users" id="main_users_input" value="%1$s" style="width:50%% ; display:block;" />
+				</li>
+				<li>
+					<label for="secondusers" style="display:block;">
+						Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus
+					</label>
+					<input type="hidden" name="secondusers" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
+				</li>
+			</ul>',
+			$main_users,
+			$second_users
+			);
+
+		echo $output;
+		//include_once(plugin_dir_path( __FILE__ ).'/views/customer_users_view.php');
 	}
 
 	/**
