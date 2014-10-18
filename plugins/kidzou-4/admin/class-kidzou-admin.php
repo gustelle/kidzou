@@ -561,17 +561,17 @@ class Kidzou_Admin {
 		$output = sprintf('
 			<ul>
 				<li>
-					<label for="users" style="display:block;">
+					<label for="main_users_input" style="display:block;">
 						Utilisateurs <strong>principaux</strong> autoris&eacute;s &agrave; saisir des contenus<br/>
 						<em>Ces utilisateurs ont le droit de g&eacute;rer les contenus cr&eacute;es par les utilisateurs secondaires</em>
 					</label>
-					<input type="hidden" name="users" id="main_users_input" value="%1$s" style="width:50%% ; display:block;" />
+					<input type="hidden" name="main_users_input" id="main_users_input" value="%1$s" style="width:50%% ; display:block;" />
 				</li>
 				<li>
-					<label for="secondusers" style="display:block;">
+					<label for="second_users_input" style="display:block;">
 						Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus
 					</label>
-					<input type="hidden" name="secondusers" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
+					<input type="hidden" name="second_users_input" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
 				</li>
 			</ul>',
 			$main_users,
@@ -890,6 +890,9 @@ class Kidzou_Admin {
 		$this->save_client_meta($post_id);
 		$this->save_post_metropole($post_id);
 		$this->set_post_metropole($post_id);
+
+		//et pour les clients
+		$this->set_customer_users($post_id);
 		
 	}
 
@@ -1061,6 +1064,63 @@ class Kidzou_Admin {
 
 		self::save_meta($post_id, $events_meta);
 		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	function set_customer_users ($post_id)
+	{
+		$slug = 'customer';
+
+	    // If this isn't a 'book' post, don't update it.
+	    if ( $slug != $_POST['post_type'] ) {
+	        return;
+	    }
+
+		if ( ! isset( $_POST['customer_users_metabox_nonce'] ) )
+			return $post_id;
+
+		$nonce = $_POST['customer_users_metabox_nonce'];
+
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( $nonce, 'customer_users_metabox' ) )
+			return $post_id;
+
+		// seuls les users sont autorisés
+		if ( !current_user_can( 'manage_options', $post_id ) )
+			return $post_id;
+
+		// OK, we're authenticated: we need to find and save the data
+		// We'll put it into an array to make it easier to loop though.
+
+		$tmp_users = array();
+		$main = array();
+		$second = array();
+		$meta = array();
+
+		$tmp_post = $_POST['main_users_input'];
+		$tmp_token = explode(",", $tmp_post );
+		foreach ($tmp_token as $key => $value) {
+			$pieces = explode(":", $value );
+			$main[] = $pieces[0];
+		}
+
+		$tmp_post = $_POST['second_users_input'];
+		$tmp_token = explode(",", $tmp_post );
+		foreach ($tmp_token as $key => $value) {
+			$pieces = explode(":", $value );
+			$second[] = $pieces[0];
+		}
+
+		$tmp_users = array("main" => $main, "second" => $second);
+		
+		$meta[Kidzou_Customer::$meta_customer_users] 	= $tmp_users;
+
+		self::save_meta($post_id, $meta);
 	}
 
 	/**
