@@ -1266,7 +1266,7 @@
 						var params = event.params;
 						$the_gallery = $( '#' + event.target.id );
 
-						if ( page_to = params[0] ) {
+						if ( page_to == params[0] ) {
 							setTimeout(function(){
 								if ( !$the_gallery.find('.et_pb_gallery_pagination a.page-' + page_to ).hasClass('active') ) {
 									$the_gallery.find('.et_pb_gallery_pagination a.page-' + page_to ).addClass('active').click();
@@ -1772,9 +1772,11 @@
 				secondary_nav_height = $top_header.length && $top_header.is( ':visible' ) ? $top_header.innerHeight() : 0,
 				admin_bar_height     = $( '#wpadminbar' ).length ? $( '#wpadminbar' ).innerHeight() : 0;
 
-			et_header_height      = $( '#main-header' ).innerHeight() + secondary_nav_height - 1,
-			et_header_modifier    = et_header_height <= 90 ? et_header_height - 29 : et_header_height - 56,
-			et_header_offset      = et_header_modifier + admin_bar_height;
+			et_header_height      = $( '#main-header' ).innerHeight() + secondary_nav_height - 1;
+			et_header_modifier    = et_header_height <= 90 ? et_header_height - 29 : et_header_height - 56;
+			//et_header_offset      ;
+
+			et_header_offset = et_header_modifier + admin_bar_height;
 
 			et_primary_header_top = secondary_nav_height + admin_bar_height;
 		}

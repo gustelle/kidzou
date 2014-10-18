@@ -151,6 +151,7 @@ class Kidzou_Geo {
 		//les pages n'ont pas de taxo "ville", il faut les exclure du filtre
 	    if( !is_admin() && !is_search() ) {
 
+
 	        $the_metropole = array(self::get_request_metropole());
 	        $national = (array)self::get_national_metropoles(); 
 	       	$merge = array_merge( $the_metropole, $national );
@@ -159,19 +160,26 @@ class Kidzou_Geo {
 	        //d'ou l'importance d'executer celle-ci en dernier
 	        $vars = get_query_var('tax_query'); 
 
-	        // print_r($vars);
-
 	        $ville_tax_present = false;
-
-	        // echo (isset($vars['taxonomy']) && $vars['taxonomy']=='ville' ? 'nin' : 'ta');
 
 	        if (isset($vars['taxonomy']) && $vars['taxonomy']=='ville')
 	        	$ville_tax_present = true;
+
 	        else if (is_array($vars)) {
 	        	foreach ($vars as $key => $value) {
-		        	// print_r($var);
-		        	if ($key == 'taxonomy' && $value=='ville')
-		        		$ville_tax_present = true;
+		        	
+	        		// print_r(array_keys($value));
+	        		if (is_array($value)) {
+	        			foreach ($value as $key => $value) {
+		        			if ($key == 'taxonomy' && $value=='ville') {
+		        				$ville_tax_present = true;
+		        				// echo 'found';
+		        			}
+		        				
+		        		}
+
+	        		}
+		        		
 		        }
 
 	        }

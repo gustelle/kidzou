@@ -15,7 +15,8 @@ module.exports = function(grunt) {
 			options: {
 		      "-W099": true, //mixed spaces and tabs (smarttabs)
 		      "-W065": true,	//radix param sur la fonction parseInt(),
-		      "-W044": true  //escapes dans les regex
+		      "-W044": true,  //escapes dans les regex
+		      "-W004": true //{a} is already defined
 		    },
 			all: ['<%= cfg.kidzou_path %>/public/asets/js/public.js',
 				  '<%= cfg.kidzou_path %>/asets/js/kidzou-geo.js.js',
