@@ -58,8 +58,16 @@ class Kidzou_Customer {
 	protected static $meta = '';
 
 	public static $meta_customer = 'kz_event_customer';
+
 	public static $meta_customer_users = 'kz_customer_users';
+
 	public static $meta_customer_posts = 'kz_customer_posts';
+
+	public static $meta_api_key = 'kz_api_key';
+
+	public static $meta_api_quota = 'kz_api_quota';
+
+	public static $meta_api_usage = 'kz_api_usage';
 
 	const CLIENTS_TABLE = "clients";
 	const CLIENTS_USERS_TABLE = "clients_users";

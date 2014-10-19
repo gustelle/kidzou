@@ -244,6 +244,8 @@ class Kidzou_Admin {
 	    echo '<input type="checkbox" name="kz_has_family_card" value="1" '.($val !== "0" ? 'checked="checked"':'').'/> <br />';
 	    echo '</td></tr>';
 
+
+
 	    echo '</table>';
 	}
 
@@ -402,10 +404,6 @@ class Kidzou_Admin {
 	 */
 	public function enqueue_admin_styles() {
 
-		// if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-		// 	return;
-		// }
-
 		$screen = get_current_screen(); 
 
 		if ( in_array($screen->id , $this->screen_with_meta)  ) {
@@ -441,9 +439,6 @@ class Kidzou_Admin {
 	 */
 	public function enqueue_admin_scripts() {
 
-		// if ( ! isset( $this->plugin_screen_hook_suffix ) ) {
-		// 	return;
-		// }
 
 		$screen = get_current_screen(); 
 
@@ -587,32 +582,32 @@ class Kidzou_Admin {
 
 		global $post;
 
-		$users = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_users, TRUE);
+		$post_id = $post->ID;
+
+		// $users = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_users, TRUE);
+		$user_query = new WP_User_Query( array( 
+			'meta_key' => 'kz_customer', 
+			'meta_value' => $post_id , 
+			'role' => 'Contributor' , 
+			'fields' => array('ID', 'user_login') 
+			) 
+		);
 		$main_users = "";
-		$second_users = "";
+		// $second_users = "";
 
 		// print_r($users);
 
-		if (!empty($users) && isset($users['main'])) {
-			foreach ($users['main'] as $main) {
+		if ( !empty($user_query->results) ) {
+			foreach ($user_query->results as $main) {
 				
 				if ($main_users!='')
 					$main_users .= ',';
 
-				$user = get_user_by( "id", $main );
-				$main_users .= $main.':'.$user->user_login; 
-			}
-			// echo 'main:'.$main_users;
-		}
-		if (!empty($users) && isset($users['second'])) {
-			foreach ($users['second'] as $second) {
-				if ($second_users!='')
-					$second_users .= ',';
+				$id = $main->ID;
+				$login = $main->user_login;
 
-				$user = get_user_by( "id", $second );
-				$second_users .= $second.':'.$user->user_login; 
+				$main_users .= $id.':'.$login; 
 			}
-			// echo 'second:'.$second_users;
 		}
 
 		// Noncename needed to verify where the data originated
@@ -643,17 +638,54 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * undocumented function
+	 * Gestion des
+	 * - Quota
+	 * - API disponibles
+	 * - Token
 	 *
 	 * @return void
 	 * @author 
 	 **/
 	public function customer_apis()
 	{
-		echo 'les apis';
-		echo 'generer token';
-		echo 'API disponibles';
-		echo 'quota';
+
+		global $post;
+
+		// Noncename needed to verify where the data originated
+		wp_nonce_field( 'customer_apis_metabox', 'customer_apis_metabox_nonce' );
+
+		$key 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_key, TRUE);
+		$quota 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_quota, TRUE); 
+		$usage 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_usage, TRUE);
+
+		if ($key=='') {
+			//générer une clé
+			$key = md5('Kidzou, sorties locales en famille'.$post->ID.rand());
+		}
+
+		$output = sprintf('
+			<ul>
+				<li>
+					<label for="customer_api_key_text">Cl&eacute; de s&eacute;curit&eacute;:</label>
+					<input type="hidden" name="customer_api_key" value="%1$s"  />
+			  		%2$s
+				</li>
+				<li>
+					<label for="customer_api_quota">Quota d&apos;appel par jour:</label>
+			  		<input type="text" name="customer_api_quota" value="%3$s"  />
+				</li>
+				<li>
+					Utilisation en cours: %4$s
+				</li>
+			</ul>
+		',
+		$key,
+		$key,
+		$quota,
+		$usage
+		);
+
+		echo $output;
 	}
 
 	/**
@@ -954,6 +986,7 @@ class Kidzou_Admin {
 		//et pour les clients
 		$this->set_customer_users($post_id);
 		$this->set_customer_posts($post_id);
+		$this->set_customer_apis($post_id);
 		
 	}
 
@@ -1167,21 +1200,121 @@ class Kidzou_Admin {
 		$tmp_token = explode(",", $tmp_post );
 		foreach ($tmp_token as $tok) {
 			$pieces = explode(":", $tok );
-			$main[] = $pieces[0];
+			$main[] = intval($pieces[0]);
 		}
 
 		$tmp_post = $_POST['second_users_input'];
 		$tmp_token = explode(",", $tmp_post );
 		foreach ($tmp_token as $tok) {
 			$pieces = explode(":", $tok );
-			$second[] = $pieces[0];
+			$second[] = intval($pieces[0]);
 		}
 
-		$tmp_users = array("main" => $main, "second" => $second);
+		// $tmp_users = array("main" => $main, "second" => $second);
 		
-		$meta[Kidzou_Customer::$meta_customer_users] 	= $tmp_users;
+		// $meta[Kidzou_Customer::$meta_customer_users] 	= $tmp_users;
 
-		self::save_meta($post_id, $meta);
+		//enrichir le post
+		// self::save_meta($post_id, $meta);
+
+		//sauvegarder également coté user pour donner les rôles
+		
+		//il faut faire un DIFF :
+		//recolter la liste des users existants sur ce client
+		//comparer à la liste des users passés dans le POST
+		//supprimer, ajouter selon les cas
+
+		$allusers = array_merge($main, $second);
+
+		// $old_users = $wpdb->get_col(
+		// 	"SELECT DISTINCT user_id FROM $table_clients_users WHERE customer_id = $id");
+
+		//boucle primaire
+		//si les users passés dans la req étaient déjà présents en base
+		//	si il n'avaient pas capacité edit_others_events, -
+		//	sinon -
+		//si non
+		// 	on ajoute le user à la liste des users du client
+		//		si il n'a pas la capacité edit_others_events, -
+		foreach ($allusers as $a_user) {
+
+			//toujours s'assurer qu'il est contrib, ca ne mange pas de pain
+			//mais ne pas dégrader son role s'il est éditeur ou admin
+			$u = new WP_User( $a_user );
+			$better = false;
+
+			$better_roles = array('administrator','editor','author');
+
+			if ( !empty( $u->roles ) && is_array( $u->roles ) ) {
+				foreach ( $u->roles as $role )
+					if (in_array($role, $better_roles)) {
+						$better = true;
+						break;
+					}
+			}
+
+			if (!$better) {
+				// $u->add_role( 'Contributor' );
+				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
+
+		        //ajouter la meta qui va bien
+		        add_user_meta( $a_user, 'kz_customer', $post_id, TRUE ); //cette meta est unique
+			}
+	        
+		}
+
+		//boucle secondaire
+		//si la base contenait une liste d'utilisateurs pour le client
+		//	si le user a été repassé en requette 
+		// 		on supprime le role du user user 
+		// 		ainsi que la meta client
+
+		$args = array(
+			'meta_key'     => 'kz_customer',
+			'meta_value'   => $post_id,
+			'fields' => 'id' //retourne un array(id)
+		 );
+
+		$old_users = get_users($args); 
+
+		if (!is_null($old_users)) {
+
+			//boucle complémentaire:
+			foreach ($old_users as $a_user) {
+
+				if (!in_array($a_user, $allusers)) {
+
+					$u = new WP_User( $user->ID );
+
+					$better = false;
+
+					$better_roles = array('administrator','editor','author');
+
+					if ( !empty( $u->roles ) && is_array( $u->roles ) ) {
+						foreach ( $u->roles as $role )
+							if (in_array($role, $better_roles)) {
+								$better = true;
+								break;
+							}
+					}
+
+					if (!$better) {
+						//privé de gateau
+				        // $u->remove_role( 'Contributor' );
+
+				        // //on lui donne quand même le droit de visiter le site...
+				        // $u->add_role( 'Subscriber' );
+				        $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
+					}
+
+			        //suppression de la meta du client dans tous les cas
+			        delete_user_meta( $a_user, 'kz_customer', $post_id );
+
+				}
+				
+			}
+
+		}
 	}
 
 	/**
@@ -1227,6 +1360,46 @@ class Kidzou_Admin {
 		}
 		
 		$meta[Kidzou_Customer::$meta_customer_posts] 	= $posts;
+
+		self::save_meta($post_id, $meta);
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	function set_customer_apis ($post_id)
+	{
+		$slug = 'customer';
+
+	    // If this isn't a 'book' post, don't update it.
+	    if ( $slug != $_POST['post_type'] ) {
+	        return;
+	    }
+
+		if ( ! isset( $_POST['customer_apis_metabox_nonce'] ) )
+			return $post_id;
+
+		$nonce = $_POST['customer_apis_metabox_nonce'];
+
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( $nonce, 'customer_apis_metabox' ) )
+			return $post_id;
+
+		// seuls les users sont autorisés
+		if ( !current_user_can( 'manage_options', $post_id ) )
+			return $post_id;
+
+		// OK, we're authenticated: we need to find and save the data
+		// We'll put it into an array to make it easier to loop though.
+
+		$key = $_POST['customer_api_key'];
+		$quota = $_POST['customer_api_quota'];
+		
+		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
+		$meta[Kidzou_Customer::$meta_api_quota] = $quota;
 
 		self::save_meta($post_id, $meta);
 	}
