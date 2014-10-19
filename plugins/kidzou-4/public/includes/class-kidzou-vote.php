@@ -191,9 +191,13 @@ class Kidzou_Vote {
 			self::set_template('', $useCountText);
 		}
 
+		$apost = get_post();
+		$slug = $apost->post_name;
+
 		echo '
 		<span class="votable '.$class.'"  
 				data-post="'.$id.'" 
+				data-slug="'.$slug.'"
 				data-bind="template: { name: \'vote-template\', data: votes.getVotableItem('.$id.') }"></span>';
 
 	}

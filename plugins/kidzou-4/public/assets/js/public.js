@@ -73,7 +73,7 @@ var kidzouModule = (function() { //havre de paix
 		feedViewModel();
 
 		function mapVotedToVotables(_voted) {
-			logger.debug("mapVotedToVotables " + ko.toJSON(_voted));
+			// logger.debug("mapVotedToVotables " + ko.toJSON(_voted));
 			// debug("votesModel.votableItems " + ko.toJSON(votesModel.votableItems));
 			ko.utils.arrayForEach(_voted, function(item) {
 				ko.utils.arrayFirst(votesModel.votableItems, function(i) {
@@ -183,7 +183,7 @@ var kidzouModule = (function() { //havre de paix
 	
 			ko.utils.arrayMap(jQuery('.votable'), function(item) {
 				votesModel.votableIds.push( jQuery(item).data('post') );
-			    votesModel.votableItems.push(new VotableItem ( jQuery(item).data('post'), 0, false) );
+			    votesModel.votableItems.push(new VotableItem ( jQuery(item).data('post'), 0, false, jQuery(item).data('slug')) );
 			}); 
 
 			refreshVotesCount();  //cached by server
@@ -208,11 +208,12 @@ var kidzouModule = (function() { //havre de paix
 
 		}
 
-		function VotableItem ( _id, _votes, _voted) {
+		function VotableItem ( _id, _votes, _voted, _slug) {
 
 			var self 		= this;
 
 			self.id 		= _id;
+			self.slug 		= _slug;
 			self.votes 		= ko.observable(_votes);
 			self.voted 		= ko.observable(_voted);
 			self.downActivated = ko.observable(false); 
@@ -246,7 +247,7 @@ var kidzouModule = (function() { //havre de paix
 				if (self.voted())
 					upOrdown = '-1';
 
-				kidzouTracker.trackEvent("Recommandation", upOrdown, '' , 0);
+				kidzouTracker.trackEvent("Recommandation", upOrdown, this.slug , 0);
 
 				//console.dir(this);
 				if (self.voted()) 
@@ -262,7 +263,7 @@ var kidzouModule = (function() { //havre de paix
 
 			self.doVote = function() {
 
-				logger.debug("doVote");
+				// logger.debug("doVote");
 
 				if (this.voted()) return;
 
@@ -273,12 +274,12 @@ var kidzouModule = (function() { //havre de paix
 				this.voted(true);
 				this.votes(count);
 
-				logger.info("doVote " + _id + "(+1)");
+				// logger.info("doVote " + _id + "(+1)");
 
 				//get nonce for voting and proceed to vote
 				jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'up'})
 					.done(function (data) {
-						logger.debug("doVote " + ko.toJSON(data));
+						// logger.debug("doVote " + ko.toJSON(data));
 						if (data!==null) {
 				           var nonce =  data.nonce;
 				           //vote with the nonce
@@ -311,7 +312,7 @@ var kidzouModule = (function() { //havre de paix
 				this.voted(false);
 				this.votes(count);
 
-				logger.info("doWithdraw " + _id + "(-1)");
+				// logger.info("doWithdraw " + _id + "(-1)");
 
 				//get nonce for voting and proceed to vote
 				jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'down'})
