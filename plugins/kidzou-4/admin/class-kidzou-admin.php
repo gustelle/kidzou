@@ -565,7 +565,7 @@ class Kidzou_Admin {
 					<label for="customer_posts" style="display:block;">
 						Articles appartenant au client :
 					</label>
-					<input type="hidden" name="customer_posts" id="customer_posts" value="%1$s" style="width:50%% ; display:block;" />
+					<input type="hidden" name="customer_posts" id="customer_posts" value="%1$s" style="width:100%% ; display:block;" />
 				</li>
 				
 			</ul>',
