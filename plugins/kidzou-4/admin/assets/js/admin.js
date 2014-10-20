@@ -21,7 +21,7 @@
 			    callback(data);
 			},
 			ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-		        url: kidzou_jsvars.api_get_userinfo,
+		        url: client_jsvars.api_get_userinfo,
 		        dataType: 'jsonp',
 		        data: function (term, page) {
 		            return {
@@ -55,7 +55,7 @@
 			    callback(data);
 			},
 			ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-		        url: kidzou_jsvars.api_get_userinfo,
+		        url: client_jsvars.api_get_userinfo,
 		        dataType: 'jsonp',
 		        data: function (term, page) {
 		            return {
@@ -95,7 +95,7 @@
 			    callback(data);
 			},
 			ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-		        url: kidzou_jsvars.api_queryAttachablePosts,
+		        url: client_jsvars.api_queryAttachablePosts,
 		        dataType: 'jsonp',
 		        data: function (term, page) {
 		            return {

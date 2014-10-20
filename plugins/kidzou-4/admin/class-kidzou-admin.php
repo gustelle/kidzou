@@ -704,11 +704,18 @@ class Kidzou_Admin {
 					Utilisation en cours: %4$s
 				</li>
 			</ul>
+			<ul>
+				<li>
+					<strong>URL &agrave; communiquer au client:</strong><br/>
+					<a target="_blank" href="%5$s">%5$s</a>
+				</li>
+			</ul>
 		',
 		$key,
 		$key,
 		$quota,
-		$usage
+		$usage,
+		site_url().'/api/content/excerpts/?key='.$key.'&date_from='
 		);
 
 		echo $output;

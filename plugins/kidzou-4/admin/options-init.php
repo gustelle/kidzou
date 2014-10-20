@@ -341,7 +341,29 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
                 )
             );
+            
+            $this->sections[] = array(
+                'title'     => __('API', 'kidzou'),
+                'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
+                'icon'      => 'el-icon-rss',
+                'fields'    => array(
 
+                    array(
+                        'id'        => 'excerpts_max_days',
+                        'type'      => 'spinner',
+                        'title'     => __('Jusque combien de jours l\'utilisateur peut-il remonter pour exporter les extraits ?', 'kidzou'),
+                        'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
+                        'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
+                        'default'  => '7',
+                        'min'      => '0',
+                        'step'     => '1',
+                        'max'      => '30'
+                    ),
+
+                    
+
+                )
+            );
             
         }
 
