@@ -473,6 +473,32 @@ class Kidzou_Admin {
 
 		} elseif ( $screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 
+			//temporaire le temps de migrer
+			if ($screen->id == $this->plugin_screen_hook_suffix) {
+
+				wp_enqueue_script('kidzou-client', plugins_url( 'assets/js/kidzou-client.js', __FILE__ ) , array("jquery","ko"), '0.1', true);
+
+				wp_enqueue_script('jmasonry',		"http://cdnjs.cloudflare.com/ajax/libs/masonry/3.1.2/masonry.pkgd.js",	array('jquery'), '3.1.2', true);
+				wp_enqueue_script('moment',			"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
+				wp_enqueue_script('moment-locale',	"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
+
+				wp_localize_script('kidzou-client', 'kidzou_jsvars', array(
+						'api_getClients'				=> site_url()."/api/clients/getClients/",
+						'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
+						'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
+						'api_saveClient'				=> site_url().'/api/clients/saveClient/',
+						'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
+						'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
+						'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
+						'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
+						'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
+						'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
+						'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
+
+					)
+				);
+			}
+
 			//ecran de gestion des clients
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
 
@@ -485,7 +511,7 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
 	
-			wp_localize_script('kidzou-admin-script', 'kidzou_jsvars', array(
+			wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
 					// 'api_getClients'				=> site_url()."/api/clients/getClients/",
 					// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
 					'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
