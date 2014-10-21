@@ -88,16 +88,6 @@ function filter_archive_query($query)
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set('nopaging', true);
 		$query->set('posts_per_page', '-1' ); 
-
-		//sur les offres, on met tout a plat
-		//l'ordre est naturel
-
-		if ( get_queried_object()->name != 'offres' ) {
-
-			$query->set('meta_key' , 'kz_index' );
-			$query->set('orderby' , array('meta_value'=>'ASC') );
-			$query->set('order' , 'ASC' );
-		}
 		
 	}
 }
