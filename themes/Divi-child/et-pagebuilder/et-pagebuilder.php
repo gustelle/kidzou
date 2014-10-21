@@ -78,7 +78,9 @@ function kz_pb_add_builder_page_js_css(){
 	wp_enqueue_script( 'underscore' );
 	wp_enqueue_script( 'backbone' );
 
-	if (!wp_script_is('google-maps-api', 'enqueued'))
+	//le plugin kidzou-4 embarque deka google-maps
+	//c'est le premier qui gagne
+	if (!wp_script_is('google-maps', 'enqueued'))
 		wp_enqueue_script( 'google-maps-api', add_query_arg( array( 'v' => 3, 'sensor' => 'false' ), is_ssl() ? 'https://maps-api-ssl.google.com/maps/api/js' : 'http://maps.google.com/maps/api/js' ), array(), '3', true );
 	wp_enqueue_script( 'wp-color-picker' );
 	wp_enqueue_style( 'wp-color-picker' );

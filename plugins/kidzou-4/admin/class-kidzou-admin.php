@@ -447,6 +447,7 @@ class Kidzou_Admin {
 			
 			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
+			
 			//validation des champs du formulaire de saisie des events
 			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', __FILE__ ),array("ko"), '1.0', true);
 			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', __FILE__ ),array("ko-validation"), '1.0', true);
@@ -457,6 +458,7 @@ class Kidzou_Admin {
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
 			//selection des places dans Google Places
 			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', __FILE__ ),array('jquery-select2', 'google-maps'), '1.0', true);
+			
 			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 
 			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), '1.0', true);

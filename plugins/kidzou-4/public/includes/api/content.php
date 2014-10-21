@@ -40,7 +40,7 @@ class JSON_API_Content_Controller {
 	   	$diff = $dDiff->days;
 
 		if (!self::validateDate($date_from, 'Y-m-d'))
-			$json_api->error("Vous etes certain que la date est correcte (format YYYY-MM-DD HH:mm:ss) ?");
+			$json_api->error("Vous etes certain que la date est correcte (format YYYY-MM-DD) ?");
 
 		global $wpdb;
 
