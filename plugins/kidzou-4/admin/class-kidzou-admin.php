@@ -439,12 +439,12 @@ class Kidzou_Admin {
 	 */
 	public function enqueue_admin_scripts() {
 
-
 		$screen = get_current_screen(); 
 
 		if ( in_array($screen->id , $this->screen_with_meta) ) {
 
-			
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
+
 			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 			
@@ -475,35 +475,8 @@ class Kidzou_Admin {
 
 		} elseif ( $screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 
-			//temporaire le temps de migrer
-			if ($screen->id == $this->plugin_screen_hook_suffix) {
-
-				wp_enqueue_script('kidzou-client', plugins_url( 'assets/js/kidzou-client.js', __FILE__ ) , array("jquery","ko"), '0.1', true);
-
-				wp_enqueue_script('jmasonry',		"http://cdnjs.cloudflare.com/ajax/libs/masonry/3.1.2/masonry.pkgd.js",	array('jquery'), '3.1.2', true);
-				wp_enqueue_script('moment',			"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
-				wp_enqueue_script('moment-locale',	"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
-
-				wp_localize_script('kidzou-client', 'kidzou_jsvars', array(
-						'api_getClients'				=> site_url()."/api/clients/getClients/",
-						'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
-						'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
-						'api_saveClient'				=> site_url().'/api/clients/saveClient/',
-						'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
-						'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
-						'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
-						'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-						'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
-						'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
-						'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
-
-					)
-				);
-			}
-
 			//ecran de gestion des clients
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
-
 
 			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
@@ -512,24 +485,25 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
-	
-			wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
-					// 'api_getClients'				=> site_url()."/api/clients/getClients/",
-					// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
-					'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
-					'api_saveClient'				=> site_url().'/api/clients/saveClient/',
-					// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
-					'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
-					'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
-					'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-					'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
-					'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
-					'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
-
-				)
-			);
 
 		}
+
+		wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
+				'api_getClients'				=> site_url()."/api/clients/getClients/",
+				// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
+				'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
+				'api_saveClient'				=> site_url().'/api/clients/saveClient/',
+				// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
+				'api_get_userinfo'			 	=> site_url().'/api/users/get_userinfo/',
+				'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
+				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
+				'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
+				'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
+				'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
+				'is_user_admin'					=> current_user_can('manage_options')
+
+			)
+		);
 
 	}
 
@@ -564,7 +538,20 @@ class Kidzou_Admin {
 
 		global $post;
 
-		$posts = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_posts, TRUE);
+		$args = array(
+			'post_type' => array('post','offres'),
+		   'meta_query' => array(
+		       array(
+		           'key' => Kidzou_Customer::$meta_customer,
+		           'value' => $post->ID,
+		           'compare' => '=',
+		       )
+		   ),
+		   'post_per_page' => -1
+		);
+		$query = new WP_Query($args);
+
+		$posts = $query->get_posts();
 
 		$posts_list = '';
 
@@ -574,8 +561,8 @@ class Kidzou_Admin {
 				if ($posts_list!='')
 					$posts_list .= ',';
 
-				$post_o = get_post( $mypost );
-				$posts_list .= $mypost.':'.$post_o->post_title; 
+				// $post_o = get_post( $mypost );
+				$posts_list .= $mypost->ID.':'.$mypost->post_title; 
 			}
 		}
 
@@ -612,18 +599,13 @@ class Kidzou_Admin {
 
 		$post_id = $post->ID;
 
-		// $users = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_users, TRUE);
 		$user_query = new WP_User_Query( array( 
-			'meta_key' => 'kz_customer', 
+			'meta_key' => Kidzou_Customer::$meta_customer, 
 			'meta_value' => $post_id , 
-			'role' => 'Contributor' , 
 			'fields' => array('ID', 'user_login') 
 			) 
 		);
 		$main_users = "";
-		// $second_users = "";
-
-		// print_r($users);
 
 		if ( !empty($user_query->results) ) {
 			foreach ($user_query->results as $main) {
@@ -637,6 +619,17 @@ class Kidzou_Admin {
 				$main_users .= $id.':'.$login; 
 			}
 		}
+
+		// print_r($user_query);
+
+		//plus tard:
+		// $user_query = new WP_User_Query( array( 
+		// 	'meta_key' => 'kz_customer', 
+		// 	'meta_value' => $post_id , 
+		// 	'role' => 'editor' , 
+		// 	'fields' => array('ID', 'user_login') 
+		// 	) 
+		// );
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
@@ -662,7 +655,7 @@ class Kidzou_Admin {
 			);
 
 		echo $output;
-		//include_once(plugin_dir_path( __FILE__ ).'/views/customer_users_view.php');
+
 	}
 
 	/**
@@ -687,8 +680,8 @@ class Kidzou_Admin {
 		$usage 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_usage, TRUE);
 
 		if ($key=='') {
-			//générer une clé
-			$key = md5('Kidzou, sorties locales en famille'.$post->ID.rand());
+			//générer une clé si possible unique ??
+			$key = md5(uniqid());
 		}
 
 		$output = sprintf('
@@ -717,7 +710,7 @@ class Kidzou_Admin {
 		$key,
 		$quota,
 		$usage,
-		site_url().'/api/content/excerpts/?key='.$key.'&date_from='
+		site_url().'/api/content/excerpts/?key='.$key.'&date_from=YYYY-MM-DD'
 		);
 
 		echo $output;
@@ -739,49 +732,44 @@ class Kidzou_Admin {
 		if (!current_user_can( 'manage_options' )) {
 
 			$customer_id = Kidzou_Customer::getCustomerIDByAuthorID();
+			if (is_wp_error($customer_id))
+				$customer_id=0;
 
 		} else {
 			
 			$customer_id = Kidzou_Customer::getCustomerIDByPostID();
+			if (is_wp_error($customer_id))
+				$customer_id=0;
 		}
 
-		$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
+		if ($customer_id==0)
+			$customer_name='';
+		else
+			$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
+
+
+		$q = new WP_Query(
+			array(
+				'post_type' => 'customer', 
+				'order' => 'ASC', 
+				'orderby' => 'title', 
+				'numberposts' => -1
+			)
+		);
+
+		$posts = $q->get_posts();
+		$clients = "[";
+		$i=0;
+		foreach ($posts as $post) {
+			if ($i>0)
+				$clients .= ',';
+			$clients .= "'".$post->ID.':'.$post->post_title."'";
+			$i++;
+		}
+		$clients .= "]";
+
+		echo sprintf('<script>var clients = %1$s;</script>', $clients);
 		
-
-			echo '
-			<script>
-				var clients = [];
-				jQuery(document).ready(function() {
-
-					jQuery.getJSON("'.site_url().'/api/clients/getClients/")
-						.done(function (d) {
-						if (d && d.clients) {
-							for (var i = d.clients.length - 1; i >= 0; i--) {
-								clients.push({id : d.clients[i].id, text: d.clients[i].name});
-							};
-						}
-
-					});
-					jQuery("#kz_event_customer").select2({
-
-						placeholder: "Selectionnez un client",
-						allowClear : true,
-				        data : clients,
-				        initSelection : function (element, callback) {
-				        	var pieces = element.val().split(":");
-				        	var data = {id: pieces[0], text: pieces[1]};
-				        	//console.log("pieces[0]" + pieces[0]);
-					        callback(data);
-					    }
-					});
-			';
-			//on desactive la boite de selection du client si le user est un client
-			if (!current_user_can('manage_options')) {
-				echo 'jQuery("#kz_event_customer").select2("enable", false);';
-			}
-			echo '
-				});
-			</script>';
 		?>
 		<div class="events_form">
 
@@ -793,8 +781,8 @@ class Kidzou_Admin {
 			echo '
 				<ul>
 				<li>
-					<label for="kz_event_customer">Nom du client:</label>
-					<input type="hidden" name="kz_event_customer" id="kz_event_customer" value="' . $customer_id . ':'.$customer_name.'" style="width:80%" />
+					<label for="kz_customer">Nom du client:</label>
+					<input type="hidden" name="kz_customer" id="kz_customer" value="' . $customer_id . ':'.$customer_name.'" style="width:80%" />
 				</li>
 				</ul>';
 
@@ -1167,7 +1155,7 @@ class Kidzou_Admin {
 			return $post_id;
 		}
 
-		$key = 'kz_event_customer';
+		$key = Kidzou_Customer::$meta_customer;
 
 		// Is the user allowed to edit the post or page?
 		// if ( !current_user_can( 'edit_event', $post_id ) &&  !current_user_can( 'edit_post', $post_id ))
@@ -1182,7 +1170,7 @@ class Kidzou_Admin {
 		} else {
 			// OK, we're authenticated: we need to find and save the data
 			// We'll put it into an array to make it easier to loop though.
-			$tmp_post = $_POST['kz_event_customer'];
+			$tmp_post = $_POST[$key];
 			$tmp_arr = explode(":", $tmp_post );
 			$events_meta[$key] 	= $tmp_arr[0];
 		}
@@ -1245,13 +1233,7 @@ class Kidzou_Admin {
 			$second[] = intval($pieces[0]);
 		}
 
-		// $tmp_users = array("main" => $main, "second" => $second);
-		
-		// $meta[Kidzou_Customer::$meta_customer_users] 	= $tmp_users;
-
-		//enrichir le post
-		// self::save_meta($post_id, $meta);
-
+	
 		//sauvegarder également coté user pour donner les rôles
 		
 		//il faut faire un DIFF :
@@ -1261,8 +1243,6 @@ class Kidzou_Admin {
 
 		$allusers = array_merge($main, $second);
 
-		// $old_users = $wpdb->get_col(
-		// 	"SELECT DISTINCT user_id FROM $table_clients_users WHERE customer_id = $id");
 
 		//boucle primaire
 		//si les users passés dans la req étaient déjà présents en base
@@ -1280,7 +1260,7 @@ class Kidzou_Admin {
 
 			$better_roles = array('administrator','editor','author');
 
-			if ( !empty( $u->roles ) && is_array( $u->roles ) ) {
+			if ( !empty( $u->roles )  ) {
 				foreach ( $u->roles as $role )
 					if (in_array($role, $better_roles)) {
 						$better = true;
@@ -1289,12 +1269,11 @@ class Kidzou_Admin {
 			}
 
 			if (!$better) {
-				// $u->add_role( 'Contributor' );
 				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
-
-		        //ajouter la meta qui va bien
-		        add_user_meta( $a_user, 'kz_customer', $post_id, TRUE ); //cette meta est unique
 			}
+
+			 //ajouter la meta qui va bien
+		     add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
 	        
 		}
 
@@ -1305,7 +1284,7 @@ class Kidzou_Admin {
 		// 		ainsi que la meta client
 
 		$args = array(
-			'meta_key'     => 'kz_customer',
+			'meta_key'     => Kidzou_Customer::$meta_customer,
 			'meta_value'   => $post_id,
 			'fields' => 'id' //retourne un array(id)
 		 );
@@ -1335,15 +1314,11 @@ class Kidzou_Admin {
 
 					if (!$better) {
 						//privé de gateau
-				        // $u->remove_role( 'Contributor' );
-
-				        // //on lui donne quand même le droit de visiter le site...
-				        // $u->add_role( 'Subscriber' );
 				        $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
 					}
 
 			        //suppression de la meta du client dans tous les cas
-			        delete_user_meta( $a_user, 'kz_customer', $post_id );
+			        delete_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id );
 
 				}
 				
@@ -1393,10 +1368,38 @@ class Kidzou_Admin {
 			$pieces = explode(":", $tok );
 			$posts[] = $pieces[0];
 		}
-		
-		$meta[Kidzou_Customer::$meta_customer_posts] 	= $posts;
 
-		self::save_meta($post_id, $meta);
+		$meta[Kidzou_Customer::$meta_customer] 	= $post_id;
+
+		foreach ($posts as $mypost) {
+			self::save_meta($mypost, $meta);
+		}
+
+
+		//ensuite faire un diff pour virer ceux qui ont la meta et qui ne devraient pas
+		$args = array(
+		   'meta_query' => array(
+		       array(
+		           'key' => Kidzou_Customer::$meta_customer,
+		           'value' => $post_id,
+		           'compare' => '=',
+		       )
+		   ),
+		   'post_per_page' => -1,
+		   'post_type' => array('offres', 'post')
+		);
+		$query = new WP_Query($args);
+
+		$old_posts = $query->get_posts();
+
+		foreach ($old_posts as $an_old_one) {
+			if (in_array($an_old_one->ID, $posts)) {
+				//c'est non rien à faire
+			} else {
+				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $post_id);
+			}
+		}
+		
 	}
 
 	/**
@@ -1449,11 +1452,10 @@ class Kidzou_Admin {
 
 		// Add values of $events_meta as custom fields
 		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
+
 			$pref_key = $prefix.$key; 
-			// if( $post->post_type == 'revision' ) return; // Don't store custom data twice
-			// $value = implode(',', (array)$value); // If $value is an array, make it a CSV (unlikely)
 			$prev = get_post_meta($post_id, $pref_key, TRUE);
-			// if ($pref_key=='kz_event_customer') echo $prev;
+
 			if ($prev!='') { // If the custom field already has a value
 				update_post_meta($post_id, $pref_key, $value);
 			} else { // If the custom field doesn't have a value

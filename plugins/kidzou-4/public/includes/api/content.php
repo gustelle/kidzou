@@ -26,7 +26,7 @@ class JSON_API_Content_Controller {
 		
 		//parser la date
 		if (!self::validateDate($date_from, 'Y-m-d'))
-			$json_api->error("Vous etes certain que la date est correcte (format YYYY-MM-DD HH:mm:ss) ?");
+			$json_api->error("Vous etes certain que la date est correcte (format YYYY-MM-DD) ?");
 
 		//si la date est posterieure a la date du jour, on jette
 

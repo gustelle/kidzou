@@ -9,8 +9,8 @@
 
 					global $wp_query;
 
-					if ( WP_DEBUG === true && current_user_can('manage_options') )
-						error_log( $wp_query->request );
+					// if ( WP_DEBUG === true && current_user_can('manage_options') )
+					// 	error_log( $wp_query->request );
 
 					$name = '';
 					// print_r($wp_query);

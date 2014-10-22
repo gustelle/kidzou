@@ -2,9 +2,6 @@
 
 add_action( 'kidzou_loaded', array( 'Kidzou_Customer', 'get_instance' ) );
 
-/* seulement à l'activation du plugin */
-add_action( 'kidzou_activate', array('Kidzou_Customer', 'create_client_tables'));
-add_action( 'kidzou_deactivate', array('Kidzou_Customer', 'drop_client_tables'));
 
 /**
  * Kidzou
@@ -57,11 +54,11 @@ class Kidzou_Customer {
 	 */
 	protected static $meta = '';
 
-	public static $meta_customer = 'kz_event_customer';
+	public static $meta_customer = 'kz_customer';
 
-	public static $meta_customer_users = 'kz_customer_users';
+	// public static $meta_customer_users = 'kz_customer_users';
 
-	public static $meta_customer_posts = 'kz_customer_posts';
+	// public static $meta_customer_posts = 'kz_customer_posts';
 
 	public static $meta_api_key = 'kz_api_key';
 
@@ -69,8 +66,7 @@ class Kidzou_Customer {
 
 	public static $meta_api_usage = 'kz_api_usage';
 
-	const CLIENTS_TABLE = "clients";
-	const CLIENTS_USERS_TABLE = "clients_users";
+	
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -129,66 +125,14 @@ class Kidzou_Customer {
 			'show_in_menu'       => true,
 			'menu_position' 	 => 20, //sous les pages
 			'menu_icon' 		 => 'dashicons-businessman',
-			// 'query_var'          => true,
-			// 'has_archive'        => true,
-			// 'rewrite' 			=> array('slug' => 'offres'),
-			// 'hierarchical'       => false, //pas de hierarchie de clients
 			'supports' 			=> array( 'title', 'author', 'revisions'),
-			// 'taxonomies' 		=> array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
 			);
 
 		register_post_type( 'customer', $args );
 
 	}
 
-	/**
-	 * Creates the db schema
-	 *
-	 * @global type $wpdb
-	 * @global string $kz_db_version
-	 *
-	 * @return void
-	 */
-	public static function create_client_tables() {
-
-		global $wpdb;
-		// global $kz_clients_db_version;
-		$table_clients = $wpdb->prefix . self::CLIENTS_TABLE;
-		$table_clients_users = $wpdb->prefix . self::CLIENTS_USERS_TABLE;
-
-		$sql = "CREATE TABLE $table_clients (
-	        id mediumint(9) NOT NULL AUTO_INCREMENT,
-	        name varchar(255) NOT NULL,
-	        UNIQUE KEY id (id)
-	       )CHARSET=utf8;";
-
-		$sql .= "CREATE TABLE $table_clients_users (
-	        customer_id mediumint(9) NOT NULL DEFAULT 0,
-	        user_id bigint(20) NOT NULL DEFAULT 0
-	       )CHARSET=utf8;";
-
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		// $wpdb->show_errors();
-		$ret = dbDelta( $sql );
-		// $wpdb->print_error();
-		// update_site_option( 'kz_clients_db_version' , $kz_clients_db_version );
-	}
-
-	public static function drop_client_tables() {
-
-		global $wpdb;
-		// global $kz_clients_db_version;
-		$table_clients = $wpdb->prefix . self::CLIENTS_TABLE;
-		$table_clients_users = $wpdb->prefix . self::CLIENTS_USERS_TABLE;
-
-		$sql = "DROP TABLE $table_clients, $table_clients_users;";
-
-		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-		// $wpdb->show_errors();
-		$ret = dbDelta( $sql );
-		// $wpdb->print_error();
-		// update_site_option( 'kz_clients_db_version' , $kz_clients_db_version );
-	}
+	
 
     /**
 	 * le customer d'un post, ou 0 si le post n'a pas de customer
@@ -205,9 +149,18 @@ class Kidzou_Customer {
 			$post_id = $post->ID; 
 		}
 
+		//si le post est un customer on jette une erreur
+		$post = get_post($post_id);
+
+		if (get_post_type($post)=='customer')
+			return new WP_Error( 'not_a_post', __( "L'ID correspond déjà à un Client", "kidzou" ) );
+
 		$customer = get_post_meta($post_id, self::$meta_customer, TRUE);
 
-		return intval($customer)>0 ? intval($customer) : 0;
+		if (!$customer || $customer=='')
+			$customer = 0;
+
+		return intval($customer);
 	}
 
 	/**
@@ -219,17 +172,31 @@ class Kidzou_Customer {
 	public static function getCustomerNameByCustomerID($customer_id = 0)
 	{
 
+		$customer = self::getCustomerByID($customer_id);
+
+		if (!is_wp_error($customer))
+			return $customer->post_title;
+
+		return $customer;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getCustomerByID ($customer_id = 0)
+	{
 		if ($customer_id==0)
-			return '';
-			
-		if (intval($customer_id)>0) {
+			new WP_Error( 'null_customer', __( "L'ID du client est attendu !", "kidzou" ) );
 
-			global $wpdb;
-			$table_clients 		 = $wpdb->prefix . self::CLIENTS_TABLE;
-			$customer 	= $wpdb->get_results("SELECT c.id, c.name FROM $table_clients AS c WHERE c.id=$customer_id", ARRAY_A);
+		$customer = get_post($customer_id);
 
-			return (isset($customer[0]) && isset($customer[0]['name']) ? $customer[0]["name"] : '');
-		}
+		if (get_post_type($customer)=='customer')
+			return $customer;
+
+		return new WP_Error( 'not_a_customer', __( "L'objet correspondant n'est pas un client !", "kidzou" ) );
 	}
 
 
@@ -256,6 +223,7 @@ class Kidzou_Customer {
 
 		$defaults = array(
 			'posts_per_page' => 4,
+			'post_type' => array('post', 'offres'),
 			'post__not_in' => array( $post->ID ) //exclure le post courant 
 		);
 
@@ -277,13 +245,7 @@ class Kidzou_Customer {
 			'meta_key' => self::$meta_customer,
 			'meta_value' => $customer_id,
 			'post__not_in'=> $post__not_in,
-			// 'tax_query' => array(
-			//         array(
-			//               'taxonomy' => 'ville',
-			//               'field' => 'slug',
-			//               'terms' => $metropole,
-			//               )
-			//     )
+	
 		);
 		 
 		$rd_query = new WP_Query( $rd_args );
@@ -305,31 +267,18 @@ class Kidzou_Customer {
 	 **/
 	public static function getCustomerIDByAuthorID($user_id = 0)
 	{
-		global $wpdb;
-
-		$table_clients_users = $wpdb->prefix . self::CLIENTS_USERS_TABLE;
-		$table_clients 		 = $wpdb->prefix . self::CLIENTS_TABLE;
 
 		if ($user_id == 0)
 			$user_id = get_current_user_id();
 
-		$customer = $wpdb->get_results("SELECT c.id, c.name FROM $table_clients_users AS u, $table_clients AS c WHERE u.user_id=$user_id AND u.customer_id=c.id", ARRAY_A);
+		$customer_id = get_user_meta($user_id, self::$meta_customer, true); 
 
-		return intval($customer[0]["id"])>0 ? intval($customer[0]["id"]) : 0;
+		if (!$customer_id || $customer_id=='')
+			$customer_id =0;
+
+		return intval( $customer_id );
 	}
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	// public static function getCustomerRelatedPosts()
-	// {
-	// 	global $post;
-
-
-	// }
 
 
 } //fin de classe
