@@ -114,17 +114,7 @@
 		    id : formatPostId,
 		});
 
-
-		//le client d'un post
-		// var clients = [];
-		function formatClient(client) { 
-			console.debug(client);
-			var pieces = client.split(":");
-			return pieces[1]; 
-		};
-		function formatClientId(item) {return item.id+":"+item.text; };
 	   
-		console.debug('alors ');
 		jQuery("#kz_customer").select2({
 			placeholder: "Selectionnez un client",
 			allowClear : true,
@@ -133,14 +123,14 @@
 	        	var pieces = element.val().split(":");
 	        	var data = {id: pieces[0], text: pieces[1]};
 		        callback(data);
-		    },
-		    formatResult : formatClient,
-		    formatSelection : formatClient,
-		    id : formatClientId,
+		    }
 		});
 				
-		if (!client_jsvars.is_user_admin)
+		if (!client_jsvars.is_user_admin) {
+			console.debug('user not admin, disabling customer field');
 			jQuery("#kz_customer").select2("enable", false);	
+		}
+			
 			
 
 	});

@@ -514,7 +514,7 @@ class Kidzou_Admin {
 
 		if ( in_array($screen->id , $this->screen_with_meta) ) { 
 
-			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high');
+			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
 		
@@ -643,18 +643,22 @@ class Kidzou_Admin {
 					</label>
 					<input type="hidden" name="main_users_input" id="main_users_input" value="%1$s" style="width:50%% ; display:block;" />
 				</li>
-				<li>
-					<label for="second_users_input" style="display:block;">
-						Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus
-					</label>
-					<input type="hidden" name="second_users_input" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
-				</li>
+				
 			</ul>',
 			$main_users,
 			$second_users
 			);
 
 		echo $output;
+
+		//plus tard
+		//
+		// <li>
+		// 	<label for="second_users_input" style="display:block;">
+		// 		Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus
+		// 	</label>
+		// 	<input type="hidden" name="second_users_input" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
+		// </li>
 
 	}
 
@@ -723,11 +727,10 @@ class Kidzou_Admin {
 	 * @author 
 	 **/
 	public function client_metabox()
-	{
+	{ 
 		global $post; 
 
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
 
 		if (!current_user_can( 'manage_options' )) {
 
@@ -758,25 +761,17 @@ class Kidzou_Admin {
 		);
 
 		$posts = $q->get_posts();
-		$clients = "[";
-		$i=0;
+		$clients = array();
 		foreach ($posts as $post) {
-			if ($i>0)
-				$clients .= ',';
-			$clients .= "'".$post->ID.':'.$post->post_title."'";
-			$i++;
+			$clients[] = array("id" => $post->ID, "text" => $post->post_title);
 		}
-		$clients .= "]";
 
-		echo sprintf('<script>var clients = %1$s;</script>', $clients);
+		echo sprintf('<script>var clients = %1$s;</script>', json_encode($clients));
 		
 		?>
 		<div class="events_form">
 
 			<?php
-
-			//si le user n'est pas un "pro", on permet des fonctions d'administration supplémentaires
-			// if (!current_user_can('pro')) {
 
 			echo '
 				<ul>
@@ -802,7 +797,7 @@ class Kidzou_Admin {
 	public function event_metabox()
 	{
 		global $post; 
-		global $wpdb;
+		// global $wpdb;
 		
 		$checkbox = false;
 
@@ -1214,24 +1209,28 @@ class Kidzou_Admin {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		$tmp_users = array();
+		// $tmp_users = array();
 		$main = array();
-		$second = array();
+		// $second = array();
 		$meta = array();
 
 		$tmp_post = $_POST['main_users_input'];
+		if ( WP_DEBUG === true )
+			error_log(  'set_customer_users : '.$tmp_post );
 		$tmp_token = explode(",", $tmp_post );
 		foreach ($tmp_token as $tok) {
 			$pieces = explode(":", $tok );
 			$main[] = intval($pieces[0]);
+			if ( WP_DEBUG === true )
+				error_log(  'set_customer_users : add '.$pieces[0] );
 		}
 
-		$tmp_post = $_POST['second_users_input'];
-		$tmp_token = explode(",", $tmp_post );
-		foreach ($tmp_token as $tok) {
-			$pieces = explode(":", $tok );
-			$second[] = intval($pieces[0]);
-		}
+		// $tmp_post = $_POST['second_users_input'];
+		// $tmp_token = explode(",", $tmp_post );
+		// foreach ($tmp_token as $tok) {
+		// 	$pieces = explode(":", $tok );
+		// 	$second[] = intval($pieces[0]);
+		// }
 
 	
 		//sauvegarder également coté user pour donner les rôles
@@ -1241,7 +1240,7 @@ class Kidzou_Admin {
 		//comparer à la liste des users passés dans le POST
 		//supprimer, ajouter selon les cas
 
-		$allusers = array_merge($main, $second);
+		// $allusers = array_merge($main, $second);
 
 
 		//boucle primaire
@@ -1251,7 +1250,10 @@ class Kidzou_Admin {
 		//si non
 		// 	on ajoute le user à la liste des users du client
 		//		si il n'a pas la capacité edit_others_events, -
-		foreach ($allusers as $a_user) {
+		foreach ($main as $a_user) {
+
+			if ( WP_DEBUG === true )
+				error_log( 'set_customer_users : ' . $a_user );
 
 			//toujours s'assurer qu'il est contrib, ca ne mange pas de pain
 			//mais ne pas dégrader son role s'il est éditeur ou admin
@@ -1269,10 +1271,14 @@ class Kidzou_Admin {
 			}
 
 			if (!$better) {
+				if ( WP_DEBUG === true )
+					error_log(  $a_user . ' : set contributor' );
 				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
 			}
 
 			 //ajouter la meta qui va bien
+			if ( WP_DEBUG === true )
+					error_log(  $a_user . ' : set user meta' );
 		     add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
 	        
 		}
@@ -1296,7 +1302,7 @@ class Kidzou_Admin {
 			//boucle complémentaire:
 			foreach ($old_users as $a_user) {
 
-				if (!in_array($a_user, $allusers)) {
+				if (!in_array($a_user, $main)) {
 
 					$u = new WP_User( $user->ID );
 
@@ -1314,10 +1320,14 @@ class Kidzou_Admin {
 
 					if (!$better) {
 						//privé de gateau
+						if ( WP_DEBUG === true )
+							error_log(  $a_user . ' : descente en subscriber' );
 				        $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
 					}
 
 			        //suppression de la meta du client dans tous les cas
+			        if ( WP_DEBUG === true )
+							error_log(  $a_user . ' : suppression de la meta' );
 			        delete_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id );
 
 				}
