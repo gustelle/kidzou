@@ -669,9 +669,10 @@ class Kidzou_Admin {
 				</li>
 				
 			</ul>',
-			$main_users,
-			$second_users
-			);
+			$main_users
+		);
+			// $second_users
+			//);
 
 		echo $output;
 
@@ -1278,10 +1279,14 @@ class Kidzou_Admin {
 		$tmp_token = explode(",", $tmp_post );
 		foreach ($tmp_token as $tok) {
 			$pieces = explode(":", $tok );
-			$main[] = intval($pieces[0]);
+			if (intval($pieces[0])>0)
+				$main[] = intval($pieces[0]);
 			if ( WP_DEBUG === true )
 				error_log(  'set_customer_users : add '.$pieces[0] );
 		}
+
+		if ( WP_DEBUG === true )
+			error_log(  'count customer_users : '.count($main) );
 
 		// $tmp_post = $_POST['second_users_input'];
 		// $tmp_token = explode(",", $tmp_post );
