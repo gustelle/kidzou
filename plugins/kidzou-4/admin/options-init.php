@@ -364,6 +364,32 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
                 )
             );
+
+            $this->sections[] = array(
+                'title'     => __('Widgets', 'kidzou'),
+                'desc'      => __('Widgets qui sont affich&eacute;s dans l\'admin', 'kidzou'),
+                'icon'      => 'el-icon-puzzle',
+                'fields'    => array(
+
+                    array(
+                        'id'       => 'widget_guidelines_activate',
+                        'type'     => 'checkbox',
+                        'title'    => __('Activer le widget Tutorial ?', 'kidzou'), 
+                        'default'  => '0'// 1 = on | 0 = off
+                    ),
+                    array(
+                        'id'       => 'widget_guidelines_title',
+                        'type'     => 'text',
+                        'title'    => __('Titre du tutorial', 'kidzou'),
+                    ),
+                    array(
+                        'id'       => 'widget_guidelines_content',
+                        'type'     => 'editor',
+                        'title'    => __('Contenu du tutorial', 'kidzou'),
+                    ),
+                    
+                )
+            );
             
         }
 

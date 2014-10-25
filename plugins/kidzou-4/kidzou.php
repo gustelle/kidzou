@@ -60,6 +60,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'public/includes/category-header.php
 
 require_once( plugin_dir_path( __FILE__ ) . 'admin/admin-init.php');
 require_once( plugin_dir_path( __FILE__ ) . 'admin/options-init.php');
+require_once( plugin_dir_path( __FILE__ ) . 'admin/views/class-kidzou-dashboard.php');
 
 
 /*

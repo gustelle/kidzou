@@ -263,6 +263,7 @@ class Kidzou_Vote {
 		// Use has already voted ?
 		if(!self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
 		{
+
 			update_post_meta($id, self::$meta_vote_count, ++$meta_count);
 
 			//update les user meta pour indiquer les posts qu'il recommande
@@ -272,6 +273,7 @@ class Kidzou_Vote {
 
 			if ($loggedIn)
 			{
+				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
 				
 				$voted_posts = $meta_posts[0]; 
@@ -281,6 +283,7 @@ class Kidzou_Vote {
 
 				array_push($voted_posts, $id) ;
 
+				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
 			}
 			else
@@ -336,12 +339,10 @@ class Kidzou_Vote {
 
 			if ($loggedIn)
 			{
+				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
 				
-				//print_r($wpdb->queries);
-				
 				$voted_posts = $meta_posts[0];
-				//$index_posts = count($voted_posts);
 
 				if(!is_array($voted_posts))
 					$voted_posts = array();
@@ -352,6 +353,7 @@ class Kidzou_Vote {
 						unset($voted_posts[$i]);
 				}
 
+				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
 			}
 			else
