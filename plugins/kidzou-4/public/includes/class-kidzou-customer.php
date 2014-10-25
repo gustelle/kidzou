@@ -66,6 +66,8 @@ class Kidzou_Customer {
 
 	public static $meta_api_usage = 'kz_api_usage';
 
+	public static $post_type = 'customer';
+
 	
 
 	/**
@@ -128,7 +130,7 @@ class Kidzou_Customer {
 			'supports' 			=> array( 'title', 'author', 'revisions'),
 			);
 
-		register_post_type( 'customer', $args );
+		register_post_type( self::$post_type, $args );
 
 	}
 
@@ -145,14 +147,14 @@ class Kidzou_Customer {
 
 		if ($post_id==0)
 		{
-			global $post;
+			global $post; 
 			$post_id = $post->ID; 
 		}
 
 		//si le post est un customer on jette une erreur
 		$post = get_post($post_id);
 
-		if (get_post_type($post)=='customer')
+		if (get_post_type($post)==self::$post_type)
 			return new WP_Error( 'not_a_post', __( "L'ID correspond déjà à un Client", "kidzou" ) );
 
 		$customer = get_post_meta($post_id, self::$meta_customer, TRUE);
@@ -193,7 +195,7 @@ class Kidzou_Customer {
 
 		$customer = get_post($customer_id);
 
-		if (get_post_type($customer)=='customer')
+		if (get_post_type($customer)==self::$post_type)
 			return $customer;
 
 		return new WP_Error( 'not_a_customer', __( "L'objet correspondant n'est pas un client !", "kidzou" ) );
@@ -278,6 +280,8 @@ class Kidzou_Customer {
 
 		return intval( $customer_id );
 	}
+
+	
 
 
 

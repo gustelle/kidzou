@@ -415,18 +415,19 @@ class Kidzou_Geo {
 	 * @return Tableau contenant les meta de Geoloc d'un post
 	 * @author 
 	 **/
-	public static function get_post_location($post_id=0)
+	public static function get_post_location($post_id=0, $type='')
 	{
 
 	    if ($post_id==0)
 	    {
-	        global $post;
+	        global $post; 
 	        $post_id = $post->ID;
 	    }
 
 	    $post = get_post($post_id);
 
-	    $type = $post->post_type;
+	    if ($type == '')
+	    	$type = $post->post_type;
 
 	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
 	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
@@ -434,6 +435,7 @@ class Kidzou_Geo {
 	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
 	    $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
 	    $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
+	    $location_city   = get_post_meta($post_id, 'kz_'.$type.'_location_city', TRUE);
 
 	    return array(
 	        'location_name' => $location_name,
@@ -441,7 +443,8 @@ class Kidzou_Geo {
 	        "location_latitude" => $location_latitude,
 	        "location_longitude" => $location_longitude,
 	        "location_tel" => $location_tel,
-	        "location_web" => $location_web
+	        "location_web" => $location_web,
+	        "location_city" => $location_city
 	    );
 	}
 

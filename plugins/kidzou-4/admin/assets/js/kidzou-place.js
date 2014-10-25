@@ -38,8 +38,10 @@ var kidzouPlaceModule = (function() { //havre de paix
 	        var obj = valueAccessor(),
 	            allBindings = allBindingsAccessor(),
 	            lookupKey = allBindings.lookupKey;
+	       	// console.log(obj);
+	       	// console.log( jQuery(element));
 	        jQuery(element).placecomplete(obj);
-	        //console.log(obj);
+	        // console.log(obj);
 	        if (lookupKey) {
 	            var value = ko.utils.unwrapObservable(allBindings.value);
 	            jQuery(element).placecomplete('data', ko.utils.arrayFirst(obj.data.results, function(item) {
@@ -114,10 +116,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 		    //https://developers.google.com/places/documentation/details
 			self.completePlace = function(d,ev, result) {
-				// console.log(result);
-				//si non existant, le champ ville reprend le display_text 
-				// var city = result.address_components[1] ? result.address_components[1].long_name : result.display_text;
-
+				console.log(result);
 				var city = result.display_text;
 
 				//tentative de retrouver la ville de manière plus précise
@@ -154,6 +153,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 
 			self.initPlace = function(name, address, website, phone_number, city, lat, lng, opening_hours) {
+				// console.debug('initplace');
 				self.placeData().place(new Place(name, address, website, phone_number, city, lat, lng, opening_hours));
 
 				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')

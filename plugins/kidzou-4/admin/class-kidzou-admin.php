@@ -417,10 +417,15 @@ class Kidzou_Admin {
 			//datepicker pour les events
 			wp_enqueue_style( 'jquery-ui-custom', plugins_url( 'assets/css/jquery-ui-1.10.3.custom.min.css', __FILE__ ) );	
 
-		} elseif ($screen->id == $this->plugin_screen_hook_suffix) {
+		} elseif ($screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 			
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
 			wp_enqueue_style( 'kidzou-admin', plugins_url( 'assets/css/kidzou-client.css', __FILE__ ) );
+
+			wp_enqueue_style( 'kidzou-place', plugins_url( 'assets/css/kidzou-edit-place.css', __FILE__ ) );
+			wp_enqueue_style( 'placecomplete', plugins_url( 'assets/css/jquery.placecomplete.css', __FILE__ ) );
+			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', __FILE__ )  );
+
 
 		}
 
@@ -481,10 +486,22 @@ class Kidzou_Admin {
 			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 
+			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', __FILE__ ),array("ko"), '1.0', true);
+			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', __FILE__ ),array("ko-validation"), '1.0', true);
+
 			//requis par placecomplete
 			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
+
+			//selection des places dans Google Places
+			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
+			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', __FILE__ ),array('jquery-select2', 'google-maps'), '1.0', true);
+			
+			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), '1.0', true);
+			// wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), '1.0', true);
+			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', __FILE__ ) ,array('jquery','ko-mapping'), '1.0', true);
+
 
 		}
 
@@ -500,6 +517,7 @@ class Kidzou_Admin {
 				'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
 				'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
 				'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
+				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
 				'is_user_admin'					=> current_user_can('manage_options')
 
 			)
@@ -523,6 +541,10 @@ class Kidzou_Admin {
 			add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
+
+			//lieu par défaut d'un customer
+			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
+
 		}
 
 	}
@@ -565,6 +587,8 @@ class Kidzou_Admin {
 				$posts_list .= $mypost->ID.':'.$mypost->post_title; 
 			}
 		}
+
+		wp_reset_query();
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_posts_metabox', 'customer_posts_metabox_nonce' );
@@ -750,7 +774,6 @@ class Kidzou_Admin {
 		else
 			$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
 
-
 		$q = new WP_Query(
 			array(
 				'post_type' => 'customer', 
@@ -762,9 +785,11 @@ class Kidzou_Admin {
 
 		$posts = $q->get_posts();
 		$clients = array();
-		foreach ($posts as $post) {
-			$clients[] = array("id" => $post->ID, "text" => $post->post_title);
+		foreach ($posts as $mypost) {
+			$clients[] = array("id" => $mypost->ID, "text" => $mypost->post_title);
 		}
+
+		wp_reset_query();
 
 		echo sprintf('<script>var clients = %1$s;</script>', json_encode($clients));
 		
@@ -860,22 +885,53 @@ class Kidzou_Admin {
 	 **/
 	public function place_metabox()
 	{
-		global $post; 
-		global $wpdb;
-		
-		$type = $post->post_type;
 
 		// Noncename needed to verify where the data originated
 		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-		
+
+		$location = Kidzou_Geo::get_post_location();
+
 		// Get the location data if its already been entered
-		$location_name 		= get_post_meta($post->ID, 'kz_' .$type .'_location_name', TRUE);
-		$location_address 	= get_post_meta($post->ID, 'kz_' .$type .'_location_address', TRUE);
-		$location_website 	= get_post_meta($post->ID, 'kz_' .$type .'_location_website', TRUE);
-		$location_phone_number 	= get_post_meta($post->ID, 'kz_' .$type .'_location_phone_number', TRUE);
-		$location_city 			= get_post_meta($post->ID, 'kz_' .$type .'_location_city', TRUE);
-		$location_latitude 		= get_post_meta($post->ID, 'kz_' .$type .'_location_latitude', TRUE);
-		$location_longitude 	= get_post_meta($post->ID, 'kz_' .$type .'_location_longitude', TRUE);
+		$location_name 		= $location['location_name'];
+		$location_address 	= $location['location_address'];
+		$location_website 	= $location['location_web'];
+		$location_phone_number 	= $location['location_tel'];
+		$location_city 			= $location['location_city'];
+		$location_latitude 		= $location['location_latitude'];
+		$location_longitude 	= $location['location_longitude'];
+
+		//si aucune méta de lieu n'est pré-existante, on prend celle du client associé au post
+		if ($location_name=='') {
+
+			$customer_id = 0;
+
+			if (!current_user_can( 'manage_options' ) ) {
+
+				$customer_id = Kidzou_Customer::getCustomerIDByAuthorID();
+				if (is_wp_error($customer_id))
+					$customer_id=0;
+
+			} else {
+				
+				$customer_id = Kidzou_Customer::getCustomerIDByPostID();
+				if (is_wp_error($customer_id))
+					$customer_id=0;
+			}
+
+			$location = Kidzou_Geo::get_post_location($customer_id, Kidzou_Customer::$post_type);
+
+			if (isset($location['location_name']) && $location['location_name']!='') {
+
+				$location_name 		= $location['location_name'];
+				$location_address 	= $location['location_address'];
+				$location_website 	= $location['location_web'];
+				$location_phone_number 	= $location['location_tel'];
+				$location_city 			= $location['location_city'];
+				$location_latitude 		= $location['location_latitude'];
+				$location_longitude 	= $location['location_longitude'];
+			}
+
+		}
 
 		echo '<script>
 		jQuery(document).ready(function() {
@@ -940,7 +996,7 @@ class Kidzou_Admin {
 			<li>
 				
 			</li>
-			<li><a href="#" data-bind="click: displayGooglePlaceForm">Revenir a la recherche Google</a></li>	
+			<li><button data-bind="click: displayGooglePlaceForm" class="button button-primary button-large">Changer de lieu</button></li>	
 			<!-- /ko -->
 
 			</ul>
@@ -996,7 +1052,6 @@ class Kidzou_Admin {
 
 		$this->save_rewrite_meta($post_id);
 		$this->save_event_meta($post_id);
-		$this->save_place_meta($post_id);
 		$this->save_client_meta($post_id);
 		$this->save_post_metropole($post_id);
 		$this->set_post_metropole($post_id);
@@ -1005,6 +1060,9 @@ class Kidzou_Admin {
 		$this->set_customer_users($post_id);
 		$this->set_customer_posts($post_id);
 		$this->set_customer_apis($post_id);
+
+		//pour tout le monde
+		$this->save_place_meta($post_id);
 		
 	}
 
@@ -1111,7 +1169,7 @@ class Kidzou_Admin {
 			return $post_id;
 		}
 		// Is the user allowed to edit the post or page?
-		if ( !current_user_can( 'edit_post', $post_id ) )
+		if ( !current_user_can( 'edit_posts', $post_id ) )
 			return $post_id;
 
 		$type = get_post_type($post_id);
