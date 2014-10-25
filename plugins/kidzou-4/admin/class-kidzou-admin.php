@@ -621,7 +621,7 @@ class Kidzou_Admin {
 
 		global $post;
 
-		$post_id = $post->ID;
+		$post_id = $post->ID; //echo $post_id;
 
 		$user_query = new WP_User_Query( array( 
 			'meta_key' => Kidzou_Customer::$meta_customer, 
@@ -1335,13 +1335,19 @@ class Kidzou_Admin {
 
 			if (!$better) {
 				if ( WP_DEBUG === true )
-					error_log(  $a_user . ' : set contributor' );
+					error_log( 'User ' . $a_user . ' : wp_update_user' );
+
 				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
+
+				if ( WP_DEBUG === true )
+					error_log( 'User ' . $a_user . ' updated' );
+
 			}
 
 			 //ajouter la meta qui va bien
 			if ( WP_DEBUG === true )
-					error_log(  $a_user . ' : set user meta' );
+					error_log(  'User ' . $a_user . ' : add_user_meta' );
+
 		     add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
 	        
 		}
@@ -1364,6 +1370,9 @@ class Kidzou_Admin {
 
 			//boucle complémentaire:
 			foreach ($old_users as $a_user) {
+
+				if ( WP_DEBUG === true )
+					error_log(  'Boucle secondaire, User ' . $a_user );
 
 				if (!in_array($a_user, $main)) {
 

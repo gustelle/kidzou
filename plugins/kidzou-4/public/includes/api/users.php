@@ -55,7 +55,7 @@ class JSON_API_Users_Controller {
 		elseif ($term!='')
 		{				
 			global $wpdb;
-			$table_clients_users = $wpdb->prefix . "clients_users";
+			// $table_clients_users = $wpdb->prefix . "clients_users";
 			// $wpdb->show_errors();
 			$res = $wpdb->get_results(
 				$wpdb->prepare(

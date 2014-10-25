@@ -26,7 +26,7 @@
 		        data: function (term, page) {
 		            return {
 		                term: term, // search term
-		                term_field: 'user_login',
+		                term_field: 'user_lastname',
 		            };
 		        },
 		        results: function (data, page) { // parse the results into the format expected by Select2.
