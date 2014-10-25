@@ -46,14 +46,24 @@ class Kidzou_Dashboard_Widgets {
 	}
  
     function remove_dashboard_widgets() {
- 
+
+
+    	//pour tout le monde
+    	remove_meta_box( 'dashboard_primary', 'dashboard', 'side');
+ 	
+ 		if (!current_user_can('manage_options')) {
+
+ 			remove_meta_box( 'dashboard_activity', 'dashboard', 'normal');
+ 		}
+ 			
     }
  
     function add_dashboard_widgets() {
 
     	global $kidzou_options;
 
-    	if (isset($kidzou_options['widget_guidelines_activate']) && $kidzou_options['widget_guidelines_activate']) {
+    	//uniquement poru ceux qui peuvent contribuer
+    	if (isset($kidzou_options['widget_guidelines_activate']) && $kidzou_options['widget_guidelines_activate'] && current_user_can('edit_posts')) {
 
     		 wp_add_dashboard_widget(
 	            'kidzou_contributor_guidelines',
