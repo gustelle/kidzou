@@ -885,11 +885,11 @@ class Kidzou_Admin {
 	 **/
 	public function place_metabox()
 	{
-
+		global $post;
 		// Noncename needed to verify where the data originated
 		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
-		$location = Kidzou_Geo::get_post_location();
+		$location = Kidzou_Geo::get_post_location($post->ID); 
 
 		// Get the location data if its already been entered
 		$location_name 		= $location['location_name'];
