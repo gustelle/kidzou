@@ -137,7 +137,7 @@ class Kidzou_Customer {
 	
 
     /**
-	 * le customer d'un post, ou 0 si le post n'a pas de customer
+	 * le customer d'un post, ou 0 si le post n'est pas attaché a un customer
 	 *
 	 * @return void
 	 * @author 
@@ -262,23 +262,23 @@ class Kidzou_Customer {
 	}
 
 	/**
-	 * retourne le client d'un auteur de contenu
+	 * retourne les clients d'un user
 	 *
 	 * @return void
 	 * @author 
 	 **/
-	public static function getCustomerIDByAuthorID($user_id = 0)
+	public static function getCustomersIDByUserID($user_id = 0)
 	{
 
 		if ($user_id == 0)
 			$user_id = get_current_user_id();
 
-		$customer_id = get_user_meta($user_id, self::$meta_customer, true); 
+		$customer_ids = get_user_meta($user_id, self::$meta_customer, false); 
 
-		if (!$customer_id || $customer_id=='')
-			$customer_id =0;
-
-		return intval( $customer_id );
+		//supprimer les révisions et autrs
+		return array_filter($customer_ids, function($item) {
+			return get_post_type($item)==self::$post_type;
+		});
 	}
 
 	

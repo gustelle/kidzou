@@ -135,7 +135,7 @@
 			//mise à jour de Google place quand on choisit un client
 			//le lieu est alimenté par le lieu par défaut du client
 			$("#kz_customer").on("select2-selecting", function(e) { 
-				console.debug ("selecting val="+ e.val+" choice="+ JSON.stringify(e.choice)); 
+				// console.debug ("selecting val="+ e.val+" choice="+ JSON.stringify(e.choice)); 
 
 				//l'id du client est socké dans e.val
 				jQuery.get(client_jsvars.api_getCustomerPlace, { 
@@ -156,10 +156,10 @@
 
 			});
 					
-			if (!client_jsvars.is_user_admin) {
-				// console.debug('user not admin, disabling customer field');
-				$("#kz_customer").select2("enable", false);	
-			}
+			// if (!client_jsvars.is_user_admin) {
+			// 	// console.debug('user not admin, disabling customer field');
+			// 	$("#kz_customer").select2("enable", false);	
+			// }
 	   }
 			
 

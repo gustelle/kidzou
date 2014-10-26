@@ -20,14 +20,11 @@ class JSON_API_Clients_Controller {
 		//attention au hack
 		//si le user n'est pas admin, l'API ne peut être utilisée que avec le $id du customer du user courant
 		if (!current_user_can('manage_options')) {
-			$current_user = get_current_user_id();
-			$current_customer = Kidzou_Customer::getCustomerIDByAuthorID();
-			if ( intval($id)!=intval($current_customer) )
+
+			$current_customers = Kidzou_Customer::getCustomersIDByUserID();
+			if (!in_array($id, $current_customers))
 				$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 		}
-
-		//sinon
-		$current_customer = Kidzou_Customer::getCustomerIDByAuthorID($id);
 
 		$location = Kidzou_Geo::get_post_location($id, Kidzou_Customer::$post_type);
 

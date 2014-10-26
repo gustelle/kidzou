@@ -518,7 +518,7 @@ class Kidzou_Admin {
 				'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
 				'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
 				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
-				'is_user_admin'					=> current_user_can('manage_options')
+				// 'is_user_admin'					=> current_user_can('manage_options')
 
 			)
 		);
@@ -757,31 +757,35 @@ class Kidzou_Admin {
 
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
-		if (!current_user_can( 'manage_options' )) {
-
-			$customer_id = Kidzou_Customer::getCustomerIDByAuthorID();
-			if (is_wp_error($customer_id))
-				$customer_id=0;
-
-		} else {
-			
-			$customer_id = Kidzou_Customer::getCustomerIDByPostID();
-			if (is_wp_error($customer_id))
-				$customer_id=0;
+		$customer_id =0;
+		$customer_name = '';
+		
+		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
+		if (is_wp_error($customer_id))
+			$customer_id=0;
+		else {
+			$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
+			if (is_wp_error($customer_name))
+				$customer_name = '';
 		}
 
-		if ($customer_id==0)
-			$customer_name='';
-		else
-			$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
-
-		$q = new WP_Query(
-			array(
+		$args = array (
 				'post_type' => 'customer', 
 				'order' => 'ASC', 
 				'orderby' => 'title', 
 				'posts_per_page' => -1
-			)
+		);
+
+		$restrict = array();
+
+		if (!current_user_can( 'manage_options' )) {
+			$restrict = array(
+				'post__in' => Kidzou_Customer::getCustomersIDByUserID()
+			);
+		} 
+
+		$q = new WP_Query(
+			array_merge($args, $restrict)
 		);
 
 		$posts = $q->get_posts();
@@ -791,6 +795,12 @@ class Kidzou_Admin {
 		}
 
 		wp_reset_query();
+
+		//pre-selection s'il n'y en a qu'un
+		if (count($clients)==1) {
+			$customer_id = $clients[0]['id'];
+			$customer_name = $clients[0]['text'];
+		}
 
 		echo sprintf('<script>var clients = %1$s;</script>', json_encode($clients));
 		
@@ -904,22 +914,25 @@ class Kidzou_Admin {
 		//si aucune méta de lieu n'est pré-existante, on prend celle du client associé au post
 		if ($location_name=='') {
 
-			$customer_id = 0;
+			$id = 0;
 
 			if (!current_user_can( 'manage_options' ) ) {
 
-				$customer_id = Kidzou_Customer::getCustomerIDByAuthorID();
-				if (is_wp_error($customer_id))
-					$customer_id=0;
+				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
 
+				//on prend le premier s'il n'y en a qu'un
+				if (is_array($res) && count($res)==1) {
+					$id = array_values($res)[0];
+				}
+					
 			} else {
 				
-				$customer_id = Kidzou_Customer::getCustomerIDByPostID();
+				$id = Kidzou_Customer::getCustomerIDByPostID();
 				if (is_wp_error($customer_id))
-					$customer_id=0;
+					$id=0;
 			}
 
-			$location = Kidzou_Geo::get_post_location($customer_id, Kidzou_Customer::$post_type);
+			$location = Kidzou_Geo::get_post_location($id);
 
 			if (isset($location['location_name']) && $location['location_name']!='') {
 
@@ -1276,7 +1289,7 @@ class Kidzou_Admin {
 		$tmp_post = $_POST['main_users_input'];
 		if ( WP_DEBUG === true )
 			error_log(  'set_customer_users, reception de ' . $tmp_post );
-		
+
 		$tmp_token = explode("|", $tmp_post );
 		foreach ($tmp_token as $tok) {
 			$pieces = explode("#", $tok );
@@ -1337,9 +1350,16 @@ class Kidzou_Admin {
 
 			 //ajouter la meta qui va bien
 			if ( WP_DEBUG === true )
-					error_log(  'User ' . $a_user . ' : add_user_meta' );
+				error_log(  'User ' . $a_user . ' : add_user_meta' );
 
-		     add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
+		    // add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
+		    $prev_customers = get_user_meta($user_id, $key, false);   //plusieurs meta customer par user
+
+		    if ( empty($prev_customers) )
+		     	$prev_customers = array();
+
+		     if (!in_array($post_id, $prev_customers))
+		     	add_user_meta($a_user, Kidzou_Customer::$meta_customer, $post_id, false); //pas unique !
 	        
 		}
 
@@ -1365,6 +1385,8 @@ class Kidzou_Admin {
 				if ( WP_DEBUG === true )
 					error_log(  'Boucle secondaire, User ' . $a_user );
 
+				//l'utilisateur n'a pas été repassé dans la requete
+				//il n'est pas donc plus attaché au client
 				if (!in_array($a_user, $main)) {
 
 					$u = new WP_User( $user->ID );

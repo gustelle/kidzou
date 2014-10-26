@@ -426,8 +426,7 @@ class Kidzou_Geo {
 
 	    $post = get_post($post_id); 
 
-	    if ($type == '')
-	    	$type = $post->post_type;
+	   	$type = $post->post_type;
 
 	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
 	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
