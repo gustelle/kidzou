@@ -78,7 +78,7 @@ class Kidzou_Dashboard_Widgets {
 
 		global $kidzou_options;
 
-    	echo $kidzou_options['widget_guidelines_content'];
+    	echo $kidzou_options['widget_guidelines_body'];
 
     }
  

@@ -784,10 +784,6 @@ class Kidzou_Admin {
 			)
 		);
 
-		if ( WP_DEBUG === true )
-			error_log( 'client_metabox [request] -> ' . $q->request );
-
-
 		$posts = $q->get_posts();
 		$clients = array();
 		foreach ($posts as $mypost) {
