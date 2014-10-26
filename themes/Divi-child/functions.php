@@ -52,7 +52,7 @@ function override_divi_parent_functions()
 
 	//inviter l'utilisateur à scroller
 	add_filter( 'excerpt_length', 'custom_excerpt_length' , 999 );
-	add_filter('excerpt_more', 'excerpt_more_invite_scroll');
+	// add_filter('excerpt_more', 'excerpt_more_invite_scroll');
 
 	//permettre l'execution de shortcodes dans la sidebar
 	//pour notamment inclure dans la sidebar le widget newsletter
@@ -70,10 +70,10 @@ function custom_excerpt_length( $length ) {
 	return 180;
 }
 
-// Replaces the excerpt "more" text by a link
-function excerpt_more_invite_scroll($more) {
-	return ' ... <a href="#content_start" alt="Lire le contenu" ><i class="fa fa-arrow-down fa-3x grey overtext"></i></a>';
-}
+// // Replaces the excerpt "more" text by a link
+// function excerpt_more_invite_scroll($more) {
+// 	return ' ... <a href="#content_start" alt="Lire le contenu" ><i class="fa fa-arrow-down fa-3x grey overtext"></i></a>';
+// }
 
 /**
  * undocumented function

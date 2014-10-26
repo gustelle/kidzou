@@ -105,17 +105,23 @@ class JSON_API_Content_Controller {
 
 		$results = array();
 
+		global $post;
 		foreach ($excertps as $a_post) {
+			setup_postdata($post);
 			$dates = Kidzou_Events::getEventDates($a_post->ID);
 			$location = Kidzou_Geo::get_post_location($a_post->ID);
 			$results[] = array(
-					"id" => $a_post->ID,
-					"post_title" => $a_post->post_title,
+					"id" => get_the_ID(),
+					"post_title" => get_the_title(),
+					"excerpt" => get_the_excerpt(),
+					"permalink" => get_permalink(),
 					"event_dates" => $dates,
 					"location" => $location,
 				);
+
 		}
 
+		wp_reset_postdata();
 		wp_reset_query();
 
 		$meta = array();
