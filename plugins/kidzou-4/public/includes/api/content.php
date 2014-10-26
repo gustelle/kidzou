@@ -42,7 +42,7 @@ class JSON_API_Content_Controller {
 		if (!self::validateDate($date_from, 'Y-m-d'))
 			$json_api->error("Vous etes certain que la date est correcte (format YYYY-MM-DD) ?");
 
-		global $wpdb;
+		// global $wpdb;
 
 		//qui est donc notre client ?
 		$args = array(
@@ -54,35 +54,80 @@ class JSON_API_Content_Controller {
 
 		$the_query = new WP_Query( $args );
 
+		wp_reset_query();
+
 		$results = $the_query->get_posts();
 
 		$customer = $results[0];
 
 		//calculer le quota
-		$quota = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
-		$usage = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
+		$quota_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
+		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
+
+		$quota = 0;
+		$usage = 0;
+
+		if(isset($quota_array['excerpts'])) 
+			$quota = intval($quota_array['excerpts']); 
+
+		if(isset($usage_array['excerpts'])) 
+			$usage = intval($usage_array['excerpts']); 
 
 		//et decrementer son utilisation
+		if (!$quota || $quota=='' || intval($quota)<0)
+			$quota = 0;
+
 		if (!$usage || $usage=='' || intval($usage)<0)
 			$usage = 0;
 
 		if ( ($quota-$usage)<=0 )
 			$json_api->error("Vous avez utilise votre quota pour cette API :-/");
 
-		$usage++;
+		// on repart de la veille car la requete after part de 23:59:59
+		$dStart->sub(new DateInterval('P1D'));
+		$date = $dStart->format('Y-m-d') ;
+		$tokens = explode("-", $date);
+
+		$args = array(
+			'date_query' => array(
+				'after' => array(
+					'year'  => $tokens[0],
+					'month' => $tokens[1],
+					'day'   => $tokens[2],
+				),
+			),
+			'posts_per_page' => -1,
+			'post_type' => 'post'
+		);
+		$query = new WP_Query( $args );
+
+		$excertps = $query->get_posts();
+
+		$results = array();
+
+		foreach ($excertps as $a_post) {
+			$dates = Kidzou_Events::getEventDates($a_post->ID);
+			$location = Kidzou_Geo::get_post_location($a_post->ID);
+			$results[] = array(
+					"id" => $a_post->ID,
+					"post_title" => $a_post->post_title,
+					"event_dates" => $dates,
+					"location" => $location,
+				);
+		}
+
+		wp_reset_query();
 
 		$meta = array();
-		$meta[Kidzou_Customer::$meta_api_usage] = $usage;
+		$usage++;
+		$meta[Kidzou_Customer::$meta_api_usage] = array( "excerpts" => $usage );
 
 		self::save_meta($customer->ID, $meta);
 
-		//requeter les extraits	
-
 		return array(
-			'customer' => $the_query->get_posts(),
+			'posts' => $results,
 			'date_from' => $date_from,
-			'remaining_queries' => ($quota-$usage),
-			// 'date' => $diff
+			'remaining_queries' => ($quota-$usage),	
 		);
 
 	}

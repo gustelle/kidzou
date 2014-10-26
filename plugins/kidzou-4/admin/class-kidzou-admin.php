@@ -704,14 +704,23 @@ class Kidzou_Admin {
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_apis_metabox', 'customer_apis_metabox_nonce' );
 
-		$key 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_key, TRUE);
-		$quota 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_quota, TRUE); 
-		$usage 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_usage, TRUE);
+		$key	 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_key, TRUE);
+		$quota_array 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_quota, TRUE); 
+		$usage_array 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_usage, TRUE);
 
-		if ($key=='') {
-			//générer une clé si possible unique ??
+		// $key = '';
+		$quota = 0;
+		$usage = 0;
+
+		if ($key =='') {
 			$key = md5(uniqid());
 		}
+
+		if(isset($quota_array['excerpts'])) 
+			$quota = intval($quota_array['excerpts']); 
+
+		if(isset($usage_array['excerpts'])) 
+			$usage = intval($usage_array['excerpts']); 
 
 		$output = sprintf('
 			<ul>
@@ -922,7 +931,8 @@ class Kidzou_Admin {
 
 				//on prend le premier s'il n'y en a qu'un
 				if (is_array($res) && count($res)==1) {
-					$id = array_values($res)[0];
+					$vals =array_values($res);
+					$id = $vals[0];
 				}
 					
 			} else {
@@ -1537,7 +1547,7 @@ class Kidzou_Admin {
 		$quota = $_POST['customer_api_quota'];
 		
 		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
-		$meta[Kidzou_Customer::$meta_api_quota] = $quota;
+		$meta[Kidzou_Customer::$meta_api_quota] = array("excerpts" => $quota);
 
 		self::save_meta($post_id, $meta);
 	}

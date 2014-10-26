@@ -415,7 +415,7 @@ class Kidzou_Geo {
 	 * @return Tableau contenant les meta de Geoloc d'un post
 	 * @author 
 	 **/
-	public static function get_post_location($post_id=0, $type='')
+	public static function get_post_location($post_id=0)
 	{
 
 	    if ($post_id==0)

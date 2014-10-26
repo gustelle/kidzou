@@ -148,9 +148,10 @@
 	   							data.location.location_address, 
 	   							data.location.location_web, 
 	   							data.location.location_tel, 
+	   							data.location.location_city,
 	   							data.location.location_latitude,
-	   							data.location.location_longitude,
-	   							data.location.location_city);
+	   							data.location.location_longitude
+	   						);
 	   					} 
 	    			});
 
