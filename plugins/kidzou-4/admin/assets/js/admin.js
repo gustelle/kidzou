@@ -16,7 +16,7 @@
 			    var data = [];
 			    $(element.val().split(",")).each(function () {
 			        var pieces = this.split(":");
-					data.push({id: pieces[0], user_login: pieces[1]});
+					data.push({data:{id: pieces[0], user_login: pieces[1]}});
 			    });//console.log(data);
 			    callback(data);
 			},

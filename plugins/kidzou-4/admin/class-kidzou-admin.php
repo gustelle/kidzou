@@ -780,9 +780,13 @@ class Kidzou_Admin {
 				'post_type' => 'customer', 
 				'order' => 'ASC', 
 				'orderby' => 'title', 
-				'numberposts' => -1
+				'posts_per_page' => -1
 			)
 		);
+
+		if ( WP_DEBUG === true )
+			error_log( 'client_metabox [request] -> ' . $q->request );
+
 
 		$posts = $q->get_posts();
 		$clients = array();
