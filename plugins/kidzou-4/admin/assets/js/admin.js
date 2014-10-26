@@ -4,19 +4,22 @@
 	$(function () {
 
 	   function formatUser(object) { return object.data.user_login; };
-	   function formatUserId(item) {return item.id+":"+item.user_login; };
+	   function formatUserId(item) { return item.data.ID+"#"+item.data.user_login; };
 	
-			
 		$("#main_users_input").select2({
 			placeholder: "Selectionnez un ou plusieurs utilisateurs",
 			allowClear: true,
 			multiple: true,
+			separator : "|",
 			// data: users,
 			initSelection : function (element, callback) {
 			    var data = [];
-			    $(element.val().split(",")).each(function () {
-			        var pieces = this.split(":");
-					data.push({data:{id: pieces[0], user_login: pieces[1]}});
+			    // console.debug(element.val());
+			    $(element.val().split("|")).each(function () {
+			    	// console.debug(this);
+			        var pieces = this.split("#");
+			        // console.debug(pieces);
+					data.push({data:{ID: pieces[0], user_login: pieces[1]}});
 			    });//console.log(data);
 			    callback(data);
 			},
@@ -31,7 +34,7 @@
 		        },
 		        results: function (data, page) { // parse the results into the format expected by Select2.
 		            // since we are using custom formatting functions we do not need to alter remote JSON data
-		            // console.debug(data)
+		            // console.debug(data.status);
 		            return {results: data.status};
 
 		        }
@@ -81,17 +84,18 @@
 		//liste des posts du client
 
 		function formatPost(post) { return post.title; };
-	   function formatPostId(item) {return item.id+":"+item.title; };
+	   function formatPostId(item) {return item.id+"#"+item.title; };
 
 		$("#customer_posts").select2({
 			placeholder: "Selectionnez un ou plusieurs articles par leur titre",
 			allowClear: true,
 			multiple: true,
+			separator : "|",
 			// data: users,
 			initSelection : function (element, callback) {
 			    var data = [];
-			    $(element.val().split(",")).each(function () {
-			        var pieces = this.split(":");
+			    $(element.val().split("|")).each(function () {
+			        var pieces = this.split("#");
 					data.push({id: pieces[0], title: pieces[1]});
 			    });//console.log(data);
 			    callback(data);
@@ -122,7 +126,7 @@
 				allowClear : true,
 		        data : clients,
 		        initSelection : function (element, callback) {
-		        	var pieces = element.val().split(":");
+		        	var pieces = element.val().split("#");
 		        	var data = {id: pieces[0], text: pieces[1]};
 			        callback(data);
 			    }
@@ -153,7 +157,7 @@
 			});
 					
 			if (!client_jsvars.is_user_admin) {
-				console.debug('user not admin, disabling customer field');
+				// console.debug('user not admin, disabling customer field');
 				$("#kz_customer").select2("enable", false);	
 			}
 	   }

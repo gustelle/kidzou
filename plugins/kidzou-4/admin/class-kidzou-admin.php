@@ -581,10 +581,10 @@ class Kidzou_Admin {
 			foreach ($posts as $mypost) {
 				
 				if ($posts_list!='')
-					$posts_list .= ',';
+					$posts_list .= '|';
 
 				// $post_o = get_post( $mypost );
-				$posts_list .= $mypost->ID.':'.$mypost->post_title; 
+				$posts_list .= $mypost->ID.'#'.$mypost->post_title; 
 			}
 		}
 
@@ -635,12 +635,12 @@ class Kidzou_Admin {
 			foreach ($user_query->results as $main) {
 				
 				if ($main_users!='')
-					$main_users .= ',';
+					$main_users .= '|';
 
 				$id = $main->ID;
 				$login = $main->user_login;
 
-				$main_users .= $id.':'.$login; 
+				$main_users .= $id.'#'.$login; 
 			}
 		}
 
@@ -803,7 +803,7 @@ class Kidzou_Admin {
 				<ul>
 				<li>
 					<label for="kz_customer">Nom du client:</label>
-					<input type="hidden" name="kz_customer" id="kz_customer" value="' . $customer_id . ':'.$customer_name.'" style="width:80%" />
+					<input type="hidden" name="kz_customer" id="kz_customer" value="' . $customer_id . '#'.$customer_name.'" style="width:80%" />
 				</li>
 				</ul>';
 
@@ -1225,7 +1225,7 @@ class Kidzou_Admin {
 			// OK, we're authenticated: we need to find and save the data
 			// We'll put it into an array to make it easier to loop though.
 			$tmp_post = $_POST[$key];
-			$tmp_arr = explode(":", $tmp_post );
+			$tmp_arr = explode("#", $tmp_post );
 			$events_meta[$key] 	= $tmp_arr[0];
 		}
 
@@ -1274,9 +1274,12 @@ class Kidzou_Admin {
 		$meta = array();
 
 		$tmp_post = $_POST['main_users_input'];
-		$tmp_token = explode(",", $tmp_post );
+		if ( WP_DEBUG === true )
+			error_log(  'set_customer_users, reception de ' . $tmp_post );
+		
+		$tmp_token = explode("|", $tmp_post );
 		foreach ($tmp_token as $tok) {
-			$pieces = explode(":", $tok );
+			$pieces = explode("#", $tok );
 			if (intval($pieces[0])>0)
 				$main[] = intval($pieces[0]);
 		}
@@ -1387,7 +1390,7 @@ class Kidzou_Admin {
 
 			        //suppression de la meta du client dans tous les cas
 			        if ( WP_DEBUG === true )
-							error_log(  $a_user . ' : suppression de la meta' );
+						error_log(  $a_user . ' : suppression de la meta' );
 			        delete_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id );
 
 				}
@@ -1432,10 +1435,13 @@ class Kidzou_Admin {
 		$meta = array();
 
 		$tmp_post = $_POST['customer_posts'];
-		$tmp_token = explode(",", $tmp_post );
+		$tmp_token = explode("|", $tmp_post );
+
+		if ( WP_DEBUG === true )
+			error_log(  'set_customer_posts : Reception de ' .$tmp_post );
 
 		foreach ($tmp_token as $tok) {
-			$pieces = explode(":", $tok );
+			$pieces = explode("#", $tok );
 			$posts[] = $pieces[0];
 		}
 
@@ -1464,8 +1470,10 @@ class Kidzou_Admin {
 
 		foreach ($old_posts as $an_old_one) {
 			if (in_array($an_old_one->ID, $posts)) {
-				//c'est non rien à faire
+				//c'est bon rien à faire
 			} else {
+				if ( WP_DEBUG === true )
+					error_log(  'Post '.$an_old_one->ID.' n\'est plus affecte au client '. $post_id );
 				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $post_id);
 			}
 		}
