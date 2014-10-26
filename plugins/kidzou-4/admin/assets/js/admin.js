@@ -3,7 +3,7 @@
 
 	$(function () {
 
-	   function formatUser(user) { return user.user_login; };
+	   function formatUser(object) { return object.data.user_login; };
 	   function formatUserId(item) {return item.id+":"+item.user_login; };
 	
 			
@@ -26,7 +26,7 @@
 		        data: function (term, page) {
 		            return {
 		                term: term, // search term
-		                term_field: 'user_lastname',
+		                // term_field: 'user_lastname',
 		            };
 		        },
 		        results: function (data, page) { // parse the results into the format expected by Select2.

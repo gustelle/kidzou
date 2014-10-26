@@ -54,16 +54,16 @@ class JSON_API_Users_Controller {
 		//idealement cette info devrait être renvoyée dans les autres requetes
 		elseif ($term!='')
 		{				
-			global $wpdb;
-			// $table_clients_users = $wpdb->prefix . "clients_users";
-			// $wpdb->show_errors();
-			$res = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT u.id, u.user_login, u.user_nicename, u.user_email, u.display_name, c.customer_id FROM $wpdb->users u LEFT JOIN $table_clients_users c ON (u.id=c.user_id) WHERE u.$term_field like %s;", '%' . like_escape($term) . '%'),
-				ARRAY_A
+			
+			$args = array(
+				'search'         => '*'.$term.'*',
+				'search_columns' => array( 'user_login', 'user_email', 'nicename' ),
 			);
-			// $wpdb->print_error();
-			$status = $res;
+			$user_query = new WP_User_Query( $args );
+
+			// print_r($user_query);
+
+			$status = $user_query->results;
 		}
 
 		return array(

@@ -662,8 +662,8 @@ class Kidzou_Admin {
 			<ul>
 				<li>
 					<label for="main_users_input" style="display:block;">
-						Utilisateurs <strong>principaux</strong> autoris&eacute;s &agrave; saisir des contenus<br/>
-						<em>Ces utilisateurs ont le droit de g&eacute;rer les contenus cr&eacute;es par les utilisateurs secondaires</em>
+						Utilisateurs autoris&eacute;s &agrave; saisir des contenus<br/>
+						<strong>La recherche se fait par login ou email</strong>
 					</label>
 					<input type="hidden" name="main_users_input" id="main_users_input" value="%1$s" style="width:50%% ; display:block;" />
 				</li>
@@ -1274,19 +1274,12 @@ class Kidzou_Admin {
 		$meta = array();
 
 		$tmp_post = $_POST['main_users_input'];
-		if ( WP_DEBUG === true )
-			error_log(  'set_customer_users : '.$tmp_post );
 		$tmp_token = explode(",", $tmp_post );
 		foreach ($tmp_token as $tok) {
 			$pieces = explode(":", $tok );
 			if (intval($pieces[0])>0)
 				$main[] = intval($pieces[0]);
-			if ( WP_DEBUG === true )
-				error_log(  'set_customer_users : add '.$pieces[0] );
 		}
-
-		if ( WP_DEBUG === true )
-			error_log(  'count customer_users : '.count($main) );
 
 		// $tmp_post = $_POST['second_users_input'];
 		// $tmp_token = explode(",", $tmp_post );
@@ -1315,9 +1308,6 @@ class Kidzou_Admin {
 		//		si il n'a pas la capacité edit_others_events, -
 		foreach ($main as $a_user) {
 
-			if ( WP_DEBUG === true )
-				error_log( 'set_customer_users : ' . $a_user );
-
 			//toujours s'assurer qu'il est contrib, ca ne mange pas de pain
 			//mais ne pas dégrader son role s'il est éditeur ou admin
 			$u = new WP_User( $a_user );
@@ -1334,8 +1324,6 @@ class Kidzou_Admin {
 			}
 
 			if (!$better) {
-				if ( WP_DEBUG === true )
-					error_log( 'User ' . $a_user . ' : wp_update_user' );
 
 				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
 
@@ -1390,11 +1378,11 @@ class Kidzou_Admin {
 							}
 					}
 
+					//ne pas dégrader automatiquement le role
+					//faire confirmer au user qu'il souhaite dégrader le role
 					if (!$better) {
 						//privé de gateau
-						if ( WP_DEBUG === true )
-							error_log(  $a_user . ' : descente en subscriber' );
-				        $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
+				        // $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
 					}
 
 			        //suppression de la meta du client dans tous les cas
