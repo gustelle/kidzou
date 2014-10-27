@@ -113,6 +113,8 @@ class JSON_API_Content_Controller {
 			$results[] = array(
 					"id" => get_the_ID(),
 					"post_title" => get_the_title(),
+					"author" 	=> get_the_author(),
+					"publish_date" => get_the_date(),
 					"excerpt" => get_the_excerpt(),
 					"permalink" => get_permalink(),
 					"event_dates" => $dates,
