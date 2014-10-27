@@ -97,6 +97,7 @@ class Kidzou {
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
 
 
+
 	}
 
 
@@ -631,6 +632,7 @@ class Kidzou {
 	public function set_content_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/includes/api/content.php";
 	}
+
 	
 
 }

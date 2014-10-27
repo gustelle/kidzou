@@ -14,6 +14,9 @@ class JSON_API_Content_Controller {
 		$key 	= $json_api->query->key;
 		$date_from = $json_api->query->date_from;
 
+		/**
+		* @todo : dans Kidzou_API 
+		*/
 		if (!$key) 
 	    	$json_api->error("Votre clé n'est pas valide");
 
@@ -30,6 +33,10 @@ class JSON_API_Content_Controller {
 
 		//si la date est posterieure a la date du jour, on jette
 
+		/** 
+		* @todo : controle sur la $diff
+		* @todo : externaliser ces controles dans Kidzou_API 
+		*/
 		//si la date est trop lointaine, on jetter le user
 		global $kidou_options;
 		$max_days = $kidzou_options['excerpts_max_days']; 
@@ -60,6 +67,10 @@ class JSON_API_Content_Controller {
 
 		$customer = $results[0];
 
+		/** 
+		* @todo : externaliser ces controles dans Kidzou_API 
+		* @todo : L'incrément du usage dépend du jour !!
+		*/
 		//calculer le quota
 		$quota_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
 		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
@@ -114,7 +125,7 @@ class JSON_API_Content_Controller {
 					"id" => get_the_ID(),
 					"post_title" => get_the_title(),
 					"author" 	=> get_the_author(),
-					"publish_date" => get_the_date(),
+					"publish_date" => get_the_date('Y-m-d'),
 					"excerpt" => get_the_excerpt(),
 					"permalink" => get_permalink(),
 					"event_dates" => $dates,
@@ -126,6 +137,9 @@ class JSON_API_Content_Controller {
 		wp_reset_postdata();
 		wp_reset_query();
 
+		/**
+		* @todo : externaliser dans Kidzou_API
+		*/
 		$meta = array();
 		$usage++;
 		$meta[Kidzou_Customer::$meta_api_usage] = array( "excerpts" => $usage );
@@ -134,7 +148,7 @@ class JSON_API_Content_Controller {
 
 		return array(
 			'posts' => $results,
-			'date_from' => $date_from,
+			// 'date_from' => $date_from,
 			'remaining_queries' => ($quota-$usage),	
 		);
 
