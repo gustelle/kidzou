@@ -47,8 +47,6 @@ class Kidzou_API {
 
 	
 
-	
-
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
 	 * and styles.
@@ -56,7 +54,6 @@ class Kidzou_API {
 	 * @since     1.0.0
 	 */
 	private function __construct() { 
-
 
 	}
 
@@ -79,19 +76,130 @@ class Kidzou_API {
 
 	public static function getAPINames() {
 
+		require_once(plugin_dir_path( __FILE__ ) ."/api/content.php");
+
+		return get_class_methods('JSON_API_Content_Controller');
 	}
 
-	public static function getCurrentUsage($key) {
+	public static function getCurrentUsage($key='', $api_name='') {
+
+		$customer = self::getCustomerByKey($key);
+
+		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
+			return new WP_Error( 'unvalid_data', __( "Clé ou API invalide", "kidzou" ) );
+
+
+		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
+
+		if(isset($usage_array[$api_name])) 
+			$usage = intval($usage_array[$api_name]); 
+
+		if (!$usage || $usage=='' || intval($usage)<0)
+			$usage = 0;
+
+		return $usage;
+
 
 	}
 	
-	public static function getQuota($key) {
+	public static function getQuota($key='', $api_name='') {
+
+		$customer = self::getCustomerByKey($key);
+
+		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
+			return new WP_Error( 'unvalid_data', __( "Clé ou API invalide", "kidzou" ) );
+
+		$quota_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
+
+		if(isset($quota_array[$api_name])) 
+			$quota = intval($quota_array[$api_name]); 
+
+		//et decrementer son utilisation
+		if (!$quota || $quota=='' || intval($quota)<0)
+			$quota = 0;
+
+		return $quota;
 
 	}
 
-	public static function incrementUsage($key, $api_name='') {
+	public static function isQuotaOK($key='', $api_name='') {
+
+		$quota = self::getQuota($key, $api_name);
+		$usage = self::getCurrentUsage($key, $api_name);
+
+		return ($quota-$usage)>0;
+	}
+
+	public static function incrementUsage($key='', $api_name='') {
+
+		$customer = self::getCustomerByKey($key);
+
+		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
+			return new WP_Error( 'unvalid_data', __( "Clé ou API invalide", "kidzou" ) );
+
+		$meta = array();
+		
+		$usage = self::getCurrentUsage($key, $api_name);
+		$usage++;
+		
+		$meta[Kidzou_Customer::$meta_api_usage] = array( $api_name => $usage );
+
+		self::save_meta($customer->ID, $meta);
 
 	}
+
+	public static function getCustomerByKey($key) {
+
+		if (!$key) 
+			return new WP_Error( 'unvalid_key', __( "Votre clé n'est pas valide", "kidzou" ) );
+	    	
+		//qui est donc notre client ?
+		$args = array(
+			'posts_per_page' => 1,
+			'post_type'	=> 'customer',
+			'meta_key' => Kidzou_Customer::$meta_api_key,
+			'meta_value' => $key
+		);
+
+		$the_query = new WP_Query( $args );
+
+		wp_reset_query();
+
+		$results = $the_query->get_posts();
+
+		if (count($results)==0)
+			return new WP_Error( 'unvalid_key', __( "Votre clé n'est pas valide", "kidzou" ) );
+
+		$customer = $results[0];
+
+		return $customer;
+	}
+
+	/**
+	 * fonction utilitaire
+	 */
+	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
+
+		if ($post_id==0)
+			return;
+
+		// Add values of $events_meta as custom fields
+		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
+
+			$pref_key = $prefix.$key; 
+			$prev = get_post_meta($post_id, $pref_key, TRUE);
+
+			if ($prev!='') { // If the custom field already has a value
+				update_post_meta($post_id, $pref_key, $value);
+			} else { // If the custom field doesn't have a value
+				if ($prev=='') delete_post_meta($post_id, $pref_key);
+				add_post_meta($post_id, $pref_key, $value, TRUE);
+			}
+			if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
+		}
+
+	}
+
 
 
 } //fin de classe

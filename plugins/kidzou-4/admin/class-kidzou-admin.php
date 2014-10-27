@@ -705,22 +705,15 @@ class Kidzou_Admin {
 		wp_nonce_field( 'customer_apis_metabox', 'customer_apis_metabox_nonce' );
 
 		$key	 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_key, TRUE);
-		$quota_array 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_quota, TRUE); 
-		$usage_array 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_usage, TRUE);
 
-		// $key = '';
-		$quota = 0;
-		$usage = 0;
-
-		if ($key =='') {
+		if ($key == '') {
 			$key = md5(uniqid());
 		}
 
-		if(isset($quota_array['excerpts'])) 
-			$quota = intval($quota_array['excerpts']); 
+		$api_names = Kidzou_API::getAPINames();
 
-		if(isset($usage_array['excerpts'])) 
-			$usage = intval($usage_array['excerpts']); 
+		$quota = Kidzou_API::getQuota($key, $api_names[0]);
+		$usage = Kidzou_API::getCurrentUsage($key, $api_names[0]);
 
 		$output = sprintf('
 			<ul>
@@ -1547,7 +1540,9 @@ class Kidzou_Admin {
 		$quota = $_POST['customer_api_quota'];
 		
 		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
-		$meta[Kidzou_Customer::$meta_api_quota] = array("excerpts" => $quota);
+
+		$api_names = Kidzou_API::getAPINames();
+		$meta[Kidzou_Customer::$meta_api_quota] = array($api_names[0] => $quota);
 
 		self::save_meta($post_id, $meta);
 	}
