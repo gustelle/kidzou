@@ -247,7 +247,7 @@ var kidzouModule = (function() { //havre de paix
 				if (self.voted())
 					upOrdown = '-1';
 
-				kidzouTracker.trackEvent("Recommandation", upOrdown, this.slug , 0);
+				kidzouTracker.trackEvent("Recommandation", upOrdown, this.slug , kidzou_commons_jsvars.current_user_id);
 
 				//console.dir(this);
 				if (self.voted()) 
