@@ -763,6 +763,7 @@ class Kidzou_Admin {
 		$customer_name = '';
 		
 		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
+		echo 'customer '.$customer_id;
 		if (is_wp_error($customer_id))
 			$customer_id=0;
 		else {
@@ -931,7 +932,7 @@ class Kidzou_Admin {
 			} else {
 				
 				$id = Kidzou_Customer::getCustomerIDByPostID();
-				if (is_wp_error($customer_id))
+				if (is_wp_error($id))
 					$id=0;
 			}
 
@@ -1233,17 +1234,23 @@ class Kidzou_Admin {
 
 		//si le user est un client, on reprend le client associé à l'auteur
 		//en theorie il ne peut pas arriver jusqu'ici puisque le nonce n'est pas generé pour un "pro"
-		if ( !current_user_can( 'manage_options' )) {
+		// if ( !current_user_can( 'manage_options' )) {
 		
-			$events_meta[$key] = Kidzou_Customer::getCustomerIDByAuthorID();;
+		// 	$events_meta[$key] = Kidzou_Customer::getCustomersIDByUserID();
+
+		// 	if ( WP_DEBUG === true )
+		// 		error_log(  'save_client_meta : ' . $events_meta[$key] );
 		
-		} else {
+		// } else {
 			// OK, we're authenticated: we need to find and save the data
 			// We'll put it into an array to make it easier to loop though.
 			$tmp_post = $_POST[$key];
 			$tmp_arr = explode("#", $tmp_post );
 			$events_meta[$key] 	= $tmp_arr[0];
-		}
+
+			if ( WP_DEBUG === true )
+				error_log(  'save_client_meta : ' . $events_meta[$key] );
+		// }
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
@@ -1264,7 +1271,7 @@ class Kidzou_Admin {
 		$slug = 'customer';
 
 	    // If this isn't a 'book' post, don't update it.
-	    if ( $slug != $_POST['post_type'] ) {
+	    if ( !isset($_POST['post_type']) || $slug != $_POST['post_type'] ) {
 	        return;
 	    }
 
@@ -1436,7 +1443,7 @@ class Kidzou_Admin {
 		$slug = 'customer';
 
 	    // If this isn't a 'book' post, don't update it.
-	    if ( $slug != $_POST['post_type'] ) {
+	    if ( !isset($_POST['post_type']) || $slug != $_POST['post_type'] ) {
 	        return;
 	    }
 
@@ -1516,7 +1523,7 @@ class Kidzou_Admin {
 		$slug = 'customer';
 
 	    // If this isn't a 'book' post, don't update it.
-	    if ( $slug != $_POST['post_type'] ) {
+	    if ( !isset($_POST['post_type']) || $slug != $_POST['post_type'] ) {
 	        return;
 	    }
 

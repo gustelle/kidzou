@@ -84,17 +84,17 @@ class Kidzou_API {
 	public static function getCurrentUsage($key='', $api_name='') {
 
 		$customer = self::getCustomerByKey($key);
+		$usage = 0;
 
 		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
-			return new WP_Error( 'unvalid_data', __( "Clé ou API invalide", "kidzou" ) );
-
+			return 0;
 
 		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
 
 		if(isset($usage_array[$api_name])) 
 			$usage = intval($usage_array[$api_name]); 
 
-		if (!$usage || $usage=='' || intval($usage)<0)
+		if (intval($usage)<0)
 			$usage = 0;
 
 		return $usage;
@@ -107,7 +107,7 @@ class Kidzou_API {
 		$customer = self::getCustomerByKey($key);
 
 		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
-			return new WP_Error( 'unvalid_data', __( "Clé ou API invalide", "kidzou" ) );
+			return 0;
 
 		$quota_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
 

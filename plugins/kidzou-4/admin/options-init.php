@@ -288,7 +288,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
-                'title'     => __('Widgets', 'kidzou'),
+                'title'     => __('Dashboard Admin', 'kidzou'),
                 'desc'      => __('Widgets qui sont affich&eacute;s dans l\'admin', 'kidzou'),
                 'icon'      => 'el-icon-puzzle',
                 'fields'    => array(

@@ -168,22 +168,46 @@ class Kidzou_Events {
 	}
 
 	/**
-	 * undocumented function
+	 * on requete a la main sans passer par un wp_query
+	 * car par expérience utiliser cela dasn le filtre posts_results crée un out of memory
+	 * je suppose que maintenir en mémoire 2 wp_query est trop gourmand ?
 	 *
 	 * @return void
 	 * @author 
 	 **/
-	public static function getFeatured( )
+	public static function getFeaturedPostsIDForTaxonomy( $taxonomy_id )
 	{
-		$args = array(
-			'meta_key'   => self::$meta_featured,
-			'meta_value'	=> 'A',
-			'meta_compare'    => '=',
-			// 'posts_per_page' => 1
-		);
-		$query = new WP_Query( $args );
+		// $args = array(
+		// 	'meta_key'   => self::$meta_featured,
+		// 	'meta_value'	=> 'A',
+		// 	'meta_compare'    => '=',
+		// 	'posts_per_page' => 1
+		// );
+		// $query = new WP_Query( $args );
 
-		return $query->get_posts();
+		// $posts = $query->get_posts();
+
+		// wp_reset_query();
+		echo $taxonomy_id;
+
+		global $wpdb;
+		$table = $wpdb->prefix.'posts';
+		$table_meta = $wpdb->prefix.'postmeta';
+		$table_terms = $wpdb->prefix.'term_relationships';
+
+		$meta_key = self::$meta_featured;
+
+		$results = $wpdb->get_results( "
+			SELECT p.ID, p.post_title FROM $table p 
+				INNER JOIN $table_meta m on (p.ID = m.post_id) 
+				INNER JOIN $table_terms t ON (p.ID = t.object_id)
+			WHERE 
+				m.meta_key = '$meta_key' AND m.meta_value = 'A' 
+			AND ( t.term_taxonomy_id = $taxonomy_id  )
+			AND p.post_type =  'post'
+			AND p.post_status =  'publish'", OBJECT );
+
+		return $results;
 	}
 
 
@@ -193,83 +217,83 @@ class Kidzou_Events {
 	 * @return array()
 	 * @author 
 	 **/
-	public static function getEventsByInterval( $interval_days = 7, $ppp=-1 )
-	{
-		$metropole = Kidzou_Geo::get_request_metropole();
+	// public static function getEventsByInterval( $interval_days = 7, $ppp=-1 )
+	// {
+	// 	$metropole = Kidzou_Geo::get_request_metropole();
 
-		$interval = 'P7D';
+	// 	$interval = 'P7D';
 
-		switch ($interval_days) {
-			case 7:
-				$interval = 'P7D';
-				break;
+	// 	switch ($interval_days) {
+	// 		case 7:
+	// 			$interval = 'P7D';
+	// 			break;
 
-			case 30:
-				$interval = 'P30D';
-				break;
+	// 		case 30:
+	// 			$interval = 'P30D';
+	// 			break;
 			
-			default:
-				$interval = 'P7D';
-				break;
-		}
+	// 		default:
+	// 			$interval = 'P7D';
+	// 			break;
+	// 	}
 
-		$current= time();
-		$start 	= date('Y-m-d 00:00:00', $current);
-		$end_time 	= new DateTime($start);
+	// 	$current= time();
+	// 	$start 	= date('Y-m-d 00:00:00', $current);
+	// 	$end_time 	= new DateTime($start);
 
-		$end_time 	= $end_time->add( new DateInterval($interval) ); 
+	// 	$end_time 	= $end_time->add( new DateInterval($interval) ); 
 
-		$end 	= $end_time->format('Y-m-d 23:59:59');
+	// 	$end 	= $end_time->format('Y-m-d 23:59:59');
 
-		$meta_q = array(
-	                   array(
-	                         'key' => 'kz_event_start_date',
-	                         'value' => $end,
-	                         'compare' => '<=',
-	                         'type' => 'DATETIME'
-	                        )
-	                   ,
-						array(
-	                         'key' => 'kz_event_end_date',
-	                         'value' => $start,
-	                         'compare' => '>=',
-	                         'type' => 'DATETIME'
-	                        )
-			    	);
+	// 	$meta_q = array(
+	//                    array(
+	//                          'key' => 'kz_event_start_date',
+	//                          'value' => $end,
+	//                          'compare' => '<=',
+	//                          'type' => 'DATETIME'
+	//                         )
+	//                    ,
+	// 					array(
+	//                          'key' => 'kz_event_end_date',
+	//                          'value' => $start,
+	//                          'compare' => '>=',
+	//                          'type' => 'DATETIME'
+	//                         )
+	// 		    	);
 
-		if ($metropole!='')
-			$args = array(
-				'meta_key' => 'kz_event_start_date' , //kz_event_featured
-				'orderby' => 'meta_value',
-				'order' => 'ASC' ,
-				'posts_per_page' => $ppp, 
-				'meta_query' => $meta_q,
-			    'tax_query' => array(
-			        array(
-			              'taxonomy' => 'ville',
-			              'field' => 'slug',
-			              'terms' => $metropole,
-			              )
-			    )
-			);
-		else
-			$args = array(
-				'meta_key' => 'kz_event_start_date' , //kz_event_featured
-				'orderby' => 'meta_value',
-				'order' => 'ASC' ,
-				'posts_per_page' => $ppp, 
-				'meta_query' => $meta_q
-			);
+	// 	if ($metropole!='')
+	// 		$args = array(
+	// 			'meta_key' => 'kz_event_start_date' , //kz_event_featured
+	// 			'orderby' => 'meta_value',
+	// 			'order' => 'ASC' ,
+	// 			'posts_per_page' => $ppp, 
+	// 			'meta_query' => $meta_q,
+	// 		    'tax_query' => array(
+	// 		        array(
+	// 		              'taxonomy' => 'ville',
+	// 		              'field' => 'slug',
+	// 		              'terms' => $metropole,
+	// 		              )
+	// 		    )
+	// 		);
+	// 	else
+	// 		$args = array(
+	// 			'meta_key' => 'kz_event_start_date' , //kz_event_featured
+	// 			'orderby' => 'meta_value',
+	// 			'order' => 'ASC' ,
+	// 			'posts_per_page' => $ppp, 
+	// 			'meta_query' => $meta_q
+	// 		);
 
-		$query = new WP_Query($args );	
+	// 	$query = new WP_Query($args );	
 
-		$list = 	$query->get_posts(); 
+	// 	$list = 	$query->get_posts(); 
 
-		//les featured en premier
-		uasort($list, array('self', "sort_by_featured") );
+	// 	//les featured en premier
+	// 	uasort($list, array('self', "sort_by_featured") );
 
-		return $list;
-	}
+	// 	return $list;
+	// }
 
 	/**
 	 * Construit une WP_Query contenant des evenements sur une metropole donnée, dans un intervalle donné
@@ -341,25 +365,47 @@ class Kidzou_Events {
 	 */ 
 	public function order_by_featured($posts, $query) {
 
+		// if (!is_admin()  && !$query->is_main_query() && !is_page()) { //
 
-		if (!is_admin() && !$query->is_main_query()) {
+		// 	remove_filter( current_filter(), __FUNCTION__, PHP_INT_MAX, 2 );
 
-			// echo 'order_by_featured';
-			
-			remove_filter( current_filter(), __FUNCTION__, PHP_INT_MAX, 2 );
-		    $nonfeatured = array();
-		    $featured = array();
-		    foreach ( $posts as $post ) {
-		      if ( self::isFeatured($post->ID) ) {
-		        $featured[] = $post;
-		      } else {
-		        $nonfeatured[] = $post;
-		      }
-		    }
+		// 	$queried = get_queried_object();
+
+		// 	// print_r($queried);
 		    
-		    $posts = array_merge( $featured, $nonfeatured );
+		//     $nonfeatured = array();
+		//     $featured =  self::getFeaturedPostsIDForTaxonomy( $queried->term_taxonomy_id );
+		    
+		//     $duplicate = false;
 
-		}
+		//     foreach ( $posts as &$post ) {
+		     
+		// 		if ( self::isFeatured($post->ID) ) {
+
+		// 			echo 'isFeatured :'.$post->ID;
+		// 			print_r($featured);
+
+		// 			foreach ($featured as &$a_featured) {
+
+		// 									echo $a_featured->ID.' ';
+						
+		// 				if ($a_featured->ID == $post->ID) {
+		// 					echo 'trouvé '.$post->ID ;
+		// 					$duplicate = true;
+		// 					break;
+		// 				} 
+		// 			}
+
+		// 		}
+
+		//    		if (!$duplicate)
+		//     		$nonfeatured[] = $post;
+
+		//     }
+		    
+		//     $posts = array_merge( $featured, $nonfeatured );
+
+		// } 
 		
 		return $posts;
 	}
