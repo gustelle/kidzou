@@ -763,7 +763,7 @@ class Kidzou_Admin {
 		$customer_name = '';
 		
 		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
-		echo 'customer '.$customer_id;
+	
 		if (is_wp_error($customer_id))
 			$customer_id=0;
 		else {
@@ -1228,29 +1228,13 @@ class Kidzou_Admin {
 
 		$key = Kidzou_Customer::$meta_customer;
 
-		// Is the user allowed to edit the post or page?
-		// if ( !current_user_can( 'edit_event', $post_id ) &&  !current_user_can( 'edit_post', $post_id ))
-		// 	return $post_id;
+		$tmp_post = $_POST[$key];
+		$tmp_arr = explode("#", $tmp_post );
+		$events_meta[$key] 	= $tmp_arr[0];
 
-		//si le user est un client, on reprend le client associé à l'auteur
-		//en theorie il ne peut pas arriver jusqu'ici puisque le nonce n'est pas generé pour un "pro"
-		// if ( !current_user_can( 'manage_options' )) {
-		
-		// 	$events_meta[$key] = Kidzou_Customer::getCustomersIDByUserID();
+		if ( WP_DEBUG === true )
+			error_log(  'save_client_meta : ' . $events_meta[$key] );
 
-		// 	if ( WP_DEBUG === true )
-		// 		error_log(  'save_client_meta : ' . $events_meta[$key] );
-		
-		// } else {
-			// OK, we're authenticated: we need to find and save the data
-			// We'll put it into an array to make it easier to loop though.
-			$tmp_post = $_POST[$key];
-			$tmp_arr = explode("#", $tmp_post );
-			$events_meta[$key] 	= $tmp_arr[0];
-
-			if ( WP_DEBUG === true )
-				error_log(  'save_client_meta : ' . $events_meta[$key] );
-		// }
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
