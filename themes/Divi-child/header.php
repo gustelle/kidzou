@@ -36,6 +36,7 @@
 </head>
 <body <?php body_class(); ?>>
 
+
 <!-- <div class="habillage"> -->
 
 	<div id="page-container">
@@ -106,8 +107,9 @@
 					} else {
 
 						printf(
-							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-cog"></i><span>Votre profil</span></a>&nbsp;', 
-							get_admin_url()
+							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-cog"></i><span>%2$s</span></a>&nbsp;', 
+							get_admin_url(),
+							current_user_can('edit_posts') ? 'G&eacute;rer vos articles' : 'Votre profil'
 						);	
 
 						echo '&nbsp;|&nbsp;<a class="et_nav_text_color_light font-bigger" href="'.wp_logout_url( get_permalink() ).'" title="'.__('Deconnexion','Divi').'">'.__('Deconnexion','Divi').'</a>';
