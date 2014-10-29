@@ -275,9 +275,18 @@ class Kidzou_Customer {
 
 		$customer_ids = get_user_meta($user_id, self::$meta_customer, false); 
 
+		if ( WP_DEBUG === true )
+			error_log(  'getCustomersIDByUserID -> ' . count($customer_ids) );
+
 		//supprimer les révisions et autrs
 		return array_filter($customer_ids, function($item) {
-			return get_post_type($item)==self::$post_type;
+			$instance = Kidzou_Customer::get_instance();
+			$this_type = $instance::$post_type;
+
+			if ( WP_DEBUG === true )
+				error_log(  'getCustomersIDByUserID [post_type]' . $this_type );
+
+			return get_post_type($item)==$this_type;
 		});
 	}
 

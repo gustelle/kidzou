@@ -785,6 +785,9 @@ class Kidzou_Admin {
 		if (!current_user_can( 'manage_options' )) {
 
 			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
+
+			if ( WP_DEBUG === true )
+				error_log(  'client_metabox [getCustomersIDByUserID] -> ' . count($user_customers) );
 			
 			//si le user est affecté à au moins un client, on filtre la liste des clients
 
