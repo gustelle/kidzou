@@ -782,7 +782,8 @@ class Kidzou_Admin {
 
 		$q = null;
 
-		if (!current_user_can( 'manage_options' )) {
+		//il faut que le client soit > contributeur pour voir tous els clients
+		if ( !current_user_can( 'edit_published_posts' ) ) {
 
 			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
 
@@ -802,7 +803,7 @@ class Kidzou_Admin {
 			//dans ce cas $q est null
 			
 		} else 
-			$q = new WP_Query( $arsg );
+			$q = new WP_Query( $args );
 
 		if (null!=$q)
 		{

@@ -283,9 +283,6 @@ class Kidzou_Customer {
 			$instance = Kidzou_Customer::get_instance();
 			$this_type = $instance::$post_type;
 
-			if ( WP_DEBUG === true )
-				error_log(  'getCustomersIDByUserID [post_type]' . $this_type );
-
 			return get_post_type($item)==$this_type;
 		});
 	}

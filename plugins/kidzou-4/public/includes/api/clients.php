@@ -18,8 +18,8 @@ class JSON_API_Clients_Controller {
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		//attention au hack
-		//si le user n'est pas admin, l'API ne peut être utilisée que avec le $id du customer du user courant
-		if (!current_user_can('manage_options')) {
+		//si le user n'est pas au moins auteur, l'API ne peut être utilisée que avec le $id du customer du user courant
+		if (!current_user_can('edit_published_posts')) {
 
 			$current_customers = Kidzou_Customer::getCustomersIDByUserID();
 			if (!in_array($id, $current_customers))
