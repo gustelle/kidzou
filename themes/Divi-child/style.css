@@ -169,7 +169,8 @@ table.shop_table { margin-bottom: 30px !important; }
 
 
 .container { text-align: left; margin: 0 auto; width: 1080px; position: relative; }
-	body.et_boxed_layout .container {width: 980px;}
+	body.et_boxed_layout #page-container #top-header {top:110px;}
+	body.et_boxed_layout .container {width: 1080px;}
 	body.admin-bar.et_fixed_nav #main-header, body.admin-bar.et_fixed_nav #top-header { top: 32px;}
 	body.et-wp-pre-3_8.admin-bar.et_fixed_nav #main-header, body.et-wp-pre-3_8.admin-bar.et_fixed_nav #top-header { top: 28px; }
 
@@ -1710,7 +1711,7 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 		-webkit-box-shadow: 0 0 10px 0 rgba(0,0,0,0.2); 
 		box-shadow: 0 0 10px 0 rgba(0,0,0,0.2); 
 	}
-	.et_boxed_layout #page-container, .et_boxed_layout #page-container #main-header, .et_boxed_layout #page-container #top-header { /*width: 1200px;*/ width: 980px; }
+	.et_boxed_layout #page-container, .et_boxed_layout #page-container #main-header, .et_boxed_layout #page-container #top-header { /*width: 1200px;*/ width: 1080px; }
 	.et_boxed_layout.et_vertical_nav #page-container #top-header { width: auto; }
 	.et_boxed_layout #page-container #top-header { left: auto; right: auto; }
 }

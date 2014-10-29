@@ -23,7 +23,7 @@ class JSON_API_Clients_Controller {
 
 			$current_customers = Kidzou_Customer::getCustomersIDByUserID();
 			if (!in_array($id, $current_customers))
-				$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
+				$json_api->error("Vous n'avez pas le droit de consulter les données de ce client.");
 		}
 
 		$location = Kidzou_Geo::get_post_location($id, Kidzou_Customer::$post_type);

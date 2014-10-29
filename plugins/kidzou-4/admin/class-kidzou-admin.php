@@ -772,32 +772,46 @@ class Kidzou_Admin {
 				$customer_name = '';
 		}
 
-		$args = array (
+		$clients = array();
+		$args = array(
 				'post_type' => 'customer', 
 				'order' => 'ASC', 
 				'orderby' => 'title', 
-				'posts_per_page' => -1
-		);
+				'posts_per_page' => -1,
+			);
 
-		$restrict = array();
+		$q = null;
 
 		if (!current_user_can( 'manage_options' )) {
-			$restrict = array(
-				'post__in' => Kidzou_Customer::getCustomersIDByUserID()
-			);
-		} 
 
-		$q = new WP_Query(
-			array_merge($args, $restrict)
-		);
+			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
+			
+			//si le user est affecté à au moins un client, on filtre la liste des clients
 
-		$posts = $q->get_posts();
-		$clients = array();
-		foreach ($posts as $mypost) {
-			$clients[] = array("id" => $mypost->ID, "text" => $mypost->post_title);
+			if (count($user_customers)>0)
+			{
+				$q = new WP_Query(
+					array_merge($args, array('post__in' => $user_customers))
+				);
+			} 
+
+			//si le user n'est affecté à aucun client on ne fait rien
+			//dans ce cas $q est null
+			
+		} else 
+			$q = new WP_Query( $arsg );
+
+		if (null!=$q)
+		{
+			$posts = $q->get_posts();
+
+			foreach ($posts as $mypost) {
+				$clients[] = array("id" => $mypost->ID, "text" => $mypost->post_title);
+			}
+
+			wp_reset_query();
 		}
-
-		wp_reset_query();
+		
 
 		//pre-selection s'il n'y en a qu'un
 		if (count($clients)==1) {
