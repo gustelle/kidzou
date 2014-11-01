@@ -615,22 +615,22 @@ class Kidzou {
 
 
 	public function set_vote_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/includes/api/vote.php";
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/vote.php";
 	}
 	public function set_auth_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/includes/api/auth.php";
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/auth.php";
 	}
 	public function set_users_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/includes/api/users.php";
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/users.php";
 	}
 	public function set_clients_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/includes/api/clients.php";
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/clients.php";
 	}
 	public function set_search_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/includes/api/search.php";
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/search.php";
 	}
 	public function set_content_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/includes/api/content.php";
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/content.php";
 	}
 
 	

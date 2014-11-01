@@ -30,6 +30,9 @@
 
 	<script type="text/javascript">
 		document.documentElement.className = 'js';
+		<?php if ( true === et_get_option( 'boxed_layout', false ) ) { ?>
+			document.documentElement.classList.add("et_boxed_layout");
+		<?php } ?>
 	</script>
 
 	<?php wp_head(); ?>
