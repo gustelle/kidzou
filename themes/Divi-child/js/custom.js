@@ -1776,7 +1776,7 @@
 			et_header_modifier    = et_header_height <= 90 ? et_header_height - 29 : et_header_height - 56;
 			//et_header_offset      ;
 
-			if ($('body').hasClass('et_boxed_layout')) {
+			if ($('body').hasClass('kz_habillage')) {
 				et_header_offset = et_header_modifier ;
 				et_primary_header_top = 110 + $top_header.innerHeight() ;
 			} else {
@@ -1978,6 +1978,7 @@
 					$main_container_wrapper.css( 'paddingTop', $( '#main-header' ).innerHeight() + secondary_nav_height - 1 );
 
 					et_change_primary_nav_position();
+
 				}, 200 );
 			}
 

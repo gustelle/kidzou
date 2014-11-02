@@ -64,16 +64,24 @@ function override_divi_parent_functions()
 	//Alterer les queries pour les archives afin de trier par reco count
 	add_action( "pre_get_posts", "filter_archive_query" );
 
+	//gestion de l'habillage publicitaire
+	add_filter( 'body_class', 'kz_add_class_habillage' );
+
 }
 
 function custom_excerpt_length( $length ) {
 	return 180;
 }
 
-// // Replaces the excerpt "more" text by a link
-// function excerpt_more_invite_scroll($more) {
-// 	return ' ... <a href="#content_start" alt="Lire le contenu" ><i class="fa fa-arrow-down fa-3x grey overtext"></i></a>';
-// }
+function kz_add_class_habillage( $classes ){
+
+	global $kidzou_options;
+
+	if (isset($kidzou_options['pub_habillage']) && $kidzou_options['pub_habillage']!='')
+		$classes[] = 'kz_habillage';
+
+	return $classes;
+}
 
 /**
  * undocumented function

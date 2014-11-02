@@ -229,6 +229,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'fields'    => array(
 
                     array(
+                        'id'        => 'pub_habillage',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Habillage publicitaire', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        'desc'      => 'Un javascript est attendu',
+                        'default'   => ''
+                    ),
+
+                    array(
                         'id'        => 'pub_archive',
                         'type'      => 'ace_editor',
                         'title'     => __('Publicit&eacute; sur Archive', 'kidzou'),
