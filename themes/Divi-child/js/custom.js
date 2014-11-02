@@ -1778,6 +1778,7 @@
 
 			if ($('body').hasClass('kz_habillage')) {
 				et_header_offset = et_header_modifier ;
+				$top_header.css('top', '110px');
 				et_primary_header_top = 110 + $top_header.innerHeight() ;
 			} else {
 				et_header_offset = et_header_modifier + admin_bar_height;

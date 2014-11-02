@@ -88,8 +88,8 @@
 
 							<?php 
 								//easy social share buttons
-								if ( shortcode_exists( 'essb' ) )
-									echo do_shortcode('[essb]');
+								if ( shortcode_exists( 'easy-social-share' ) )
+									echo do_shortcode('[easy-social-share counters=1 counter_pos="inside" total_counter_pos="hidden"]');
 							?>
 
 							
@@ -114,6 +114,7 @@
 									?>
 							
 								<?php the_content(); ?>
+
 
 								<div class="post_format_block">
 									<?php 
@@ -178,6 +179,12 @@
 									}
 								?>
 								</div> <!-- .post_format_block -->
+
+								<?php 
+								//easy social share buttons
+									// if ( shortcode_exists( 'easy-social-like' ) )
+									// 	echo do_shortcode('[easy-social-like facebook="true" twitter_tweet="true" skinned="true" skin="metro" counters="true"]');
+								?>
 
 								<?php wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'Divi' ), 'after' => '</div>' ) );?>
 
