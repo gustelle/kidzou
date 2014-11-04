@@ -33,12 +33,16 @@
 	</script>
 
 	<?php wp_head(); ?>
+
+	<?php kz_habillage_script(); ?>
+	<script src="http://a.monadserver.com/ad/website/?id=28"></script>
 </head>
 <body <?php body_class(); ?>>
-
+<script>OA_show(247);</script>
 
 <!-- <div class="habillage"> -->
 
+	
 	<div id="page-container">
 <?php
 	if ( is_page_template( 'page-template-blank.php' ) ) {
