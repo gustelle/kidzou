@@ -41,7 +41,7 @@ class Kidzou_Events {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '2014.08.24';
+	const VERSION = '04-nov';
 
 
 	// private static $initialized = false;
