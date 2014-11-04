@@ -105,18 +105,18 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
           so you must use get_template_directory_uri() if you want to use any of the built in icons
 
          * */
-        function dynamic_section($sections) {
-            //$sections = array();
-            $sections[] = array(
-                'title' => __('Section via hook', 'redux-framework-demo'),
-                'desc' => __('<p class="description">This is a section created by adding a filter to the sections array. Can be used by child themes to add/remove sections from the options.</p>', 'redux-framework-demo'),
-                'icon' => 'el-icon-paper-clip',
-                // Leave this as a blank section, no options just some intro text set above.
-                'fields' => array()
-            );
+        // function dynamic_section($sections) {
+        //     //$sections = array();
+        //     $sections[] = array(
+        //         'title' => __('Section via hook', 'redux-framework-demo'),
+        //         'desc' => __('<p class="description">This is a section created by adding a filter to the sections array. Can be used by child themes to add/remove sections from the options.</p>', 'redux-framework-demo'),
+        //         'icon' => 'el-icon-paper-clip',
+        //         // Leave this as a blank section, no options just some intro text set above.
+        //         'fields' => array()
+        //     );
 
-            return $sections;
-        }
+        //     return $sections;
+        // }
 
         /**
 
@@ -135,7 +135,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
          * */
         function change_defaults($defaults) {
-            $defaults['str_replace'] = 'Testing filter hook!';
+            // $defaults['str_replace'] = 'Testing filter hook!';
 
             return $defaults;
         }
@@ -227,6 +227,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'desc'      => __('lorem ipsum', 'kidzou'),
                 'icon'      => 'el-icon-bullhorn',
                 'fields'    => array(
+
+                    array(
+                        'id'        => 'pub_habillage',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Habillage publicitaire', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        'desc'      => 'Un javascript est attendu',
+                        'default'   => ''
+                    ),
 
                     array(
                         'id'        => 'pub_archive',
@@ -324,18 +335,12 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             // Custom page help tabs, displayed using the help API. Tabs are shown in order of definition.
             $this->args['help_tabs'][] = array(
                 'id'        => 'redux-help-tab-1',
-                'title'     => __('Theme Information 1', 'redux-framework-demo'),
-                'content'   => __('<p>This is the tab content, HTML is allowed.</p>', 'redux-framework-demo')
-            );
-
-            $this->args['help_tabs'][] = array(
-                'id'        => 'redux-help-tab-2',
-                'title'     => __('Theme Information 2', 'redux-framework-demo'),
-                'content'   => __('<p>This is the tab content, HTML is allowed.</p>', 'redux-framework-demo')
+                'title'     => __('De l\'aide ?', 'redux-framework-demo'),
+                'content'   => __('<p>Ben...contactez nous : guillaume@kidzou.fr ou corinne@kidzou.fr</p>', 'redux-framework-demo')
             );
 
             // Set the help sidebar
-            $this->args['help_sidebar'] = __('<p>This is the sidebar content, HTML is allowed.</p>', 'redux-framework-demo');
+            $this->args['help_sidebar'] = __('<p>En cas de blocage contactez guillaume@kidzou.fr.</p>', 'redux-framework-demo');
         }
 
         /**
@@ -352,46 +357,46 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'opt_name' => 'kidzou_options',
                 'display_name' => 'Kidzou',
                 'page_slug' => '_options',
-                'page_title' => 'Réglages',
+                'page_title' => 'R&eacute;glages',
                 'update_notice' => true,
                 'intro_text' => '<p>Nous avons rangé ici tous les petits réglages de Kidzou.</p>’',
-                'footer_text' => '<p>This text is displayed below the options panel. It isn\\’t required, but more info is always better! The footer_text field accepts all HTML.</p>',
+                'footer_text' => '<p>Kidzou, sorties en famille</p>',
                 'admin_bar' => false,
                 'menu_type' => 'menu',
                 'menu_title' => 'Kidzou',
-                'menu_icon' => 'http://www.kidzou.fr/wp-content/uploads/2014/10/Favicon_Kidzou_2014.ico',
+                // 'menu_icon' => 'http://www.kidzou.fr/wp-content/uploads/2014/10/Favicon_Kidzou_2014.ico',
                 'allow_sub_menu' => true,
                 // 'page_parent_post_type' => 'your_post_type',
                 'customizer' => true,
                 'default_mark' => '*',
                 'hints' => 
-                array(
-                  'icon' => 'el-icon-question-sign',
-                  'icon_position' => 'right',
-                  'icon_size' => 'normal',
-                  'tip_style' => 
-                  array(
-                    'color' => 'light',
-                  ),
-                  'tip_position' => 
-                  array(
-                    'my' => 'top left',
-                    'at' => 'bottom right',
-                  ),
-                  'tip_effect' => 
-                  array(
-                    'show' => 
-                    array(
-                      'duration' => '500',
-                      'event' => 'mouseover',
-                    ),
-                    'hide' => 
-                    array(
-                      'duration' => '500',
-                      'event' => 'mouseleave unfocus',
-                    ),
-                  ),
-                ),
+                        array(
+                          'icon' => 'el-icon-question-sign',
+                          'icon_position' => 'right',
+                          'icon_size' => 'normal',
+                          'tip_style' => 
+                          array(
+                            'color' => 'light',
+                          ),
+                          'tip_position' => 
+                          array(
+                            'my' => 'top left',
+                            'at' => 'bottom right',
+                          ),
+                          'tip_effect' => 
+                          array(
+                            'show' => 
+                            array(
+                              'duration' => '500',
+                              'event' => 'mouseover',
+                            ),
+                            'hide' => 
+                            array(
+                              'duration' => '500',
+                              'event' => 'mouseleave unfocus',
+                            ),
+                          ),
+                        ),
                 'output' => true,
                 'output_tag' => true,
                 'compiler' => true,
@@ -399,9 +404,10 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'page_permissions' => 'manage_options',
                 'save_defaults' => true,
                 'show_import_export' => true,
-                // 'transient_time' => '3600',
+                'transient_time' => 3600,
                 'network_sites' => true,
-                'database' => 'network'
+                // 'dev_mode' => true
+                // 'database' => 'network'
               );
 
             // SOCIAL ICONS -> Setup custom links in the footer for quick links in your panel footer icons.
