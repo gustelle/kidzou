@@ -34,7 +34,7 @@ class Kidzou_Customer {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '2014.08.24';
+	const VERSION = '04-nov';
 
 	/**
 	 * Instance of this class.
