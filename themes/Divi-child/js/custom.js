@@ -1776,15 +1776,9 @@
 			et_header_modifier    = et_header_height <= 90 ? et_header_height - 29 : et_header_height - 56;
 			//et_header_offset      ;
 
-			// if ($('body').hasClass('kz_habillage')) {
-			// 	et_header_offset = et_header_modifier ;
-			// 	$top_header.css('top', '110px');
-			// 	et_primary_header_top = 110 + $top_header.innerHeight() ;
-			// 	$('#content-spacing').height( $( '#main-header' ).innerHeight());
-			// } else {
-				et_header_offset = et_header_modifier + admin_bar_height;
-				et_primary_header_top = secondary_nav_height + admin_bar_height;
-			// }
+			et_header_offset = et_header_modifier + admin_bar_height;
+			et_primary_header_top = secondary_nav_height + admin_bar_height;
+	
 
 		}
 

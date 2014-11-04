@@ -92,7 +92,7 @@ function kz_add_class_habillage( $classes ){
 	return $classes;
 }
 
-function kz_habillage_script() {
+function kz_habillage() {
 
 	global $kidzou_options;
 

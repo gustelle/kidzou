@@ -3318,7 +3318,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 @media only screen and ( min-width: 1001px ) {
 
 	body.kz_habillage #page-container {width: 1000px; margin: auto;}
-	
+
 	.kz_habillage .container {width: 980px; }
 	.kz_habillage #top-header {max-width: 1000px; width:100%; margin:0 auto;}
 	.kz_habillage #top-header {position: relative;} /* Bug ou pas ? sans ca le background-color ne s'applique pas */
@@ -3343,23 +3343,4 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {width: 270px;}
 }
 
-/*-------------------[960px / iPad]------------------*/
-@media only screen and ( min-width: 981px ) and ( max-width: 1100px ) {
-	/*.kz_habillage .container {width: 960px; }
-	.kz_habillage .et_pb_row { width: 960px; }
-	.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item { width: 195px; }
-	.kz_habillage .et_pb_column_3_4 { width: 705px; }
-	.kz_habillage .et_pb_column { margin-right: 60px; }
-	.kz_habillage .et_pb_column_3_8 { width: 322.5px; }
-	.kz_habillage .et_pb_column_1_4 { width: 195px; }
-	.kz_habillage .et_pb_column_1_2 { width: 450px; }*/
-}
 
-@media all and (max-width: 1000px) {
-	/* suppression  de l'habillage latéral */
-	/*body.kz_habillage #page-container {width: 100%; }
-	.kz_habillage .container {width: 100%; }
-	.kz_habillage #top-header {max-width: none;}
-	.kz_habillage #main-header {max-width: none;}*/
-
-} 

@@ -34,11 +34,10 @@
 
 	<?php wp_head(); ?>
 
-	<?php kz_habillage_script(); ?>
-	<script src="http://a.monadserver.com/ad/website/?id=28"></script>
 </head>
 <body <?php body_class(); ?>>
-<script>OA_show(247);</script>
+
+<?php kz_habillage() ?>
 
 <!-- <div class="habillage"> -->
 
