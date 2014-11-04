@@ -62,17 +62,23 @@ class JSON_API_Content_Controller {
 		$results = array();
 
 		global $post;
-		foreach ($excertps as $a_post) {
+		foreach ($excertps as $post) {
+
 			setup_postdata($post);
-			$dates = Kidzou_Events::getEventDates($a_post->ID);
-			$location = Kidzou_Geo::get_post_location($a_post->ID);
+			$dates = Kidzou_Events::getEventDates($post->ID);
+			$location = Kidzou_Geo::get_post_location($post->ID);
+			$author = get_the_author();
+			$publish_date = get_the_date('Y-m-d');
+			$excerpt = get_the_excerpt();
+			$permalink = get_permalink();
+			
 			$results[] = array(
-					"id" => get_the_ID(),
-					"post_title" => get_the_title(),
-					"author" 	=> get_the_author(),
-					"publish_date" => get_the_date('Y-m-d'),
-					"excerpt" => get_the_excerpt(),
-					"permalink" => get_permalink(),
+					"id" => $post->ID,
+					"post_title" => $post->post_title,
+					"author" 	=> $author,
+					"publish_date" => $publish_date,
+					"excerpt" => $excerpt,
+					"permalink" => $permalink,
 					"event_dates" => $dates,
 					"location" => $location,
 				);
