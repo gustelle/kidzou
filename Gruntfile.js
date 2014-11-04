@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 		    },
 		    front: {
 		      files: {
-		        'reports': ['plugins/kidzou/js/front/*.js'],
+		        'reports': ['<%= cfg.kidzou_path %>/assets/js/*.js', '<%= cfg.kidzou_path %>/public/assets/js/*.js','<%= cfg.kidzou_path %>/admin/assets/js/*.js', '<%= cfg.theme_path %>/js/custom.js'],
 		      }
 		    },
 		  },

@@ -1776,13 +1776,9 @@
 			et_header_modifier    = et_header_height <= 90 ? et_header_height - 29 : et_header_height - 56;
 			//et_header_offset      ;
 
-			if ($('body').hasClass('et_boxed_layout')) {
-				et_header_offset = et_header_modifier ;
-				et_primary_header_top = 110 + $top_header.innerHeight() ;
-			} else {
-				et_header_offset = et_header_modifier + admin_bar_height;
-				et_primary_header_top = secondary_nav_height + admin_bar_height;
-			}
+			et_header_offset = et_header_modifier + admin_bar_height;
+			et_primary_header_top = secondary_nav_height + admin_bar_height;
+	
 
 		}
 
@@ -1978,6 +1974,7 @@
 					$main_container_wrapper.css( 'paddingTop', $( '#main-header' ).innerHeight() + secondary_nav_height - 1 );
 
 					et_change_primary_nav_position();
+
 				}, 200 );
 			}
 
