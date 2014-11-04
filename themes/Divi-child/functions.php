@@ -78,9 +78,9 @@ function custom_excerpt_length( $length ) {
 //et le body est doté d'une classe qui permet de contraindre le container
 function kz_add_class_habillage( $classes ){
 
-	global $kidzou_options;
+	global $kidzou_options;	
 
-	if (isset($kidzou_options['pub_habillage']) && $kidzou_options['pub_habillage']!='') {
+	if (isset($kidzou_options['pub_habillage']) && trim($kidzou_options['pub_habillage'])<>'') {
 		$classes[] = 'kz_habillage';
 		if (in_array('et_fixed_nav', $classes)) {
 			$key = array_search('et_fixed_nav', $classes);
