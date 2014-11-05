@@ -128,16 +128,14 @@ class Kidzou_Vote {
 
 		$posts = $query->get_posts();
 
-		if ( WP_DEBUG === true )
-			error_log( 'set_vote_meta : ' . $query->found_posts . ' meta a creer' );
+		Kidzou_Utils::log('set_vote_meta : ' . $query->found_posts . ' meta a creer');
 
 		foreach ($posts as $post) {
 
 			$message = "set_vote_meta {" . $post->ID . "} " ;
 			add_post_meta($post->ID, $meta_vote_count, 0, TRUE);
 
-			if ( WP_DEBUG === true )
-				error_log( $message );
+			Kidzou_Utils::log( $message );
 			
 		}
 

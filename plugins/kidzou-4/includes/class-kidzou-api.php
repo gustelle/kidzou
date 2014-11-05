@@ -170,10 +170,9 @@ class Kidzou_API {
 		$usage++;
 		$usages[$date] = $usage;
 
-		global $kidzou_options;
-		$entries = intval($kidzou_options['api_usage_history']); 
+		$entries = Kidzou_Utils::get_option('api_usage_history', 1);
 
-		if (count($usages)>$entries) {
+		if ( count($usages)>intval($entries) ) {
 			array_shift($usages);
 		}
 		

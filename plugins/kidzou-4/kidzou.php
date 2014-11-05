@@ -56,6 +56,7 @@ require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-offres.php' )
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-vote.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-customer.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-api.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-utils.php' );
 
 require_once( plugin_dir_path( __FILE__ ) . 'admin/admin-init.php');
 require_once( plugin_dir_path( __FILE__ ) . 'admin/options-init.php');

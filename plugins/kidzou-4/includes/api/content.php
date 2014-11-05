@@ -22,16 +22,14 @@ class JSON_API_Content_Controller {
 
 		
 		//si la date est trop lointaine, on jetter le user
-		global $kidzou_options;
-		$max_days = $kidzou_options['excerpts_max_days']; 
+		$max_days = Kidzou_Utils::get_option('excerpts_max_days', 1);
 
 		$dStart = new DateTime($date_from);
 		$dNow = new DateTime();
 	   	$dDiff = $dStart->diff($dNow);
 	   	$diff = $dDiff->days;
 
-	   	if ( WP_DEBUG === true )
-			error_log( 'API/excerpts : ' . $diff );
+	   	Kidzou_Utils::log('API/excerpts : ' . $diff);
 
 		if (intval($diff) > intval($max_days))
 			$json_api->error("Vous ne pouvez pas remonter aussi loin dans le temps...");

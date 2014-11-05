@@ -309,7 +309,7 @@ class Kidzou_Admin {
 	 * pour les users contribs, rattachement automatique du post à la metropole du contrib
 	 *
 	 * @return void
-	 * @author 
+	 * @todo gérer le cas ou le user n'a pas de metropole de rattachement  
 	 **/
 	public function set_post_metropole($post_id)
 	{
@@ -787,8 +787,7 @@ class Kidzou_Admin {
 
 			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
 
-			if ( WP_DEBUG === true )
-				error_log(  'client_metabox [getCustomersIDByUserID] -> ' . count($user_customers) );
+			Kidzou_Utils::log(  'client_metabox [getCustomersIDByUserID] -> ' . count($user_customers) );
 			
 			//si le user est affecté à au moins un client, on filtre la liste des clients
 
@@ -1250,9 +1249,7 @@ class Kidzou_Admin {
 		$tmp_arr = explode("#", $tmp_post );
 		$events_meta[$key] 	= $tmp_arr[0];
 
-		if ( WP_DEBUG === true )
-			error_log(  'save_client_meta : ' . $events_meta[$key] );
-
+		Kidzou_Utils::log( 'save_client_meta : ' . $events_meta[$key] );
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
@@ -1299,8 +1296,8 @@ class Kidzou_Admin {
 		$meta = array();
 
 		$tmp_post = $_POST['main_users_input'];
-		if ( WP_DEBUG === true )
-			error_log(  'set_customer_users, reception de ' . $tmp_post );
+
+		Kidzou_Utils::log( 'set_customer_users, reception de ' . $tmp_post  );
 
 		$tmp_token = explode("|", $tmp_post );
 		foreach ($tmp_token as $tok) {
@@ -1355,14 +1352,12 @@ class Kidzou_Admin {
 
 				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
 
-				if ( WP_DEBUG === true )
-					error_log( 'User ' . $a_user . ' updated' );
+				Kidzou_Utils::log( 'User ' . $a_user . ' updated' );
 
 			}
 
 			 //ajouter la meta qui va bien
-			if ( WP_DEBUG === true )
-				error_log(  'User ' . $a_user . ' : add_user_meta' );
+			Kidzou_Utils::log(  'User ' . $a_user . ' : add_user_meta'   );
 
 		    // add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
 		    $prev_customers = get_user_meta($user_id, $key, false);   //plusieurs meta customer par user
@@ -1394,8 +1389,7 @@ class Kidzou_Admin {
 			//boucle complémentaire:
 			foreach ($old_users as $a_user) {
 
-				if ( WP_DEBUG === true )
-					error_log(  'Boucle secondaire, User ' . $a_user );
+				Kidzou_Utils::log( 'Boucle secondaire, User ' . $a_user );
 
 				//l'utilisateur n'a pas été repassé dans la requete
 				//il n'est pas donc plus attaché au client
@@ -1423,8 +1417,8 @@ class Kidzou_Admin {
 					}
 
 			        //suppression de la meta du client dans tous les cas
-			        if ( WP_DEBUG === true )
-						error_log(  $a_user . ' : suppression de la meta' );
+			        Kidzou_Utils::log( $a_user . ' : suppression de la meta' );
+
 			        delete_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id );
 
 				}
@@ -1471,8 +1465,7 @@ class Kidzou_Admin {
 		$tmp_post = $_POST['customer_posts'];
 		$tmp_token = explode("|", $tmp_post );
 
-		if ( WP_DEBUG === true )
-			error_log(  'set_customer_posts : Reception de ' .$tmp_post );
+		Kidzou_Utils::log(  'set_customer_posts : Reception de ' .$tmp_post );
 
 		foreach ($tmp_token as $tok) {
 			$pieces = explode("#", $tok );
@@ -1506,8 +1499,8 @@ class Kidzou_Admin {
 			if (in_array($an_old_one->ID, $posts)) {
 				//c'est bon rien à faire
 			} else {
-				if ( WP_DEBUG === true )
-					error_log(  'Post '.$an_old_one->ID.' n\'est plus affecte au client '. $post_id );
+				Kidzou_Utils::log( 'Post '.$an_old_one->ID.' n\'est plus affecte au client '. $post_id );
+				
 				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $post_id);
 			}
 		}
@@ -1613,20 +1606,19 @@ class Kidzou_Admin {
 	{
 	    if (!$post_id) return;
 
-	    global $kidzou_options;
-	   	$metro_id = $kidzou_options['geo_default_metropole']; //init : ville par defaut
 
 	    $user_id = get_current_user_id();
 
 	    //la metropole est la metropole de rattachement du user
 	    $metropoles = wp_get_object_terms( $user_id, 'ville', array('fields' => 'all') );
 
-	    //quid si le user n'a pas de metropole de rattachement ? 
-
 	    if (!empty($metropoles) && count($metropoles)>0) {
 		    //bon finalement on prend la premiere metropole
 		    $ametro = $metropoles[0];
 		    $metro_id = $ametro->term_id;
+	    } else {
+
+	    	$metro_id = Kidzou_Utils::get_option('geo_default_metropole'); //init : ville par defaut
 	    }
 
 	    $result = wp_set_post_terms( $post_id, array( intval($metro_id) ), 'ville' );

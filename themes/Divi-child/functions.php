@@ -80,7 +80,9 @@ function kz_add_class_habillage( $classes ){
 
 	global $kidzou_options;
 
-	if (isset($kidzou_options['pub_habillage']) && $kidzou_options['pub_habillage']!='') {
+	$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
+
+	if ($is_habillage) {
 		$classes[] = 'kz_habillage';
 		if (in_array('et_fixed_nav', $classes)) {
 			$key = array_search('et_fixed_nav', $classes);
