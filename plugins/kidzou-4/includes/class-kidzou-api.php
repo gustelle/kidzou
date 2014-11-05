@@ -89,15 +89,34 @@ class Kidzou_API {
 		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
 			return 0;
 
-		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
+		$usages = (array)self::getUsages($key, $api_name);
+		
+		$dStart = new DateTime( );
+		$date = $dStart->format('Y-m-d') ;
 
-		if(isset($usage_array[$api_name])) 
-			$usage = intval($usage_array[$api_name]); 
-
-		if (intval($usage)<0)
-			$usage = 0;
+		if (isset($usages[$date]))
+			$usage = intval($usages[$date]);
 
 		return $usage;
+
+	}
+
+	public static function getUsages($key='', $api_name='') {
+
+		$customer = self::getCustomerByKey($key);
+		$usage = 0;
+
+		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
+			return 0;
+
+		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
+
+		if (!isset( $usage_array[$api_name] ) || !is_array($usage_array[$api_name]))
+			$usages = array();
+		else
+			$usages = (array)$usage_array[$api_name];
+	
+		return $usages;
 
 
 	}
@@ -135,14 +154,25 @@ class Kidzou_API {
 		$customer = self::getCustomerByKey($key);
 
 		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
-			return new WP_Error( 'unvalid_data', __( "Clé ou API invalide", "kidzou" ) );
+			return new WP_Error( 'invalid_data', __( "Clé ou API invalide", "kidzou" ) );
 
 		$meta = array();
 		
-		$usage = self::getCurrentUsage($key, $api_name);
+		$usages = (array)self::getUsages($key, $api_name);
+		$usage = 0;
+
+		$dStart = new DateTime( );
+		$date = $dStart->format('Y-m-d') ;
+
+		if (isset($usages[$date]))
+			$usage = intval($usages[$date]);
+
+		//todo : rotation des dates
+
 		$usage++;
+		$usages[$date] = $usage;
 		
-		$meta[Kidzou_Customer::$meta_api_usage] = array( $api_name => $usage );
+		$meta[Kidzou_Customer::$meta_api_usage] = array( $api_name => $usages );
 
 		self::save_meta($customer->ID, $meta);
 
