@@ -293,7 +293,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'max'      => '30'
                     ),
 
-                    
+                    array(
+                        'id'        => 'api_usage_history',
+                        'type'      => 'spinner',
+                        'title'     => __('Combien de jours d\'historique pour l\'utilisation des API ?', 'kidzou'),
+                        'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
+                        'desc'     => __('30 jours me semble un max', 'kidzou'),
+                        'default'  => '7',
+                        'min'      => '1',
+                        'step'     => '1',
+                        'max'      => '30'
+                    ),
 
                 )
             );

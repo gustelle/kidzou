@@ -167,10 +167,15 @@ class Kidzou_API {
 		if (isset($usages[$date]))
 			$usage = intval($usages[$date]);
 
-		//todo : rotation des dates
-
 		$usage++;
 		$usages[$date] = $usage;
+
+		global $kidzou_options;
+		$entries = intval($kidzou_options['api_usage_history']); 
+
+		if (count($usages)>$entries) {
+			array_shift($usages);
+		}
 		
 		$meta[Kidzou_Customer::$meta_api_usage] = array( $api_name => $usages );
 
