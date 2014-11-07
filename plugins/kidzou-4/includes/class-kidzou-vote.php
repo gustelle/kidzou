@@ -42,7 +42,7 @@ class Kidzou_Vote {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '04-nov';
+	// const VERSION = '04-nov';
 
 	/**
 	 * marqueur d'insertion du template dans la page
