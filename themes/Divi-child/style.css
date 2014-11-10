@@ -3142,7 +3142,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {
 	width: 300px;
 	height: 280px;
-	margin-bottom: 70px;
+	margin-bottom: 60px;
 	margin-right: 50px;
 }
 
@@ -3171,6 +3171,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		width: 680px;
 		overflow: hidden;
 		position: relative;
+		margin-right: 30px;
+		margin-bottom: 60px;
 	}
 
 	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item_featured img:hover {

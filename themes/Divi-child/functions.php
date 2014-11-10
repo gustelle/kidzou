@@ -541,7 +541,7 @@ function kz_pb_portfolio( $atts ) {
 	$categories_included = array();
 
 	$index = 0;
-	$inserted = fase;
+	$inserted = false;
 
 	if ( have_posts() ) {
 
@@ -552,7 +552,7 @@ function kz_pb_portfolio( $atts ) {
 			//si le précédent post était featured, la pub vient tout de suite...
 			if (Kidzou_Events::isFeatured() && !$inserted && $show_ad=='on')
 				$insert = true;
-			else if ($index==2 && $show_ad=='on')
+			else if ($index==2 && !$inserted && $show_ad=='on')
 				$insert = true;
 
 			if ($insert) {
