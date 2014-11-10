@@ -27,7 +27,8 @@ function override_divi_parent_functions()
 	add_theme_support( 'post-thumbnails' ); //normalement déjà supporté par le parent mais bon...
 	$et_theme_image_sizes['400x284'] = "post_gallery";  //nécessaire car utilisé dans la fonction print_thumbnail
 	add_image_size( 'post_gallery', 400, 284, true ); //crop
-	
+	add_image_size( 'post_gallery_featured', 600, 284, true ); //crop
+
 	//suppression du custom post type "project"
 	remove_action('init','et_pb_register_posttypes', 0); //meme ordre que le parent
     add_action('init','kz_register_divi_layouts', 0); 
@@ -81,14 +82,20 @@ function kz_add_class_habillage( $classes ){
 	global $kidzou_options;	
 
 	if (isset($kidzou_options['pub_habillage']) && trim($kidzou_options['pub_habillage'])<>'') {
-		$classes[] = 'kz_habillage';
-		if (in_array('et_fixed_nav', $classes)) {
-			$key = array_search('et_fixed_nav', $classes);
-			unset($classes[$key]);
-		}
-	}
-		
 
+		$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
+
+		if ($is_habillage) {
+
+			$classes[] = 'kz_habillage';
+			if (in_array('et_fixed_nav', $classes)) {
+				$key = array_search('et_fixed_nav', $classes);
+				unset($classes[$key]);
+			}
+		}
+		
+	}
+	
 	return $classes;
 }
 
@@ -576,49 +583,27 @@ function kz_pb_portfolio( $atts ) {
 				}
 				?>
 
-				<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
-
-					<?php
-					$thumb = '';
-
-					$width = 'on' === $fullwidth ?  1080 : 400;
-					$width = (int) apply_filters( 'et_pb_portfolio_image_width', $width );
-
-					$height = 'on' === $fullwidth ?  9999 : 284;
-					$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
-					$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-					$titletext = get_the_title();
-					$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
-					$thumb = $thumbnail["thumb"];
-
-					// print_r($thumb);
-
-					if ( '' !== $thumb ) : ?>
-						<a href="<?php the_permalink(); ?>">
-						<?php if ( 'on' !== $fullwidth ) : ?>
-							<span class="et_portfolio_image">
-						<?php endif; ?>
-						<?php if ( $with_votes  ) 
-								Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
-								<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
-						<?php if ( 'on' !== $fullwidth ) : ?>
-								<span class="et_overlay"></span>
-							</span>
-						<?php endif; ?>
-						</a>
 				<?php
-					endif;
+					$featured = Kidzou_Events::isFeatured();
+					$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
 				?>
 
-					<?php if ( 'on' === $show_title ) : ?>
-						<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-					<?php endif; ?>
+				<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item '.$kz_class ); ?>>
 
-					<?php if ( 'on' === $show_categories ) : ?>
-						<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
-					<?php endif; ?>
+					<?php 
+					
+					$thumb = '';
 
-					<?php
+					$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
+					$height = 'on' === $fullwidth ?  9999 : 284;
+					$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+					$titletext = get_the_title();
+					$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
+					
+					$thumb = $thumbnail["thumb"];
+
+					$event_meta = '';
+					$output = '';
 
 					if (Kidzou_Events::isTypeEvent()) {
 
@@ -633,10 +618,83 @@ function kz_pb_portfolio( $atts ) {
 							$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
 						else
 							$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
-					?>
-						<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
 					
-					<?php } ?>
+					 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+					
+					} 
+
+					if ( '' !== $thumb ) : ?>
+						
+						<?php
+
+						if ( $featured ) {
+
+							$fb = '';
+							// if ( shortcode_exists( 'easy-social-share' ) )
+							// 	$fb = do_shortcode('[easy-share buttons="facebook" template="tiny-retina" counters=1 counter_pos="hidden" native="no" hide_total="yes" facebook_text="Facebook"]');
+
+							$output = sprintf("<div class='kz_portfolio_featured_hover'>
+													%s 
+													<a href='%s'><h2>%s</h2></a>
+													%s
+													%s
+													%s
+												</div>",
+									Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
+									get_permalink(),
+									get_the_title(),
+									kz_get_post_meta(),
+									$event_meta,
+									$fb);
+							
+						} else if ( $with_votes ) {
+							$output = Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
+						}
+
+						$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
+
+						if ($featured) {
+
+							echo sprintf("
+									
+										%s <a href='%s'>%s</a>								
+								
+								",
+								$output,
+								get_permalink(),
+								$image
+								);
+
+						} else if ( 'on' !== $fullwidth ) { 
+							echo sprintf("
+									<a href='%s'>
+										<span class='et_portfolio_image'>
+											%s %s
+											<span class='et_overlay'></span>
+										</span><!--  et_portfolio_image -->
+									</a>
+								",
+								get_permalink(),
+								$output,
+								$image
+								);
+
+						} 
+						?>
+
+				<?php
+					endif;
+				?>
+
+					<?php if ( 'on' === $show_title && !$featured) : ?>
+						<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+					<?php endif; ?>
+
+					<?php if ( 'on' === $show_categories && !$featured ) : ?>
+						<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
+					<?php endif; ?>
+
+					<?php if (!$featured) echo $event_meta; ?>
 
 				</div> <!-- .et_pb_portfolio_item -->
 
@@ -1255,6 +1313,46 @@ function et_postinfo_meta( $postinfo, $date_format, $comment_zero, $comment_one,
 
 	echo $postinfo_meta;
 }
+
+function kz_postinfo_meta( $postinfo, $date_format, $comment_zero, $comment_one, $comment_more ){
+	global $themename;
+
+	$postinfo_meta = '';
+
+	if ( in_array( 'author', $postinfo ) )
+		$postinfo_meta .= ' ' . esc_html__('by',$themename) . ' ' . et_get_the_author_posts_link();
+
+	if ( in_array( 'date', $postinfo ) ) {
+		if ( in_array( 'author', $postinfo ) ) $postinfo_meta .= ' | ';
+		$postinfo_meta .= get_the_time( $date_format );
+	}
+
+	if ( in_array( 'categories', $postinfo ) ){
+		if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) ) $postinfo_meta .= ' | ';
+		$postinfo_meta .= get_the_category_list(', ');
+	}
+
+	if ( in_array( 'comments', $postinfo ) ){
+		if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) || in_array( 'categories', $postinfo ) ) $postinfo_meta .= ' | ';
+		$postinfo_meta .= et_get_comments_popup_link( $comment_zero, $comment_one, $comment_more );
+	}
+
+	return $postinfo_meta;
+}
+
+function kz_get_post_meta() {
+	$postinfo = is_single() ? et_get_option( 'divi_postinfo2' ) : et_get_option( 'divi_postinfo1' );
+	$out = '';
+
+	if ( $postinfo ) :
+		$out .= '<p class="post-meta">';
+		$out .= kz_postinfo_meta( $postinfo, et_get_option( 'divi_date_format', 'M j, Y' ), esc_html__( '0 comments', 'Divi' ), esc_html__( '1 comment', 'Divi' ), '% ' . esc_html__( 'comments', 'Divi' ) );
+		$out .= '</p>';
+	endif;
+
+	return $out;
+}
+
 
 
 
