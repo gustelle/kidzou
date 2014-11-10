@@ -544,7 +544,7 @@ class Kidzou {
 				'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
 				'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
 				'cfg_site_url'		 			 =>  site_url().'/',
-				// 'cfg_debug_mode' 	 			 =>  (bool)get_option("kz_debug_mode"),
+				'cfg_debug_mode' 	 			 =>  (bool)Kidzou_Utils::get_option('debug_mode'),
 				'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
 				'api_get_event'					 =>  site_url().'/api/events/get_event/',
 				'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 

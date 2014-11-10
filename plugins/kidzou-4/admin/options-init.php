@@ -170,6 +170,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'subtitle'  => __('Ben c&apos;est l&agrave; qu&apos;on se connecte', 'kidzou'),
                         ),
 
+                        array(
+                            'id'        => 'debug_mode',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Mode debug', 'kidzou'),
+                            'subtitle'  => __('En cas de soucis, activez cette option et consultez la console Javascript', 'kidzou'),
+                        ),
+
                         
                     )
                 );

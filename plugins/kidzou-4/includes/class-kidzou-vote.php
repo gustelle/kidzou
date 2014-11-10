@@ -211,9 +211,6 @@ class Kidzou_Vote {
 				$slug,
 				$id);
 
-		// Kidzou_Utils::log($id);
-		// Kidzou_Utils::log($out);
-
 		if ($echo)
 			echo $out;
 		else
@@ -301,6 +298,8 @@ class Kidzou_Vote {
 			{
 				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
+
+				Kidzou_Utils::log($meta_posts);
 				
 				$voted_posts = $meta_posts[0]; 
 
@@ -385,8 +384,6 @@ class Kidzou_Vote {
 			else
 				delete_post_meta(intval($id), self::$meta_anomymous_vote, $user_hash );
 
-			//kz_clear_cache();
-
 		}
 		
 		return array("user_hash" => $user_hash);
@@ -401,17 +398,24 @@ class Kidzou_Vote {
 	 **/
 	public static function getPostVotes($post_id=0)
 	{
-		if ($post_id==0)
-			return ;
+		if ($post_id==0) 
+		{
+			global $post;
+			$post_id = $post->ID;
+		}
 
-		global $wpdb;
+		// global $wpdb;
 			
-			$res = $wpdb->get_results(
-				"SELECT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id = $id", ARRAY_A);
+		// 	$res = $wpdb->get_results(
+		// 		"SELECT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id = $id", ARRAY_A);
+
+		$results = get_post_meta($id, self::$meta_vote_count, true);
+		// Kidzou_Utils::log('votes :'.$res[0]['votes']);
+		// Kidzou_Utils::log($results);
 
 		return array(
-				"id" 	=> $res[0]['id'],
-		      	"votes"	=> $res[0]['votes']
+				"id" 	=> $post_id,
+		      	"votes"	=> intval($results)
 			);
 
 	}

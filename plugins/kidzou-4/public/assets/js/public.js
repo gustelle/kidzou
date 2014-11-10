@@ -1,6 +1,6 @@
 var kidzouNotifications = (function(){
 
-	console.debug('todo : handle notifications on posts ')
+	// console.debug('todo : handle notifications on posts ');
 
 })();
 
@@ -51,7 +51,7 @@ var kidzouModule = (function() { //havre de paix
 
 		var logLevel 		= false;
 
-		function setLogging(_bool) {var bool;if(typeof _bool=='undefined'){bool="false";}else{bool=_bool}; logLevel = bool.toBoolean();}
+		function setLogging(_bool) {var bool;if(typeof _bool=='undefined' || !_bool || _bool==''){bool="false";}else{bool=_bool; console.debug("Logging actif");}; logLevel = bool.toBoolean();}
 		function debug(msg) {if (logLevel) console.debug(msg);}
 		function info(msg) {if (logLevel) console.log(msg);}
 
@@ -107,7 +107,7 @@ var kidzouModule = (function() { //havre de paix
 		}
 
 		/**
-		* si le localStorage n'est pas supporté, les votes ne sont pas stockés en local
+		* si le localx n'est pas supporté, les votes ne sont pas stockés en local
 		* dans ce cas on rafraichit systématiquement les données en provenance du serveur
 		*
 		* Lié avec la fonction d'écriture des votes lorsque le user recommande/ne recommande pas un article
@@ -138,7 +138,8 @@ var kidzouModule = (function() { //havre de paix
 					if (d!==null && d.user_hash!==null && d.user_hash!=="undefined")
 						setUserHash(d.user_hash); //pour réutilisation ultérieure
 					
-					if (d!==null && d.voted!==null && d.voted.length > 0) {
+					if (d!==null && d.voted!==null && d.voted.length > 0) { 
+						logger.debug('before local data storage ' );
 						storageSupport.toLocalData("voted", d.voted);
 						mapVotedToVotables(d.voted);
 					}
@@ -356,7 +357,6 @@ var kidzouModule = (function() { //havre de paix
 	}();
 
 
-
 		logger.setLogging(kidzou_commons_jsvars.cfg_debug_mode); 
 
 		kidzou.bindView();
@@ -398,194 +398,8 @@ var kidzouTracker = (function() {
 
 }());
 
-// local-cache, localStorage with expirations
-// by Ian Davis, http://www.linkedin.com/in/ianhd and http://urlme.cc
-// 
-// Version 1.0
-//
-// Feedback?  Please submit here: http://code.google.com/p/local-cache/issues/list
 
-function setExpiration(key, expireDate) {
-    var expirations = localStorage.getItem("localStorageExpirations"); // "key1^11/18/2011 5pm|key2^3/10/2012 3pm"
-    if (expirations) {
-        var arr = expirations.split("|"); // ["key1^11/18/2011 5pm","key2^3/10/2012 3pm"]
-        for (var i = 0; i < arr.length; i++) {
-            var expiration = arr[i]; // "key1^11/18/2011 5pm"
-            if (expiration.split('^')[0] == key) { // found match; update expiration
-                arr.splice(i, 1); // remove, we'll add it w/ updated expiration later
-                break;
-            }
-        } // next: key^exp pair
-        arr.push(key + "^" + expireDate.toString());
-        localStorage.setItem("localStorageExpirations", arr.join("|"));
-    } else {
-        localStorage.setItem("localStorageExpirations", key + "^" + expireDate.toString()); // "favColor^11/18/2011 5pm etc etc"
-    }
-}
 
-function getExpiration(key) {
-    var expirations = localStorage.getItem("localStorageExpirations"); // "key1^11/18/2011 5pm|key2^3/10/2012 3pm"
-    if (expirations) {
-        var arr = expirations.split("|"); // ["key1^11/18/2011 5pm","key2^3/10/2012 3pm"]
-        for (var i = 0; i < arr.length; i++) {
-            var expiration = arr[i]; // "key1^11/18/2011 5pm"
-            var k = expiration.split('^')[0]; // key1
-            var e = expiration.split('^')[1]; // 11/18/2011 5pm
-            if (k == key) { // found match; return expiration and remove expiration if it's expired
-                var now = new Date();
-                var eDate = new Date(e);
-                if (now > eDate) {
-                    // remove expiration
-                    arr.splice(i, 1);
-                    if (arr.length > 0) {
-                        localStorage.setItem("localStorageExpirations", arr.join("|"));
-                    } else {
-                        localStorage.removeItem("localStorageExpirations");
-                    }
-                }
-                return new Date(e);
-            }
-        } // next: key^exp pair
-    }
-    return null;
-}
 
-// ex: localStorage.setCacheItem("favColor", "blue", { days: 1 })
-Storage.prototype.setCacheItem = function (key, value, exp) {
-    var val = null;
-    if (typeof value == 'object') {
-        // assume json
-        value.isJson = true; // add this flag, so we can check it on retrieval
-        val = JSON.stringify(value);
-    } else {
-        val = value;
-    }
-    localStorage.setItem(key, val);
-
-    var now = new Date();
-    var expireDate = new Date();
-
-    if (typeof expireDate == 'undefined') {
-        expireDate.setDate(now.getDate() + 1); // default to one day from now    
-    } else {
-        if (exp.minutes) {
-            expireDate.setMinutes(now.getMinutes() + exp.minutes);
-        }
-        if (exp.hours) {
-            expireDate.setHours(now.getHours() + exp.hours);
-        }
-        if (exp.days) {
-            expireDate.setDate(now.getDate() + exp.days);
-        }
-        if (exp.months) {
-            expireDate.setMonth(now.getMonth() + exp.months);
-        }
-        if (exp.years) {
-            expireDate.setYear(now.getYear() + exp.years);
-        }
-    }
-
-    setExpiration(key, expireDate);
-};
-
-Storage.prototype.getCacheItem = function (key) {
-    // TODO: return JSON.parse if value is stringify'd json obj
-
-    // first, check to see if this key is in localstorage
-    if (!localStorage.getItem(key)) {
-        return null;
-    }
-
-    // ex: key = "favColor"
-    var now = new Date();
-    var expireDate = getExpiration(key);
-    if (expireDate && now <= expireDate) {
-        // hasn't expired yet, so simply return
-        var value = localStorage.getItem(key);
-        try {
-            var parsed = JSON.parse(value);
-            if (parsed.isJson) {
-                delete parsed.isJson; // remove the extra flag we added in setCacheItem method; clean it up
-                return parsed;
-            } else {
-                return value; // return the string, since it could be trying to do JSON.parse("3") which will succeed and not throw an error, but "3" isn't a json obj
-            }
-        } catch (e) {
-            // string was not json-parsable, so simply return it as-is
-            return value;
-        }
-    }
-
-    // made it to here? remove item
-    localStorage.removeItem(key);
-    return null;
-};
-
-var kidzouActions = (function() {
-
-		//binding des elements initialement présents dans le HTML
-		/////////////// SEARCH ////////////////
-		///////////////////////////////////////
-
-		jQuery("#searchform").submit(function(){
-			// kidzouMessage.addMessage('info', kidzou_commons_jsvars.msg_wait);
-			kidzouTracker.trackEvent("Recherche", "Submit", jQuery("#searchinput").val(), 0);
-		});
-
-		/////////////// Tracking du comportement ////////////////
-		//////////////////////////////////////////////////////
-
-		jQuery(".slide_wrap a").click(function(){
-			kidzouTracker.trackEvent("Featured Slider", "Click", jQuery(this).attr("href"), 0);
-		});
-
-		jQuery("#menu-menu-principal li a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "Menu Desktop", jQuery(this).find(".main_text").text(), 0);
-		});
-
-		jQuery("#mobile_menu li a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "Menu Mobile", jQuery(this).find("span").text(), 0);
-		});
-
-		jQuery("#menu-menu-principal li .dropdown_5columns .col_5 article").click(function(){
-			kidzouTracker.trackEvent("Navigation", "MegaDropDown Article", jQuery(this).find(".entry-title a").text(), 0);
-		});
-
-		jQuery("#menu-menu-principal li .dropdown_5columns .col_3 li a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "MegaDropDown Categorie", jQuery(this).text(), 0);
-		});
-
-		jQuery(".meta a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "Meta", jQuery(this).text(), 0);
-		});
-
-		jQuery(".social.google").click(function(){
-			kidzouTracker.trackEvent("Connexion", "Google", 'LoginDialog', 0);
-		});
-
-		jQuery(".social.facebook").click(function(){
-			kidzouTracker.trackEvent("Connexion", "Facebook", 'LoginDialog', 0);
-		});
-
-		jQuery(".catad").click(function(){
-			kidzouTracker.trackEvent("Publicite", "Categorie", jQuery(this).attr('src'), 0);
-		});
-
-		//top panel
-		jQuery("#mc-embedded-subscribe-form").submit(function() {
-			kidzouTracker.trackEvent("Newsletter", "Inscription", '', 0);
-		});
-
-		/////////////// MEGADROPDOWN ////////////////
-		///////////////////////////////////////
-		jQuery(".rubriques > ul.nav > li").hover(
-			function() {
-				jQuery(this).children().show();
-			}, function() {
-				jQuery(this).children(".dropdown_5columns").hide(); //pas le <a> qui contient l'element de nav principal
-			}	
-		);
-
-	}());
 
 
