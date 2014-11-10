@@ -157,27 +157,34 @@ class Kidzou_Vote {
 		return intval($count);
 	}
 
-	protected static function set_template($class='', $useCountText=false) {
+	protected static function set_template($class='', $useCountText=false, $echo=true) {
 
 		$countText = '';
 
 		if ($useCountText)
 			$countText .= '<span 	data-bind="text: $data.countText"></span>';
 
-		echo '
+		$out = sprintf('
 		<script type="text/html" id="vote-template">
-	    <span class="vote '.$class.'" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
+	    <span class="vote %s" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
 			<i data-bind="css : $data.iconClass"></i>
-			<span 	data-bind="text: $data.votes"></span>'
-			.$countText.'
+			<span 	data-bind="text: $data.votes"></span>
+			%s
 	    </span>
-		</script>';
+		</script>',
+		$class,
+		$countText);
 
 		self::$is_template_inserted = true;
 
+		if ($echo)
+			echo $out;
+		else
+			return $out;
+
 	}
 
-	public static function vote($id=0, $class='', $useCountText=false) {
+	public static function get_vote_template($id=0, $class='', $useCountText=false, $echo=true) {
 
 		if ($id==0)
 		{
@@ -185,18 +192,39 @@ class Kidzou_Vote {
 			$id = $post->ID;
 		}
 
+		$out ='';
+
 		if (!self::$is_template_inserted) {
-			self::set_template('', $useCountText);
+			if ($echo)
+				self::set_template('', $useCountText, false, true);
+			else
+				$out .= self::set_template('', $useCountText, false, false);
 		}
 
 		$apost = get_post();
 		$slug = $apost->post_name;
 
-		echo '
-		<span class="votable '.$class.'"  
-				data-post="'.$id.'" 
-				data-slug="'.$slug.'"
-				data-bind="template: { name: \'vote-template\', data: votes.getVotableItem('.$id.') }"></span>';
+		$out .= sprintf(
+				"<span class='votable %s' data-post='%s' data-slug='%s' data-bind=\"template: { name: 'vote-template', data: votes.getVotableItem(%s) }\"></span>",
+				$class,
+				$id,
+				$slug,
+				$id);
+
+		// Kidzou_Utils::log($id);
+		// Kidzou_Utils::log($out);
+
+		if ($echo)
+			echo $out;
+		else
+			return $out;
+
+	}
+
+
+	public static function vote($id=0, $class='', $useCountText=false) {
+
+		echo self::get_vote_template($id, $class, $useCountText, false);
 
 	}
 
