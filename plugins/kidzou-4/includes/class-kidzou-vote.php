@@ -299,14 +299,15 @@ class Kidzou_Vote {
 				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
 
-				Kidzou_Utils::log($meta_posts);
+				// Kidzou_Utils::log($meta_posts);
 				
 				$voted_posts = $meta_posts[0]; 
 
 				if(!is_array($voted_posts))
 					$voted_posts = array();
 
-				array_push($voted_posts, $id) ;
+				//maintenant on stocke le timestamps du vote
+				array_push($voted_posts, array('id' => $id, 'timestamp' => time() ) ) ;
 
 				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
@@ -347,6 +348,8 @@ class Kidzou_Vote {
 		$meta_count = get_post_meta($id, self::$meta_vote_count, true);
 		$message 	= '';
 
+		// Kidzou_Utils::log('minusOne for user '. $user_id . ' [initial] : '. $meta_count );
+
 		//on ne recalcule pas systématiquement le hash du user, 
 		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
@@ -355,6 +358,7 @@ class Kidzou_Vote {
 		// Use has already voted ?
 		if(self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
 		{
+			// Kidzou_Utils::log('Update post and user meta');
 			update_post_meta($id, self::$meta_vote_count, --$meta_count);
 
 			//update les user meta pour indiquer les posts qu'il recommande
@@ -373,8 +377,20 @@ class Kidzou_Vote {
 					$voted_posts = array();
 
 				foreach ($voted_posts as $i => $value) {
-				    //retrait du vote sur le user
-				    if ( intval($value)==intval($id) )
+
+					//il y a eu changement 
+					//au debut les values étaient les id
+					//mais maintenant les value sont des tableaux (id=>timestamp)
+					if ( is_array($value) && isset($value['id']) )
+					{
+						
+						$val = $value['id'];
+						// Kidzou_Utils::log('minusOne sur user '. $user_id);
+						// Kidzou_Utils::log($value);
+						if (intval($val) == intval($id))
+							unset($voted_posts[$i]);
+
+					} else if ( intval($value)==intval($id) )
 						unset($voted_posts[$i]);
 				}
 
@@ -476,12 +492,22 @@ class Kidzou_Vote {
 								"SELECT meta_value as serialized FROM $wpdb->usermeta WHERE user_id=$user_id AND meta_key='kz_reco_post_id'",
 								ARRAY_A
 							);
-			$unserialized = maybe_unserialize($res[0]['serialized']);//print_r($unserialized);
+			$unserialized = maybe_unserialize($res[0]['serialized']);
+			// Kidzou_Utils::log('user_id '. $user_id);
+			// Kidzou_Utils::log( $unserialized);
 			$voted = array();
 			if ($unserialized!=null)
 			{ 
-				foreach ($unserialized as &$ares) 
-					array_push($voted, array ('id' => intval($ares))) ;
+				foreach ($unserialized as $i => $ares) 
+				{
+					//gestion du legacy
+					//certains items sont les valeurs directes des id
+					//d'autres sont un array (id, timestamp)
+					if (is_array($ares) && isset($ares['id']))
+						array_push($voted, array ('id' => intval($ares['id']) ) ) ;
+					else
+						array_push($voted, array ('id' => $ares ) ) ;
+				}
 			}
 
 			$voted_posts['voted'] = $voted;
@@ -535,6 +561,14 @@ class Kidzou_Vote {
 
 			if(in_array($post_id, $voted_posts))
 				return true;
+			else {
+				//gestion des nouveaux modes de vote
+				//maintenant on tracke les timestamp donc les valeurs sont des array(id, timestamps)
+				foreach ($voted_posts as $index => $id_tmsp) {
+					if( isset($id_tmsp['id']) && intval($id_tmsp['id'])==intval($post_id) )
+						return true;
+				}
+			}
 
 		}
 		else
