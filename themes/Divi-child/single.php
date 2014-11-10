@@ -89,7 +89,7 @@
 							<?php 
 								//easy social share buttons
 								if ( shortcode_exists( 'easy-social-share' ) )
-									echo do_shortcode('[easy-social-share counters=1 counter_pos="inside" total_counter_pos="hidden"]');
+									echo do_shortcode('[easy-social-share counters=0 hide_names="yes" counter_pos="hidden" native="no" hide_total="yes"]');
 							?>
 
 							
