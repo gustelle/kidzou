@@ -42,24 +42,21 @@ if ( ! defined( 'WPINC' ) ) {
  *
  */
 
-
-require_once( plugin_dir_path( __FILE__ ) . 'includes/TGM/class-tgm-plugin-activation.php');
-
-require_once( plugin_dir_path( __FILE__ ) . 'includes/utils.php' );
-
-require_once( plugin_dir_path( __FILE__ ) . 'public/class-kidzou.php' );
-
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-geo.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-events.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-customer.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-offres.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-vote.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-customer.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/class-kidzou-api.php' );
-
-require_once( plugin_dir_path( __FILE__ ) . 'admin/admin-init.php');
-require_once( plugin_dir_path( __FILE__ ) . 'admin/options-init.php');
-require_once( plugin_dir_path( __FILE__ ) . 'admin/views/class-kidzou-dashboard.php');
+$directories = array(
+            'includes/',
+            'includes/TGM/',
+            'public/',
+            'public/includes/',
+            'public/views/',
+            'admin/',
+            'admin/includes/',
+            'admin/views'
+);
+foreach ($directories as $directory) {
+    foreach(glob( plugin_dir_path( __FILE__ ) .$directory . "*.php") as $class) {
+        include_once $class;
+    }
+}
 
 
 /*

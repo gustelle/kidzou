@@ -33,7 +33,7 @@ class Kidzou_Offres {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '04-nov';
+	// const VERSION = '04-nov';
 
 
 	// private static $initialized = false;
