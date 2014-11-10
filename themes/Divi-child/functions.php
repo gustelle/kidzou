@@ -545,12 +545,23 @@ function kz_pb_portfolio( $atts ) {
 	$categories_included = array();
 
 	$index = 0;
+	$inserted = false;
 
 	if ( have_posts() ) {
 
 		while ( have_posts() ) {
 
-			if ($index==2 && $show_ad=='on') {
+			$insert = false;
+
+			//si le précédent post était featured, la pub vient tout de suite...
+			if (Kidzou_Events::isFeatured() && !$inserted && $show_ad=='on')
+				$insert = true;
+			else if ($index==2 && !$inserted && $show_ad=='on')
+				$insert = true;
+
+			if ($insert) {
+
+				$inserted = true;
 
 				//insertion de pub
 				global $kidzou_options;
