@@ -553,7 +553,7 @@ class Kidzou {
 				'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
 				'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
 				'is_admin' 						=> current_user_can( 'manage_options' ),
-				'current_user_id'				=> (is_user_logged_in() ? get_current_user_id() : 0)
+				'current_user_id'				=> (is_user_logged_in() ? get_current_user_id() : 0),
 			)
 		);
 	}

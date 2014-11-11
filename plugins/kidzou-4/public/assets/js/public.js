@@ -1,6 +1,103 @@
-var kidzouNotifications = (function(){
+var kidzouNotifier = (function(){
 
-	// console.debug('todo : handle notifications on posts ');
+	var messages = [];
+	var notificationsRead = null;
+
+	//chaque post a un contexte de notification spécifique
+	//de sorte que les contenus poussés sur chaque post sont différents
+	var pageId = kidzou_notif.messages.context;
+
+	//les notifications pour ce contexte
+	var thisContextNotifications = null;
+
+	//les messages pour ce contexte
+	var thisContextMessages =  null;
+		
+
+	function init () {
+		notificationsRead = storageSupport.fromLocalData('messages') ;
+		//recupérer les notifications présentes dans le storageSupport
+		if (notificationsRead==null) 
+			notificationsRead = [];
+
+		ko.utils.arrayForEach(notificationsRead, function(n) {
+			if (n.context == pageId) {
+				thisContextNotifications = n;
+				console.debug('context found ' + pageId);
+			}
+		});
+
+		if (thisContextNotifications==null) {
+			thisContextNotifications = {context: pageId, messages: []};
+		}
+			
+		//les messages pour ce contexte
+		thisContextMessages =  thisContextNotifications.messages;
+
+		ko.utils.arrayForEach(kidzou_notif.messages.content, function(m) {
+			var amess = new Message(m.id, m.title, m.body, m.target, m.icon);
+			
+			ko.utils.arrayForEach(thisContextMessages, function(alreadyRead) {
+			    if (alreadyRead == m.id) {
+			    	amess.readFlag = true;
+			    	console.debug('messaga alreadyRead');
+			    }
+			});
+
+			messages.push(amess);
+		});
+
+	}
+	
+
+	function Message(_id, _title, _body, _target, _icon) {
+
+		var self = this;
+
+		//un message est identifié de manière unique par un id de sorte de pouvoir le retrouver
+		self.id = _id;
+		self.title = _title;
+		self.body = _body;
+		self.target = _target;
+		self.icon = _icon;
+
+		//le message a-t-il déjà été vu
+		self.readFlag = false;
+	}
+
+	/**
+	 *
+	 * lorsqu'un message est lu, il est flaggué pour ne plus le représenter au user
+	 **/
+	function markRead(m) {
+		
+		m.readFlag = true; 
+
+		//puis reinjecter l'objet avant écriture
+		var found = false;
+		for (id in thisContextMessages) {
+			if (id == pageId) {
+				//n = thisContextNotifications;
+				found = true;
+			}
+		}
+
+		if (!found) {
+			thisContextMessages.push(m.id);
+			thisContextNotifications.messages = thisContextMessages;
+			notificationsRead.push(thisContextNotifications);
+		}
+
+		storageSupport.toLocalData('messages', notificationsRead );
+
+	}
+
+
+	return {
+		messages : messages,
+		markRead : markRead,
+		init : init
+	};
 
 })();
 
@@ -139,7 +236,7 @@ var kidzouModule = (function() { //havre de paix
 						setUserHash(d.user_hash); //pour réutilisation ultérieure
 					
 					if (d!==null && d.voted!==null && d.voted.length > 0) { 
-						logger.debug('before local data storage ' );
+						// logger.debug('before local data storage ' );
 						storageSupport.toLocalData("voted", d.voted);
 						mapVotedToVotables(d.voted);
 					}

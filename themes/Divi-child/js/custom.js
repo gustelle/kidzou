@@ -2123,6 +2123,7 @@
 	//searchbox
 	$(document).ready(function() {
 
+		//sur la home page, le filtre de recherche des sorties
 		if ($(".kz_searchbox").length) {
 			
 			var options, a;
@@ -2163,6 +2164,29 @@
 				kidzouTracker.trackEvent("Filtre Home", "Recherche", $("#kz_searchinput").val(), 0);
 			});	
 			
+		}
+
+		//notifications dans les posts
+		if ($(".et_pb_post").length) {
+
+			$('.entry-content').waypoint(function() {
+
+				kidzouNotifier.init();
+
+				var m = kidzouNotifier.messages[0];
+
+				// console.debug(m);
+
+				if (m.readFlag) {
+					console.debug('déjà lu !!');
+				} else {
+					console.debug('pas encore lu ?');
+					kidzouNotifier.markRead(m);
+				}
+					
+
+			}, { offset: '10%' });
+
 		}
 
 	});
