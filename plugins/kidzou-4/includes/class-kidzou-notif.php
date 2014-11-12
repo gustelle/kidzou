@@ -97,34 +97,43 @@ class Kidzou_Notif {
 	{
 		$messages = array();
 		$content = array();
+
 		global $post;
 
 		$messages['context'] = $post->ID;
 
-		array_push($content, array(
-				'id'		=> 'vote',
-				'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
-				'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Pour cela, cliquez sur le coeur en haut de page ! Les sorties les plus recommand&eacute;es remontent en t&ecirc;te de liste dans la page des recommandaitons ...', 'kidzou' ),
-				'target' 	=> 'http://#',
-				'icon' 		=> '<i class="fa fa-heart"></i>',
-			));
+		if (is_single()) {
 
-		$featured = Kidzou_Events::getFeaturedPosts();
-
-		// Kidzou_Utils::log($featured);
-
-		global $post;
-		foreach ($featured as $post) {
-			setup_postdata( $post ); 
 			array_push($content, array(
-				'id'		=> get_the_ID(),
-				'title' 	=> get_the_title(),
-				'body' 		=> get_the_excerpt(),
-				'target' 	=> 'todo',
-				'icon' 		=> 'todo',
-			));
+					'id'		=> 'vote',
+					'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
+					'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Pour cela, cliquez sur le coeur en haut de page ! Les sorties les plus recommand&eacute;es remontent en t&ecirc;te de liste dans la page des recommandaitons ...', 'kidzou' ),
+					'target' 	=> 'http://#',
+					'icon' 		=> '<i class="fa fa-heart"></i>',
+				));
+
+			$featured = Kidzou_Events::getFeaturedPosts();
+
+			// Kidzou_Utils::log($featured);
+
+			foreach ($featured as $post) {
+				setup_postdata( $post ); 
+
+				//si l'utilisateur est déjà sur le featured... on n'envoie pas la notification
+				if (intval( get_the_ID() ) != intval( $messages['context'] ) ) {
+
+					array_push($content, array(
+						'id'		=> get_the_ID(),
+						'title' 	=> get_the_title(),
+						'body' 		=> get_the_excerpt(),
+						'target' 	=> 'todo',
+						'icon' 		=> 'todo',
+					));
+				}
+			}
+			wp_reset_postdata();
+
 		}
-		wp_reset_postdata();
 
 		$messages['content'] = $content;
 

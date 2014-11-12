@@ -9,10 +9,11 @@ var kidzouNotifier = (function(){
 	var pageId = kidzou_notif.messages.context;
 
 	//les notifications pour cette page (ce contexte)
+	//Une notification est composée d'un contexte + un ensemble de message {context: xx, messages: [xx,xx,xx]}
 	var thisContextNotifications = null;
 
-	//les messages pour ce contexte
-	var thisContextMessages =  null;
+	//les messages pour ce contexte 
+	// var thisContextMessages =  null;
 		
 
 	//les messages qui font sens pour cette page
@@ -35,13 +36,13 @@ var kidzouNotifier = (function(){
 		}
 			
 		//les messages pour ce contexte
-		thisContextMessages =  thisContextNotifications.messages;
+		// thisContextMessages =  thisContextNotifications.messages;
 
 		ko.utils.arrayForEach(kidzou_notif.messages.content, function(m) {
 
 			var amess = new Message(m.id, m.title, m.body, m.target, m.icon);
 			
-			ko.utils.arrayForEach(thisContextMessages, function(alreadyRead) {
+			ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
 			    if (alreadyRead == m.id) {
 			    	amess.readMe();
 			    }
@@ -87,8 +88,8 @@ var kidzouNotifier = (function(){
 	
 		m.readMe();
 
-		thisContextMessages.push(m.id);
-		thisContextNotifications.messages = thisContextMessages;
+		// thisContextMessages.;
+		thisContextNotifications.messages.push(m.id);
 
 		var exist = false;
 
@@ -128,52 +129,25 @@ var kidzouNotifier = (function(){
 
 	}
 
-	setTimeout(function(){
-		
-		var messages = getUnreadMessages();
-		var message = chooseMessage(messages);
+	// console.debug(kidzou_notif.messages.content.length);
+	if (kidzou_notif.messages.content.length) {
 
-		if (message !=null )
-			displayMessage(message);
-		else
-			console.debug('plus de message...');
-      	
-	}, 2000);
+		setTimeout(function(){
+		
+			var messages = getUnreadMessages();
+			var message = chooseMessage(messages);
+
+			if (message !=null )
+				displayMessage(message);
+			else
+				console.debug('plus de message...');
+	      	
+		}, 2000);
+
+	}
+	
 
 })();
-
-
-var kidzouMessage = (function() {
-
-	function MessageModel() {
-
-		// logger.debug("MessageModel initialisé");
-		var self = this;
-		self.messageClass 		= ko.observable('');
-		self.messageContent 	= ko.observable('');
-
-		self.addMessage	= function(_cls, _msg) {
-
-			// console.log('addMessage ' + _msg);
-			self.messageClass(_cls);
-			self.messageContent(_msg);
-
-			//je ne parviens pas à utiliser proprement la propriété isVisible()
-			//j'ai donc positionné un "display:none" en css et j'utilise jQuery en solution de secours
-			jQuery("#messageBox").show();
-		};
-
-		self.removeMessage = function() {
-			self.messageContent('');
-			jQuery("#messageBox").hide();
-		};
-	}
-
-	return {
-		message : MessageModel
-	};
-
-}());
 
 
 
@@ -204,7 +178,7 @@ var kidzouModule = (function() { //havre de paix
 	var kidzou = function() {
 
 
-		var message			= new kidzouMessage.message();
+		// var message			= new kidzouMessage.message();
 		var votesModel 		= new VotesModel(); 
 
 		//initialement (permettre le vote même si le user n'accepte pas la geoloc)
@@ -483,7 +457,7 @@ var kidzouModule = (function() { //havre de paix
 
 		function viewModel() {
 			return {
-				message : message,
+				// message : message,
 				votes 	: votesModel
 			};
 		}
