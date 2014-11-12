@@ -2166,28 +2166,7 @@
 			
 		}
 
-		//notifications dans les posts
-		if ($(".et_pb_post").length) {
-
-			$('.entry-content').waypoint(function() {
-
-				kidzouNotifier.init();
-
-				var m = kidzouNotifier.messages[0];
-
-				// console.debug(m);
-
-				if (m.readFlag) {
-					console.debug('déjà lu !!');
-				} else {
-					console.debug('pas encore lu ?');
-					kidzouNotifier.markRead(m);
-				}
-					
-
-			}, { offset: '10%' });
-
-		}
+		
 
 	});
 

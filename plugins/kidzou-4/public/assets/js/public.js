@@ -1,29 +1,32 @@
 var kidzouNotifier = (function(){
 
-	var messages = [];
+	
+	//tous les messages qui ont déjà été lus par le user
 	var notificationsRead = null;
 
 	//chaque post a un contexte de notification spécifique
 	//de sorte que les contenus poussés sur chaque post sont différents
 	var pageId = kidzou_notif.messages.context;
 
-	//les notifications pour ce contexte
+	//les notifications pour cette page (ce contexte)
 	var thisContextNotifications = null;
 
 	//les messages pour ce contexte
 	var thisContextMessages =  null;
 		
 
-	function init () {
-		notificationsRead = storageSupport.fromLocalData('messages') ;
+	//les messages qui font sens pour cette page
+	//c'est à dire les messages qui n'ont pas encore été lus 
+	function getUnreadMessages() {
+
+		var messages = [];
+
 		//recupérer les notifications présentes dans le storageSupport
-		if (notificationsRead==null) 
-			notificationsRead = [];
+		notificationsRead = storageSupport.fromLocalData('messages') || [] ;
 
 		ko.utils.arrayForEach(notificationsRead, function(n) {
 			if (n.context == pageId) {
 				thisContextNotifications = n;
-				console.debug('context found ' + pageId);
 			}
 		});
 
@@ -35,17 +38,20 @@ var kidzouNotifier = (function(){
 		thisContextMessages =  thisContextNotifications.messages;
 
 		ko.utils.arrayForEach(kidzou_notif.messages.content, function(m) {
+
 			var amess = new Message(m.id, m.title, m.body, m.target, m.icon);
 			
 			ko.utils.arrayForEach(thisContextMessages, function(alreadyRead) {
 			    if (alreadyRead == m.id) {
-			    	amess.readFlag = true;
-			    	console.debug('messaga alreadyRead');
+			    	amess.readMe();
 			    }
 			});
 
-			messages.push(amess);
+			if (!amess.isRead()) 
+				messages.push(amess);
 		});
+
+		return messages;
 
 	}
 	
@@ -63,41 +69,76 @@ var kidzouNotifier = (function(){
 
 		//le message a-t-il déjà été vu
 		self.readFlag = false;
+
+		self.readMe = function() {
+			self.readFlag = true;
+		};
+
+		self.isRead = function() {
+			return self.readFlag;
+		}
 	}
 
 	/**
 	 *
 	 * lorsqu'un message est lu, il est flaggué pour ne plus le représenter au user
 	 **/
-	function markRead(m) {
-		
-		m.readFlag = true; 
+	function setMessageRead(m) {
+	
+		m.readMe();
 
-		//puis reinjecter l'objet avant écriture
-		var found = false;
-		for (id in thisContextMessages) {
-			if (id == pageId) {
-				//n = thisContextNotifications;
-				found = true;
+		thisContextMessages.push(m.id);
+		thisContextNotifications.messages = thisContextMessages;
+
+		var exist = false;
+
+		ko.utils.arrayForEach(notificationsRead, function(n) {
+			if (n.context == pageId) {
+				//remplacer l'existant
+				n = thisContextNotifications;
+				exist = true;
 			}
-		}
+		});
 
-		if (!found) {
-			thisContextMessages.push(m.id);
-			thisContextNotifications.messages = thisContextMessages;
+		if (!exist)
 			notificationsRead.push(thisContextNotifications);
-		}
 
 		storageSupport.toLocalData('messages', notificationsRead );
 
 	}
 
+	/**
+	 * choix du message a afficher
+	 */
+	function chooseMessage (messages) {
+		var unread = ko.utils.arrayFilter(messages, function(m) {
+            return !m.readFlag;
+        });
 
-	return {
-		messages : messages,
-		markRead : markRead,
-		init : init
-	};
+        var nextMessage = unread[Math.floor(Math.random()*unread.length)];
+
+      	return nextMessage;
+
+	}
+
+	function displayMessage(m) {
+		
+		// console.debug(m);
+		setMessageRead(m);
+
+	}
+
+	setTimeout(function(){
+		
+		var messages = getUnreadMessages();
+		var message = chooseMessage(messages);
+
+		if (message !=null )
+			displayMessage(message);
+		else
+			console.debug('plus de message...');
+      	
+	}, 2000);
 
 })();
 

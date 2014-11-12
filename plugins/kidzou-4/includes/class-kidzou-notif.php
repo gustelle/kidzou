@@ -109,6 +109,23 @@ class Kidzou_Notif {
 				'icon' 		=> '<i class="fa fa-heart"></i>',
 			));
 
+		$featured = Kidzou_Events::getFeaturedPosts();
+
+		// Kidzou_Utils::log($featured);
+
+		global $post;
+		foreach ($featured as $post) {
+			setup_postdata( $post ); 
+			array_push($content, array(
+				'id'		=> get_the_ID(),
+				'title' 	=> get_the_title(),
+				'body' 		=> get_the_excerpt(),
+				'target' 	=> 'todo',
+				'icon' 		=> 'todo',
+			));
+		}
+		wp_reset_postdata();
+
 		$messages['content'] = $content;
 
 		return $messages;
