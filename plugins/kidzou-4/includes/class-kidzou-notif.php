@@ -80,9 +80,16 @@ class Kidzou_Notif {
 
 		$kidzou_instance = Kidzou::get_instance();
 
+		wp_enqueue_script('endbox',	 plugins_url( 'kidzou-4/public/assets/js/jquery.endpage-box.min.js' ),array(), Kidzou::VERSION, true);
+		wp_enqueue_style( 'endbox', plugins_url( 'kidzou-4/public/assets/css/endpage-box.css' ), null, Kidzou::VERSION );
+		// wp_enqueue_style( 'ns-other', plugins_url( 'kidzou-4/public/assets/css/ns-style-other.css' ), null, Kidzou::VERSION );
+
 		wp_localize_script($kidzou_instance->get_plugin_slug() . '-plugin-script', 'kidzou_notif', array(
 				
-				'messages'				=> self::get_messages()
+				'messages'				=> self::get_messages(),
+				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
+				'delay'					=> (int)Kidzou_Utils::get_option('notifications_delay', 0),
+				'duration'				=> (int)Kidzou_Utils::get_option('notifications_duration', 3)
 			)
 		);
 	}
@@ -95,45 +102,100 @@ class Kidzou_Notif {
 	 **/
 	public static function get_messages()
 	{
-		$messages = array();
-		$content = array();
-
 		global $post;
 
-		$messages['context'] = $post->ID;
+		$messages = array();
+		$content = array();
+		$current_post_id = $post->ID;
 
-		if (is_single()) {
+		$activate = (bool)Kidzou_Utils::get_option('notifications_activate', false);
+		$notification_types = Kidzou_Utils::get_option('notifications_post_type', array());
+		$post_type = get_post_type( $current_post_id );
 
-			array_push($content, array(
-					'id'		=> 'vote',
-					'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
-					'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Pour cela, cliquez sur le coeur en haut de page ! Les sorties les plus recommand&eacute;es remontent en t&ecirc;te de liste dans la page des recommandaitons ...', 'kidzou' ),
-					'target' 	=> 'http://#',
-					'icon' 		=> '<i class="fa fa-heart"></i>',
-				));
+		if ($activate) 
+		{
+			//seulement si les notifs sont activées pour le type de post courant
+			if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
 
-			$featured = Kidzou_Events::getFeaturedPosts();
+				$content = get_transient('kz_notifications_content_' .$post_type);
 
-			// Kidzou_Utils::log($featured);
+				if ( false===$content || empty($content) ) {
 
-			foreach ($featured as $post) {
-				setup_postdata( $post ); 
+					
+					$frequency = Kidzou_Utils::get_option('notifications_context');
+					$cats = Kidzou_Utils::get_option('notifications_include_categories');
 
-				//si l'utilisateur est déjà sur le featured... on n'envoie pas la notification
-				if (intval( get_the_ID() ) != intval( $messages['context'] ) ) {
+					if ($frequency == 'page')
+						$messages['context'] = $post->ID;
+					else 
+						$messages['context'] = $frequency;
 
-					array_push($content, array(
-						'id'		=> get_the_ID(),
-						'title' 	=> get_the_title(),
-						'body' 		=> get_the_excerpt(),
-						'target' 	=> 'todo',
-						'icon' 		=> 'todo',
-					));
+					// Kidzou_Utils::log($notification_types);
+
+					//seulement si les notifs sont activées pour le type de post courant
+					// if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
+
+						//pour les single, on pousse les reco dans la liste des messages
+						if (is_single()) {
+
+							$content[] = array(
+									'id'		=> 'vote',
+									'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
+									'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Cliquez sur le coeur en haut de page ! ', 'kidzou' ),
+									'target' 	=> '#',
+									'icon' 		=> '<i class="fa fa-heart-o fa-3x vote"></i>',
+								);
+
+							Kidzou_Utils::log('taille du content ' . count($content));
+						}
+
+						$featured = Kidzou_Events::getFeaturedPosts();
+						$include_posts = array();
+
+						//inclure des catégories supplémentaires
+						if ($cats!=null && count($cats)>0) {
+							$cats_list = implode(",", $cats);
+							$include_posts = get_posts(array('category' => $cats_list));
+						}
+
+						$posts_list = array_merge($featured, $include_posts);
+
+						// Kidzou_Utils::log('posts list');
+						// Kidzou_Utils::log($posts_list);
+
+						foreach ($posts_list as $post) {
+
+							setup_postdata( $post ); 
+
+							//si l'utilisateur est déjà sur le featured... on n'envoie pas la notification
+							if ( get_the_ID() != $current_post_id ) {
+
+								// Kidzou_Utils::log('ajout dans content : ' . get_the_ID());
+
+								$content[] = array(
+										'id'		=> get_the_ID(),
+										'title' 	=> get_the_title(),
+										'body' 		=> get_the_excerpt(),
+										'target' 	=> get_permalink(),
+										'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
+									);
+
+								// Kidzou_Utils::log('taille du content ' . count($content));
+							}
+						}
+						
+						wp_reset_postdata();
+
+					// }
+
+					set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
+					Kidzou_Utils::log('kz_notifications_content ' . count($content));
+
 				}
-			}
-			wp_reset_postdata();
 
-		}
+			}  //si dans le bon type de contenu
+		
+		} //si actif
 
 		$messages['content'] = $content;
 

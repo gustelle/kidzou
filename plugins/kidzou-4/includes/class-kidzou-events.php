@@ -168,9 +168,7 @@ class Kidzou_Events {
 	}
 
 	/**
-	 * on requete a la main sans passer par un wp_query
-	 * car par expérience utiliser cela dasn le filtre posts_results crée un out of memory
-	 * je suppose que maintenir en mémoire 2 wp_query est trop gourmand ?
+	 * la liste des post featured
 	 *
 	 * @return void
 	 * @author 
@@ -179,22 +177,29 @@ class Kidzou_Events {
 	{
 		
 
-		global $wpdb;
-		$table = $wpdb->prefix.'posts';
-		$table_meta = $wpdb->prefix.'postmeta';
+		// global $wpdb;
+		// $table = $wpdb->prefix.'posts';
+		// $table_meta = $wpdb->prefix.'postmeta';
 
-		$meta_key = self::$meta_featured;
+		// $meta_key = self::$meta_featured;
 
-		$results = $wpdb->get_results( "
-			SELECT p.ID, p.post_title FROM $table p 
-				INNER JOIN $table_meta m on (p.ID = m.post_id)
-			WHERE 
-				1=1
-			AND m.meta_key = '$meta_key' AND m.meta_value = 'A' 
-			AND p.post_type in ('post', 'offres')
-			AND p.post_status =  'publish'", OBJECT );
+		// $results = $wpdb->get_results( "
+		// 	SELECT p.ID, p.post_title FROM $table p 
+		// 		INNER JOIN $table_meta m on (p.ID = m.post_id)
+		// 	WHERE 
+		// 		1=1
+		// 	AND m.meta_key = '$meta_key' AND m.meta_value = 'A' 
+		// 	AND p.post_type in ('post', 'offres')
+		// 	AND p.post_status =  'publish'", OBJECT );
 
-		return $results;
+		$list = get_posts(array(
+					'meta_key'         => self::$meta_featured,
+					'meta_value'       => 'A',
+					'post_type'        => array('post','offres'),
+				));
+
+
+		return $list;
 	}
 
 

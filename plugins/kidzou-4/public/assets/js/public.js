@@ -1,5 +1,7 @@
 var kidzouNotifier = (function(){
 
+	//le système de notification est-il actif ?
+	var active = kidzou_notif.activate;
 	
 	//tous les messages qui ont déjà été lus par le user
 	var notificationsRead = null;
@@ -104,7 +106,15 @@ var kidzouNotifier = (function(){
 		if (!exist)
 			notificationsRead.push(thisContextNotifications);
 
-		storageSupport.toLocalData('messages', notificationsRead );
+		//sur chaque page ou tous les mois
+		var expiration = 30;
+		
+		if (pageId=='daily')
+			expiration = 1;
+		else if (pageId=='weekly')
+			expiration = 7;
+
+		storageSupport.toLocalData('messages', notificationsRead, expiration );
 
 	}
 
@@ -124,27 +134,43 @@ var kidzouNotifier = (function(){
 
 	function displayMessage(m) {
 		
-		// console.debug(m);
+		console.debug('affiche du message ' + m.title);
+
+		var boxcontent = '<i class="fa fa-close fa-2x close"></i><a href="' + m.target + '">' + m.icon + '<h3>' + m.title + '</h3>' + m.body + '</a>';
+		
+		jQuery("#endpage-box").endpage_box({
+		    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
+		    from: "1%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
+		    to: "50%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
+		    content: boxcontent  // The plugin will automatically create a container if it doesn't exist. This option will allow you to define the content of the container. This field also supports HTML.
+		  });
+
+		jQuery('.close').click(function() {
+			jQuery("#endpage-box").css('display', 'none');
+			jQuery(document).unbind('scroll');
+		});
+
 		setMessageRead(m);
 
 	}
 
 	// console.debug(kidzou_notif.messages.content.length);
-	if (kidzou_notif.messages.content.length) {
+	if (kidzou_notif.activate && kidzou_notif.messages.content.length) {
 
-		setTimeout(function(){
-		
-			var messages = getUnreadMessages();
-			var message = chooseMessage(messages);
+		var messages = getUnreadMessages();
+		var message = chooseMessage(messages);
+
+		jQuery(window).load( function() {
 
 			if (message !=null )
 				displayMessage(message);
 			else
 				console.debug('plus de message...');
-	      	
-		}, 2000);
+	
+		});
 
-	}
+
+	} 
 	
 
 })();

@@ -194,7 +194,7 @@ var storageSupport = (function () {
 		//requiert local-cache.js
 		//voir https://code.google.com/p/local-cache/
 		//
-		function toLocalData (key, obj) {
+		function toLocalData (key, obj, expiration) {
 			
 			if (!supports_html5_storage() )
 				return;
@@ -202,11 +202,13 @@ var storageSupport = (function () {
 			if (obj===null || key===null || key==="")
 				return;
 
+			var exp = expiration || 30; //days
+
 			localStorage.setCacheItem(key, 
 							ko.toJSON(
 								ko.mapping.toJS(obj)
 							), 
-							{ days: 30 }
+							{ days: exp }
 						);
 
 		}

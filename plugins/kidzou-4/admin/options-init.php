@@ -52,13 +52,13 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             
             // Function to test the compiler hook and demo CSS output.
             // Above 10 is a priority, but 2 in necessary to include the dynamically generated CSS to be sent to the function.
-            //add_filter('redux/options/'.$this->args['opt_name'].'/compiler', array( $this, 'compiler_action' ), 10, 2);
+            add_filter('redux/options/'.$this->args['opt_name'].'/compiler', array( $this, 'compiler_action' ), 10, 2);
             
             // Change the arguments after they've been declared, but before the panel is created
             //add_filter('redux/options/'.$this->args['opt_name'].'/args', array( $this, 'change_arguments' ) );
             
             // Change the default value of a field after it's been set, but before it's been useds
-            //add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
+            // add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
             
             // Dynamically add a section. Can be also used to modify sections/fields
             //add_filter('redux/options/' . $this->args['opt_name'] . '/sections', array($this, 'dynamic_section'));
@@ -94,6 +94,11 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 );
               }
              */
+
+              Kidzou_Utils::log('Suppression du transient kz_notifications_content');
+              delete_transient('kz_notifications_content_offres');
+              delete_transient('kz_notifications_content_page');
+              delete_transient('kz_notifications_content_post');
         }
 
         /**
@@ -317,15 +322,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
-                'title'     => __('Dashboard Admin', 'kidzou'),
-                'desc'      => __('Widgets qui sont affich&eacute;s dans l\'admin', 'kidzou'),
-                'icon'      => 'el-icon-puzzle',
+                'title'     => __('Espace Contributeurs (Pro)', 'kidzou'),
+                'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
+                'icon'      => 'el-icon-edit',
                 'fields'    => array(
 
                     array(
                         'id'       => 'widget_guidelines_activate',
                         'type'     => 'checkbox',
-                        'title'    => __('Activer le widget Tutorial ?', 'kidzou'), 
+                        'title'    => __('Activer le Tutorial  sur le dashboard des contributeurs ?', 'kidzou'), 
                         'default'  => '0'// 1 = on | 0 = off
                     ),
                     array(
@@ -343,6 +348,100 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         )
                     ),
                     
+                )
+            );
+
+            
+            $this->sections[] = array(
+                'title'     => __('Notifications', 'kidzou'),
+                'desc'      => __('Les notifications apparaissent en bas &agrave; droite des pages, elles sugg&egrave;rent des contenus ou des actions (call-to-action). <br/>L&apos;ensemble des messages &agrave; afficher sont dans une queue d&eacute;pil&eacute;e au fur et &agrave; mesure. <br/>Lorsqu&apos;un message est affich&eacute; un cookie est stock&eacute; sur le poste de l&apos;utilisateur pendant 30 jours de sorte qu&apos;il ne reverra plus cette notification pendant ce laps de temps. Le message suivant peut &ecirc;tre lu.<br/>Un utilisateur ne recoit que 1 seul message par page', 'kidzou'),
+                'icon'      => 'el-icon-envelope',
+                'fields'    => array(
+
+                    array(
+                        'id'       => 'notifications_activate',
+                        'type'     => 'checkbox',
+                        'title'    => __('Activer les notifications ?', 'kidzou'), 
+                        'default'  => '0',// 1 = on | 0 = off
+                        'compiler'  => true
+                    ),
+
+                    array(
+                        'id' => 'notifications_delay',
+                        'type' => 'slider',
+                        'title' => __('D&eacute;lais (en secondes) avant affichage d&apos;une notification', 'kidzou'),
+                        'subtitle' => __('Le d&eacute;lais court &agrave; partir du moment o&ugrave; la page est charg&eacute;e', 'kidzou'),
+                        'desc' => __('Min: 0 secondes , max: 30 secondes, par d&eacute;faut : 2 secondes', 'kidzou'),
+                        "default" => 2,
+                        "min" => 0,
+                        "step" => 0.5,
+                        "max" => 30,
+                        'display_value' => 'text',
+                    ),
+
+                    array(
+                        'id' => 'notifications_duration',
+                        'type' => 'slider',
+                        'title' => __('Dur&eacute;e d&apos;affichage d&apos;une notification', 'kidzou'),
+                        'subtitle' => __('Combien de temps une notification doit-elle rester affich&eacute;e &agrave; l&apos;&eacute;cran', 'kidzou'),
+                        'desc' => __('Min: 3 seconde , max: 30 secondes, par d&eacute;faut : 5 secondes', 'kidzou'),
+                        "default" => 5,
+                        "min" => 3,
+                        "step" => 0.5,
+                        "max" => 30,
+                        'display_value' => 'text'
+                    ),
+
+                    array(
+                        'id'       => 'notifications_post_type',
+                        'type'     => 'checkbox',
+                        'title'    => __('Activer les notifications pour les types de contenu :', 'kidzou'), 
+                     
+                        //Must provide key => value pairs for multi checkbox options
+                        'options'  => array(
+                            'post' => 'Post',
+                            'offres' => 'Offres',
+                            'page' => 'page'
+                        ),
+                     
+                        //See how default has changed? you also don't need to specify opts that are 0.
+                        'default' => array(
+                            'post' => '1', 
+                            'offres' => '0', 
+                            'page' => '0'
+                        ),
+                        'compiler'  => true
+                    
+                    ),
+
+                     array(
+                        'id'       => 'notifications_context',
+                        'type'     => 'radio',
+                        'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
+                        'subtitle' => __('todo', 'kidzou'),
+                        'desc'     => __('todo.', 'kidzou'),
+                        //Must provide key => value pairs for radio options
+                        'options'  => array(
+                            'daily' => '1 fois par jour', 
+                            'page' => 'Sur chaque page consult&eacute;e', 
+                            'monthly' => '1 fois par mois',
+                            'weekly' => '1 fois par semaine',
+                        ),
+                        'default' => 'page',
+                        'compiler'  => true
+                    ),
+
+                     array(
+                        'id'       => 'notifications_include_categories',
+                        'type'     => 'select',
+                        'multi'    => true,
+                        'title'    => __('Inclure les cat&eacute;gories suivantes dans les notifications', 'kidzou'), 
+                        'subtitle' => __('En plus des recos et des featured. Tous les posts publi&eacute;s dans ces cat&eacute;gories seront dans le &apos;queue&apos; des messages &agrave; afficher', 'kidzou'),
+                        'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                        //Must provide key => value pairs for radio options
+                        'data'      => 'categories',
+                        'compiler'  => true
+                    ),
                 )
             );
             
