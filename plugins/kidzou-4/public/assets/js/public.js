@@ -330,7 +330,7 @@ var kidzouModule = (function() { //havre de paix
 	function afterVoteUpdate(callback) {
 
 		var current_page_id = jQuery('.votable').first().data('post');
-		console.debug('current_page_id ' + current_page_id);
+		// console.debug('current_page_id ' + current_page_id);
 
 		jQuery.getJSON(kidzou_commons_jsvars.api_voted_by_user, {
 				post_id: current_page_id
@@ -343,8 +343,16 @@ var kidzouModule = (function() { //havre de paix
 
 	}
 
+	function getCurrentPageId( ) {
+
+		var current_page_id = jQuery('.votable').first().data('post');
+		return current_page_id;
+
+	}
+
 	return {
-		afterVoteUpdate : afterVoteUpdate
+		afterVoteUpdate : afterVoteUpdate,
+		getCurrentPageId : getCurrentPageId
 	}
 
 }());  //kidzouModule
@@ -402,7 +410,7 @@ var kidzouNotifier = (function(){
 
 	//les messages qui font sens pour cette page
 	//c'est à dire les messages qui n'ont pas encore été lus 
-	function getUnreadMessages(_is_page_voted) {
+	function getUnreadMessages(_is_page_voted, _current_page_id) {
 
 		var messages = [];
 
@@ -424,9 +432,10 @@ var kidzouNotifier = (function(){
 			var amess = new Message(m.id, m.title, m.body, m.target, m.icon);
 
 			//si le post est déjà voté, on écarte le message d'incitation au vote
-			console.debug("_is_page_voted " + _is_page_voted);
-			if (_is_page_voted && m.id=='vote') {
-				console.debug("Message de vote écarté");
+			//de même si le post à recommander est déjà le post sur lequel on se trouve
+			// console.debug("_is_page_voted " + _is_page_voted);
+			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) {
+				// console.debug("Message de vote écarté");
 				amess.readMe();
 			}
 				
@@ -527,7 +536,7 @@ var kidzouNotifier = (function(){
 
 		var boxcontent = '';
 
-		console.debug("displayMessage : " + m.id);
+		// console.debug("displayMessage : " + m.id);
 
 		if (m.id!='vote')
 			boxcontent += '<h3>Nous vous recommandons : </h3>';
@@ -536,7 +545,7 @@ var kidzouNotifier = (function(){
 		
 		jQuery("#endpage-box").endpage_box({
 		    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
-		    from: "1%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
+		    from: "5%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
 		    to: "50%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
 		    content: boxcontent  // The plugin will automatically create a container if it doesn't exist. This option will allow you to define the content of the container. This field also supports HTML.
 		  });
@@ -563,13 +572,13 @@ var kidzouNotifier = (function(){
 
 				kidzouModule.afterVoteUpdate(function(result) {
 
-					var messages = getUnreadMessages(result);
+					var messages = getUnreadMessages(result, kidzouModule.getCurrentPageId() );
 					var message = chooseMessage(messages) ;
 
 					if (message !=null && (typeof message!='undefined') )
 						displayMessage(message);
-					else
-						console.debug('aucun message à afficher');
+					// else
+					// 	console.debug('aucun message à afficher');
 
 				});
 		

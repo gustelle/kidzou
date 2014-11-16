@@ -162,7 +162,7 @@ class Kidzou_Notif {
 						setup_postdata( $post ); 
 
 						//si l'utilisateur est déjà sur le featured... on n'envoie pas la notification
-						if ( get_the_ID() != $current_post_id ) {
+						// if ( get_the_ID() != $current_post_id ) {
 
 							// Kidzou_Utils::log('ajout dans content : ' . get_the_ID());
 
@@ -175,7 +175,7 @@ class Kidzou_Notif {
 								);
 
 							// Kidzou_Utils::log('taille du content ' . count($content));
-						}
+						// }
 					}
 					
 					wp_reset_postdata();

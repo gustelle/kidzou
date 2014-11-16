@@ -122,7 +122,10 @@ class JSON_API_Vote_Controller {
 	      $json_api->error("You must include a 'post_id'");
 	    }
 
-	    $voted = Kidzou_Vote::hasAlreadyVoted($id, is_user_logged_in(), intval(get_user('ID')) ); //le hash sera recaclulé dans Kidzou_Vote
+	    // $user_id = (is_user_logged_in() ? intval(get_user('ID') : 0);
+	    Kidzou_Utils::log('voted_by_user for '. $id);
+	    Kidzou_Utils::log('voted_by_user ? '. Kidzou_Vote::hasAlreadyVoted($id));
+	    $voted = Kidzou_Vote::hasAlreadyVoted($id); 
 
 		return array('voted' => $voted);
 
