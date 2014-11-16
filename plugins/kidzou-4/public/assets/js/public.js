@@ -314,7 +314,9 @@ var kidzouModule = (function() { //havre de paix
 			}
 
 			return { 
-				bindView 		: bindView,
+				bindView 	: bindView,
+				votable     : VotableItem ,
+				votesModel : votesModel
 			};
 
 		}();
@@ -350,9 +352,22 @@ var kidzouModule = (function() { //havre de paix
 
 	}
 
+	function createVotableItem(_id) {
+
+		return new kidzou.votable(_id);
+
+	}
+
+	function getVotesModel() {
+		// console.debug(kidzou.votesModel);
+		return kidzou.votesModel;
+	}
+
 	return {
 		afterVoteUpdate : afterVoteUpdate,
-		getCurrentPageId : getCurrentPageId
+		getCurrentPageId : getCurrentPageId,
+		createVotable 		: createVotableItem,
+		getVotesModel : getVotesModel
 	}
 
 }());  //kidzouModule
@@ -434,22 +449,13 @@ var kidzouNotifier = (function(){
 			//si le post est déjà voté, on écarte le message d'incitation au vote
 			//de même si le post à recommander est déjà le post sur lequel on se trouve
 			// console.debug("_is_page_voted " + _is_page_voted);
-			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) {
-				// console.debug("Message de vote écarté");
-				amess.readMe();
-			}
-				
+			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) amess.readMe();
 			
 			ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
-
-			    if ( alreadyRead == m.id  ) { 
-			    	amess.readMe();
-			    }
-
+			    if ( alreadyRead == m.id  )  amess.readMe();
 			});
 
-			if (!amess.isRead()) 
-				messages.push(amess);
+			if (!amess.isRead()) messages.push(amess);
 		});
 
 		return messages;
@@ -536,12 +542,22 @@ var kidzouNotifier = (function(){
 
 		var boxcontent = '';
 
-		// console.debug("displayMessage : " + m.id);
+		//l'id du post wordpress
+		var current_page_id = kidzouModule.getCurrentPageId();
 
-		if (m.id!='vote')
+		//le votable est récupéré du model, on peut donc actionner les actions dessus
+		//Attention, le votable est le modele objet du coeur toute en haut de la page
+		var votable = kidzouModule.getVotesModel().getVotableItem( current_page_id );
+
+		var is_vote = (m.id=='vote');
+
+		var href = (is_vote ? "" : 'href="' + m.target + '"');
+		var classes = (is_vote ? "votable_notification" : "notification" );
+
+		if (!is_vote)
 			boxcontent += '<h3>Nous vous recommandons : </h3>';
 
-		boxcontent += '<i class="fa fa-close close"></i><a href="' + m.target + '" class="notification">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
+		boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
 		
 		jQuery("#endpage-box").endpage_box({
 		    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
@@ -557,6 +573,26 @@ var kidzouNotifier = (function(){
 		jQuery('.close').click(function() {
 			jQuery("#endpage-box").css('display', 'none');
 			jQuery(document).unbind('scroll');
+		});
+
+		jQuery('.votable_notification').click(function() {
+			
+			kidzouTracker.trackEvent("Notification", "Vote", current_page_id , 0);
+
+			//mettre en cohérence le coeur tout en haut et procéder au vote
+			votable.doUpOrDown();
+
+			//Remercier le user
+			jQuery("#endpage-box").html('<i class="fa fa-close close"></i><i class="fa fa-heart fa-3x vote"></i><h4>C&apos;est bien not&eacute; !</h4>');
+
+			//Attendre un peu avant de supprimer le message...g
+			//histoire que le user voit les effets de son click
+			setTimeout(function(){
+				jQuery( "#endpage-box" ).fadeOut( "slow", function() { });
+				jQuery(document).unbind('scroll');
+			}, 700);
+			
+
 		});
 
 		setMessageRead(m);

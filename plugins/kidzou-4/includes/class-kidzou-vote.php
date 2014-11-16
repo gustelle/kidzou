@@ -543,7 +543,7 @@ class Kidzou_Vote {
 	public static function hasAlreadyVoted($post_id, $loggedIn='', $user_id=0, $user_hash='')
 	{
 
-		Kidzou_Utils::log('hasAlreadyVoted ? ' );
+		// Kidzou_Utils::log('hasAlreadyVoted ? ' );
 
 		if ($loggedIn=='')
 			$loggedIn = is_user_logged_in();
@@ -551,12 +551,12 @@ class Kidzou_Vote {
 		if ($user_id==0 && $loggedIn)
 			$user_id = intval(get_user('ID'));
 
-		Kidzou_Utils::log('hasAlreadyVoted loggedIn ' . $loggedIn);
-		Kidzou_Utils::log('hasAlreadyVoted user_id ' . $user_id);
+		// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' . $loggedIn);
+		// Kidzou_Utils::log('hasAlreadyVoted user_id ' . $user_id);
 
 		if ($loggedIn && $user_id>0)
 		{
-			Kidzou_Utils::log('hasAlreadyVoted loggedIn ' );
+			// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' );
 			//check DB
 			$meta_posts = get_user_meta($user_id, self::$meta_user_votes);
 			$voted_posts = $meta_posts[0];
@@ -577,11 +577,11 @@ class Kidzou_Vote {
 
 		}
 		else {
-			Kidzou_Utils::log('hasAlreadyVoted anonymous ' );
+			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' );
 			if ($user_hash=='') {
 				$user_hash = self::hash_anonymous();
 			}
-			Kidzou_Utils::log('hasAlreadyVoted anonymous ' .$user_hash);
+			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' .$user_hash);
 			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
 		}
 			

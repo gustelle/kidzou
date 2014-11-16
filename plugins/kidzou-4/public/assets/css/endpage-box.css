@@ -25,6 +25,7 @@ Class Definitions
 
 .endpage-box a {color:#333; text-decoration: none;}
 .endpage-box a:hover {text-decoration: underline;}
+.endpage-box a:hover {cursor:pointer;}
 .endpage-box .vote {color: #ED0A71;}
 .endpage-box .close {position: absolute; top:10px; right: 10px;}
 .endpage-box .close:hover {cursor: pointer;}

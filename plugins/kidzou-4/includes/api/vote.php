@@ -123,8 +123,8 @@ class JSON_API_Vote_Controller {
 	    }
 
 	    // $user_id = (is_user_logged_in() ? intval(get_user('ID') : 0);
-	    Kidzou_Utils::log('voted_by_user for '. $id);
-	    Kidzou_Utils::log('voted_by_user ? '. Kidzou_Vote::hasAlreadyVoted($id));
+	    // Kidzou_Utils::log('voted_by_user for '. $id);
+	    // Kidzou_Utils::log('voted_by_user ? '. Kidzou_Vote::hasAlreadyVoted($id));
 	    $voted = Kidzou_Vote::hasAlreadyVoted($id); 
 
 		return array('voted' => $voted);
