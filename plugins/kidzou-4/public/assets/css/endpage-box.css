@@ -9,10 +9,11 @@ Class Definitions
   bottom: 20px;
   right: 20px;
   background-color: #ffffff;
-  opacity: 0.8;
+  opacity: 0.85;
   width: 70%;
   font-size: 90%;
   max-width: 350px;
+  height: auto;
   max-height: 110px;
   overflow: hidden;
   padding: 25px;
@@ -21,12 +22,18 @@ Class Definitions
   -webkit-box-shadow: 0 2px 3px rgba(0,0,0,0.5);
 }
 
+
 .endpage-box a {color:#333; text-decoration: none;}
 .endpage-box a:hover {text-decoration: underline;}
 .endpage-box .vote {color: #ED0A71;}
-.endpage-box .close {color:red; position: absolute; top:10px; right: 10px;}
+.endpage-box .close {position: absolute; top:10px; right: 10px;}
+.endpage-box .close:hover {cursor: pointer;}
 .endpage-box img, .endpage-box i {float: left; margin-right: 10px; /*margin-bottom: 10px;*/}
 .endpage-box h1, .endpage-box h2, .endpage-box h3, .endpage-box h4, .endpage-box h5, .endpage-box h6 {  }
+
+@media screen and (max-width: 800px) and (orientation: landscape), screen and (max-height: 600px) {
+	.endpage-box span {display: none;}
+}
 
 [class*="animation-"] {
   -webkit-animation-duration: 500ms;

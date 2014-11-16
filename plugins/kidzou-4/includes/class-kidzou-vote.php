@@ -407,7 +407,7 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * undocumented function
+	 * le nombre de votes pour un post
 	 *
 	 * @return void
 	 * @author 
@@ -420,14 +420,7 @@ class Kidzou_Vote {
 			$post_id = $post->ID;
 		}
 
-		// global $wpdb;
-			
-		// 	$res = $wpdb->get_results(
-		// 		"SELECT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id = $id", ARRAY_A);
-
-		$results = get_post_meta($id, self::$meta_vote_count, true);
-		// Kidzou_Utils::log('votes :'.$res[0]['votes']);
-		// Kidzou_Utils::log($results);
+		$results = get_post_meta($post_id, self::$meta_vote_count, true);
 
 		return array(
 				"id" 	=> $post_id,
@@ -437,7 +430,7 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * undocumented function
+	 * le nombre de votes pour une liste de post
 	 *
 	 * @return void
 	 * @author 
@@ -547,7 +540,7 @@ class Kidzou_Vote {
 	 * @return TRUE si le user a déjà voté le post
 	 * @author Kidzou
 	 **/
-	public static function hasAlreadyVoted($post_id, $loggedIn, $user_id, $user_hash)
+	public static function hasAlreadyVoted($post_id, $loggedIn, $user_id, $user_hash='')
 	{
 
 		if ($loggedIn)
@@ -571,8 +564,13 @@ class Kidzou_Vote {
 			}
 
 		}
-		else
+		else {
+			if ($user_hash=='') {
+				$user_hash = hash_anonymous();
+			}
 			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
+		}
+			
 
 		return false;
 

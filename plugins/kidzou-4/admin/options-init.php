@@ -366,31 +366,31 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'compiler'  => true
                     ),
 
-                    array(
-                        'id' => 'notifications_delay',
-                        'type' => 'slider',
-                        'title' => __('D&eacute;lais (en secondes) avant affichage d&apos;une notification', 'kidzou'),
-                        'subtitle' => __('Le d&eacute;lais court &agrave; partir du moment o&ugrave; la page est charg&eacute;e', 'kidzou'),
-                        'desc' => __('Min: 0 secondes , max: 30 secondes, par d&eacute;faut : 2 secondes', 'kidzou'),
-                        "default" => 2,
-                        "min" => 0,
-                        "step" => 0.5,
-                        "max" => 30,
-                        'display_value' => 'text',
-                    ),
+                    // array(
+                    //     'id' => 'notifications_delay',
+                    //     'type' => 'slider',
+                    //     'title' => __('D&eacute;lais (en secondes) avant affichage d&apos;une notification', 'kidzou'),
+                    //     'subtitle' => __('Le d&eacute;lais court &agrave; partir du moment o&ugrave; la page est charg&eacute;e', 'kidzou'),
+                    //     'desc' => __('Min: 0 secondes , max: 30 secondes, par d&eacute;faut : 2 secondes', 'kidzou'),
+                    //     "default" => 2,
+                    //     "min" => 0,
+                    //     "step" => 0.5,
+                    //     "max" => 30,
+                    //     'display_value' => 'text',
+                    // ),
 
-                    array(
-                        'id' => 'notifications_duration',
-                        'type' => 'slider',
-                        'title' => __('Dur&eacute;e d&apos;affichage d&apos;une notification', 'kidzou'),
-                        'subtitle' => __('Combien de temps une notification doit-elle rester affich&eacute;e &agrave; l&apos;&eacute;cran', 'kidzou'),
-                        'desc' => __('Min: 3 seconde , max: 30 secondes, par d&eacute;faut : 5 secondes', 'kidzou'),
-                        "default" => 5,
-                        "min" => 3,
-                        "step" => 0.5,
-                        "max" => 30,
-                        'display_value' => 'text'
-                    ),
+                    // array(
+                    //     'id' => 'notifications_duration',
+                    //     'type' => 'slider',
+                    //     'title' => __('Dur&eacute;e d&apos;affichage d&apos;une notification', 'kidzou'),
+                    //     'subtitle' => __('Combien de temps une notification doit-elle rester affich&eacute;e &agrave; l&apos;&eacute;cran', 'kidzou'),
+                    //     'desc' => __('Min: 3 seconde , max: 30 secondes, par d&eacute;faut : 5 secondes', 'kidzou'),
+                    //     "default" => 5,
+                    //     "min" => 3,
+                    //     "step" => 0.5,
+                    //     "max" => 30,
+                    //     'display_value' => 'text'
+                    // ),
 
                     array(
                         'id'       => 'notifications_post_type',
