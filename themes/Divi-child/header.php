@@ -34,6 +34,19 @@
 
 	<?php wp_head(); ?>
 
+	<script type="application/ld+json">
+	{
+	  "@context": "http://schema.org",
+	  "@type": "WebSite",
+	  "url": "https://www.kidzou.fr/",
+	  "potentialAction": {
+	    "@type": "SearchAction",
+	    "target": "http://www.kidzou.fr?s={search_term_string}",
+	    "query-input": "required name=search_term_string"
+	  }
+	}
+	</script>
+
 </head>
 <body <?php body_class(); ?>>
 

@@ -2123,6 +2123,7 @@
 	//searchbox
 	$(document).ready(function() {
 
+		//sur la home page, le filtre de recherche des sorties
 		if ($(".kz_searchbox").length) {
 			
 			var options, a;
@@ -2164,6 +2165,8 @@
 			});	
 			
 		}
+
+		
 
 	});
 

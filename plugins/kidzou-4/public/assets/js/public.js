@@ -1,289 +1,289 @@
-var kidzouNotifications = (function(){
-
-	console.debug('todo : handle notifications on posts ')
-
-})();
-
-
-var kidzouMessage = (function() {
-
-	function MessageModel() {
-
-		// logger.debug("MessageModel initialisé");
-		var self = this;
-		self.messageClass 		= ko.observable('');
-		self.messageContent 	= ko.observable('');
-
-		self.addMessage	= function(_cls, _msg) {
-
-			// console.log('addMessage ' + _msg);
-			self.messageClass(_cls);
-			self.messageContent(_msg);
-
-			//je ne parviens pas à utiliser proprement la propriété isVisible()
-			//j'ai donc positionné un "display:none" en css et j'utilise jQuery en solution de secours
-			jQuery("#messageBox").show();
-		};
-
-		self.removeMessage = function() {
-			self.messageContent('');
-			jQuery("#messageBox").hide();
-		};
-	}
-
-	return {
-		message : MessageModel
-	};
-
-}());
-
 
 
 var kidzouModule = (function() { //havre de paix
 
+	var kidzou;
+	var logger;
+
 	jQuery(document).ready(function() {
 
-	String.prototype.toBoolean = function()
-	{switch(this.toLowerCase()){case "true": case "yes": case "1": return true;case "false": case "no": case "0": case null: return false;default: return Boolean(this);}};
+		String.prototype.toBoolean = function()
+		{switch(this.toLowerCase()){case "true": case "yes": case "1": return true;case "false": case "no": case "0": case null: return false;default: return Boolean(this);}};
 
 
-	var logger = function() {
+		logger = function() {
 
-		var logLevel 		= false;
+			var logLevel 		= false;
 
-		function setLogging(_bool) {var bool;if(typeof _bool=='undefined'){bool="false";}else{bool=_bool}; logLevel = bool.toBoolean();}
-		function debug(msg) {if (logLevel) console.debug(msg);}
-		function info(msg) {if (logLevel) console.log(msg);}
+			function setLogging(_bool) {var bool;if(typeof _bool=='undefined' || !_bool || _bool==''){bool="false";}else{bool=_bool; console.debug("Logging actif");}; logLevel = bool.toBoolean();}
+			function debug(msg) {if (logLevel) console.debug(msg);}
+			function info(msg) {if (logLevel) console.log(msg);}
 
-		return {
-			setLogging : setLogging,
-			debug : debug,
-			info : info
-		};
-	}();
-
-
-	var kidzou = function() {
+			return {
+				setLogging : setLogging,
+				debug : debug,
+				info : info
+			};
+		}();
 
 
-		var message			= new kidzouMessage.message();
-		var votesModel 		= new VotesModel(); 
+		kidzou = function() {
 
-		//initialement (permettre le vote même si le user n'accepte pas la geoloc)
-		feedViewModel();
+			// var message			= new kidzouMessage.message();
+			var votesModel 		= new VotesModel(); 
 
-		function mapVotedToVotables(_voted) {
-			// logger.debug("mapVotedToVotables " + ko.toJSON(_voted));
-			// debug("votesModel.votableItems " + ko.toJSON(votesModel.votableItems));
-			ko.utils.arrayForEach(_voted, function(item) {
-				ko.utils.arrayFirst(votesModel.votableItems, function(i) {
-		            if ( i.id == item.id) i.voted(true);    
-		        });
-			});
-		}
+			//initialement (permettre le vote même si le user n'accepte pas la geoloc)
+			feedViewModel();
 
-		/**
-		* rafraichissement du nombre votes pour les éléments votables 
-		* 
-		*/
-		function refreshVotesCount() {
-			jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_status, {
-					posts_in: ko.toJSON(votesModel.votableIds)
-				},
-				function(data) {
-					setVotesCount(data.status);
-		        }
-		    );
-		}
+			function mapVotedToVotables(_voted) {
+				// logger.debug("mapVotedToVotables " + ko.toJSON(_voted));
+				// debug("votesModel.votableItems " + ko.toJSON(votesModel.votableItems));
+				ko.utils.arrayForEach(_voted, function(item) {
+					ko.utils.arrayFirst(votesModel.votableItems, function(i) {
+			            if ( i.id == item.id) i.voted(true);    
+			        });
+				});
+			}
 
-		function setVotesCount(votes) {
-			ko.utils.arrayMap(votes, function(item) {
-				var matchedItem = ko.utils.arrayFirst(votesModel.votableItems, function(i) {
-		            if (i.id == item.id) return i;
-		        });
-		        if (matchedItem!==null)
-		        	matchedItem.votes( item.votes );
-			});
-		}
+			/**
+			* rafraichissement du nombre votes pour les éléments votables 
+			* 
+			*/
+			function refreshVotesCount() {
+				jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_status, {
+						posts_in: ko.toJSON(votesModel.votableIds)
+					},
+					function(data) {
+						setVotesCount(data.status);
+			        }
+			    );
+			}
 
-		/**
-		* si le localStorage n'est pas supporté, les votes ne sont pas stockés en local
-		* dans ce cas on rafraichit systématiquement les données en provenance du serveur
-		*
-		* Lié avec la fonction d'écriture des votes lorsque le user recommande/ne recommande pas un article
-		* @see VotableItem.prototype
-		*/
-		function refreshUserVotes() {
+			function setVotesCount(votes) {
+				ko.utils.arrayMap(votes, function(item) {
+					var matchedItem = ko.utils.arrayFirst(votesModel.votableItems, function(i) {
+			            if (i.id == item.id) return i;
+			        });
+			        if (matchedItem!==null)
+			        	matchedItem.votes( item.votes );
+				});
+			}
 
-	        var localVotes 			 = JSON.parse(storageSupport.getLocal("voted"));
-	        var user_hash 			 = getUserHash();
+			/**
+			* si le localx n'est pas supporté, les votes ne sont pas stockés en local
+			* dans ce cas on rafraichit systématiquement les données en provenance du serveur
+			*
+			* Lié avec la fonction d'écriture des votes lorsque le user recommande/ne recommande pas un article
+			* @see VotableItem.prototype
+			*/
+			function refreshUserVotes() {
 
-	        if (localVotes===null || localVotes.length===0) 
-			{
-				logger.debug("localVotes null pour user_hash " + user_hash);
+		        var localVotes 			 = JSON.parse(storageSupport.getLocal("voted"));
+		        var user_hash 			 = getUserHash();
 
-				//assurer de ne pas passer la valeur "null" dans la requete
-				//renvoyer dans ce cas une chaine vide
-				//cela peut arriver à cause du legacy ou lorsque le user est identifié
-				if (user_hash===null || user_hash==="undefined" ) {
-					user_hash="";
-				}
+		        if (localVotes===null || localVotes.length===0) 
+				{
+					logger.debug("localVotes null pour user_hash " + user_hash);
 
-				jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_user, { user_hash: getUserHash() })
-				.done(function(d) {
-					
-					logger.debug("storeLocalVotes " + ko.toJSON(d));
-					
-					//cas des users loggués : le user_hash n'est pas renvoyé
-					if (d!==null && d.user_hash!==null && d.user_hash!=="undefined")
-						setUserHash(d.user_hash); //pour réutilisation ultérieure
-					
-					if (d!==null && d.voted!==null && d.voted.length > 0) {
-						storageSupport.toLocalData("voted", d.voted);
-						mapVotedToVotables(d.voted);
+					//assurer de ne pas passer la valeur "null" dans la requete
+					//renvoyer dans ce cas une chaine vide
+					//cela peut arriver à cause du legacy ou lorsque le user est identifié
+					if (user_hash===null || user_hash==="undefined" ) {
+						user_hash="";
 					}
-		        });
-			}
-			else
-				mapVotedToVotables(localVotes);
-			
-		} 
 
-		/**
-		* permet d'identifier un user anonyme
-		* le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
-		**/
-		function setUserHash (hash) {
-
-			if (hash===null || hash==="" || hash==="undefined") //prevention des cas ou le user est identifié : son user_hash est null
-				return;
-
-			if (getUserHash()===null || getUserHash()==="" || getUserHash()==="undefined") {
-				logger.debug("setUserHash : " + hash);
-				storageSupport.setLocal("user_hash", hash);
-			}
-		}
-
-		/**
-		* permet d'identifier un user anonyme
-		* le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
-		**/
-		function getUserHash ( ) {
-
-			if (storageSupport.getLocal("user_hash")==="undefined") { //pour le legacy
-				logger.debug("user_hash undefined" );
-				storageSupport.removeLocal("user_hash");
-			}
-
-			return storageSupport.getLocal("user_hash");
-		}
-
-
-		function feedViewModel() {
-	
-			ko.utils.arrayMap(jQuery('.votable'), function(item) {
-				votesModel.votableIds.push( jQuery(item).data('post') );
-			    votesModel.votableItems.push(new VotableItem ( jQuery(item).data('post'), 0, false, jQuery(item).data('slug')) );
-			}); 
-
-			refreshVotesCount();  //cached by server
-			refreshUserVotes(); //cached with local storage if supported or cookie if not
-		}
-
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		////////////////////////// Modele objet exposé publiquement, utilisé par le UI ////////////////////////////////
-		///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-		function VotesModel() {
-
-			var self 			= this;
-			self.votableIds 	= []; //only for JSON request
-			self.votableItems 	= [];
-
-			self.getVotableItem = function (_id) {
-				return ko.utils.arrayFirst(self.votableItems, function(item) {
-		  		    if (item.id == _id) return item;
-		    	});
-			};
-
-		}
-
-		function VotableItem ( _id, _votes, _voted, _slug) {
-
-			var self 		= this;
-
-			self.id 		= _id;
-			self.slug 		= _slug;
-			self.votes 		= ko.observable(_votes);
-			self.voted 		= ko.observable(_voted);
-			self.downActivated = ko.observable(false); 
-
-			self.countText 	= ko.computed(function() {
-				if (self.downActivated())
-					return kidzou_commons_jsvars.votable_countText_down;
-				else
-					return kidzou_commons_jsvars.votable_countText; 
-			});
-
-			self.iconClass = ko.computed(function() {
-				return self.voted() ? 'fa fa-heart' : 'fa fa-heart-o';
-			});
-
-
-			//si le user a deja voté et qu'il survole le lien de recommandation
-			//on met à jour le lien pour qu'il devienne une action de retrait du vote
-			//ce changement d'action est appelé par le texte 'stop' visible à coté du texte 'recommandation'
-			//lorsque le user a voté
-			self.activateDown = function() {
-				if (self.voted()) {
-					self.downActivated(true);
+					jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_user, { user_hash: getUserHash() })
+					.done(function(d) {
+						
+						logger.debug("storeLocalVotes " + ko.toJSON(d));
+						
+						//cas des users loggués : le user_hash n'est pas renvoyé
+						if (d!==null && d.user_hash!==null && d.user_hash!=="undefined")
+							setUserHash(d.user_hash); //pour réutilisation ultérieure
+						
+						if (d!==null && d.voted!==null && d.voted.length > 0) { 
+							// logger.debug('before local data storage ' );
+							storageSupport.toLocalData("voted", d.voted);
+							mapVotedToVotables(d.voted);
+						}
+			        });
 				}
-			};
-
-			self.doUpOrDown = function() {
-
-				var upOrdown = '+1';
-
-				if (self.voted())
-					upOrdown = '-1';
-
-				kidzouTracker.trackEvent("Recommandation", upOrdown, this.slug , kidzou_commons_jsvars.current_user_id);
-
-				//console.dir(this);
-				if (self.voted()) 
-					self.doWithdraw();
 				else
-					self.doVote();
-			};
+					mapVotedToVotables(localVotes);
+				
+			} 
 
-			//quoiqu'il arrive, le countText est reinitialisé lorsque la souris est éloignée de l'item
-			self.deactivateDown = function() {
-				self.downActivated(false);
-			};
+			/**
+			* permet d'identifier un user anonyme
+			* le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
+			**/
+			function setUserHash (hash) {
 
-			self.doVote = function() {
+				if (hash===null || hash==="" || hash==="undefined") //prevention des cas ou le user est identifié : son user_hash est null
+					return;
 
-				// logger.debug("doVote");
+				if (getUserHash()===null || getUserHash()==="" || getUserHash()==="undefined") {
+					logger.debug("setUserHash : " + hash);
+					storageSupport.setLocal("user_hash", hash);
+				}
+			}
 
-				if (this.voted()) return;
+			/**
+			* permet d'identifier un user anonyme
+			* le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
+			**/
+			function getUserHash ( ) {
 
-				var _id = this.id;
+				if (storageSupport.getLocal("user_hash")==="undefined") { //pour le legacy
+					logger.debug("user_hash undefined" );
+					storageSupport.removeLocal("user_hash");
+				}
 
-				//update the UI immediatly and proceed to the vote in back-office
-				var count = parseInt(this.votes())+1;
-				this.voted(true);
-				this.votes(count);
+				return storageSupport.getLocal("user_hash");
+			}
 
-				// logger.info("doVote " + _id + "(+1)");
 
-				//get nonce for voting and proceed to vote
-				jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'up'})
-					.done(function (data) {
-						// logger.debug("doVote " + ko.toJSON(data));
-						if (data!==null) {
+			function feedViewModel() {
+		
+				ko.utils.arrayMap(jQuery('.votable'), function(item) {
+					votesModel.votableIds.push( jQuery(item).data('post') );
+				    votesModel.votableItems.push(new VotableItem ( jQuery(item).data('post'), 0, false, jQuery(item).data('slug')) );
+				}); 
+
+				refreshVotesCount();  //cached by server
+				refreshUserVotes(); //cached with local storage if supported or cookie if not
+			}
+
+			///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			////////////////////////// Modele objet exposé publiquement, utilisé par le UI ////////////////////////////////
+			///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+			function VotesModel() {
+
+				var self 			= this;
+				self.votableIds 	= []; //only for JSON request
+				self.votableItems 	= [];
+
+				self.getVotableItem = function (_id) {
+					return ko.utils.arrayFirst(self.votableItems, function(item) {
+			  		    if (item.id == _id) return item;
+			    	});
+				};
+
+			}
+
+			function VotableItem ( _id, _votes, _voted, _slug) {
+
+				var self 		= this;
+
+				self.id 		= _id;
+				self.slug 		= _slug;
+				self.votes 		= ko.observable(_votes);
+				self.voted 		= ko.observable(_voted);
+				self.downActivated = ko.observable(false); 
+
+				self.countText 	= ko.computed(function() {
+					if (self.downActivated())
+						return kidzou_commons_jsvars.votable_countText_down;
+					else
+						return kidzou_commons_jsvars.votable_countText; 
+				});
+
+				self.iconClass = ko.computed(function() {
+					return self.voted() ? 'fa fa-heart' : 'fa fa-heart-o';
+				});
+
+
+				//si le user a deja voté et qu'il survole le lien de recommandation
+				//on met à jour le lien pour qu'il devienne une action de retrait du vote
+				//ce changement d'action est appelé par le texte 'stop' visible à coté du texte 'recommandation'
+				//lorsque le user a voté
+				self.activateDown = function() {
+					if (self.voted()) {
+						self.downActivated(true);
+					}
+				};
+
+				self.doUpOrDown = function() {
+
+					var upOrdown = '+1';
+
+					if (self.voted())
+						upOrdown = '-1';
+
+					kidzouTracker.trackEvent("Recommandation", upOrdown, this.slug , kidzou_commons_jsvars.current_user_id);
+
+					//console.dir(this);
+					if (self.voted()) 
+						self.doWithdraw();
+					else
+						self.doVote();
+				};
+
+				//quoiqu'il arrive, le countText est reinitialisé lorsque la souris est éloignée de l'item
+				self.deactivateDown = function() {
+					self.downActivated(false);
+				};
+
+				self.doVote = function() {
+
+					// logger.debug("doVote");
+
+					if (this.voted()) return;
+
+					var _id = this.id;
+
+					//update the UI immediatly and proceed to the vote in back-office
+					var count = parseInt(this.votes())+1;
+					this.voted(true);
+					this.votes(count);
+
+					// logger.info("doVote " + _id + "(+1)");
+
+					//get nonce for voting and proceed to vote
+					jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'up'})
+						.done(function (data) {
+							// logger.debug("doVote " + ko.toJSON(data));
+							if (data!==null) {
+					           var nonce =  data.nonce;
+					           //vote with the nonce
+					           jQuery.getJSON(kidzou_commons_jsvars.api_vote_up, {
+										post_id: _id, 
+										nonce: nonce,
+										user_hash : getUserHash()
+									}, function(data) {
+										//cas des users loggués, le user_hash n'est aps renvoyé
+										if (data.user_hash!==null && data.user_hash!=="undefined")
+											setUserHash(data.user_hash); //pour reuntilisation ultérieure
+										
+										storageSupport.removeLocalData("voted"); //pour rafraichissement à la prochaine requete
+										logger.debug("doVote executed");
+									}
+								); 
+					        }
+				        });
+				};
+
+				//retrait du vote ('Je ne recommande plus')
+				self.doWithdraw = function() {
+
+					if (!this.voted()) return;
+
+					var _id = this.id;
+
+					//update the UI immediatly and proceed to the withdraw in back-office
+					var count = parseInt(this.votes())-1;
+					this.voted(false);
+					this.votes(count);
+
+					// logger.info("doWithdraw " + _id + "(-1)");
+
+					//get nonce for voting and proceed to vote
+					jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'down'})
+						.done(function (data) {
 				           var nonce =  data.nonce;
 				           //vote with the nonce
-				           jQuery.getJSON(kidzou_commons_jsvars.api_vote_up, {
+				           jQuery.getJSON(kidzou_commons_jsvars.api_vote_down, {
 									post_id: _id, 
 									nonce: nonce,
 									user_hash : getUserHash()
@@ -293,68 +293,33 @@ var kidzouModule = (function() { //havre de paix
 										setUserHash(data.user_hash); //pour reuntilisation ultérieure
 									
 									storageSupport.removeLocalData("voted"); //pour rafraichissement à la prochaine requete
-									logger.debug("doVote executed");
+									logger.debug("doWithdraw executed");
 								}
 							); 
-				        }
-			        });
+				        });
+				};
+			}
+
+			
+
+			function bindView() {
+				ko.applyBindings( viewModel() ); 
+			}
+
+			function viewModel() {
+				return {
+					// message : message,
+					votes 	: votesModel
+				};
+			}
+
+			return { 
+				bindView 	: bindView,
+				votable     : VotableItem ,
+				votesModel : votesModel
 			};
 
-			//retrait du vote ('Je ne recommande plus')
-			self.doWithdraw = function() {
-
-				if (!this.voted()) return;
-
-				var _id = this.id;
-
-				//update the UI immediatly and proceed to the withdraw in back-office
-				var count = parseInt(this.votes())-1;
-				this.voted(false);
-				this.votes(count);
-
-				// logger.info("doWithdraw " + _id + "(-1)");
-
-				//get nonce for voting and proceed to vote
-				jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'down'})
-					.done(function (data) {
-			           var nonce =  data.nonce;
-			           //vote with the nonce
-			           jQuery.getJSON(kidzou_commons_jsvars.api_vote_down, {
-								post_id: _id, 
-								nonce: nonce,
-								user_hash : getUserHash()
-							}, function(data) {
-								//cas des users loggués, le user_hash n'est aps renvoyé
-								if (data.user_hash!==null && data.user_hash!=="undefined")
-									setUserHash(data.user_hash); //pour reuntilisation ultérieure
-								
-								storageSupport.removeLocalData("voted"); //pour rafraichissement à la prochaine requete
-								logger.debug("doWithdraw executed");
-							}
-						); 
-			        });
-			};
-		}
-
-		
-
-		function bindView() {
-			ko.applyBindings( viewModel() ); 
-		}
-
-		function viewModel() {
-			return {
-				message : message,
-				votes 	: votesModel
-			};
-		}
-
-		return { 
-			bindView 		: bindView
-		};
-
-	}();
-
+		}();
 
 
 		logger.setLogging(kidzou_commons_jsvars.cfg_debug_mode); 
@@ -364,12 +329,52 @@ var kidzouModule = (function() { //havre de paix
 	}); // jQuery(document).ready(function() {
 
 
+	function afterVoteUpdate(callback) {
+
+		var current_page_id = jQuery('.votable').first().data('post');
+		// console.debug('current_page_id ' + current_page_id);
+
+		jQuery.getJSON(kidzou_commons_jsvars.api_voted_by_user, {
+				post_id: current_page_id
+			},
+			function(data) {
+				var voted = data.voted;
+				return callback(voted);
+	        }
+	    );
+
+	}
+
+	function getCurrentPageId( ) {
+
+		var current_page_id = jQuery('.votable').first().data('post');
+		return current_page_id;
+
+	}
+
+	function createVotableItem(_id) {
+
+		return new kidzou.votable(_id);
+
+	}
+
+	function getVotesModel() {
+		// console.debug(kidzou.votesModel);
+		return kidzou.votesModel;
+	}
+
+	return {
+		afterVoteUpdate : afterVoteUpdate,
+		getCurrentPageId : getCurrentPageId,
+		createVotable 		: createVotableItem,
+		getVotesModel : getVotesModel
+	}
+
 }());  //kidzouModule
 
 
 //ne pas tracker en dev et ne pas tracker les admins
 var _do_track = !kidzou_commons_jsvars.is_admin && location.hostname==='www.kidzou.fr';
-
 
 if (_do_track) {
 
@@ -398,194 +403,233 @@ var kidzouTracker = (function() {
 
 }());
 
-// local-cache, localStorage with expirations
-// by Ian Davis, http://www.linkedin.com/in/ianhd and http://urlme.cc
-// 
-// Version 1.0
-//
-// Feedback?  Please submit here: http://code.google.com/p/local-cache/issues/list
+var kidzouNotifier = (function(){
 
-function setExpiration(key, expireDate) {
-    var expirations = localStorage.getItem("localStorageExpirations"); // "key1^11/18/2011 5pm|key2^3/10/2012 3pm"
-    if (expirations) {
-        var arr = expirations.split("|"); // ["key1^11/18/2011 5pm","key2^3/10/2012 3pm"]
-        for (var i = 0; i < arr.length; i++) {
-            var expiration = arr[i]; // "key1^11/18/2011 5pm"
-            if (expiration.split('^')[0] == key) { // found match; update expiration
-                arr.splice(i, 1); // remove, we'll add it w/ updated expiration later
-                break;
-            }
-        } // next: key^exp pair
-        arr.push(key + "^" + expireDate.toString());
-        localStorage.setItem("localStorageExpirations", arr.join("|"));
-    } else {
-        localStorage.setItem("localStorageExpirations", key + "^" + expireDate.toString()); // "favColor^11/18/2011 5pm etc etc"
-    }
-}
+	//le système de notification est-il actif ?
+	var active = kidzou_notif.activate;
+	
+	//tous les messages qui ont déjà été lus par le user
+	var notificationsRead = null;
 
-function getExpiration(key) {
-    var expirations = localStorage.getItem("localStorageExpirations"); // "key1^11/18/2011 5pm|key2^3/10/2012 3pm"
-    if (expirations) {
-        var arr = expirations.split("|"); // ["key1^11/18/2011 5pm","key2^3/10/2012 3pm"]
-        for (var i = 0; i < arr.length; i++) {
-            var expiration = arr[i]; // "key1^11/18/2011 5pm"
-            var k = expiration.split('^')[0]; // key1
-            var e = expiration.split('^')[1]; // 11/18/2011 5pm
-            if (k == key) { // found match; return expiration and remove expiration if it's expired
-                var now = new Date();
-                var eDate = new Date(e);
-                if (now > eDate) {
-                    // remove expiration
-                    arr.splice(i, 1);
-                    if (arr.length > 0) {
-                        localStorage.setItem("localStorageExpirations", arr.join("|"));
-                    } else {
-                        localStorage.removeItem("localStorageExpirations");
-                    }
-                }
-                return new Date(e);
-            }
-        } // next: key^exp pair
-    }
-    return null;
-}
+	//chaque post a un contexte de notification spécifique
+	//de sorte que les contenus poussés sur chaque post sont différents
+	var pageId = kidzou_notif.messages.context || 'daily';
 
-// ex: localStorage.setCacheItem("favColor", "blue", { days: 1 })
-Storage.prototype.setCacheItem = function (key, value, exp) {
-    var val = null;
-    if (typeof value == 'object') {
-        // assume json
-        value.isJson = true; // add this flag, so we can check it on retrieval
-        val = JSON.stringify(value);
-    } else {
-        val = value;
-    }
-    localStorage.setItem(key, val);
+	//les notifications pour cette page (ce contexte)
+	//Une notification est composée d'un contexte + un ensemble de message {context: xx, messages: [xx,xx,xx]}
+	var thisContextNotifications = null;
 
-    var now = new Date();
-    var expireDate = new Date();
+	//les messages pour ce contexte 
+	// var thisContextMessages =  null;
+		
 
-    if (typeof expireDate == 'undefined') {
-        expireDate.setDate(now.getDate() + 1); // default to one day from now    
-    } else {
-        if (exp.minutes) {
-            expireDate.setMinutes(now.getMinutes() + exp.minutes);
-        }
-        if (exp.hours) {
-            expireDate.setHours(now.getHours() + exp.hours);
-        }
-        if (exp.days) {
-            expireDate.setDate(now.getDate() + exp.days);
-        }
-        if (exp.months) {
-            expireDate.setMonth(now.getMonth() + exp.months);
-        }
-        if (exp.years) {
-            expireDate.setYear(now.getYear() + exp.years);
-        }
-    }
+	//les messages qui font sens pour cette page
+	//c'est à dire les messages qui n'ont pas encore été lus 
+	function getUnreadMessages(_is_page_voted, _current_page_id) {
 
-    setExpiration(key, expireDate);
-};
+		var messages = [];
 
-Storage.prototype.getCacheItem = function (key) {
-    // TODO: return JSON.parse if value is stringify'd json obj
+		//recupérer les notifications présentes dans le storageSupport
+		notificationsRead = storageSupport.fromLocalData('messages') || [] ;
 
-    // first, check to see if this key is in localstorage
-    if (!localStorage.getItem(key)) {
-        return null;
-    }
-
-    // ex: key = "favColor"
-    var now = new Date();
-    var expireDate = getExpiration(key);
-    if (expireDate && now <= expireDate) {
-        // hasn't expired yet, so simply return
-        var value = localStorage.getItem(key);
-        try {
-            var parsed = JSON.parse(value);
-            if (parsed.isJson) {
-                delete parsed.isJson; // remove the extra flag we added in setCacheItem method; clean it up
-                return parsed;
-            } else {
-                return value; // return the string, since it could be trying to do JSON.parse("3") which will succeed and not throw an error, but "3" isn't a json obj
-            }
-        } catch (e) {
-            // string was not json-parsable, so simply return it as-is
-            return value;
-        }
-    }
-
-    // made it to here? remove item
-    localStorage.removeItem(key);
-    return null;
-};
-
-var kidzouActions = (function() {
-
-		//binding des elements initialement présents dans le HTML
-		/////////////// SEARCH ////////////////
-		///////////////////////////////////////
-
-		jQuery("#searchform").submit(function(){
-			// kidzouMessage.addMessage('info', kidzou_commons_jsvars.msg_wait);
-			kidzouTracker.trackEvent("Recherche", "Submit", jQuery("#searchinput").val(), 0);
+		ko.utils.arrayForEach(notificationsRead, function(n) {
+			if (n.context == pageId) {
+				thisContextNotifications = n;
+			}
 		});
 
-		/////////////// Tracking du comportement ////////////////
-		//////////////////////////////////////////////////////
+		if (thisContextNotifications==null) {
+			thisContextNotifications = {context: pageId, messages: []};
+		}
+			
+		ko.utils.arrayForEach(kidzou_notif.messages.content, function(m) {
 
-		jQuery(".slide_wrap a").click(function(){
-			kidzouTracker.trackEvent("Featured Slider", "Click", jQuery(this).attr("href"), 0);
+			var amess = new Message(m.id, m.title, m.body, m.target, m.icon);
+
+			//si le post est déjà voté, on écarte le message d'incitation au vote
+			//de même si le post à recommander est déjà le post sur lequel on se trouve
+			// console.debug("_is_page_voted " + _is_page_voted);
+			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) amess.readMe();
+			
+			ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
+			    if ( alreadyRead == m.id  )  amess.readMe();
+			});
+
+			if (!amess.isRead()) messages.push(amess);
 		});
 
-		jQuery("#menu-menu-principal li a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "Menu Desktop", jQuery(this).find(".main_text").text(), 0);
+		return messages;
+	
+	}
+	
+
+	function Message(_id, _title, _body, _target, _icon) {
+
+		var self = this;
+
+		//un message est identifié de manière unique par un id de sorte de pouvoir le retrouver
+		self.id = _id;
+		self.title = _title;
+		self.body = _body;
+		self.target = _target;
+		self.icon = _icon;
+
+		//le message a-t-il déjà été vu
+		self.readFlag = false;
+
+		self.readMe = function() {
+			self.readFlag = true;
+		};
+
+		self.isRead = function() {
+			return self.readFlag;
+		}
+	}
+
+	/**
+	 *
+	 * lorsqu'un message est lu, il est flaggué pour ne plus le représenter au user
+	 **/
+	function setMessageRead(m) {
+	
+		m.readMe();
+
+		// thisContextMessages.;
+		thisContextNotifications.messages.push(m.id);
+
+		var exist = false;
+
+		ko.utils.arrayForEach(notificationsRead, function(n) {
+			if (n.context == pageId) {
+				//remplacer l'existant
+				n = thisContextNotifications;
+				exist = true;
+			}
 		});
 
-		jQuery("#mobile_menu li a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "Menu Mobile", jQuery(this).find("span").text(), 0);
+		if (!exist)
+			notificationsRead.push(thisContextNotifications);
+
+		//sur chaque page ou tous les mois
+		var expiration = 30;
+		
+		if (pageId=='daily')
+			expiration = 1;
+		else if (pageId=='weekly')
+			expiration = 7;
+
+		storageSupport.toLocalData('messages', notificationsRead, expiration );
+
+	}
+
+	/**
+	 * choix du message a afficher
+	 */
+	function chooseMessage (messages) {
+		var unread = ko.utils.arrayFilter(messages, function(m) {
+            return !m.readFlag;
+        });
+
+        // var nextMessage = unread[Math.floor(Math.random()*unread.length)];
+      	// return nextMessage;
+
+      	//ke premier de la liste
+      	return unread[0];
+
+	}
+
+	function displayMessage(m) {
+
+		var boxcontent = '';
+
+		//l'id du post wordpress
+		var current_page_id = kidzouModule.getCurrentPageId();
+
+		//le votable est récupéré du model, on peut donc actionner les actions dessus
+		//Attention, le votable est le modele objet du coeur toute en haut de la page
+		var votable = kidzouModule.getVotesModel().getVotableItem( current_page_id );
+
+		var is_vote = (m.id=='vote');
+
+		var href = (is_vote ? "" : 'href="' + m.target + '"');
+		var classes = (is_vote ? "votable_notification" : "notification" );
+
+		if (!is_vote)
+			boxcontent += '<h3>Nous vous recommandons : </h3>';
+
+		boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
+		
+		jQuery("#endpage-box").endpage_box({
+		    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
+		    from: "5%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
+		    to: "50%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
+		    content: boxcontent  // The plugin will automatically create a container if it doesn't exist. This option will allow you to define the content of the container. This field also supports HTML.
+		  });
+
+		jQuery('.notification').click(function() {
+			kidzouTracker.trackEvent("Notification", "Click", m.target , 0);
 		});
 
-		jQuery("#menu-menu-principal li .dropdown_5columns .col_5 article").click(function(){
-			kidzouTracker.trackEvent("Navigation", "MegaDropDown Article", jQuery(this).find(".entry-title a").text(), 0);
+		jQuery('.close').click(function() {
+			jQuery("#endpage-box").css('display', 'none');
+			jQuery(document).unbind('scroll');
 		});
 
-		jQuery("#menu-menu-principal li .dropdown_5columns .col_3 li a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "MegaDropDown Categorie", jQuery(this).text(), 0);
+		jQuery('.votable_notification').click(function() {
+			
+			kidzouTracker.trackEvent("Notification", "Vote", current_page_id , 0);
+
+			//mettre en cohérence le coeur tout en haut et procéder au vote
+			votable.doUpOrDown();
+
+			//Remercier le user
+			jQuery("#endpage-box").html('<i class="fa fa-close close"></i><i class="fa fa-heart fa-3x vote"></i><h4>C&apos;est bien not&eacute; !</h4>');
+
+			//Attendre un peu avant de supprimer le message...g
+			//histoire que le user voit les effets de son click
+			setTimeout(function(){
+				jQuery( "#endpage-box" ).fadeOut( "slow", function() { });
+				jQuery(document).unbind('scroll');
+			}, 700);
+			
+
 		});
 
-		jQuery(".meta a").click(function(){
-			kidzouTracker.trackEvent("Navigation", "Meta", jQuery(this).text(), 0);
-		});
+		setMessageRead(m);
 
-		jQuery(".social.google").click(function(){
-			kidzouTracker.trackEvent("Connexion", "Google", 'LoginDialog', 0);
-		});
+	}
 
-		jQuery(".social.facebook").click(function(){
-			kidzouTracker.trackEvent("Connexion", "Facebook", 'LoginDialog', 0);
-		});
+	// console.debug(kidzou_notif.messages.content.length);
+	jQuery(document).ready(function() {
 
-		jQuery(".catad").click(function(){
-			kidzouTracker.trackEvent("Publicite", "Categorie", jQuery(this).attr('src'), 0);
-		});
+		if (kidzou_notif.activate && kidzou_notif.messages.content.length) {
 
-		//top panel
-		jQuery("#mc-embedded-subscribe-form").submit(function() {
-			kidzouTracker.trackEvent("Newsletter", "Inscription", '', 0);
-		});
+			jQuery(window).load( function() {
 
-		/////////////// MEGADROPDOWN ////////////////
-		///////////////////////////////////////
-		jQuery(".rubriques > ul.nav > li").hover(
-			function() {
-				jQuery(this).children().show();
-			}, function() {
-				jQuery(this).children(".dropdown_5columns").hide(); //pas le <a> qui contient l'element de nav principal
-			}	
-		);
+				kidzouModule.afterVoteUpdate(function(result) {
 
-	}());
+					var messages = getUnreadMessages(result, kidzouModule.getCurrentPageId() );
+					var message = chooseMessage(messages) ;
+
+					if (message !=null && (typeof message!='undefined') )
+						displayMessage(message);
+					// else
+					// 	console.debug('aucun message à afficher');
+
+				});
+		
+			});
+
+		} 
+	
+		
+	});
+	
+
+})();
+
+
+
+
 
 
