@@ -104,20 +104,15 @@ class Kidzou_Geo {
 		$villes = self::get_metropoles();
 
 		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
-		$lat = Kidzou_Utils::get_option("geo_default_lat", 50.637234);
-		$lng = Kidzou_Utils::get_option("geo_default_lng",3.06339);
   
 		$args = array(
 					'geo_mapquest_key'			=> $key, 
 					'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
 					'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
-					'geo_default_lat'			=> $lat, 
-					'geo_default_lng' 			=> $lng, 
 					'geo_default_metropole'		=> self::get_default_metropole(),
 					'geo_cookie_name'			=> "kz_metropole",
 					'geo_select_cookie_name'	=> "kz_metropole_selected",
 					'geo_possible_metropoles'	=> $villes ,
-	                //'geo_icon_url'              => WP_PLUGIN_URL.'/kidzou-geo/images/location_icon2.png' //todo
 				);
 
 	    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
@@ -223,7 +218,7 @@ class Kidzou_Geo {
 	        //sortir les villes à couverture nationale
 	        //on prend le premier de la liste
 	        foreach ($villes as $key=>$value) {
-	            $def = Kidzou_Utils::get_option('geo_national_metropole'); //get_tax_meta($value->term_id,'kz_national_ville');
+	            $def = Kidzou_Utils::get_option('geo_national_metropole'); 
 	            if ( intval($def) ==  intval($value->term_id) ) {
 
 	            } else {
@@ -316,7 +311,7 @@ class Kidzou_Geo {
 	public static function get_default_metropole()
 	{
 
-	    $term = get_term_by('id', Kidzou_Utils::get_option('geo_default_metropole') , 'ville');
+	    $term = get_term_by('id', Kidzou_Utils::get_option('geo_national_metropole') , 'ville');
 
 	    if (!is_wp_error($term) && is_object($term))
 	    	return $term->slug;
@@ -380,8 +375,6 @@ class Kidzou_Geo {
 
 		if (!is_admin()) {
 
-			// echo ' ? ' . $url;
-
 			// Check if the %kz_metropole% tag is present in the url:
 		    if ( false === strpos( $url, '%kz_metropole%' ) )
 		        return $url;
@@ -396,12 +389,6 @@ class Kidzou_Geo {
 	    return $url; 
 	}
 
-	// public static function divers_rewrite_rules( $url, $term, $taxonomy ) {
-
-	// 	echo $url;
-	 
-	//     return $url; 
-	// }
 
 	/**
 	 * les infos d'emplacement géographique d'un post

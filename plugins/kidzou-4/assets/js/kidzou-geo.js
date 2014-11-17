@@ -2,7 +2,7 @@ var kidzouGeoContent = (function () {
 
 	jQuery(document).ready(function() {
 
-		/////////////// Selection de Metropole ////////////////
+		/////////////// Selection de Metropole dans la topnav ////////////////
 		//////////////////////////////////////
 
 		jQuery(".metropole").click(function(){
@@ -25,7 +25,6 @@ var kidzouGeoContent = (function () {
 
 				var metropole = (typeof data.results[0].locations[0]!=="undefined" ? data.results[0].locations[0].adminArea4 : kidzou_geo_jsvars.geo_default_metropole);
 				var covered = false;
-				// console.debug(metropole);
 
 				//verifier qu'on est dans une des metropoles couvertes
 				for (var m in kidzou_geo_jsvars.geo_possible_metropoles) {
@@ -61,6 +60,8 @@ var kidzouGeoContent = (function () {
 
 	}
 
+	//et voilà, ici on stocke l'info de la métropole du user dans un cookie
+	//pour éviter de recalculer sa position à chaque fois
 	function refreshGeoCookie(metropole) {
 
 		var precedenteMetropole = storageSupport.getCookie(kidzou_geo_jsvars.geo_cookie_name);
@@ -86,7 +87,14 @@ var kidzouGeoContent = (function () {
 
 			//le contenu sera rafraichit (callback: "refreshGeoCookie") avec la metropole
 			//obtenue par geoloc du navigateur
-			getMetropole(position.lat, position.lng, refreshGeoCookie);
+
+			position = position || {};
+
+			//si la mposition n'est pas fournie, on prend la ville par défaut
+			if ( (typeof position.lat!='undefined') && (typeof position.lng !='undefined') )
+				getMetropole(position.lat, position.lng, refreshGeoCookie);
+			else
+				refreshGeoCookie( kidzou_geo_jsvars.geo_default_metropole.toLowerCase() );
 			
 		} 
 
@@ -105,11 +113,6 @@ var kidzouGeoContent = (function () {
 
 	function getUserLocation(callback) {
 
-		var defaultLoc = {
-				latitude  : kidzou_geo_jsvars.default_geo_lat,
-				longitude : kidzou_geo_jsvars.default_geo_lng,
-				altitude  : 0
-			};
 
 		if (navigator.geolocation) {
 
@@ -125,24 +128,18 @@ var kidzouGeoContent = (function () {
 					}, 
 					function(err) { 
 						if (callback)
-							callback(defaultLoc); 
+							callback( ); 
 					}
-				); //, 	{maximumAge:600000,enableHighAccuracy:true}
+				); 
 
 		} else {
 			if (callback)
-				callback(defaultLoc); 
+				callback( ); 
 		}
 	}
 
 	//fonction utilitaire pour récuperer lat et lng à partir d'une adresse
 	function getLatLng (address,callback ) {
-
-		var defaultLoc = {
-				latitude  : kidzou_geo_jsvars.default_geo_lat,
-				longitude : kidzou_geo_jsvars.default_geo_lng,
-				altitude  : 0
-			};
 
 		jQuery.getJSON(kidzou_geo_jsvars.geo_mapquest_address_url + "?key=" + kidzou_geo_jsvars.geo_mapquest_key + "&location=" + address,{})
 			.done(function (d) {
@@ -158,7 +155,7 @@ var kidzouGeoContent = (function () {
 			}).
 			fail(function( jqxhr, textStatus, error ) {
 			    
-				if (callback) callback(defaultLoc);
+				if (callback) callback( );
 
 			});
 

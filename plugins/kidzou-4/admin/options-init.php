@@ -95,7 +95,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
               }
              */
 
-              Kidzou_Utils::log('Suppression du transient kz_notifications_content');
+              // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
               delete_transient('kz_notifications_content_offres');
               delete_transient('kz_notifications_content_page');
               delete_transient('kz_notifications_content_post');
@@ -190,7 +190,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
                 'title'     => __('G&eacute;olocalisation', 'kidzou'),
-                'desc'      => __('lorem ipsum', 'kidzou'),
+                'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, c&apos;est la <strong>M&eacute;tropole &agrave; port&eacute;e &eacute;tendue qui sera utilis&eacute;e</strong>. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
                 'icon'      => 'el-icon-compass',
                 'fields'    => array(
 
@@ -202,34 +202,11 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
-                            'id'        => 'geo_default_metropole',
-                            'type'      => 'select',
-                            'data' => 'terms',
-                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
-                            'title'     => __('Ville par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_lat',
-                            'type'      => 'text',
-                            'title'     => __('Latitude de la ville par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_lng',
-                            'type'      => 'text',
-                            'title'     => __('Longitude de la ville par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
-                        ),
-
-                        array(
                             'id'        => 'geo_national_metropole',
                             'type'      => 'select',
                             'data' => 'terms',
                             'args' => array('taxonomies'=>'ville', 'args'=>array()),
-                            'title'     => __('Ville &agrave; port&eacute;e nationale', 'kidzou'),
+                            'title'     => __('Quelle ville a une port&eacute;e &eacute;tendue ?', 'kidzou'),
                             'subtitle'  => __('Lorsque des contenus y sont attach&eacute;s, ils sont visibles pour tous les utilisateurs quelque soit leur m&eacute;tropole de rattachement', 'kidzou'),
                         ),
                     )
@@ -366,32 +343,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'compiler'  => true
                     ),
 
-                    // array(
-                    //     'id' => 'notifications_delay',
-                    //     'type' => 'slider',
-                    //     'title' => __('D&eacute;lais (en secondes) avant affichage d&apos;une notification', 'kidzou'),
-                    //     'subtitle' => __('Le d&eacute;lais court &agrave; partir du moment o&ugrave; la page est charg&eacute;e', 'kidzou'),
-                    //     'desc' => __('Min: 0 secondes , max: 30 secondes, par d&eacute;faut : 2 secondes', 'kidzou'),
-                    //     "default" => 2,
-                    //     "min" => 0,
-                    //     "step" => 0.5,
-                    //     "max" => 30,
-                    //     'display_value' => 'text',
-                    // ),
-
-                    // array(
-                    //     'id' => 'notifications_duration',
-                    //     'type' => 'slider',
-                    //     'title' => __('Dur&eacute;e d&apos;affichage d&apos;une notification', 'kidzou'),
-                    //     'subtitle' => __('Combien de temps une notification doit-elle rester affich&eacute;e &agrave; l&apos;&eacute;cran', 'kidzou'),
-                    //     'desc' => __('Min: 3 seconde , max: 30 secondes, par d&eacute;faut : 5 secondes', 'kidzou'),
-                    //     "default" => 5,
-                    //     "min" => 3,
-                    //     "step" => 0.5,
-                    //     "max" => 30,
-                    //     'display_value' => 'text'
-                    // ),
-
                     array(
                         'id'       => 'notifications_post_type',
                         'type'     => 'checkbox',
@@ -414,12 +365,20 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     
                     ),
 
+                    array(
+                        'id'       => 'notifications_message_title',
+                        'type'     => 'text',
+                        'title'    => __('Titre de la boite de notification', 'kidzou'),
+                        'subtitle' => __('Ce titre surplombe les suggestion d&apos;article qui apparaissent dans la boite de notification', 'kidzou'),
+                        'desc'     => __('ce texte est entour&eacute; d&apos;un &lt;h3&gt; dans la boite de notification. <b>Il n&apos;apparait pas lorsque la notification concerne une suggestion de vote</b>', 'kidzou'),
+                    ),
+
                      array(
                         'id'       => 'notifications_context',
                         'type'     => 'radio',
                         'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
-                        'subtitle' => __('todo', 'kidzou'),
-                        'desc'     => __('todo.', 'kidzou'),
+                        'subtitle' => __('Un m&ecirc;me message apprait a quelle frequence ?', 'kidzou'),
+                        // 'desc'     => __('todo.', 'kidzou'),
                         //Must provide key => value pairs for radio options
                         'options'  => array(
                             'daily' => '1 fois par jour', 

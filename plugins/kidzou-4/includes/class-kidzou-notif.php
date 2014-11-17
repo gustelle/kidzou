@@ -88,6 +88,7 @@ class Kidzou_Notif {
 				
 				'messages'				=> self::get_messages(),
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
+				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
 				// 'delay'					=> (int)Kidzou_Utils::get_option('notifications_delay', 0),
 				// 'duration'				=> (int)Kidzou_Utils::get_option('notifications_duration', 3)
 			)
@@ -140,7 +141,6 @@ class Kidzou_Notif {
 								'icon' 		=> '<i class="fa fa-heart-o fa-3x vote"></i>',
 							);
 
-						Kidzou_Utils::log('taille du content ' . count($content));
 					}
 
 					$featured = Kidzou_Events::getFeaturedPosts();
@@ -154,34 +154,24 @@ class Kidzou_Notif {
 
 					$posts_list = array_merge($featured, $include_posts);
 
-					// Kidzou_Utils::log('posts list');
-					// Kidzou_Utils::log($posts_list);
 
 					foreach ($posts_list as $post) {
 
 						setup_postdata( $post ); 
+	
+						$content[] = array(
+								'id'		=> get_the_ID(),
+								'title' 	=> get_the_title(),
+								'body' 		=> get_the_excerpt(),
+								'target' 	=> get_permalink(),
+								'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
+							);
 
-						//si l'utilisateur est déjà sur le featured... on n'envoie pas la notification
-						// if ( get_the_ID() != $current_post_id ) {
-
-							// Kidzou_Utils::log('ajout dans content : ' . get_the_ID());
-
-							$content[] = array(
-									'id'		=> get_the_ID(),
-									'title' 	=> get_the_title(),
-									'body' 		=> get_the_excerpt(),
-									'target' 	=> get_permalink(),
-									'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
-								);
-
-							// Kidzou_Utils::log('taille du content ' . count($content));
-						// }
 					}
 					
 					wp_reset_postdata();
 
 					set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
-					Kidzou_Utils::log('kz_notifications_content ' . count($content));
 
 				}
 

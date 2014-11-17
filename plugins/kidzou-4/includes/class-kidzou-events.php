@@ -91,7 +91,8 @@ class Kidzou_Events {
 	
 
 	/**
-	 * ON considere un post de type evenement si les dates ne sont pas nulles
+	 * On considere un post de type evenement si les dates ne sont pas nulles
+	 * il s'agit d'un hack pour tenir compte d'un legacy ou les event étaient des post types différents des posts normaux
 	 *
 	 */ 
     public static function isTypeEvent($event_id=0) {
@@ -109,7 +110,7 @@ class Kidzou_Events {
     }
 
     /**
-	 * undocumented function
+	 * Un evenement est actif si la date de fin est postérieure à la date courante
 	 *
 	 * @return true si l'événement est en cours, false si il est terminé ou pas visible
 	 * @author 
@@ -168,7 +169,8 @@ class Kidzou_Events {
 	}
 
 	/**
-	 * la liste des post featured
+	 * la liste des post featured 
+	 * il s'agit d'un tableau d'objets WP_Post
 	 *
 	 * @return void
 	 * @author 
@@ -176,21 +178,6 @@ class Kidzou_Events {
 	public static function getFeaturedPosts(  )
 	{
 		
-
-		// global $wpdb;
-		// $table = $wpdb->prefix.'posts';
-		// $table_meta = $wpdb->prefix.'postmeta';
-
-		// $meta_key = self::$meta_featured;
-
-		// $results = $wpdb->get_results( "
-		// 	SELECT p.ID, p.post_title FROM $table p 
-		// 		INNER JOIN $table_meta m on (p.ID = m.post_id)
-		// 	WHERE 
-		// 		1=1
-		// 	AND m.meta_key = '$meta_key' AND m.meta_value = 'A' 
-		// 	AND p.post_type in ('post', 'offres')
-		// 	AND p.post_status =  'publish'", OBJECT );
 
 		$list = get_posts(array(
 					'meta_key'         => self::$meta_featured,

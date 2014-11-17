@@ -3387,4 +3387,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item_featured {width: 580px;}
 }
 
-
+/*-------------------[Metropoles / Header]------------------*/
+#kz-villes {float: left; padding-left: 30px; font-size: 1.2em;}
+@media only screen and ( max-width: 767px ) {
+	#kz-villes {display: none;}
+}

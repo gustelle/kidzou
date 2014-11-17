@@ -104,7 +104,42 @@
 						echo $et_secondary_nav;
 					}
 				?>
+
 				</div> <!-- #et-info -->
+
+				<div id="kz-villes">
+					<?php
+
+						//les différentes métropoles dispo
+						$metropoles = Kidzou_Geo::get_metropoles();
+						$ttes_metros = '';
+
+						if (count($metropoles)>1) 
+						{
+							$ttes_metros .= '<i class="fa fa-map-marker"></i>';
+
+							$i=0;
+							foreach ($metropoles as $m) {
+
+								if ($i>0)
+									$ttes_metros .= '&nbsp;|&nbsp;';
+
+								$ttes_metros .= sprintf(
+									'<a class="et_nav_text_color_light" href="%s" alt="%s" title="%s">%s</a>',
+									site_url().'/'.$m->slug,
+									$m->name,
+									__( 'Changer de ville', 'kidzou' ),
+									$m->name
+								);
+
+								$i++;
+
+							}
+						}
+
+						echo $ttes_metros;
+					?>
+				</div>
 
 
 				<div id="et-secondary-menu">

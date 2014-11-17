@@ -418,9 +418,6 @@ var kidzouNotifier = (function(){
 	//les notifications pour cette page (ce contexte)
 	//Une notification est composée d'un contexte + un ensemble de message {context: xx, messages: [xx,xx,xx]}
 	var thisContextNotifications = null;
-
-	//les messages pour ce contexte 
-	// var thisContextMessages =  null;
 		
 
 	//les messages qui font sens pour cette page
@@ -448,7 +445,6 @@ var kidzouNotifier = (function(){
 
 			//si le post est déjà voté, on écarte le message d'incitation au vote
 			//de même si le post à recommander est déjà le post sur lequel on se trouve
-			// console.debug("_is_page_voted " + _is_page_voted);
 			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) amess.readMe();
 			
 			ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
@@ -462,7 +458,10 @@ var kidzouNotifier = (function(){
 	
 	}
 	
-
+	/**
+	 * chaque message de notification est un modle objet
+	 * 
+	 */ 
 	function Message(_id, _title, _body, _target, _icon) {
 
 		var self = this;
@@ -526,12 +525,10 @@ var kidzouNotifier = (function(){
 	 * choix du message a afficher
 	 */
 	function chooseMessage (messages) {
+		
 		var unread = ko.utils.arrayFilter(messages, function(m) {
             return !m.readFlag;
         });
-
-        // var nextMessage = unread[Math.floor(Math.random()*unread.length)];
-      	// return nextMessage;
 
       	//ke premier de la liste
       	return unread[0];
@@ -549,13 +546,14 @@ var kidzouNotifier = (function(){
 		//Attention, le votable est le modele objet du coeur toute en haut de la page
 		var votable = kidzouModule.getVotesModel().getVotableItem( current_page_id );
 
+		//le contenu de la boite de notif dépend si c'est un vote ou non
 		var is_vote = (m.id=='vote');
 
 		var href = (is_vote ? "" : 'href="' + m.target + '"');
 		var classes = (is_vote ? "votable_notification" : "notification" );
 
 		if (!is_vote)
-			boxcontent += '<h3>Nous vous recommandons : </h3>';
+			boxcontent += '<h3>' + kidzou_notif.message_title + '</h3>';
 
 		boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
 		
@@ -567,7 +565,7 @@ var kidzouNotifier = (function(){
 		  });
 
 		jQuery('.notification').click(function() {
-			kidzouTracker.trackEvent("Notification", "Click", m.target , 0);
+			kidzouTracker.trackEvent("Notification", "Suivi de suggestion", m.target , 0);
 		});
 
 		jQuery('.close').click(function() {
@@ -611,10 +609,7 @@ var kidzouNotifier = (function(){
 					var messages = getUnreadMessages(result, kidzouModule.getCurrentPageId() );
 					var message = chooseMessage(messages) ;
 
-					if (message !=null && (typeof message!='undefined') )
-						displayMessage(message);
-					// else
-					// 	console.debug('aucun message à afficher');
+					if (message !=null && (typeof message!='undefined') ) displayMessage(message);
 
 				});
 		

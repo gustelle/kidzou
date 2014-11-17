@@ -121,9 +121,6 @@ class Kidzou_Admin {
 		//sauvegarde des meta à l'enregistrement
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
-		//affichage
-		// add_filter('default_hidden_meta_boxes', array($this,'hide_metaboxes'), 10, 2);
-		// add_action('wp_dashboard_setup', array($this,'remove_dashboard_widgets') );
 
 		//http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
 		add_filter('wp_handle_upload_prefilter', array($this, 'handle_upload_prefilter'));
@@ -143,13 +140,6 @@ class Kidzou_Admin {
 		add_action( 'edit_user_profile', array($this,'enrich_profile') );
 		add_action( 'edit_user_profile_update', array($this,'save_user_profile') );
 
-		/**
-		 * custom view pour les contribs
-		 *
-		 */
-		// add_action( 'admin_menu' , array($this,'remove_metaboxes' ) );
-		// add_action( 'admin_bar_menu', array($this, 'remove_media_node') , 999 );
-		// add_action( 'wp_dashboard_setup', array($this,'wptutsplus_add_dashboard_widgets' ));
 
 		/**
 		 * filtre la liste des evenements dans l'écran d'admin pour que les 'pro', contrib et auteurs
@@ -1576,6 +1566,9 @@ class Kidzou_Admin {
 
 	/**
 	 * rattache un post à une metropole
+	 * 
+	 * les "editeurs" ou supérieur peuvent forcer la metropole (saisie manuelle)
+	 * les autres : la metropole est rattachée automatiquement en fonction de leur profil
 	 *
 	 * @return void
 	 * @author 
@@ -1584,7 +1577,7 @@ class Kidzou_Admin {
 	{
 		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	    
-	    if ( current_user_can( 'manage_options', $post_id )) {
+	    if ( current_user_can( 'edit_published_posts', $post_id )) {
 
 	    
 	    } else {
