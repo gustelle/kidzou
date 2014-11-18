@@ -105,6 +105,7 @@ class Kidzou_Notif {
 
 		$messages = array();
 		$content = array();
+		
 		$current_post_id = $post->ID;
 
 		$activate = (bool)Kidzou_Utils::get_option('notifications_activate', false);

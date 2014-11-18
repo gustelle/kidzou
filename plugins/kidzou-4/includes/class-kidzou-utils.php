@@ -76,7 +76,7 @@ class Kidzou_Utils {
 
 	public static function log( $log ) {
 
-        if ( true === WP_DEBUG ) {
+        if ( true === WP_DEBUG && current_user_can('manage_options') ) {
             if ( is_array( $log ) || is_object( $log ) ) {
                 error_log( print_r( $log, true ) );
             } else {

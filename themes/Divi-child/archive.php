@@ -169,9 +169,9 @@
 															setlocale(LC_TIME, "fr_FR"); 
 
 															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-																$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+																$formatted = __( 'Le ', 'Divi'). strftime("%A %d %B", $start->getTimestamp() ) ;
 															else
-																$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
+																$formatted = __( 'Du ', 'Divi'). strftime("%d %b", $start->getTimestamp()).__(' au ', 'Divi').strftime("%d %b", $end->getTimestamp() );
 														?>
 															<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
 														

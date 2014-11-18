@@ -75,9 +75,9 @@
 								setlocale(LC_TIME, "fr_FR"); 
 
 								if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-									$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+									$formatted = __( 'Le ', 'Divi'). strftime("%A %d %B", $start->getTimestamp() ) ;
 								else
-									$formatted = __( 'Du '. strftime("%A %d %B", $start->getTimestamp()).' au '.strftime("%A %d %B", $end->getTimestamp()), 'Divi' );
+									$formatted = __( 'Du ', 'Divi'). strftime("%A %d %B", $start->getTimestamp() ).__(' au ', 'Divi').strftime("%A %d %B", $end->getTimestamp() );
 							?>
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php echo '<p class="location font-2x"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>

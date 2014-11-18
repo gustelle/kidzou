@@ -149,6 +149,10 @@ class Kidzou_Geo {
 	    if( !is_admin() && !is_search() ) {
 
 	        $the_metropole = array(self::get_request_metropole());
+
+	        // Kidzou_Utils::log("request metropole : " );
+	        // Kidzou_Utils::log($the_metropole);
+
 	        $national = (array)self::get_national_metropoles(); 
 	       	$merge = array_merge( $the_metropole, $national );
 
@@ -194,6 +198,9 @@ class Kidzou_Geo {
 
 	        }
 
+	        // Kidzou_Utils::log('geo_filter_query');
+	        // Kidzou_Utils::log($vars);
+
 	        return $query;
 	    }
 
@@ -226,8 +233,13 @@ class Kidzou_Geo {
 	            }
 	        }   
 
+	        // Kidzou_Utils::log('get_metropoles');
+	        // Kidzou_Utils::log($result);
+
 	        set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
 	    }
+
+	    // Kidzou_Utils::log($result);
 
 	    return $result;
     }
@@ -268,6 +280,8 @@ class Kidzou_Geo {
 		{
 			$cook_m = strtolower($_GET['kz_metropole']);
 
+			// Kidzou_Utils::log('Metropole du Cookie : '.$cook_m);
+
 		    $isCovered = self::is_metropole($cook_m);
 
 		    if (!$isCovered)
@@ -291,13 +305,18 @@ class Kidzou_Geo {
 	    if ($m==null || $m=="")
 	        return false;
 
+	    // Kidzou_Utils::log('metroplle testée '.$m);
+
 	    //la ville du user est-elle couverte par Kidzou
 	    $villes  = self::get_metropoles();
+
 	    $isCovered = false;
-	    foreach ($villes as $key => $value) {
-	        if (is_string($value) && $m==strtolower($value))
+	    foreach ($villes as $v) {
+	        if ($v->slug == $m)
 	            $isCovered = true;
 	    }
+
+	    // Kidzou_Utils::log('Metropole[isCovered] =  '.$isCovered);
 
 	    return $isCovered;
 	}
