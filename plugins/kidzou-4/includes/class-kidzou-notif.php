@@ -89,8 +89,6 @@ class Kidzou_Notif {
 				'messages'				=> self::get_messages(),
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
-				// 'delay'					=> (int)Kidzou_Utils::get_option('notifications_delay', 0),
-				// 'duration'				=> (int)Kidzou_Utils::get_option('notifications_duration', 3)
 			)
 		);
 	}
@@ -130,17 +128,12 @@ class Kidzou_Notif {
 					
 					$cats = Kidzou_Utils::get_option('notifications_include_categories');
 
-					//pour les single, on pousse les reco dans la liste des messages
-					if (is_single()) {
+					$first_message  = Kidzou_Utils::get_option('notifications_first_message');
 
-						$content[] = array(
-								'id'		=> 'vote',
-								'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
-								'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Cliquez sur le coeur en haut de page ! ', 'kidzou' ),
-								'target' 	=> '#',
-								'icon' 		=> '<i class="fa fa-heart-o fa-3x vote"></i>',
-							);
-
+					if ('vote'==$first_message) 
+					{
+						//pour les single, on pousse les reco dans la liste des messages
+						if (is_single()) $content[] = self::get_vote_message();
 					}
 
 					$featured = Kidzou_Events::getFeaturedPosts();
@@ -171,6 +164,12 @@ class Kidzou_Notif {
 					
 					wp_reset_postdata();
 
+					if ('vote'!=$first_message) 
+					{
+						//pour les single, on pousse les reco dans la liste des messages
+						if (is_single()) $content[] = self::get_vote_message();
+					}
+
 					set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
 
 				}
@@ -183,6 +182,19 @@ class Kidzou_Notif {
 
 		return $messages;
 	}
+
+	public static function get_vote_message() {
+
+		return array(
+				'id'		=> 'vote',
+				'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
+				'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Cliquez sur le coeur en haut de page ! ', 'kidzou' ),
+				'target' 	=> '#',
+				'icon' 		=> '<i class="fa fa-heart-o fa-3x vote"></i>',
+			);
+
+	}
+
 
 } //fin de classe
 

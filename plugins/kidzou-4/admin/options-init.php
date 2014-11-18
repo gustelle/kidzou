@@ -344,6 +344,18 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     ),
 
                     array(
+                        'id'       => 'notifications_first_message',
+                        'type'     => 'radio',
+                        'title'    => __('Ordre des messages', 'kidzou'), 
+                        'subtitle' => __('si plusieurs messages sont dans la queue, lequel afficher en premier ?', 'kidzou'),
+                        'options'  => array(
+                            'vote' => 'Inciter l&apos;utilisateur a clicker sur le coeur de recommandation', 
+                            'featured' => 'Les post featured', 
+                        ),
+                        'default' => 'vote'
+                    ),
+
+                    array(
                         'id'       => 'notifications_post_type',
                         'type'     => 'checkbox',
                         'title'    => __('Activer les notifications pour les types de contenu :', 'kidzou'), 
