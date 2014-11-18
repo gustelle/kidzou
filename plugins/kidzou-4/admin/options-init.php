@@ -350,7 +350,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'subtitle' => __('si plusieurs messages sont dans la queue, lequel afficher en premier ?', 'kidzou'),
                         'options'  => array(
                             'vote' => 'Inciter l&apos;utilisateur a clicker sur le coeur de recommandation', 
-                            'featured' => 'Les post featured', 
+                            'featured' => 'Les post featured d&apos;abord !', 
                         ),
                         'default' => 'vote'
                     ),
