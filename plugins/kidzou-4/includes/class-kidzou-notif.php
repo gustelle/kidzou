@@ -105,79 +105,84 @@ class Kidzou_Notif {
 
 		$messages = array();
 		$content = array();
-		
-		$current_post_id = $post->ID;
 
-		$activate = (bool)Kidzou_Utils::get_option('notifications_activate', false);
-		$notification_types = Kidzou_Utils::get_option('notifications_post_type', array());
-		$post_type = get_post_type( $current_post_id );
-		$frequency = Kidzou_Utils::get_option('notifications_context');
-
-		if ($frequency == 'page')
-			$messages['context'] = $post->ID;
-		else 
-			$messages['context'] = $frequency;
-
-		if ($activate && ( is_page() || is_single() ) ) 
+		//Der erreurs surviennent parfois ?! 
+		if ( !is_wp_error($post) && $post!=null) 
 		{
-			//seulement si les notifs sont activées pour le type de post courant
-			if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
+			$current_post_id = $post->ID;
 
-				$content = get_transient('kz_notifications_content_' .$post_type);
+			$activate = (bool)Kidzou_Utils::get_option('notifications_activate', false);
+			$notification_types = Kidzou_Utils::get_option('notifications_post_type', array());
+			$post_type = get_post_type( $current_post_id );
+			$frequency = Kidzou_Utils::get_option('notifications_context');
 
-				if ( false===$content || empty($content) ) {
-					
-					$cats = Kidzou_Utils::get_option('notifications_include_categories');
+			if ($frequency == 'page')
+				$messages['context'] = $post->ID;
+			else 
+				$messages['context'] = $frequency;
 
-					$first_message  = Kidzou_Utils::get_option('notifications_first_message');
+			if ($activate && ( is_page() || is_single() ) ) 
+			{
+				//seulement si les notifs sont activées pour le type de post courant
+				if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
 
-					if ('vote'==$first_message) 
-					{
-						//pour les single, on pousse les reco dans la liste des messages
-						if (is_single()) $content[] = self::get_vote_message();
-					}
+					$content = get_transient('kz_notifications_content_' .$post_type);
 
-					$featured = Kidzou_Events::getFeaturedPosts();
-					$include_posts = array();
+					if ( false===$content || empty($content) ) {
+						
+						$cats = Kidzou_Utils::get_option('notifications_include_categories');
 
-					//inclure des catégories supplémentaires
-					if ($cats!=null && count($cats)>0) {
-						$cats_list = implode(",", $cats);
-						$include_posts = get_posts(array('category' => $cats_list));
-					}
+						$first_message  = Kidzou_Utils::get_option('notifications_first_message');
 
-					$posts_list = array_merge($featured, $include_posts);
+						if ('vote'==$first_message) 
+						{
+							//pour les single, on pousse les reco dans la liste des messages
+							if (is_single()) $content[] = self::get_vote_message();
+						}
+
+						$featured = Kidzou_Events::getFeaturedPosts();
+						$include_posts = array();
+
+						//inclure des catégories supplémentaires
+						if ($cats!=null && count($cats)>0) {
+							$cats_list = implode(",", $cats);
+							$include_posts = get_posts(array('category' => $cats_list));
+						}
+
+						$posts_list = array_merge($featured, $include_posts);
 
 
-					foreach ($posts_list as $post) {
+						foreach ($posts_list as $post) {
 
-						setup_postdata( $post ); 
-	
-						$content[] = array(
-								'id'		=> get_the_ID(),
-								'title' 	=> get_the_title(),
-								'body' 		=> get_the_excerpt(),
-								'target' 	=> get_permalink(),
-								'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
-							);
-
-					}
-					
-					wp_reset_postdata();
-
-					if ('vote'!=$first_message) 
-					{
-						//pour les single, on pousse les reco dans la liste des messages
-						if (is_single()) $content[] = self::get_vote_message();
-					}
-
-					set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
-
-				}
-
-			}  //si dans le bon type de contenu
+							setup_postdata( $post ); 
 		
-		} //si actif
+							$content[] = array(
+									'id'		=> get_the_ID(),
+									'title' 	=> get_the_title(),
+									'body' 		=> get_the_excerpt(),
+									'target' 	=> get_permalink(),
+									'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
+								);
+
+						}
+						
+						wp_reset_postdata();
+
+						if ('vote'!=$first_message) 
+						{
+							//pour les single, on pousse les reco dans la liste des messages
+							if (is_single()) $content[] = self::get_vote_message();
+						}
+
+						set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
+
+					}
+
+				}  //si dans le bon type de contenu
+			
+			} //si actif
+		}
+		
 
 		$messages['content'] = $content;
 

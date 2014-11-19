@@ -145,22 +145,30 @@ class Kidzou_Geo {
 	 */
 	public static function geo_filter_query( $query ) {
 
-		//les pages n'ont pas de taxo "ville", il faut les exclure du filtre
+       	//les pages woo commerce n'ont pas a etre filtrées par metropole
+		//sinon les produits n'apparaissent plus dans les cats...
+  
+       	$supported_taxonomies = array('age', 'ville', 'divers', 'category','post_tag');
+       	$queried_object = get_queried_object();
+
+       	if (is_wp_error($queried_object) || $queried_object==null)
+       		return $query;
+
+       	if (!property_exists($queried_object, 'taxonomy') || !in_array($queried_object->taxonomy, $supported_taxonomies))
+       		return $query;
+
 	    if( !is_admin() && !is_search() ) {
 
 	        $the_metropole = array(self::get_request_metropole());
 
-	        // Kidzou_Utils::log("request metropole : " );
-	        // Kidzou_Utils::log($the_metropole);
-
 	        $national = (array)self::get_national_metropoles(); 
 	       	$merge = array_merge( $the_metropole, $national );
+
+	        $ville_tax_present = false;
 
 	        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
 	        //d'ou l'importance d'executer celle-ci en dernier
 	        $vars = get_query_var('tax_query'); 
-
-	        $ville_tax_present = false;
 
 	        if (isset($vars['taxonomy']) && $vars['taxonomy']=='ville')
 	        	$ville_tax_present = true;
@@ -197,9 +205,6 @@ class Kidzou_Geo {
 	            set_query_var('tax_query', $vars);
 
 	        }
-
-	        // Kidzou_Utils::log('geo_filter_query');
-	        // Kidzou_Utils::log($vars);
 
 	        return $query;
 	    }
