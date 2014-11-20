@@ -42,13 +42,22 @@ class Kidzou_Admin {
 	protected $plugin_screen_hook_suffix = null;
 
 	/**
-	 * les ecrans qui meritent qu'on y ajoute des meta 
+	 * les ecrans qui meritent qu'on y ajoute des meta  d'evenement
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      string
 	 */
-	protected $screen_with_meta = array('post', 'offres');
+	protected $screen_with_meta_event = array('post', 'offres');
+
+	/**
+	 * les ecrans qui meritent qu'on y ajoute des meta  client
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      string
+	 */
+	protected $screen_with_meta_client = array('post', 'offres', 'product');
 
 	/**
 	 * les ecrans customer, ils sont particuliers et ne bénéficient pas des 
@@ -396,7 +405,7 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta)  ) {
+		if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
 
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Kidzou::VERSION );
 		
@@ -436,7 +445,8 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta) ) {
+		//ajout de la meta client
+		if (in_array($screen->id , $this->screen_with_meta_client) ) {
 
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
 
@@ -451,6 +461,11 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
+
+		}  
+
+		if ( in_array($screen->id , $this->screen_with_meta_event) ) {
+
 			//selection des places dans Google Places
 			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', __FILE__ ),array('jquery-select2', 'google-maps'), '1.0', true);
 			
@@ -520,9 +535,14 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta) ) { 
+		if ( in_array($screen->id , $this->screen_with_meta_client) ) { 
 
 			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
+		
+		} 
+
+		if ( in_array($screen->id , $this->screen_with_meta_event) ) { 
+
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
 		
@@ -551,7 +571,7 @@ class Kidzou_Admin {
 		global $post;
 
 		$args = array(
-			'post_type' => array('post','offres'),
+			'post_type' => Kidzou_Customer::$supported_post_types,
 		   'meta_query' => array(
 		       array(
 		           'key' => Kidzou_Customer::$meta_customer,
@@ -634,16 +654,6 @@ class Kidzou_Admin {
 			}
 		}
 
-		// print_r($user_query);
-
-		//plus tard:
-		// $user_query = new WP_User_Query( array( 
-		// 	'meta_key' => 'kz_customer', 
-		// 	'meta_value' => $post_id , 
-		// 	'role' => 'editor' , 
-		// 	'fields' => array('ID', 'user_login') 
-		// 	) 
-		// );
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
@@ -661,19 +671,10 @@ class Kidzou_Admin {
 			</ul>',
 			$main_users
 		);
-			// $second_users
-			//);
+
 
 		echo $output;
 
-		//plus tard
-		//
-		// <li>
-		// 	<label for="second_users_input" style="display:block;">
-		// 		Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus
-		// 	</label>
-		// 	<input type="hidden" name="second_users_input" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
-		// </li>
 
 	}
 
@@ -764,7 +765,7 @@ class Kidzou_Admin {
 
 		$clients = array();
 		$args = array(
-				'post_type' => 'customer', 
+				'post_type' => Kidzou_Customer::$post_type, 
 				'order' => 'ASC', 
 				'orderby' => 'title', 
 				'posts_per_page' => -1,
@@ -776,9 +777,7 @@ class Kidzou_Admin {
 		if ( !current_user_can( 'edit_published_posts' ) ) {
 
 			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
-
-			Kidzou_Utils::log(  'client_metabox [getCustomersIDByUserID] -> ' . count($user_customers) );
-			
+		
 			//si le user est affecté à au moins un client, on filtre la liste des clients
 
 			if (count($user_customers)>0)
@@ -843,8 +842,7 @@ class Kidzou_Admin {
 	public function event_metabox()
 	{
 		global $post; 
-		// global $wpdb;
-		
+
 		$checkbox = false;
 
 		// Noncename needed to verify where the data originated
@@ -1479,7 +1477,7 @@ class Kidzou_Admin {
 		       )
 		   ),
 		   'post_per_page' => -1,
-		   'post_type' => array('offres', 'post')
+		   'post_type' => Kidzou_Customer::$supported_post_types
 		);
 		$query = new WP_Query($args);
 

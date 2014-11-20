@@ -56,7 +56,7 @@ class JSON_API_Clients_Controller {
 		$posts = $json_api->introspector->get_posts( array(
 				'post_title' => $term,
 				'posts_per_page' => 10,
-				'post_type' => array('post', 'offres'),
+				'post_type' => Kidzou_Customer::$supported_post_types,
 				'meta_query' => array(
 			        'relation' => 'OR',
 			            array( // new and edited posts
@@ -105,9 +105,9 @@ class JSON_API_Clients_Controller {
 		$id 		= $json_api->query->id; 	//ID du client
 
 		$posts = $json_api->introspector->get_posts(array(
-				'post_type' => array('post','offres'), 
+				'post_type' => Kidzou_Customer::$supported_post_types, 
 				'post_status' => 'publish' ,
-				'meta_key' => 'kz_customer',
+				'meta_key' => Kidzou_Customer::$meta_customer,
 				'meta_value' => $id,
 			));
 

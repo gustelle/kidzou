@@ -56,19 +56,25 @@ class Kidzou_Customer {
 
 	public static $meta_customer = 'kz_customer';
 
-	// public static $meta_customer_users = 'kz_customer_users';
-
-	// public static $meta_customer_posts = 'kz_customer_posts';
-
 	public static $meta_api_key = 'kz_api_key';
 
 	public static $meta_api_quota = 'kz_api_quota';
 
 	public static $meta_api_usage = 'kz_api_usage';
 
+	/**
+	 * Le post type d'un customer
+	 *
+	 */
 	public static $post_type = 'customer';
 
-	
+	/**
+	 * Les post types supportés pour se raccrocher à un customer
+	 *
+	 */
+	public static $supported_post_types = array('product', 'post', 'offres' );
+
+
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -213,7 +219,6 @@ class Kidzou_Customer {
 		$posts = array();
 
 		if ($customer_id==0) {
-			// global $post;
 
 			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
 
@@ -225,7 +230,7 @@ class Kidzou_Customer {
 
 		$defaults = array(
 			'posts_per_page' => 4,
-			'post_type' => array('post', 'offres'),
+			'post_type' => self::$supported_post_types,
 			'post__not_in' => array( $post->ID ) //exclure le post courant 
 		);
 
@@ -244,6 +249,7 @@ class Kidzou_Customer {
 
 		$rd_args = array(
 			'posts_per_page' => $posts_per_page,
+			'post_type' => self::$supported_post_types,
 			'meta_key' => self::$meta_customer,
 			'meta_value' => $customer_id,
 			'post__not_in'=> $post__not_in,
@@ -252,10 +258,11 @@ class Kidzou_Customer {
 		 
 		$rd_query = new WP_Query( $rd_args );
 
-		$list = 	$rd_query->get_posts(); 
+		Kidzou_Utils::log('getPostsByCustomerID ');
 
-		//Reutiliser le tri disponible dans Kidzou_Events
-		//uasort($list, array( Kidzou_Events::get_instance(), "sort_by_featured" ) );
+		Kidzou_Utils::log($rd_query);
+
+		$list = 	$rd_query->get_posts(); 
 
 		return $list;
 
@@ -275,7 +282,7 @@ class Kidzou_Customer {
 
 		$customer_ids = get_user_meta($user_id, self::$meta_customer, false); 
 
-		Kidzou_Utils::log( 'getCustomersIDByUserID -> ' . count($customer_ids) );
+		// Kidzou_Utils::log( 'getCustomersIDByUserID -> ' . count($customer_ids) );
 
 		//supprimer les révisions et autrs
 		return array_filter($customer_ids, function($item) {

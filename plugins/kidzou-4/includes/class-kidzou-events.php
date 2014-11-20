@@ -9,6 +9,13 @@ if( !wp_next_scheduled( 'unpublish_posts' ) ) {
  
 add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
+//import RSS d'agenda
+if( !wp_next_scheduled( 'feed_import' ) ) {
+   wp_schedule_event( time(), 'daily', 'feed_import' );
+}
+ 
+add_action( 'feed_import', array( Kidzou_Events::get_instance(), 'feed_import_events') );
+
 
 /**
  * Kidzou
@@ -249,6 +256,27 @@ class Kidzou_Events {
 			Kidzou_Utils::log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
 
 		}
+
+	}
+
+	/**
+	 * Aspiration de l'agenda sur lille.fr
+	 *
+	 * 
+	 *
+	 */
+	public static function feed_import_events() {
+
+		Kidzou_Utils::log("feed_import_events " );
+
+		$content = file_get_contents("http://www.lille.fr/cms/agenda?template=events.rss&definitionName=events");
+	    $x = new SimpleXmlElement($content);
+
+	    Kidzou_Utils::log("feed_import_events after " );
+	     
+	    foreach($x->channel->item as $entry) {
+	        Kidzou_Utils::log("Import RSS : " . $entry->title );
+	    }
 
 	}
 
