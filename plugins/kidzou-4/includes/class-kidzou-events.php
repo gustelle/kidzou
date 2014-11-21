@@ -10,11 +10,11 @@ if( !wp_next_scheduled( 'unpublish_posts' ) ) {
 add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
 //import RSS d'agenda
-if( !wp_next_scheduled( 'feed_events' ) ) {
-   wp_schedule_event( time(), 'daily', 'feed_import' );
-}
+// if( !wp_next_scheduled( 'feed_events' ) ) {
+//    wp_schedule_event( time(), 'daily', 'feed_import' );
+// }
  
-add_action( 'feed_events', array( Kidzou_Events::get_instance(), 'getFeed') );
+// add_action( 'feed_events', array( Kidzou_Events::get_instance(), 'getFeed') );
 
 
 /**

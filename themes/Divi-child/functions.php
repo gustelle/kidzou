@@ -165,7 +165,7 @@ function get_post_footer()
 
 	if(!empty($lists) && is_array($lists)) {
 		$keys = array_keys($lists);
-		$key = $keys[1];
+		$key = $keys[2];
 
 		$posts_ids_objects = Kidzou_Geo::get_related_posts();
 		$ids = array();
