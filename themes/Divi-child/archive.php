@@ -166,12 +166,15 @@
 															$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 															$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 															$formatted = '';
-															setlocale(LC_TIME, "fr_FR"); 
+															// setlocale(LC_TIME, "fr_FR"); 
+
+															$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+															$formatter->setPattern('EEEE dd MMMM');
 
 															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-																$formatted = __( 'Le ', 'Divi'). strftime("%A %d %B", $start->getTimestamp() ) ;
+																$formatted = __( 'Le ', 'Divi'). $formatter->format($start) ;
 															else
-																$formatted = __( 'Du ', 'Divi'). strftime("%d %b", $start->getTimestamp()).__(' au ', 'Divi').strftime("%d %b", $end->getTimestamp() );
+																$formatted = __( 'Du ', 'Divi'). $formatter->format($start).__(' au ', 'Divi').$formatter->format($end);
 														?>
 															<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
 														

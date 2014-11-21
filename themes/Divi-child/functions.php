@@ -623,12 +623,14 @@ function kz_pb_portfolio( $atts ) {
 						$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 						$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 						$formatted = '';
-						setlocale(LC_TIME, "fr_FR"); 
+						// setlocale(LC_TIME, "fr_FR"); 
+						$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+						$formatter->setPattern('EEEE dd MMMM');
 
 						if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-							$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+							$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
 						else
-							$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
+							$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
 					
 					 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
 					

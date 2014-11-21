@@ -50,7 +50,7 @@ class Kidzou_Geo {
 	protected static $instance = null;
 
 	/**
-	 * Lorsqu'aucune ville n'est spécifiée dans la requete, la ville qui signifie "pas de filtrage" 
+	 * Lorsqu'aucune ville n'est spécifiée dans la requete, le mot clé dans la requete qui signifie "pas de filtrage" 
 	 *
 	 */
 	public static $no_filter = '-';
