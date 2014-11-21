@@ -15,7 +15,7 @@ var kidzouGeoContent = (function () {
 				getClosestContent(pos);
 			}); 
 		} else {
-			console.debug('Geoloc inactive');
+			//console.debug('Geoloc inactive');
 		}
 		
 
