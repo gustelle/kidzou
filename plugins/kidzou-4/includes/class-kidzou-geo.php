@@ -49,6 +49,12 @@ class Kidzou_Geo {
 	 */
 	protected static $instance = null;
 
+	/**
+	 * Lorsqu'aucune ville n'est spécifiée dans la requete, la ville qui signifie "pas de filtrage" 
+	 *
+	 */
+	public static $no_filter = '-';
+
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -106,6 +112,7 @@ class Kidzou_Geo {
 		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
   
 		$args = array(
+					'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
 					'geo_mapquest_key'			=> $key, 
 					'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
 					'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
@@ -146,8 +153,7 @@ class Kidzou_Geo {
 	public static function geo_filter_query( $query ) {
 
        	//les pages woo commerce n'ont pas a etre filtrées par metropole
-		//sinon les produits n'apparaissent plus dans les cats...
-  
+		//sinon les produits n'apparaissent plus dans les cats...  
        	$supported_taxonomies = array('age', 'ville', 'divers', 'category','post_tag');
        	$queried_object = get_queried_object();
 
@@ -157,9 +163,15 @@ class Kidzou_Geo {
        	if (!property_exists($queried_object, 'taxonomy') || !in_array($queried_object->taxonomy, $supported_taxonomies))
        		return $query;
 
+       	//si la requete ne fixe aucune metropole, on ne filtre rien
+       	if (self::get_request_metropole()==self::$no_filter)
+			return $query;
+
 	    if( !is_admin() && !is_search() ) {
 
-	        $the_metropole = array(self::get_request_metropole());
+	        $the_metropole = array();
+	  		if (self::get_request_metropole()!=self::$no_filter)
+	  			$the_metropole[] = self::get_request_metropole();
 
 	        $national = (array)self::get_national_metropoles(); 
 	       	$merge = array_merge( $the_metropole, $national );
@@ -275,6 +287,7 @@ class Kidzou_Geo {
 
 	/**
 	 * la metropole de rattachement de la requete
+	 * si aucune metropole ne sort de la requete, la chaine $no_filter est retournée
 	 *
 	 * @return String (slug)
 	 * @author 
@@ -285,17 +298,17 @@ class Kidzou_Geo {
 		{
 			$cook_m = strtolower($_GET['kz_metropole']);
 
-			// Kidzou_Utils::log('Metropole du Cookie : '.$cook_m);
-
 		    $isCovered = self::is_metropole($cook_m);
 
-		    if (!$isCovered)
-		        return self::get_default_metropole();
-		    else
-		        return $cook_m;
+		    // if (!$isCovered)
+		    //     return self::get_default_metropole();
+		    // else
+		    //     return $cook_m;
+		    if ($isCovered) return $cook_m;
 		}
 	    
-	    return self::get_default_metropole();
+	    // return self::get_default_metropole();
+	    return self::$no_filter;
 	}
 
 	/**
@@ -347,7 +360,7 @@ class Kidzou_Geo {
 	public static function rewrite_post_link( $permalink, $post ) {
 
 		//pas dans l'admin !
-		if (!is_admin()) {
+		if (!is_admin() ) {
 
 			$m = urlencode(self::get_request_metropole());
 
@@ -373,7 +386,7 @@ class Kidzou_Geo {
 	public static function rewrite_page_link( $link, $page ) {
 
 		//pas dans l'admin !
-		if (!is_admin()) {
+		if (!is_admin() ) {
 
 			$m = urlencode(self::get_request_metropole());
 
@@ -397,7 +410,7 @@ class Kidzou_Geo {
 
 	public static function rewrite_term_link( $url, $term, $taxonomy ) {
 
-		if (!is_admin()) {
+		if (!is_admin() ) {
 
 			// Check if the %kz_metropole% tag is present in the url:
 		    if ( false === strpos( $url, '%kz_metropole%' ) )
@@ -514,7 +527,7 @@ class Kidzou_Geo {
 	                $regexp .= '|';
 	            }
 	        }
-	        $regexp .= ')';
+	        $regexp .= '|'.self::$no_filter.')';
 
 			add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
 

@@ -10,11 +10,11 @@ if( !wp_next_scheduled( 'unpublish_posts' ) ) {
 add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
 //import RSS d'agenda
-if( !wp_next_scheduled( 'feed_import' ) ) {
+if( !wp_next_scheduled( 'feed_events' ) ) {
    wp_schedule_event( time(), 'daily', 'feed_import' );
 }
  
-add_action( 'feed_import', array( Kidzou_Events::get_instance(), 'feed_import_events') );
+add_action( 'feed_events', array( Kidzou_Events::get_instance(), 'getFeed') );
 
 
 /**
@@ -63,6 +63,12 @@ class Kidzou_Events {
 	protected static $instance = null;
 
 	public static $meta_featured = 'kz_event_featured';
+
+	/**
+	 * les types de posts qui supportent les meta event
+	 *
+	 */
+	public static $supported_post_types = array('post','offres');
 
 
 	/**
@@ -189,7 +195,7 @@ class Kidzou_Events {
 		$list = get_posts(array(
 					'meta_key'         => self::$meta_featured,
 					'meta_value'       => 'A',
-					'post_type'        => array('post','offres'),
+					'post_type'        => self::$supported_post_types,
 				));
 
 
@@ -265,7 +271,7 @@ class Kidzou_Events {
 	 * 
 	 *
 	 */
-	public static function feed_import_events() {
+	public static function getFeed() {
 
 		Kidzou_Utils::log("feed_import_events " );
 

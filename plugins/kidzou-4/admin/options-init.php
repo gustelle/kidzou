@@ -195,6 +195,13 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'fields'    => array(
 
                         array(
+                            'id'       => 'geo_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Activer la geolocalisation des contenus ?', 'kidzou'), 
+                            'default'  => '0',// 1 = on | 0 = off
+                        ),
+
+                        array(
                             'id'        => 'geo_mapquest_key',
                             'type'      => 'text',
                             'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
