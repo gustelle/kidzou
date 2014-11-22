@@ -276,7 +276,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
             
             $this->sections[] = array(
-                'title'     => __('API', 'kidzou'),
+                'title'     => __('API Kidzou', 'kidzou'),
                 'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
                 'icon'      => 'el-icon-rss',
                 'fields'    => array(
@@ -309,7 +309,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
-                'title'     => __('Espace Contributeurs (Pro)', 'kidzou'),
+                'title'     => __('Espace Contributeurs', 'kidzou'),
                 'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
                 'icon'      => 'el-icon-edit',
                 'fields'    => array(

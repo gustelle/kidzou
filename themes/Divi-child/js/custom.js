@@ -1895,6 +1895,7 @@
 				$firstname = $newsletter_container.find( 'input[name="et_pb_signup_firstname"]' ),
 				$lastname = $newsletter_container.find( 'input[name="et_pb_signup_lastname"]' ),
 				$email = $newsletter_container.find( 'input[name="et_pb_signup_email"]' ),
+				$zipcode = $newsletter_container.find( 'input[name="et_pb_signup_zipcode"]' ),
 				list_id = $newsletter_container.find( 'input[name="et_pb_signup_list_id"]' ).val(),
 				$result = $newsletter_container.find( '.et_pb_newsletter_result' ).hide(),
 				service = $(this).closest( '.et_pb_newsletter_form' ).data( 'service' ) || 'mailchimp';
@@ -1902,13 +1903,16 @@
 			$firstname.removeClass( 'et_pb_signup_error' );
 			$lastname.removeClass( 'et_pb_signup_error' );
 			$email.removeClass( 'et_pb_signup_error' );
+			$zipcode.removeClass( 'et_pb_signup_error' );
 
 			et_pb_remove_placeholder_text( $(this).closest( '.et_pb_newsletter_form' ) );
 
-			if ( $firstname.val() === '' || $email.val() === '' || list_id === '' ) {
+			if ( $firstname.val() === '' || $email.val() === '' || list_id === '' || $zipcode.val() === '' ) {
 				if ( $firstname.val() === '' ) $firstname.addClass( 'et_pb_signup_error' );
 
 				if ( $email.val() === '' ) $email.addClass( 'et_pb_signup_error' );
+
+				if ( $zipcode.val() === '' ) $zipcode.addClass( 'et_pb_signup_error' );
 
 				if ( $firstname.val() === '' )
 					$firstname.val( $firstname.siblings( '.et_pb_contact_form_label' ).text() );
@@ -1918,6 +1922,10 @@
 
 				if ( $email.val() === '' )
 					$email.val( $email.siblings( '.et_pb_contact_form_label' ).text() );
+
+				if ( $zipcode.val() === '' )
+					$zipcode.val( $zipcode.siblings( '.et_pb_contact_form_label' ).text() );
+
 
 				return;
 			}
@@ -1933,12 +1941,15 @@
 					et_firstname : $firstname.val(),
 					et_lastname : $lastname.val(),
 					et_email : $email.val(),
+					kz_zipcode : $zipcode.val(),
 					et_service : service
 				},
 				success: function( data ){
 					if ( data ) {
+						var obj = JSON.parse(data);
+						var message = obj.error || obj.success;
 						$newsletter_container.find( '.et_pb_newsletter_form > p' ).hide();
-						$result.html( data ).show();
+						$result.html( message ).show();
 					} else {
 						$result.html( et_custom.subscription_failed ).show();
 					}
