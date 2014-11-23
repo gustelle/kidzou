@@ -4,8 +4,8 @@ var kidzouGeoContent = (function () {
 
 		/////////////// Selection de Metropole dans la topnav ////////////////
 		//////////////////////////////////////
-
-		jQuery(".metropole").click(function(){
+		console.debug('hey');
+		jQuery(".metropole").click(function(){console.debug(this);
 			setCurrentMetropole(jQuery(this).data('metropole'));
 		});
 
@@ -14,10 +14,7 @@ var kidzouGeoContent = (function () {
 			getUserLocation(function(pos){
 				getClosestContent(pos);
 			}); 
-		} else {
-			//console.debug('Geoloc inactive');
-		}
-		
+		} 
 
 	});
 

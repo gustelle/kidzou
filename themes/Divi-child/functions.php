@@ -176,7 +176,7 @@ function kz_mailchimp_key()
  **/
 function get_post_footer()
 {
-
+	
 	$lists = et_pb_get_mailchimp_lists();
 
 	if(!empty($lists) && is_array($lists)) {
@@ -1450,7 +1450,8 @@ function kz_pb_map( $atts, $content = '' ) {
 		), $atts
 	) );
 
-	wp_enqueue_script( 'google-maps-api' );
+	if (!wp_script_is( 'google-maps-api', 'enqueued' )) 
+		wp_enqueue_script( 'google-maps-api' );
 
 	$all_pins_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
 

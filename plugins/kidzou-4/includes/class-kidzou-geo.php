@@ -2,7 +2,7 @@
 
 add_action('kidzou_loaded', array('Kidzou_Geo', 'get_instance'));
 /* seulement à l'activation du plugin */
-add_action( 'kidzou_activate', array('Kidzou_Geo', 'set_permalink_rules'));
+// add_action( 'kidzou_activate', array('Kidzou_Geo', 'set_permalink_rules'));
 
 /**
  * Kidzou
@@ -105,25 +105,71 @@ class Kidzou_Geo {
 	public function enqueue_geo_scripts()
 	{
 
-		wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
+		$active = Kidzou_Utils::get_option('geo_activate', false);
+		// $filterable = self::is_geo_filterable();
+		// Kidzou_Utils::log($active);
+		// Kidzou_Utils::log(is_admin());
+		// Kidzou_Utils::log($filterable);
+		if ($active && !is_admin() && self::is_geo_filterable())
+		{
+			wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
 
-		$villes = self::get_metropoles();
+			$villes = self::get_metropoles();
 
-		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
-  
-		$args = array(
-					'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
-					'geo_mapquest_key'			=> $key, 
-					'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
-					'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
-					'geo_default_metropole'		=> self::get_default_metropole(),
-					'geo_cookie_name'			=> "kz_metropole",
-					'geo_select_cookie_name'	=> "kz_metropole_selected",
-					'geo_possible_metropoles'	=> $villes ,
-				);
+			$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+	  
+			$args = array(
+						'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+						'geo_mapquest_key'			=> $key, 
+						'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
+						'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
+						'geo_default_metropole'		=> self::get_default_metropole(),
+						'geo_cookie_name'			=> "kz_metropole",
+						'geo_select_cookie_name'	=> "kz_metropole_selected",
+						'geo_possible_metropoles'	=> $villes ,
+					);
 
-	    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
+		    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
+		}
 
+	}
+
+	/**
+	 * déclenchée à l'actication de la geoloc
+	 * Mise à jour de la structure des permaliens Category et Tag
+	 *
+	 * Mise à jour du .htaccess avec les règles de geoloc
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function set_permalink_rules () {
+		
+		global $wp_rewrite;
+
+		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
+		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
+
+		self::create_rewrite_rules();
+		
+	}
+
+	/**
+	 * déclenchée à la desactivation de la geoloc
+	 * Mise à jour de la structure des permaliens Category et Tag
+	 *
+	 * Mise à jour du .htaccess avec les règles de geoloc
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function unset_permalink_rules () {
+		
+		global $wp_rewrite;
+
+		$wp_rewrite->set_category_base('rubrique/');
+		$wp_rewrite->set_tag_base('tag/');
+		
 	}
 
 	/**
@@ -132,15 +178,21 @@ class Kidzou_Geo {
 	 * @return void
 	 * @author 
 	 **/
-	public static function set_permalink_rules () {
-
-		global $wp_rewrite;
-
-		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
-		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
-
-		self::create_rewrite_rules();
+	public static function update_htaccess ()
+	{
+		
 	}
+
+	/**
+	 * True si la requete est filtrage par ville
+	 * cartaines requetes n'ont pas besoin d'être filtrées comme els API
+	 * 
+	 */
+	public static function is_geo_filterable( )
+	{
+		$f = preg_match("/\bapi\b/i", Kidzou_Utils::get_request_path());
+		return !$f;
+	} 
 
 
     /**
@@ -152,74 +204,79 @@ class Kidzou_Geo {
 	 */
 	public static function geo_filter_query( $query ) {
 
-       	//les pages woo commerce n'ont pas a etre filtrées par metropole
-		//sinon les produits n'apparaissent plus dans les cats...  
-       	$supported_taxonomies = array('age', 'ville', 'divers', 'category','post_tag');
-       	$queried_object = get_queried_object();
+		$active = Kidzou_Utils::get_option('geo_activate', false);
+		if ( $active && !is_admin() &&  self::is_geo_filterable() )
+		{
+			//les pages woo commerce n'ont pas a etre filtrées par metropole
+			//sinon les produits n'apparaissent plus dans les cats...  
+	       	$supported_taxonomies = array('age', 'ville', 'divers', 'category','post_tag');
+	       	$queried_object = get_queried_object();
 
-       	if (is_wp_error($queried_object) || $queried_object==null)
-       		return $query;
+	       	if (is_wp_error($queried_object) || $queried_object==null)
+	       		return $query;
 
-       	if (!property_exists($queried_object, 'taxonomy') || !in_array($queried_object->taxonomy, $supported_taxonomies))
-       		return $query;
+	       	if (!property_exists($queried_object, 'taxonomy') || !in_array($queried_object->taxonomy, $supported_taxonomies))
+	       		return $query;
 
-       	//si la requete ne fixe aucune metropole, on ne filtre rien
-       	if (self::get_request_metropole()==self::$no_filter)
-			return $query;
+	       	//si la requete ne fixe aucune metropole, on ne filtre rien
+	       	if (self::get_request_metropole()==self::$no_filter)
+				return $query;
 
-	    if( !is_admin() && !is_search() ) {
+		    if( !is_admin() && !is_search() ) {
 
-	        $the_metropole = array();
-	  		if (self::get_request_metropole()!=self::$no_filter)
-	  			$the_metropole[] = self::get_request_metropole();
+		        $the_metropole = array();
+		  		if (self::get_request_metropole()!=self::$no_filter)
+		  			$the_metropole[] = self::get_request_metropole();
 
-	        $national = (array)self::get_national_metropoles(); 
-	       	$merge = array_merge( $the_metropole, $national );
+		        $national = (array)self::get_national_metropoles(); 
+		       	$merge = array_merge( $the_metropole, $national );
 
-	        $ville_tax_present = false;
+		        $ville_tax_present = false;
 
-	        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
-	        //d'ou l'importance d'executer celle-ci en dernier
-	        $vars = get_query_var('tax_query'); 
+		        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
+		        //d'ou l'importance d'executer celle-ci en dernier
+		        $vars = get_query_var('tax_query'); 
 
-	        if (isset($vars['taxonomy']) && $vars['taxonomy']=='ville')
-	        	$ville_tax_present = true;
+		        if (isset($vars['taxonomy']) && $vars['taxonomy']=='ville')
+		        	$ville_tax_present = true;
 
-	        else if (is_array($vars)) {
-	        	foreach ($vars as $key => $value) {
-		        	
-	        		// print_r(array_keys($value));
-	        		if (is_array($value)) {
-	        			foreach ($value as $key => $value) {
-		        			if ($key == 'taxonomy' && $value=='ville') {
-		        				$ville_tax_present = true;
-		        				// echo 'found';
-		        			}
-		        				
+		        else if (is_array($vars)) {
+		        	foreach ($vars as $key => $value) {
+			        	
+		        		// print_r(array_keys($value));
+		        		if (is_array($value)) {
+		        			foreach ($value as $key => $value) {
+			        			if ($key == 'taxonomy' && $value=='ville') {
+			        				$ville_tax_present = true;
+			        				// echo 'found';
+			        			}
+			        				
+			        		}
+
 		        		}
+			        		
+			        }
 
-	        		}
-		        		
+		        }
+		        
+		        if (!$ville_tax_present)
+		        	$vars[] = array(
+		                      'taxonomy' => 'ville',
+		                      'field' => 'slug',
+		                      'terms' => $merge
+		                    );
+
+		        if (!empty($vars))
+		        {
+		            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
+		            set_query_var('tax_query', $vars);
+
 		        }
 
-	        }
-	        
-	        if (!$ville_tax_present)
-	        	$vars[] = array(
-	                      'taxonomy' => 'ville',
-	                      'field' => 'slug',
-	                      'terms' => $merge
-	                    );
+		        return $query;
+		    }
 
-	        if (!empty($vars))
-	        {
-	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
-	            set_query_var('tax_query', $vars);
-
-	        }
-
-	        return $query;
-	    }
+		}
 
 	    return $query;
 	}
@@ -250,13 +307,8 @@ class Kidzou_Geo {
 	            }
 	        }   
 
-	        // Kidzou_Utils::log('get_metropoles');
-	        // Kidzou_Utils::log($result);
-
 	        set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
 	    }
-
-	    // Kidzou_Utils::log($result);
 
 	    return $result;
     }
@@ -287,27 +339,25 @@ class Kidzou_Geo {
 
 	/**
 	 * la metropole de rattachement de la requete
-	 * si aucune metropole ne sort de la requete, la chaine $no_filter est retournée
+	 * si aucune metropole ne sort de la requete, et si aucun cookie n'est détecté, la chaine $no_filter est retournée
 	 *
 	 * @return String (slug)
 	 * @author 
 	 **/
 	public static function get_request_metropole()
 	{
-		if (isset($_GET['kz_metropole']))
+		if (isset($_GET['kz_metropole']) || isset($_COOKIE['kz_metropole']) )
 		{
-			$cook_m = strtolower($_GET['kz_metropole']);
+			if ( isset($_COOKIE['kz_metropole']) )
+				$cook_m = strtolower($_COOKIE['kz_metropole']);
+			else
+				$cook_m = strtolower($_GET['kz_metropole']);
 
 		    $isCovered = self::is_metropole($cook_m);
 
-		    // if (!$isCovered)
-		    //     return self::get_default_metropole();
-		    // else
-		    //     return $cook_m;
 		    if ($isCovered) return $cook_m;
 		}
 	    
-	    // return self::get_default_metropole();
 	    return self::$no_filter;
 	}
 
@@ -323,7 +373,6 @@ class Kidzou_Geo {
 	    if ($m==null || $m=="")
 	        return false;
 
-	    // Kidzou_Utils::log('metroplle testée '.$m);
 
 	    //la ville du user est-elle couverte par Kidzou
 	    $villes  = self::get_metropoles();
@@ -334,7 +383,6 @@ class Kidzou_Geo {
 	            $isCovered = true;
 	    }
 
-	    // Kidzou_Utils::log('Metropole[isCovered] =  '.$isCovered);
 
 	    return $isCovered;
 	}
@@ -359,9 +407,9 @@ class Kidzou_Geo {
 
 	public static function rewrite_post_link( $permalink, $post ) {
 
-		//pas dans l'admin !
-		if (!is_admin() ) {
-
+		$active = Kidzou_Utils::get_option('geo_activate', false);
+		if ($active && !is_admin() && self::is_geo_filterable())
+		{
 			$m = urlencode(self::get_request_metropole());
 
 		    // Check if the %kz_metropole% tag is present in the url:
@@ -371,7 +419,8 @@ class Kidzou_Geo {
 			    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
 
 		    } 
-		    
+			    
+			
 		}
 		 
 	    return $permalink;
@@ -385,9 +434,9 @@ class Kidzou_Geo {
 	 */
 	public static function rewrite_page_link( $link, $page ) {
 
-		//pas dans l'admin !
-		if (!is_admin() ) {
-
+		$active = Kidzou_Utils::get_option('geo_activate', false);
+		if ($active && !is_admin() && self::is_geo_filterable())
+		{
 			$m = urlencode(self::get_request_metropole());
 
 			$rewrite = self::is_page_rewrite($page);
@@ -400,7 +449,6 @@ class Kidzou_Geo {
 				$new_link = substr_replace($link, "/".$m, $pos, 0);
 				return $new_link;
 			}
-
 		}
 
 		return $link;
@@ -410,7 +458,9 @@ class Kidzou_Geo {
 
 	public static function rewrite_term_link( $url, $term, $taxonomy ) {
 
-		if (!is_admin() ) {
+		$active = Kidzou_Utils::get_option('geo_activate', false);
+		if ($active && !is_admin() && self::is_geo_filterable())
+		{
 
 			// Check if the %kz_metropole% tag is present in the url:
 		    if ( false === strpos( $url, '%kz_metropole%' ) )
@@ -512,33 +562,42 @@ class Kidzou_Geo {
 	 *
 	 */
 	public static function create_rewrite_rules() {
+		global $wp_rewrite; 
+
+		$active = Kidzou_Utils::get_option('geo_activate', false);
+
+		if ($active) 
+		{
+
+			$villes = self::get_metropoles();
+
+		    if (!empty($villes)) {
+
+		    	$regexp = '(';
+		        $i=0;
+		        $count = count($villes);
+		        foreach ($villes as $item) {
+		            $regexp .= $item->slug;
+		            $i++;
+		            if ($regexp!=='' && $count>$i) {
+		                $regexp .= '|';
+		            }
+		        }
+		        $regexp .= '|'.self::$no_filter.')';
+
+				add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
+
+				//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
+			    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
+			    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
+			    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
+			   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
+			   	add_rewrite_rule($regexp.'/(.*)/page/?([0-9]{1,})/?$','index.php?pagename=$matches[2]&paged=$matches[3]&kz_metropole=$matches[1]','top');
+
+		    }
+
+		}
 		
-	    $villes = self::get_metropoles();
-
-	    if (!empty($villes)) {
-
-	    	$regexp = '(';
-	        $i=0;
-	        $count = count($villes);
-	        foreach ($villes as $item) {
-	            $regexp .= $item->slug;
-	            $i++;
-	            if ($regexp!=='' && $count>$i) {
-	                $regexp .= '|';
-	            }
-	        }
-	        $regexp .= '|'.self::$no_filter.')';
-
-			add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
-
-			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
-		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
-		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
-		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
-		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
-		   	add_rewrite_rule($regexp.'/(.*)/page/?([0-9]{1,})/?$','index.php?pagename=$matches[2]&paged=$matches[3]&kz_metropole=$matches[1]','top');
-
-	    }
 	    
 	}
 

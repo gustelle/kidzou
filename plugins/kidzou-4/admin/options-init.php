@@ -95,10 +95,23 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
               }
              */
 
-              // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
-              delete_transient('kz_notifications_content_offres');
-              delete_transient('kz_notifications_content_page');
-              delete_transient('kz_notifications_content_post');
+            Kidzou_Utils::log($options);
+
+            // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
+            delete_transient('kz_notifications_content_offres');
+            delete_transient('kz_notifications_content_page');
+            delete_transient('kz_notifications_content_post');
+
+            if ($options['geo_activate'])
+            {
+                kidzou_Geo::set_permalink_rules();
+            } 
+            else
+            {
+                kidzou_Geo::unset_permalink_rules();
+            }
+
+            flush_rewrite_rules();
         }
 
         /**
@@ -201,6 +214,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'subtitle'  => __('Si cette est active, les contenus seront filtr&eacute;s pour ne s&apos;afficher que si la m&eacute;tropole de rattachement du contenu est celle qui transite dans la requ&ecirc.te.', 'kidzou'),
                             'desc'      => __('La requ&ecirc;te peut soit contenir la m&eacute;tropole <em>(../lille/...)</em> soit contenir un cookie <em>kz_metropole</em>". <br/>Tout ceci est calcul&eacute; automatiquement &agrave; la 1ere connexion du user.<br/>Si le user refuse de se faire geolocaliser ou si vous <strong>d&eacute;sactivez la geolocalisation des contenus</strong> les contenus ne seront pas filtr&eacute;s, m&ecirc;me si ils sont rattach&eacute;s &agrave; une m&eacute;tropole','kidzou'),
                             'default'  => '0',// 1 = on | 0 = off
+                            'compiler'  => true
                         ),
 
                         array(

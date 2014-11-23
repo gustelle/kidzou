@@ -100,6 +100,11 @@ class Kidzou_Utils {
 
 	}
 
+	public static function get_request_path() {
+
+		return $_SERVER['REQUEST_URI'];
+	}
+
 
 
 } //fin de classe
