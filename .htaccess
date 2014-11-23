@@ -67,7 +67,7 @@ RewriteRule ^/?$  %2 [L,R]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^lille/rubrique/offres/?(page)?/?([0-9])?$ offres/$1/$2 [L,R] 
 RewriteRule ^lille/rubrique/a-gagner/?(.*)$ concours/$1 [L,R] 
-RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
+#RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
 
 # présence de la ville dans la requete 
 # surcharge du cookie si la ville est forcée dans la requete

@@ -2151,6 +2151,8 @@
 			    	kidzouTracker.trackEvent("Filtre Home", "Categorie", ui.item.id, 0);
 			    	$("#kz_searchinput").val( ui.item.label );
 			    	$('#kz_searchbutton').html('<i class="fa fa-circle-o-notch fa-spin"></i> Recherche');
+
+			    	// console.debug(kidzou_suggest.site_url + "/" + ui.item.id);
 			    	
 	                window.location.href = kidzou_suggest.site_url + "/" + ui.item.id;
 	            },

@@ -29,7 +29,7 @@ class JSON_API_Content_Controller {
 	   	$dDiff = $dStart->diff($dNow);
 	   	$diff = $dDiff->days;
 
-	   	Kidzou_Utils::log('API/excerpts : ' . $diff);
+	   	// Kidzou_Utils::log('API/excerpts : ' . $diff);
 
 		if (intval($diff) > intval($max_days))
 			$json_api->error("Vous ne pouvez pas remonter aussi loin dans le temps...");

@@ -478,7 +478,14 @@ function searchbox()
 	$items = array();
 
 	foreach ($terms as $term) {
-		$tax = ($term->taxonomy == 'divers' ? 'famille' : $term->taxonomy);
+		
+		if ($term->taxonomy == 'divers')
+			$tax = 'famille';
+		elseif ($term->taxonomy == 'category') 
+			$tax = 'rubrique';
+		else
+			$tax = $term->taxonomy;
+		
 		$items[] = array("id" => $tax.'/'.$term->slug, "label" => $term->name);
 	}
 

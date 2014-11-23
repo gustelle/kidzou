@@ -4,8 +4,7 @@ var kidzouGeoContent = (function () {
 
 		/////////////// Selection de Metropole dans la topnav ////////////////
 		//////////////////////////////////////
-		console.debug('hey');
-		jQuery(".metropole").click(function(){console.debug(this);
+		jQuery(".metropole").click(function(){
 			setCurrentMetropole(jQuery(this).data('metropole'));
 		});
 
@@ -75,8 +74,8 @@ var kidzouGeoContent = (function () {
 			setCurrentMetropole(metropole.toLowerCase()); //on force encore une fois le toLowerCase() pour assurer le regexp coté serveur
 
 			//forcer le rafraichissement si la ville diffère de la ville par défaut
-			if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
-				location.reload(true);	
+			// if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
+			// 	location.reload(true);	
 		}
 	}
 

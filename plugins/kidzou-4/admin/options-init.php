@@ -172,7 +172,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
         public function setSections() {
 
-
+            $permalink_href = admin_url('options-permalink.php');
 
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
@@ -206,6 +206,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, Les contenus ne sont pas filtr&eacute;s. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
                 'icon'      => 'el-icon-compass',
                 'fields'    => array(
+
+                        array(
+                            'id'    => 'geo_warning',
+                            'type'  => 'info',
+                            'title' => __('Visitez la page de permalien apr&egrave;s activation / d&eacute;sactivation de la geolocalisation', 'kidzou'),
+                            'style' => 'warning',
+                            'desc'  => sprintf( __( 'Un bug qui emp&ecirc;che wordpress de rafraichir les r&egrave;gles de re-ecriture d&apos;URL, <a href="%s">visitez cette page pour les rafraichir</a> si vous activez ou desactivez la geolocalisation', 'kidzou' ), $permalink_href ),
+                        ),
 
                         array(
                             'id'       => 'geo_activate',
