@@ -101,8 +101,8 @@ class Kidzou_Geo {
 
 		// $urladapter = new Kidzou_Geo_URLAdapter();
 
-		if (!is_admin() && (bool)Kidzou_Utils::get_option('geo_activate',false))
-		{
+		// if (!is_admin() && (bool)Kidzou_Utils::get_option('geo_activate',false))
+		// {
 
 			wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
 
@@ -122,7 +122,7 @@ class Kidzou_Geo {
 					);
 
 		    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
-		}
+		// }
 
 	}
 
