@@ -284,7 +284,7 @@ class Kidzou_Geo {
 
 				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
 				//la valeur de metropole passée en requete devient la metropole du cookie
-				if ($cook_m!=$metropole) {
+				if ($cook_m!=$metropole && $metropole!='') {
 
 					setcookie("kz_metropole", $metropole);
 					setcookie("kz_metropole_selected", true, time()+(60*60*24), '/' ); //cookie valable 1 jour... 
@@ -311,7 +311,7 @@ class Kidzou_Geo {
 		    else
 		    	self::$request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
 
-		    Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
+		    // Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
 		}
 
 		return self::$request_metropole;
