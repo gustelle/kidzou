@@ -58,7 +58,6 @@ class Kidzou_Geo_URLAdapter {
 	public function is_adaptable( )
 	{
 		if (is_admin()) {
-			Kidzou_Utils::log('Page WP-Admin : pas de filtrage');
 			return false;
 		}
 			
@@ -69,7 +68,11 @@ class Kidzou_Geo_URLAdapter {
 
 		$active = (bool)Kidzou_Utils::get_option('geo_activate',false);
 		if (!$active) {
-			Kidzou_Utils::log('Filtrage desactive pour le site');
+			return false;
+		}
+
+		//si la metropole de la requete n'a pas été trouvée, sa valeur est '' et non null
+		if (Kidzou_Geo::get_request_metropole()=='' ) {
 			return false;
 		}
 

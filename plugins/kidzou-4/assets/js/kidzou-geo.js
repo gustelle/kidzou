@@ -104,7 +104,6 @@ var kidzouGeoContent = (function () {
 
 		//si effectivement la metropole est pré-selectionnée, elle a été passée dans la requete, et le contenu
 		//a été distribué en en tenant compte
-
 		
 	}
 

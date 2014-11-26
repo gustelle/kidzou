@@ -478,7 +478,7 @@ function searchbox()
 	$items = array();
 
 	foreach ($terms as $term) {
-		
+
 		if ($term->taxonomy == 'divers')
 			$tax = 'famille';
 		elseif ($term->taxonomy == 'category') 
@@ -1241,15 +1241,18 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 	}
 
 	if ( '' !== $include_categories ) {
-		$args['tax_query'] = array(
-			array(
-				'taxonomy' => 'category',
-				'field' => 'id',
-				'terms' => explode( ',', $include_categories ),
-				'operator' => 'IN'
-			)
-		);
+		// $args['tax_query'] = array(
+		// 	array(
+		// 		'taxonomy' => 'category',
+		// 		'field' => 'id',
+		// 		'terms' => explode( ',', $include_categories ),
+		// 		'operator' => 'IN'
+		// 	)
+		// );
+		$args['category__in'] = explode( ',', $include_categories );
 	}
+
+	// Kidzou_Utils::log($args);
 
 	$projects = get_portfolio_items( $args );
 
@@ -1354,11 +1357,17 @@ function get_portfolio_items( $args = array() ) {
 
 	$default_args = array(
 		'post_type' => Kidzou::post_types(),
+		'tax_query' => array(
+			Kidzou_Geo::get_query_args()
+		),
+
 	);
 
 	$args = wp_parse_args( $args, $default_args );
 
-	return new WP_Query( $args );
+	$q = new WP_Query( $args );
+
+	return $q;
 
 }
 
