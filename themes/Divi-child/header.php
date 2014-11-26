@@ -111,33 +111,39 @@
 					<?php
 
 						//les différentes métropoles dispo
-						$metropoles = Kidzou_Geo::get_metropoles();
-						$ttes_metros = '';
-
-						if (count($metropoles)>1) 
+						$active = Kidzou_Utils::get_option('geo_activate', false);
+						if ($active)
 						{
-							$ttes_metros .= '<i class="fa fa-map-marker"></i>';
+							$metropoles = Kidzou_Geo::get_metropoles();
+							$ttes_metros = '';
 
-							$i=0;
-							foreach ($metropoles as $m) {
+							if (count($metropoles)>1) 
+							{
+								$ttes_metros .= '<i class="fa fa-map-marker"></i>';
 
-								if ($i>0)
-									$ttes_metros .= '&nbsp;|&nbsp;';
+								$i=0;
+								foreach ($metropoles as $m) {
 
-								$ttes_metros .= sprintf(
-									'<a class="et_nav_text_color_light" href="%s" alt="%s" title="%s">%s</a>',
-									site_url().'/'.$m->slug,
-									$m->name,
-									__( 'Changer de ville', 'kidzou' ),
-									$m->name
-								);
+									if ($i>0)
+										$ttes_metros .= '&nbsp;|&nbsp;';
 
-								$i++;
+									$ttes_metros .= sprintf(
+										'<a class="et_nav_text_color_light metropole" data-metropole="%s" href="%s" alt="%s" title="%s">%s</a>',
+										$m->slug,
+										site_url().'/'.$m->slug,
+										$m->name,
+										__( 'Changer de ville', 'kidzou' ),
+										$m->name
+									);
 
+									$i++;
+
+								}
 							}
-						}
 
-						echo $ttes_metros;
+							echo $ttes_metros;	
+						}
+						
 					?>
 				</div>
 

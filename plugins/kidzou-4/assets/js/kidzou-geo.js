@@ -4,15 +4,16 @@ var kidzouGeoContent = (function () {
 
 		/////////////// Selection de Metropole dans la topnav ////////////////
 		//////////////////////////////////////
-
 		jQuery(".metropole").click(function(){
 			setCurrentMetropole(jQuery(this).data('metropole'));
 		});
 
 		//fonction initiale au chargement de la page
-		getUserLocation(function(pos){
-			getClosestContent(pos);
-		}); 
+		if (kidzou_geo_jsvars.geo_activate) {
+			getUserLocation(function(pos){
+				getClosestContent(pos);
+			}); 
+		} 
 
 	});
 
@@ -42,19 +43,21 @@ var kidzouGeoContent = (function () {
 					}
 				}
 
-				if (!covered) metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
+				// if (!covered) metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
 
 				//toujours renvoyer la metropole en minuscule pour analyse regexp coté serveur
-				if (callback) callback(metropole.toLowerCase());
+				if (callback && covered) callback(metropole.toLowerCase());
 
 				return metropole;
 				
 			})
 			.fail(function( jqxhr, textStatus, error ) {
-			    
-			    metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
 
-				if (callback) callback(metropole);
+				//silence, pas de filtrage sur la metropole si erreur
+			    
+			 	// metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
+
+				// if (callback) callback(metropole);
 
 			});
 
@@ -71,8 +74,8 @@ var kidzouGeoContent = (function () {
 			setCurrentMetropole(metropole.toLowerCase()); //on force encore une fois le toLowerCase() pour assurer le regexp coté serveur
 
 			//forcer le rafraichissement si la ville diffère de la ville par défaut
-			if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
-				location.reload(true);	
+			// if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
+			// 	location.reload(true);	
 		}
 	}
 
@@ -91,16 +94,16 @@ var kidzouGeoContent = (function () {
 			position = position || {};
 
 			//si la mposition n'est pas fournie, on prend la ville par défaut
-			if ( (typeof position.lat!='undefined') && (typeof position.lng !='undefined') )
-				getMetropole(position.lat, position.lng, refreshGeoCookie);
-			else
-				refreshGeoCookie( kidzou_geo_jsvars.geo_default_metropole.toLowerCase() );
+			if ( position.latitude && position.longitude ) {
+				getMetropole(position.latitude, position.longitude, refreshGeoCookie);
+			}
+			// else
+			// 	refreshGeoCookie( kidzou_geo_jsvars.geo_default_metropole.toLowerCase() );
 			
-		} 
+		}  
 
 		//si effectivement la metropole est pré-selectionnée, elle a été passée dans la requete, et le contenu
 		//a été distribué en en tenant compte
-
 		
 	}
 
@@ -113,12 +116,12 @@ var kidzouGeoContent = (function () {
 
 	function getUserLocation(callback) {
 
-
 		if (navigator.geolocation) {
 
 			navigator.geolocation.getCurrentPosition(
 
 					function(position) { 
+
 						if (callback)
 							callback({
 								latitude: position.coords.latitude,
@@ -127,14 +130,16 @@ var kidzouGeoContent = (function () {
 							}); 
 					}, 
 					function(err) { 
-						if (callback)
-							callback( ); 
+						//silence, pas de filtrage du contenu si le user refus la geoloc
+						// if (callback)
+						// 	callback( ); 
 					}
 				); 
 
 		} else {
-			if (callback)
-				callback( ); 
+			//silence, pas de filtrage du contenu si le user refus la geoloc
+			// if (callback)
+			// 	callback( ); 
 		}
 	}
 

@@ -32,14 +32,6 @@ SetEnv MAGIC_QUOTES 0
 	ExpiresByType application/xhtml+xml "access plus 0 days"
 	ExpiresByType application/x-shockwave-flash "access plus 7 days"
 
-	#force reload of specific files
-	<FilesMatch "login-with-ajax.js">
-		ExpiresActive On
-		ExpiresDefault "access plus 0 days"
-		Header set Cache-Control "max-age=0, public, no-store, no-cache, must-revalidate"
-		Header set Pragma "no-cache"
-		Header set Expires "Thu, 01 Jan 1970 00:00:00 GMT"
-	</FilesMatch>
 
 </IfModule>
 
@@ -75,90 +67,37 @@ RewriteRule ^/?$  %2 [L,R]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^lille/rubrique/offres/?(page)?/?([0-9])?$ offres/$1/$2 [L,R] 
 RewriteRule ^lille/rubrique/a-gagner/?(.*)$ concours/$1 [L,R] 
-RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
+#RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
 
 # présence de la ville dans la requete 
 # surcharge du cookie si la ville est forcée dans la requete
 # on ecrit donc le nouveau cookie
 # NB : cette regle evite les appels Ajax de l'API (*/api/*)
 
-RewriteCond %{REQUEST_URI} !.*/api/.*
-RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
-RewriteCond %{REQUEST_URI} ^.*/?(lille)/?(.*)$
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ %2?kz_metropole=%1 [QSA,CO=kz_metropole:%1:localhost:0:/,S=1]
+#RewriteCond %{REQUEST_URI} !.*/api/.*
+#RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
+#RewriteCond %{REQUEST_URI} ^.*/?(lille|regional)/?(.*)$
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^(.*)$ %2?kz_metropole=%1 [QSA,CO=kz_metropole:%1:localhost:0:/,S=1]
 
 # pas de reprise du cookie
 # le cookie est stocké sur le client pour se souvenir de la préférence utilisateur
 # une fois la ville dans la requete, le cookie n'est plus utilisé
 # NB : cette regle evite les appels Ajax de l'API (*/api/*)
 
-RewriteCond %{REQUEST_URI} !.*/api/.*
-RewriteCond %{QUERY_STRING} !.*kz_metropole=.*
-RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !^.*/?(lille)/?(.*)$
-RewriteCond %{HTTP:Cookie} (^|;\ *)kz_metropole=([^;\ ]+)
-RewriteCond %2 !=-1
-RewriteRule ^(.*)$ %{REQUEST_URI}?kz_metropole=%2 [QSA]
+#RewriteCond %{REQUEST_URI} !.*/api/.*
+#RewriteCond %{QUERY_STRING} !.*kz_metropole=.*
+#RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteCond %{REQUEST_URI} !^.*/?(lille|regional)/?(.*)$
+#RewriteCond %{HTTP:Cookie} (^|;\ *)kz_metropole=([^;\ ]+)
+#RewriteCond %2 !=-1
+#RewriteRule ^(.*)$ %{REQUEST_URI}?kz_metropole=%2 [QSA]
 
 </IfModule>
 # END KIDZOU GEOLOCALISATION
 
-# BEGIN WPSuperCache
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteBase /
-#If you serve pages from behind a proxy you may want to change 'RewriteCond %{HTTPS} on' to something more sensible
-AddDefaultCharset UTF-8
-RewriteCond %{REQUEST_URI} !^.*[^/]$
-RewriteCond %{REQUEST_URI} !^.*//.*$
-RewriteCond %{REQUEST_METHOD} !POST
-RewriteCond %{QUERY_STRING} !.*=.*
-RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
-RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTP:Accept-Encoding} gzip
-RewriteCond %{HTTPS} on
-RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html.gz -f
-RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html.gz" [L]
 
-RewriteCond %{REQUEST_URI} !^.*[^/]$
-RewriteCond %{REQUEST_URI} !^.*//.*$
-RewriteCond %{REQUEST_METHOD} !POST
-RewriteCond %{QUERY_STRING} !.*=.*
-RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
-RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTP:Accept-Encoding} gzip
-RewriteCond %{HTTPS} !on
-RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html.gz -f
-RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html.gz" [L]
-
-RewriteCond %{REQUEST_URI} !^.*[^/]$
-RewriteCond %{REQUEST_URI} !^.*//.*$
-RewriteCond %{REQUEST_METHOD} !POST
-RewriteCond %{QUERY_STRING} !.*=.*
-RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
-RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTPS} on
-RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html -f
-RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index-https.html" [L]
-
-RewriteCond %{REQUEST_URI} !^.*[^/]$
-RewriteCond %{REQUEST_URI} !^.*//.*$
-RewriteCond %{REQUEST_METHOD} !POST
-RewriteCond %{QUERY_STRING} !.*=.*
-RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$
-RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTP:Profile} !^[a-z0-9\"]+ [NC]
-RewriteCond %{HTTPS} !on
-RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html -f
-RewriteRule ^(.*) "/wp-content/cache/supercache/%{SERVER_NAME}/$1/index.html" [L]
-</IfModule>
-
-# END WPSuperCache
 
 # BEGIN WordPress
 <IfModule mod_rewrite.c>

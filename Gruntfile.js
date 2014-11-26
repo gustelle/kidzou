@@ -74,7 +74,7 @@ module.exports = function(grunt) {
 				},
 				src: './themes',
 				dest: '/wp-content/themes',
-				exclusions: ['./themes/Trim-child', './themes/Trim']
+				exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images']
 
 			}
 		},

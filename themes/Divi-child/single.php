@@ -71,13 +71,18 @@
 
 								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+
+								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+								$formatter->setPattern('EEEE dd MMMM');
+
 								$formatted = '';
-								setlocale(LC_TIME, "fr_FR"); 
+								// setlocale(LC_ALL, "fr_FR"); 
+
 
 								if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-									$formatted = __( 'Le ', 'Divi'). strftime("%A %d %B", $start->getTimestamp() ) ;
+									$formatted = __( 'Le ', 'Divi').  $formatter->format($start) ;
 								else
-									$formatted = __( 'Du ', 'Divi'). strftime("%A %d %B", $start->getTimestamp() ).__(' au ', 'Divi').strftime("%A %d %B", $end->getTimestamp() );
+									$formatted = __( 'Du ', 'Divi').  $formatter->format($start).__(' au ', 'Divi'). $formatter->format($end);
 							?>
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php echo '<p class="location font-2x"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>

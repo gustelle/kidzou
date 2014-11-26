@@ -95,10 +95,23 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
               }
              */
 
-              // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
-              delete_transient('kz_notifications_content_offres');
-              delete_transient('kz_notifications_content_page');
-              delete_transient('kz_notifications_content_post');
+            Kidzou_Utils::log($options);
+
+            // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
+            delete_transient('kz_notifications_content_offres');
+            delete_transient('kz_notifications_content_page');
+            delete_transient('kz_notifications_content_post');
+
+            if ($options['geo_activate'])
+            {
+                kidzou_Geo::set_permalink_rules();
+            } 
+            else
+            {
+                kidzou_Geo::unset_permalink_rules();
+            }
+
+            flush_rewrite_rules();
         }
 
         /**
@@ -159,7 +172,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
         public function setSections() {
 
-
+            $permalink_href = admin_url('options-permalink.php');
 
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
@@ -190,15 +203,34 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
                 'title'     => __('G&eacute;olocalisation', 'kidzou'),
-                'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, c&apos;est la <strong>M&eacute;tropole &agrave; port&eacute;e &eacute;tendue qui sera utilis&eacute;e</strong>. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
+                'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, Les contenus ne sont pas filtr&eacute;s. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
                 'icon'      => 'el-icon-compass',
                 'fields'    => array(
+
+                        array(
+                            'id'    => 'geo_warning',
+                            'type'  => 'info',
+                            'title' => __('Visitez la page de permalien apr&egrave;s activation / d&eacute;sactivation de la geolocalisation', 'kidzou'),
+                            'style' => 'warning',
+                            'desc'  => sprintf( __( 'Un bug qui emp&ecirc;che wordpress de rafraichir les r&egrave;gles de re-ecriture d&apos;URL, <a href="%s">visitez cette page pour les rafraichir</a> si vous activez ou desactivez la geolocalisation', 'kidzou' ), $permalink_href ),
+                        ),
+
+                        array(
+                            'id'       => 'geo_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Activer la geolocalisation des contenus ?', 'kidzou'), 
+                            'subtitle'  => __('Si cette est active, les contenus seront filtr&eacute;s pour ne s&apos;afficher que si la m&eacute;tropole de rattachement du contenu est celle qui transite dans la requ&ecirc.te.', 'kidzou'),
+                            'desc'      => __('La requ&ecirc;te peut soit contenir la m&eacute;tropole <em>(../lille/...)</em> soit contenir un cookie <em>kz_metropole</em>". <br/>Tout ceci est calcul&eacute; automatiquement &agrave; la 1ere connexion du user.<br/>Si le user refuse de se faire geolocaliser ou si vous <strong>d&eacute;sactivez la geolocalisation des contenus</strong> les contenus ne seront pas filtr&eacute;s, m&ecirc;me si ils sont rattach&eacute;s &agrave; une m&eacute;tropole','kidzou'),
+                            'default'  => '0',// 1 = on | 0 = off
+                            'compiler'  => true
+                        ),
 
                         array(
                             'id'        => 'geo_mapquest_key',
                             'type'      => 'text',
                             'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
-                            'subtitle'  => __('Cette cl&eacute; permet d&apos;utiliser l&apos;API qui fournit des adresses a partir de coordonn&eacute;es GPS et vice-versa', 'kidzou'),
+                            'subtitle'  => __('Cette cl&eacute; est <strong>n&eacute;cessaire au bon fonctionnement de la geolocalisation des contenus</strong>. ', 'kidzou'),
+                            'desc'      => __('La clef permet d&apos;utiliser l&apos;API <a href="http://developer.mapquest.com/fr/web/products/dev-services/geocoding-ws">Maquest</a> qui fournit la m&eacute;tropole a partir des coordonn&eacute;es GPS du navigateur. La <em>M&eacute;tropole</em> est ensuite pass&eacute;e en param&egrave;tre de la requ&ecirc;te pour filtrer les contenus en base de donn&eacute;e (les contenus sont rattach&eacute;s a une ville)','kidzou')
                         ),
 
                         array(
@@ -266,7 +298,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
             
             $this->sections[] = array(
-                'title'     => __('API', 'kidzou'),
+                'title'     => __('API Kidzou', 'kidzou'),
                 'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
                 'icon'      => 'el-icon-rss',
                 'fields'    => array(
@@ -299,7 +331,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
-                'title'     => __('Espace Contributeurs (Pro)', 'kidzou'),
+                'title'     => __('Espace Contributeurs', 'kidzou'),
                 'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
                 'icon'      => 'el-icon-edit',
                 'fields'    => array(
