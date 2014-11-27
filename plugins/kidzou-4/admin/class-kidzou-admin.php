@@ -184,11 +184,11 @@ class Kidzou_Admin {
 	 **/
 	public function contrib_contents_filter( $wp_query ) {
 	    if ( is_admin() && strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false && 
-	        ( !current_user_can('manage_options') ) ) {
-	        global $current_user;
-	        $wp_query->set( 'author', $current_user->id );
-	        // print_r($wp_query);
-	    }
+	        ( !Kidzou_Utils::current_user_is('author') ) ) {
+		        global $current_user;
+		        $wp_query->set( 'author', $current_user->id );
+		        // print_r($wp_query);
+		    }
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Kidzou_Admin {
 	    $tax = get_taxonomy( 'ville' );
 
 	    /* Make sure the user is admin. */
-	    if ( !current_user_can( 'edit_user' ) )
+	    if ( !Kidzou_Utils::current_user_is('admin'))
 	        return;
 
 	    /* Get the terms of the 'profession' taxonomy. */
@@ -262,7 +262,7 @@ class Kidzou_Admin {
 	    if( !isset( $_POST['kz_user_info_nonce'] ) || !wp_verify_nonce( $_POST['kz_user_info_nonce'], 'kz_save_user_nonce' ) ) 
 	    	return;
 
-	    if ( !current_user_can( 'edit_user', $user_id )) 
+	    if ( !Kidzou_Utils::current_user_is('admin')) 
 	    	return;
 
 	    //meta metropole
@@ -314,7 +314,7 @@ class Kidzou_Admin {
 	{
 	    if (!$post_id) return;
 
-	    if (!current_user_can('manage_options')) {
+	    if (!Kidzou_Utils::current_user_is('author')) {
 
 	    	//la metropole est la metropole de rattachement du user
 		    $metropoles = (array)self::get_user_metropoles();
@@ -335,7 +335,7 @@ class Kidzou_Admin {
 	public function has_family_card()
 	{
 
-	    if (current_user_can('manage_options'))
+	    if (Kidzou_Utils::current_user_is('admin'))
 	        return true;
 
 	    $current_user = wp_get_current_user();
@@ -774,7 +774,7 @@ class Kidzou_Admin {
 		$q = null;
 
 		//il faut que le client soit > contributeur pour voir tous els clients
-		if ( !current_user_can( 'edit_published_posts' ) ) {
+		if ( !Kidzou_Utils::current_user_is('author') ) {
 
 			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
 		
@@ -790,8 +790,10 @@ class Kidzou_Admin {
 			//si le user n'est affecté à aucun client on ne fait rien
 			//dans ce cas $q est null
 			
-		} else 
+		} else {
 			$q = new WP_Query( $args );
+		}
+			
 
 		if (null!=$q)
 		{
@@ -861,7 +863,7 @@ class Kidzou_Admin {
 		<div class="kz_form" id="event_form">';
 
 			//si le user n'est pas un "pro", on permet des fonctions d'administration supplémentaires
-			if (current_user_can('manage_options')) {
+			if (Kidzou_Utils::current_user_is('administrator')) {
 
 				echo '<h4>Fonctions client</h4>
 						<ul>';
@@ -924,7 +926,7 @@ class Kidzou_Admin {
 
 			$id = 0;
 
-			if (!current_user_can( 'manage_options' ) ) {
+			if (!Kidzou_Utils::current_user_is('administrator') ) {
 
 				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
 
@@ -1154,7 +1156,7 @@ class Kidzou_Admin {
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
 		// echo ''
-		if ( current_user_can( 'manage_options' ) ) 
+		if ( Kidzou_Utils::current_user_is('administrator') ) 
 			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
 		else {
 			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='') {
@@ -1192,7 +1194,7 @@ class Kidzou_Admin {
 			return $post_id;
 		}
 		// Is the user allowed to edit the post or page?
-		if ( !current_user_can( 'edit_posts', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('contributor') )
 			return $post_id;
 
 		$type = get_post_type($post_id);
@@ -1272,7 +1274,7 @@ class Kidzou_Admin {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !current_user_can( 'manage_options', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -1441,7 +1443,7 @@ class Kidzou_Admin {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !current_user_can( 'manage_options', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -1520,7 +1522,7 @@ class Kidzou_Admin {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !current_user_can( 'manage_options', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -1575,9 +1577,9 @@ class Kidzou_Admin {
 	{
 		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	    
-	    if ( current_user_can( 'edit_published_posts', $post_id )) {
+	    if ( Kidzou_Utils::current_user_is('author') ) {
 
-	    
+	    	
 	    } else {
 
 	    	//la metropole est la metropole de rattachement du user

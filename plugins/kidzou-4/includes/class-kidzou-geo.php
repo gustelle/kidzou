@@ -113,8 +113,8 @@ class Kidzou_Geo {
 			$args = array(
 						'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
 						'geo_mapquest_key'			=> $key, 
-						'geo_mapquest_reverse_url'	=> "http://www.mapquestapi.com/geocoding/v1/reverse",
-						'geo_mapquest_address_url'	=> "http://www.mapquestapi.com/geocoding/v1/address",
+						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
+						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
 						'geo_default_metropole'		=> self::get_default_metropole(),
 						'geo_cookie_name'			=> "kz_metropole",
 						'geo_select_cookie_name'	=> "kz_metropole_selected",

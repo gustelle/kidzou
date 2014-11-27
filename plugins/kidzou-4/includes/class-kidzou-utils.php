@@ -106,6 +106,48 @@ class Kidzou_Utils {
 	}
 
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function current_user_is($role = '')
+	{
+		$is_user = false;
+		switch ($role) {
+			case 'subscriber':
+				$is_user = current_user_can('read');
+				break;
+
+			case 'contributor':
+				$is_user = current_user_can('edit_posts');
+				break;
+
+			case 'author':
+				$is_user = current_user_can('edit_published_posts');
+				break;
+
+			case 'editor':
+				$is_user = current_user_can('manage_categories');
+				break;
+
+			case 'admin':
+				$is_user = current_user_can('manage_options');
+				break;
+
+			case 'administrator':
+				$is_user = current_user_can('manage_options');
+				break;
+
+			default:
+				break;
+		}
+
+		return $is_user;
+	}
+
+
 
 } //fin de classe
 
