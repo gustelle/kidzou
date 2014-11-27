@@ -116,7 +116,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 		    //https://developers.google.com/places/documentation/details
 			self.completePlace = function(d,ev, result) {
-				console.log(result);
+				// console.log(result);
 				var city = result.display_text;
 
 				//tentative de retrouver la ville de manière plus précise
@@ -163,7 +163,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 			
 
 			self.displayCustomPlaceForm = function() {
-				self.eventData().place(new Place()); //remise à zero si éventuellement existante
+				self.placeData().place(new Place()); //remise à zero si éventuellement existante
 				self.customPlace(true);
 			};
 
