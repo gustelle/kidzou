@@ -72,11 +72,14 @@
 								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 
-								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+								//bon OK c'est un hack pour régler un pb d'affichage
+								//la date de fin s'affiche au lendemain de la date souhaitée
+								$end->sub(new DateInterval('P1D'));
+
+								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::NONE, IntlDateFormatter::NONE);
 								$formatter->setPattern('EEEE dd MMMM');
 
 								$formatted = '';
-								// setlocale(LC_ALL, "fr_FR"); 
 
 
 								if ($start->format("Y-m-d") == $end->format("Y-m-d"))

@@ -115,9 +115,9 @@ class Kidzou_Geo {
 						'geo_mapquest_key'			=> $key, 
 						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
 						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
-						'geo_default_metropole'		=> self::get_default_metropole(),
+						// 'geo_default_metropole'		=> self::get_default_metropole(),
 						'geo_cookie_name'			=> "kz_metropole",
-						'geo_select_cookie_name'	=> "kz_metropole_selected",
+						// 'geo_select_cookie_name'	=> "kz_metropole_selected",
 						'geo_possible_metropoles'	=> $villes ,
 					);
 
@@ -276,18 +276,22 @@ class Kidzou_Geo {
 			if ( isset($_COOKIE['kz_metropole']) )
 				$cook_m = strtolower($_COOKIE['kz_metropole']);
 
+			// Kidzou_Utils::log('_COOKIE : ' . $cook_m);
+
 			//en dépit du cookie, la valeur de la metropole passée en requete prime
 			if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
 				
 				$ret = rtrim($matches[0], '/'); //suppression du slash à la fin
 				$metropole = ltrim($ret, '/'); //suppression du slash au début
 
+				// Kidzou_Utils::log('preg_match : ' . $metropole);
+
 				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
 				//la valeur de metropole passée en requete devient la metropole du cookie
 				if ($cook_m!=$metropole && $metropole!='') {
 
 					setcookie("kz_metropole", $metropole);
-					setcookie("kz_metropole_selected", true, time()+(60*60*24), '/' ); //cookie valable 1 jour... 
+					// setcookie("kz_metropole_selected", true, time()+(60*60*24), '/' ); //cookie valable 1 jour... 
 
 					self::$request_metropole = $metropole;
 
@@ -311,7 +315,7 @@ class Kidzou_Geo {
 		    else
 		    	self::$request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
 
-		    // Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
+		    Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
 		}
 
 		return self::$request_metropole;
@@ -421,6 +425,7 @@ class Kidzou_Geo {
 	public static function rewrite_post_link( $permalink, $post ) {
 
 		$urladapter = new Kidzou_Geo_URLAdapter();
+
 		if ($urladapter->is_adaptable())
 		{
 			$m = urlencode(self::get_request_metropole());
@@ -472,6 +477,7 @@ class Kidzou_Geo {
 	public static function rewrite_term_link( $url, $term, $taxonomy ) {
 
 		$urladapter = new Kidzou_Geo_URLAdapter();
+
 		if ($urladapter->is_adaptable())
 		{
 

@@ -71,9 +71,10 @@ class Kidzou_Geo_URLAdapter {
 			return false;
 		}
 
-		//si la metropole de la requete n'a pas été trouvée, sa valeur est '' et non null
+		//si la geoloc est active mais qu'aucune metropole n'est détectée en requete
+		//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 		if (Kidzou_Geo::get_request_metropole()=='' ) {
-			return false;
+			return true;
 		}
 
 		return true;

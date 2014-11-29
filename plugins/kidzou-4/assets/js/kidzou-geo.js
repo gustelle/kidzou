@@ -24,7 +24,7 @@ var kidzouGeoContent = (function () {
 		jQuery.getJSON(kidzou_geo_jsvars.geo_mapquest_reverse_url + "?key=" + kidzou_geo_jsvars.geo_mapquest_key + "&location=" + pos,{})
 			.done(function (data) {
 
-				var metropole = (typeof data.results[0].locations[0]!=="undefined" ? data.results[0].locations[0].adminArea4 : kidzou_geo_jsvars.geo_default_metropole);
+				var metropole = (typeof data.results[0].locations[0]!=="undefined" ? data.results[0].locations[0].adminArea4 : '');
 				var covered = false;
 
 				//verifier qu'on est dans une des metropoles couvertes
@@ -43,7 +43,7 @@ var kidzouGeoContent = (function () {
 					}
 				}
 
-				// if (!covered) metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
+				//si la metreopole n'est pas couverte on ne filtre pas
 
 				//toujours renvoyer la metropole en minuscule pour analyse regexp coté serveur
 				if (callback && covered) callback(metropole.toLowerCase());
@@ -54,10 +54,6 @@ var kidzouGeoContent = (function () {
 			.fail(function( jqxhr, textStatus, error ) {
 
 				//silence, pas de filtrage sur la metropole si erreur
-			    
-			 	// metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
-
-				// if (callback) callback(metropole);
 
 			});
 
@@ -84,9 +80,9 @@ var kidzouGeoContent = (function () {
 	function getClosestContent(position) {
 
 		//si le user a cliqué expressément sur une ville pour la sélectionné, pas d'update du contenu
-		var isMetropoleSelected = storageSupport.getCookie(kidzou_geo_jsvars.geo_select_cookie_name);
+		var isMetropole = storageSupport.getCookie(kidzou_geo_jsvars.geo_cookie_name);
 
-		if (isMetropoleSelected==="undefined" || !isMetropoleSelected) {
+		if (isMetropole==="undefined" || !isMetropole) {
 
 			//le contenu sera rafraichit (callback: "refreshGeoCookie") avec la metropole
 			//obtenue par geoloc du navigateur
@@ -110,7 +106,7 @@ var kidzouGeoContent = (function () {
 
 	function setCurrentMetropole(metropole) {
 		storageSupport.setCookie(kidzou_geo_jsvars.geo_cookie_name, metropole.toLowerCase());
-		storageSupport.setCookie(kidzou_geo_jsvars.geo_select_cookie_name, true); //forcer cette ville, elle vient d'être selectionnée par le user
+		// storageSupport.setCookie(kidzou_geo_jsvars.geo_select_cookie_name, true); //forcer cette ville, elle vient d'être selectionnée par le user
 	}
 
 

@@ -900,7 +900,11 @@ function kz_pb_portfolio( $atts ) {
 						$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 						$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 						$formatted = '';
-						// setlocale(LC_TIME, "fr_FR"); 
+						
+						//bon OK c'est un hack pour régler un pb d'affichage
+						//la date de fin s'affiche au lendemain de la date souhaitée
+						$end->sub(new DateInterval('P1D'));
+						
 						$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
 						$formatter->setPattern('EEEE dd MMMM');
 

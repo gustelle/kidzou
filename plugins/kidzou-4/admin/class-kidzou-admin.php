@@ -130,7 +130,7 @@ class Kidzou_Admin {
 		//sauvegarde des meta à l'enregistrement
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
-
+	
 		//http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
 		add_filter('wp_handle_upload_prefilter', array($this, 'handle_upload_prefilter'));
 		add_filter('wp_handle_upload', array($this,'handle_upload'));
@@ -305,7 +305,7 @@ class Kidzou_Admin {
 
 	
 	/**
-	 * pour les users contribs, rattachement automatique du post à la metropole du contrib
+	 * Rattachement automatique du post à la metropole du user
 	 *
 	 * @return void
 	 * @todo gérer le cas ou le user n'a pas de metropole de rattachement  
@@ -1076,8 +1076,12 @@ class Kidzou_Admin {
 	public function save_metaboxes($post_id) {
 
 		$this->save_rewrite_meta($post_id);
+
+		//
 		$this->save_event_meta($post_id);
 		$this->save_client_meta($post_id);
+
+		//
 		$this->save_post_metropole($post_id);
 		$this->set_post_metropole($post_id);
 
@@ -1134,7 +1138,7 @@ class Kidzou_Admin {
 	 **/
 	public function save_event_meta($post_id)
 	{
-		
+
 
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['event_metabox_nonce'] ) )
@@ -1224,8 +1228,31 @@ class Kidzou_Admin {
 	public function save_client_meta ($post_id)
 	{
 
-		if ( ! isset( $_POST['clientmeta_noncename'] ) )
+		Kidzou_Utils::log('save_client_meta');
+
+		if ( ! isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
+
+			//OK, le user ne voit pas la meta client, c'est peut-être qu'il n'a pas le droit de voir la metabox
+			//Car elle a été cachée par un autre plugin
+			//dans ce cas, le post est rattaché à la méta "client" du user courant
+
+			$current_user_customers = Kidzou_Customer::getCustomersIDByUserID(); //c'est un tableau
+
+			Kidzou_Utils::log($current_user_customers);
+
+			if (count($current_user_customers)>0)
+			{
+				self::save_meta($post_id, array(
+					Kidzou_Customer::$meta_customer => $current_user_customers[0] //on prend le premier
+					)
+				); 
+			}
+
+			//pas la peine d'aller plus loin
 			return $post_id;
+		
+		}
+			
 
 		// verify this came from the our screen and with proper authorization,
 		// because save_post can be triggered at other times
@@ -1238,8 +1265,6 @@ class Kidzou_Admin {
 		$tmp_post = $_POST[$key];
 		$tmp_arr = explode("#", $tmp_post );
 		$events_meta[$key] 	= $tmp_arr[0];
-
-		Kidzou_Utils::log( 'save_client_meta : ' . $events_meta[$key] );
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
