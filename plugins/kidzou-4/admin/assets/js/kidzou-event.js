@@ -22,6 +22,20 @@ var kidzouEventsModule = (function() { //havre de paix
        }
   	};
 
+  	ko.bindingHandlers.logger = {
+        update: function(element, valueAccessor, allBindings) {
+            //store a counter with this element
+            var count = ko.utils.domData.get(element, "_ko_logger") || 0,
+                data = ko.toJS(valueAccessor() || allBindings());
+
+            ko.utils.domData.set(element, "_ko_logger", ++count);
+
+            if (window.console && console.log) {
+                console.log(count, element, data);
+            }
+        }
+    };
+
 
 	ko.bindingHandlers.datepicker = {
 	    init: function(element, valueAccessor, allBindingsAccessor) {
@@ -88,6 +102,97 @@ var kidzouEventsModule = (function() { //havre de paix
 
 		var model = new EventsEditorModel();
 
+		function RecurrenceModel() {
+
+			var self = this;
+
+			self.isReccuring = ko.observable(false);
+			self.repeatIterations = 0; //toutes les x semaines, mois
+
+			function RepeatOption( label, value, repeatEach, multipleChoice) {
+				this.label = label;
+				this.value = value;
+
+				this.repeatEvery = [1,2,3];  //les options possibles
+				this.selectedRepeatEvery = ko.observable(1);  //l'option choisie
+
+				this.repeatEach = repeatEach;  // les options possibles
+				this.selectedRepeatEachItems = ko.observableArray();  // les options sélectionnées
+
+				//est-ce qu'on peut sélectionner dans le UI plusieurs "repeatEach"
+				//Ex : répéter le lundi, le mardi
+				this.multipleChoice = multipleChoice; 
+			}
+
+			var weeklyModel = new RepeatOption('Toutes les semaines','weekly', [{ label:'Lundi', value: 01}, {label:'Mardi', value:02}, {label:'Mercredi', value:03}, {label:'Jeudi', value:04}, {label:'Vendredi', value:05}, {label:'Samedi', value:06}, {label:'Dimanche', value:07}], true);
+			var monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [{label:'Jour du mois', value: 'day_of_month'}, {label:'Jour de la semaine', value : 'day_of_week'}], false) ;
+			
+			self.repeatOptions = ko.observableArray([
+				weeklyModel,
+				monthlyModel
+			]);
+			self.selectedRepeat = ko.observable(weeklyModel);
+
+			self.endType = ko.observable('never'); 
+			self.occurencesNumber = ko.observable(0);
+			// self.endDate = ko.computed({
+		 //    	read: function() {
+		 //    		if ( self.endType()=='date' )
+		 //    			return new Date();
+		 //    	},
+		 //    	write: function(value) {
+		 //    		if ( moment(value).isValid() ) {
+			// 			self.endType('date');
+			// 		} 
+		 //    	},
+		 //    	owner:self
+			// });
+			// self.endAfterOccurences = ko.computed({
+		 //    	read: function() {
+		 //    		if ( self.endType()=='occurences' )
+		 //    			return 10;
+		 //    	}, 
+		 //    	write: function(value) {
+		 //    		if ( parseInt(value)>0 ) {
+			// 			self.endType('occurences');
+			// 		} 
+		 //    	},
+		 //    	owner:self
+			// });
+
+			//résumé présenté au user 
+			self.recurrenceSummary = ko.computed(function() {
+				
+				var day= '';
+				var occ = ''; 
+
+				if (self.endType() == 'occurences') 
+					occ = ', ' + self.occurencesNumber() + ' fois ';
+				else if (self.endType() == 'date')
+					occ = ', jusqu\'au ';
+				
+				if (Object.prototype.toString.call(self.selectedRepeat().selectedRepeatEachItems()) === '[object Array]') {
+					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
+				        if (day=='') day += ' le ';
+				        day += item.label + ',';
+				        
+				    });
+				} else {
+					day += self.selectedRepeat().selectedRepeatEachItems().label ;
+				}
+				
+				if (self.selectedRepeat().value=='weekly') {
+					return 'Toutes les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'semaines ' :  self.selectedRepeat().selectedRepeatEvery() + ' semaines ' )  + day + occ;
+				} else {
+					return 'Tous les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'mois ' :  self.selectedRepeat().selectedRepeatEvery() + ' mois ' ) + day + occ ;
+				}
+		        	
+		    }, self);
+			
+		}
+
+		
+
 
 		function EventModel() {
 
@@ -99,6 +204,9 @@ var kidzouEventsModule = (function() { //havre de paix
 		    self.start_date 	 	= ko.observable("");//= ko.observable(moment().startOf("day").toDate());
 		    self.end_date 			= ko.observable("");//= ko.observable(moment().endOf("day").toDate()); //controler que n'est pas inférieure à eventStartDate 
    		    
+		    //recurrence d'événement
+		    self.recurrenceModel = ko.observable(new RecurrenceModel());
+
 		    self.formattedStartDate 	= ko.computed({
 		    	read: function() {
 		    		if ( moment( self.start_date() ).isValid() )
@@ -139,8 +247,6 @@ var kidzouEventsModule = (function() { //havre de paix
 
 		    	var start = moment(self.formattedStartDate(), "YYYY-MM-DD HH:mm:ss");
 		    	var end = moment(self.formattedEndDate(), "YYYY-MM-DD HH:mm:ss");
-		    	// console.log("start " + start);
-		    	// console.log("end " + end);
 		    	var diff = end.diff(start, 'hours');
 		    	if (moment.duration(diff, "hours")>0)
 		    		return moment.duration(diff, "hours").humanize();
@@ -158,7 +264,6 @@ var kidzouEventsModule = (function() { //havre de paix
 
 		    self.eventData 			= ko.observable(new EventModel());
 
-		   
 
 			//recuperation au format 2014-12-03 23:59:59 et mise au format JS date
 			self.initDates = function(start, end ) {

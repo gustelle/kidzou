@@ -416,6 +416,7 @@ class Kidzou_Admin {
 			//datepicker pour les events
 			wp_enqueue_style( 'jquery-ui-custom', plugins_url( 'assets/css/jquery-ui-1.10.3.custom.min.css', __FILE__ ) );	
 
+
 		} elseif ($screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 			
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
@@ -482,6 +483,7 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-ui-core');
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', __FILE__ ), array('jquery-ui-datepicker'),'1.0', true);
+
 
 		} elseif ( $screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 
@@ -892,7 +894,56 @@ class Kidzou_Admin {
 					<em data-bind="if: eventData().eventDuration()!==\'\'">(<span data-bind="text: eventData().eventDuration"></span>)</em>
 					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>
 				</li>
+				<li>
+					<label for="is_recuurrence">Cet &eacute;v&eacute;nement est r&eacute;current </label>
+					<input type="checkbox" data-bind="checked: eventData().recurrenceModel().isReccuring" />
+				</li>
 			</ul>
+
+			<!-- ko if: eventData().recurrenceModel().isReccuring -->
+			<h4>R&eacute;p&eacute;tition de L&apos;&eacute;v&eacute;nement</h4>
+			<ul>	
+		    	<li>
+		    		<label for="kz_event_repeat_options">R&eacute;ccurence:</label>
+					<select name="kz_event_repeat_options" data-bind="options: $root.eventData().recurrenceModel().repeatOptions,
+																		optionsText: \'label\',
+												                       	value: $root.eventData().recurrenceModel().selectedRepeat,
+												                       	optionsCaption: \'Choose...\'" ></select>
+		    	</li>
+		    	<li>
+		    		<label for="kz_event_repeat_details">R&eacute;p&eacute;ter tous les :</label>
+					<select name="kz_event_repeat_details" data-bind="options: $root.eventData().recurrenceModel().selectedRepeat().repeatEvery,
+																		value: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery,
+												                       	optionsCaption: \'...\'" ></select>
+		    	</li>
+		    	<!-- ko if: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+		    	<li>
+		    		<label for="kz_event_repeat_choices">R&eacute;p&eacute;ter le :</label>
+		    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
+		    			<input type="checkbox" name="kz_event_repeat_choices"  data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
+		    		</span>
+		    	</li>
+		    	<!-- /ko -->
+		    	<!-- ko ifnot: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+		    	<li>
+		    		<label for="kz_event_repeat_choice">R&eacute;p&eacute;ter le :</label>
+		    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
+		    			<input type="radio" name="kz_event_repeat_choice" data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
+		    		</span>
+		    	</li>
+		    	<!-- /ko -->
+
+			</ul>
+			<h4>L&apos;&eacute;v&eacute;nement prend fin :</h4>
+			<ul>	
+		    	<li><input type="radio" name="recurrence_end" value="never" data-bind="checked: eventData().recurrenceModel().endType" /> never</li>
+		    	<li><input type="radio" name="recurrence_end" value="date" data-bind="checked: eventData().recurrenceModel().endType" /> After Date </li>
+			    <li><input type="radio" name="recurrence_end" value="occurences" data-bind="checked: eventData().recurrenceModel().endType" /> After Nb Occurences <input type="text" data-bind="value: eventData().recurrenceModel().occurencesNumber" /></li>
+			</ul>
+			<ul>	
+		    	<li><b>R&eacute;sum&eacute; : <span data-bind="text: eventData().recurrenceModel().recurrenceSummary()" /></b></li>
+			</ul>
+			<!-- /ko -->
 
 		</div>';
 
