@@ -141,6 +141,7 @@ class Kidzou_Utils {
 				break;
 
 			default:
+				return new WP_Error( 'unknown_role', __( "Role inconnu", "kidzou" ) );
 				break;
 		}
 

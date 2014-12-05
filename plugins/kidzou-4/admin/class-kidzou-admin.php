@@ -893,52 +893,70 @@ class Kidzou_Admin {
 					<input type="hidden" name="kz_event_end_date"  data-bind="value: eventData().formattedEndDate" />
 					<em data-bind="if: eventData().eventDuration()!==\'\'">(<span data-bind="text: eventData().eventDuration"></span>)</em>
 					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>
-				</li>
-				<li>
-					<label for="is_recuurrence">Cet &eacute;v&eacute;nement est r&eacute;current </label>
-					<input type="checkbox" data-bind="checked: eventData().recurrenceModel().isReccuring" />
-				</li>
-			</ul>
+				</li>';
+
+				if (Kidzou_Utils::current_user_is('editor')) {
+					echo
+					'<li>
+						<label for="kz_event_is_reccuring">Cet &eacute;v&eacute;nement est r&eacute;current </label>
+						<input type="checkbox" name="kz_event_is_reccuring" data-bind="enable: eventData().isReccurenceEnabled, checked: eventData().recurrenceModel().isReccuring" />
+					</li>';
+				}
+
+			echo '</ul>
 
 			<!-- ko if: eventData().recurrenceModel().isReccuring -->
 			<h4>R&eacute;p&eacute;tition de L&apos;&eacute;v&eacute;nement</h4>
 			<ul>	
-		    	<li>
-		    		<label for="kz_event_repeat_options">R&eacute;ccurence:</label>
-					<select name="kz_event_repeat_options" data-bind="options: $root.eventData().recurrenceModel().repeatOptions,
+		    	<li data-bind="visible: $root.eventData().recurrenceModel().showSelectRepeat">
+		    		<label for="kz_event_reccurence_mod">R&eacute;ccurence:</label>
+					<select name="kz_event_reccurence_mod" data-bind="options: $root.eventData().recurrenceModel().repeatOptions,
 																		optionsText: \'label\',
 												                       	value: $root.eventData().recurrenceModel().selectedRepeat,
 												                       	optionsCaption: \'Choose...\'" ></select>
+					<input type="hidden" name="kz_event_reccurence_model" data-bind="value: eventData().recurrenceModel().selectedRepeat().value" />
+
 		    	</li>
 		    	<li>
-		    		<label for="kz_event_repeat_details">R&eacute;p&eacute;ter tous les :</label>
-					<select name="kz_event_repeat_details" data-bind="options: $root.eventData().recurrenceModel().selectedRepeat().repeatEvery,
+		    		<label for="kz_event_reccurence_repeat_select">R&eacute;p&eacute;ter tous les :</label>
+					<select name="kz_event_reccurence_repeat_select" data-bind="options: $root.eventData().recurrenceModel().selectedRepeat().repeatEvery,
 																		value: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery,
 												                       	optionsCaption: \'...\'" ></select>
+
 		    	</li>
-		    	<!-- ko if: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+		    	
 		    	<li>
-		    		<label for="kz_event_repeat_choices">R&eacute;p&eacute;ter le :</label>
-		    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
-		    			<input type="checkbox" name="kz_event_repeat_choices"  data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
-		    		</span>
+		    		<label for="kz_event_reccurence_repeat_choices">R&eacute;p&eacute;ter le :</label>
+		    		<!-- ko if: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+			    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
+			    			<input type="checkbox" name="kz_event_reccurence_repeat_choices"  data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
+			    			<input type="hidden" name="kz_event_reccurence_repeat_weekly_items" data-bind="value: $root.eventData().recurrenceModel().repeatItemsValue()" />
+			    		</span>
+			    	<!-- /ko -->
+		    		<!-- ko ifnot: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+			    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
+			    			<input type="radio" name="kz_event_reccurence_repeat_choices" data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
+			    			<input type="hidden" name="kz_event_reccurence_repeat_monthly_items" data-bind="value: $root.eventData().recurrenceModel().repeatItemsValue()" />
+			    		</span>
+		    		<!-- /ko -->
 		    	</li>
-		    	<!-- /ko -->
-		    	<!-- ko ifnot: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
-		    	<li>
-		    		<label for="kz_event_repeat_choice">R&eacute;p&eacute;ter le :</label>
-		    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
-		    			<input type="radio" name="kz_event_repeat_choice" data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
-		    		</span>
-		    	</li>
-		    	<!-- /ko -->
 
 			</ul>
-			<h4>L&apos;&eacute;v&eacute;nement prend fin :</h4>
 			<ul>	
-		    	<li><input type="radio" name="recurrence_end" value="never" data-bind="checked: eventData().recurrenceModel().endType" /> never</li>
-		    	<li><input type="radio" name="recurrence_end" value="date" data-bind="checked: eventData().recurrenceModel().endType" /> After Date </li>
-			    <li><input type="radio" name="recurrence_end" value="occurences" data-bind="checked: eventData().recurrenceModel().endType" /> After Nb Occurences <input type="text" data-bind="value: eventData().recurrenceModel().occurencesNumber" /></li>
+				<li>
+					<label for="kz_event_reccurence_end_type">L&apos;&eacute;v&eacute;nement prend fin :</label>
+		    		<input type="radio" name="kz_event_reccurence_end_type" value="never" data-bind="checked: eventData().recurrenceModel().endType" /> never
+		    	</li>
+		    	<li>
+		    		<label> </label>
+		    		<input type="radio" name="kz_event_reccurence_end_type" value="date" data-bind="checked: eventData().recurrenceModel().endType" /> Le
+		    		<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().recurrenceModel().reccurenceEndDate, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> 
+			    	<input type="hidden" name="kz_event_reccurence_end_date" data-bind="value: eventData().recurrenceModel().formattedReccurenceEndDate" />
+		    	</li>
+			   	<li>
+			   		<label> </label>
+			    	<input type="radio" name="kz_event_reccurence_end_type" value="occurences" data-bind="checked: eventData().recurrenceModel().endType" /> Apr&egrave;s <input type="text" name="kz_event_reccurence_end_after_occurences" data-bind="value: eventData().recurrenceModel().occurencesNumber" /> occurences
+			    </li>
 			</ul>
 			<ul>	
 		    	<li><b>R&eacute;sum&eacute; : <span data-bind="text: eventData().recurrenceModel().recurrenceSummary()" /></b></li>
@@ -1207,6 +1225,16 @@ class Kidzou_Admin {
 		//output : 2014-02-23 00:00:01 (start_date) ou 2014-02-23 23:59:59 (end_date)
 		$events_meta['start_date'] 			= (isset($_POST['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
 		$events_meta['end_date'] 				= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
+
+		//les options de récurrence
+		Kidzou_Utils::log( $_POST['kz_event_is_reccuring'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_model'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_repeat_select'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_repeat_weekly_items'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_repeat_monthly_items'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_end_type'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_end_date'] );
+		Kidzou_Utils::log( $_POST['kz_event_reccurence_end_after_occurences'] );
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
@@ -1229,6 +1257,7 @@ class Kidzou_Admin {
 		}
 
 		self::save_meta($post_id, $events_meta, "kz_event_");
+
 	}
 
 	/**

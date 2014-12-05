@@ -107,6 +107,7 @@ var kidzouEventsModule = (function() { //havre de paix
 			var self = this;
 
 			self.isReccuring = ko.observable(false);
+
 			self.repeatIterations = 0; //toutes les x semaines, mois
 
 			function RepeatOption( label, value, repeatEach, multipleChoice) {
@@ -124,43 +125,70 @@ var kidzouEventsModule = (function() { //havre de paix
 				this.multipleChoice = multipleChoice; 
 			}
 
-			var weeklyModel = new RepeatOption('Toutes les semaines','weekly', [{ label:'Lundi', value: 01}, {label:'Mardi', value:02}, {label:'Mercredi', value:03}, {label:'Jeudi', value:04}, {label:'Vendredi', value:05}, {label:'Samedi', value:06}, {label:'Dimanche', value:07}], true);
-			var monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [{label:'Jour du mois', value: 'day_of_month'}, {label:'Jour de la semaine', value : 'day_of_week'}], false) ;
+			self.weeklyModel = new RepeatOption('Toutes les semaines','weekly', [{ label:'Lundi', value: 01}, {label:'Mardi', value:02}, {label:'Mercredi', value:03}, {label:'Jeudi', value:04}, {label:'Vendredi', value:05}, {label:'Samedi', value:06}, {label:'Dimanche', value:07}], true);
+			self.monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [{label:'Jour du mois', value: 'day_of_month'}, {label:'Jour de la semaine', value : 'day_of_week'}], false) ;
 			
+			self.selectedRepeat = ko.observable(self.weeklyModel);
 			self.repeatOptions = ko.observableArray([
-				weeklyModel,
-				monthlyModel
+				self.weeklyModel,
+				self.monthlyModel
 			]);
-			self.selectedRepeat = ko.observable(weeklyModel);
+			
+			//la valeur qui est transmise au serveur
+			self.repeatItemsValue = ko.computed(function() {
+				var _r = '';
+				if (self.selectedRepeat().value=='weekly') {
+					var _o = [];
+					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
+				        _o.push(item.value);
+				    });
+					_r = ko.toJSON(_o);
+				} else {
+					_r = self.selectedRepeat().selectedRepeatEachItems().value;
+				}
+				return _r;
+			});
 
-			self.endType = ko.observable('never'); 
-			self.occurencesNumber = ko.observable(0);
-			// self.endDate = ko.computed({
-		 //    	read: function() {
-		 //    		if ( self.endType()=='date' )
-		 //    			return new Date();
-		 //    	},
-		 //    	write: function(value) {
-		 //    		if ( moment(value).isValid() ) {
-			// 			self.endType('date');
-			// 		} 
-		 //    	},
-		 //    	owner:self
-			// });
-			// self.endAfterOccurences = ko.computed({
-		 //    	read: function() {
-		 //    		if ( self.endType()=='occurences' )
-		 //    			return 10;
-		 //    	}, 
-		 //    	write: function(value) {
-		 //    		if ( parseInt(value)>0 ) {
-			// 			self.endType('occurences');
-			// 		} 
-		 //    	},
-		 //    	owner:self
-			// });
+
+			//la selection du modele de repetition est-elle visible ?
+			self.showSelectRepeat = ko.observable(true);
+
+			self.endType = ko.observable('never');  
+
+			//si la recurrence se termine au bout d'un certain nombre de fois
+			self.occurencesNumber = ko.observable(0).extend({ number: true });
+
+			//si la recurrence se termine à une date donnée
+			self.reccurenceEndDate = ko.observable("");
+
+			//utilisée pour stocler les données en base
+			self.formattedReccurenceEndDate = ko.computed({
+		    	read: function() {
+		    		if ( moment( self.reccurenceEndDate() ).isValid() ) {
+		    			self.endType('date');
+		    			return moment(self.reccurenceEndDate()).endOf("day").format("YYYY-MM-DD HH:mm:ss");
+		    		}
+		    		//si la date n'est pas valide et que le endType est positionné sur date
+		    		//on force le repositionnement à never
+		    		//paer contre si le endType est déjà sur "occurences", on n'y touche pas
+		    		if (self.endType()=='date') self.endType('never');
+		    		return '';
+		    	},
+		    	write: function(value) {
+
+		    		if ( moment(value).isValid() ) {
+						self.reccurenceEndDate(moment(value).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
+		    			self.reccurenceEndDate.notifySubscribers();
+					} else {
+						self.reccurenceEndDate("");
+					}
+		    	},
+		    	owner:self
+			});
+			
 
 			//résumé présenté au user 
+			//c'est purement du display
 			self.recurrenceSummary = ko.computed(function() {
 				
 				var day= '';
@@ -168,22 +196,36 @@ var kidzouEventsModule = (function() { //havre de paix
 
 				if (self.endType() == 'occurences') 
 					occ = ', ' + self.occurencesNumber() + ' fois ';
-				else if (self.endType() == 'date')
-					occ = ', jusqu\'au ';
-				
-				if (Object.prototype.toString.call(self.selectedRepeat().selectedRepeatEachItems()) === '[object Array]') {
-					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
-				        if (day=='') day += ' le ';
-				        day += item.label + ',';
-				        
-				    });
-				} else {
-					day += self.selectedRepeat().selectedRepeatEachItems().label ;
-				}
+				else if (self.endType() == 'date' &&  moment( self.reccurenceEndDate() ).isValid())
+					occ = ', jusqu\'au ' + moment(self.reccurenceEndDate()).format("DD/MM/YYYY");
 				
 				if (self.selectedRepeat().value=='weekly') {
+					
+					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
+				        if (day=='') day += ', le ';
+				        else day+= ' - '
+				        day += item.label ;
+				    });
+
 					return 'Toutes les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'semaines ' :  self.selectedRepeat().selectedRepeatEvery() + ' semaines ' )  + day + occ;
 				} else {
+
+					if (self.selectedRepeat().selectedRepeatEachItems().value=='day_of_month') {
+
+						day += ', le ' + moment(model.eventData().start_date()).date();
+
+					} else if (self.selectedRepeat().selectedRepeatEachItems().value=='day_of_week') {
+
+						//obtention du numéro de semaine dans le mois
+						//@see http://stackoverflow.com/questions/21737974/moment-js-how-to-get-week-of-month-google-calendar-style
+						var prefixes = [1,2,3,4,5];
+    					var week_number = prefixes[0 | moment(model.eventData().start_date()).date() / 7] ;
+    					var week_number_suffix = (week_number===1 ? 'er' : 'eme') ;
+
+						//obtention du jour dans la semaine
+						day += ', le ' + week_number + week_number_suffix + ' ' + moment(model.eventData().start_date()).format('dddd');
+					}
+
 					return 'Tous les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'mois ' :  self.selectedRepeat().selectedRepeatEvery() + ' mois ' ) + day + occ ;
 				}
 		        	
@@ -204,9 +246,6 @@ var kidzouEventsModule = (function() { //havre de paix
 		    self.start_date 	 	= ko.observable("");//= ko.observable(moment().startOf("day").toDate());
 		    self.end_date 			= ko.observable("");//= ko.observable(moment().endOf("day").toDate()); //controler que n'est pas inférieure à eventStartDate 
    		    
-		    //recurrence d'événement
-		    self.recurrenceModel = ko.observable(new RecurrenceModel());
-
 		    self.formattedStartDate 	= ko.computed({
 		    	read: function() {
 		    		if ( moment( self.start_date() ).isValid() )
@@ -243,15 +282,46 @@ var kidzouEventsModule = (function() { //havre de paix
 		    });
 		    self.formattedEndDate.extend({ required: false, dateAfter : self.formattedStartDate, notify: 'always' });
 
-		    self.eventDuration = ko.computed(function() {
+		    self.eventDuration = ko.computed(function() {				
 
 		    	var start = moment(self.formattedStartDate(), "YYYY-MM-DD HH:mm:ss");
 		    	var end = moment(self.formattedEndDate(), "YYYY-MM-DD HH:mm:ss");
 		    	var diff = end.diff(start, 'hours');
-		    	if (moment.duration(diff, "hours")>0)
+		    	if (moment.duration(diff, "hours")>0) {
+
+		    		//si la durée n'est pas de 1 jour, on force le modele de recurrence mensuel
+		    		//le modele de recurrence hebdo n'a pas de sens
+		    		if (moment.duration(diff, "hours").days()>=1)  {
+		    			self.recurrenceModel().selectedRepeat(self.recurrenceModel().monthlyModel);
+		    			self.recurrenceModel().showSelectRepeat(false);
+		    		} else {
+		    			self.recurrenceModel().showSelectRepeat(true);
+		    		}
+
 		    		return moment.duration(diff, "hours").humanize();
+		    	}
+		 
 		    	return "";
 		    });
+
+		    //recurrence d'événement
+		    self.recurrenceModel = ko.observable(new RecurrenceModel());
+
+		    //seulement si les dates sont renseignées
+		    self.isReccurenceEnabled = ko.computed(function() {
+		    	if (self.formattedStartDate()=='' || self.formattedEndDate()=='')
+		    	{
+		    		//désactivation des récurrences
+		    		self.recurrenceModel().isReccuring(false);
+		    		return false;
+		    	}
+				return true;
+			});
+
+		    //ouverture du UI permettant de spécifier les options de récurrence
+			// self.openReccurrenceOptions = ko.computed(function() {
+			// 	return self.isReccurenceEnabled() ;
+			// });
 
 		    
 		}
