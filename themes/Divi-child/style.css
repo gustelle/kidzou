@@ -608,7 +608,7 @@ p.woocommerce-result-count { font-weight: 500; font-size: 14px; color: #999; pad
 .woocommerce .products .star-rating, .woocommerce-page .products .star-rating { margin: 4px 0 .3em 0 !important;  }
 .woocommerce .star-rating:before, .woocommerce-page .star-rating:before { content: "\53\53\53\53\53" !important; color: #ccc !important; }
 
-.woocommerce div.product div.images, .woocommerce-page div.product div.images, .woocommerce #content div.product div.images, .woocommerce-page #content div.product div.images { width: 510px !important; }
+.woocommerce div.product div.images, .woocommerce-page div.product div.images, .woocommerce #content div.product div.images, .woocommerce-page #content div.product div.images { width: 510px !important; float: left !important; margin-right: 10px;}
 	.woocommerce div.product div.images img, .woocommerce-page div.product div.images img, .woocommerce #content div.product div.images img, .woocommerce-page #content div.product div.images img {
     -moz-box-shadow: none !important; -webkit-box-shadow: none !important; box-shadow: none !important; }
 .woocommerce div.product div.images div.thumbnails, .woocommerce-page div.product div.images div.thumbnails, .woocommerce #content div.product div.images div.thumbnails, .woocommerce-page #content div.product div.images div.thumbnails { padding-top: 20px !important; }

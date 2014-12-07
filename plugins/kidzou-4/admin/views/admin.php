@@ -12,11 +12,3 @@
  * @copyright 2014 Kidzou
  */
 ?>
-
-
-
-
-
-
-
-

@@ -855,10 +855,11 @@ class Kidzou_Admin {
 		
 		$start_date		= get_post_meta($post->ID, 'kz_event_start_date', TRUE);
 		$end_date 		= get_post_meta($post->ID, 'kz_event_end_date', TRUE);
+		$recurrence		= get_post_meta($post->ID, 'kz_event_recurrence', FALSE);
 
 		echo '<script>
 		jQuery(document).ready(function() {
-			kidzouEventsModule.model.initDates("'.$start_date.'","'.$end_date.'");
+			kidzouEventsModule.model.initDates("'.$start_date.'","'.$end_date.'", '.json_encode($recurrence).');
 		});
 		</script>
 
@@ -1161,6 +1162,7 @@ class Kidzou_Admin {
 
 		//pour tout le monde
 		$this->save_place_meta($post_id);
+
 		
 	}
 
@@ -1227,14 +1229,16 @@ class Kidzou_Admin {
 		$events_meta['end_date'] 				= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
 
 		//les options de récurrence
-		Kidzou_Utils::log( $_POST['kz_event_is_reccuring'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_model'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_repeat_select'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_repeat_weekly_items'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_repeat_monthly_items'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_end_type'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_end_date'] );
-		Kidzou_Utils::log( $_POST['kz_event_reccurence_end_after_occurences'] );
+		if (isset($_POST['kz_event_is_reccuring']) && $_POST['kz_event_is_reccuring']=='on')
+		{
+			$events_meta['recurrence'] = array(
+					"model" => $_POST['kz_event_reccurence_model'],
+					"repeatEach" => $_POST['kz_event_reccurence_repeat_select'],
+					"repeatItems" => (isset($_POST['kz_event_reccurence_repeat_monthly_items']) ? $_POST['kz_event_reccurence_repeat_monthly_items'] : json_decode($_POST['kz_event_reccurence_repeat_weekly_items'])), 
+					"endType" 	=> $_POST['kz_event_reccurence_end_type'],
+					"endValue"	=> ($_POST['kz_event_reccurence_end_type']=='date' ? $_POST['kz_event_reccurence_end_date'] : $_POST['kz_event_reccurence_end_after_occurences'])
+				);
+		}
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
@@ -1243,14 +1247,8 @@ class Kidzou_Admin {
 			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
 		else {
 			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='') {
-
 				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
-				
-				// if ($events_meta['featured']!='A')
-				// 	$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
-			}
-				
-			else {
+			} else {
 				$events_meta['featured'] = "B";//($events_meta['start_date']!='' ? "B" : "Z");
 			}
 				
@@ -1308,7 +1306,7 @@ class Kidzou_Admin {
 	public function save_client_meta ($post_id)
 	{
 
-		Kidzou_Utils::log('save_client_meta');
+		// Kidzou_Utils::log('save_client_meta');
 
 		if ( ! isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
 

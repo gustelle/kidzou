@@ -56,7 +56,7 @@ class Kidzou_Geo {
 		//Le filtrage n'est pas actif pour certaines requetes, typiquement les API d'export de contenu
 		if (preg_match('#\/api\/#', $_SERVER['REQUEST_URI']) ) {
 
-			Kidzou_Utils::log('URI non geo-filtrable : '.$uri);
+			Kidzou_Utils::log('URI non geo-filtrable : '.$_SERVER['REQUEST_URI']);
 
 		} else {
 
@@ -268,6 +268,9 @@ class Kidzou_Geo {
 		{
 			//d'abord on prend la ville dans l'URI
 			$uri = $_SERVER['REQUEST_URI'];
+
+			Kidzou_Utils::log('[get_request_metropole] REQUEST_URI : '. $uri);
+
 			$regexp = self::get_metropole_uri_regexp();
 
 			$cook_m = '';
@@ -276,15 +279,17 @@ class Kidzou_Geo {
 			if ( isset($_COOKIE['kz_metropole']) )
 				$cook_m = strtolower($_COOKIE['kz_metropole']);
 
-			// Kidzou_Utils::log('_COOKIE : ' . $cook_m);
+			Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
 
 			//en dépit du cookie, la valeur de la metropole passée en requete prime
 			if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
+
+				Kidzou_Utils::log('[get_request_metropole] Regexp identifiée ');
 				
 				$ret = rtrim($matches[0], '/'); //suppression du slash à la fin
 				$metropole = ltrim($ret, '/'); //suppression du slash au début
 
-				// Kidzou_Utils::log('preg_match : ' . $metropole);
+				Kidzou_Utils::log('[get_request_metropole] Regexp : '. $metropole);
 
 				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
 				//la valeur de metropole passée en requete devient la metropole du cookie
@@ -297,18 +302,24 @@ class Kidzou_Geo {
 
 					//positionner cette variable pour ne pas aller plus loin
 					$cook_m = self::$request_metropole;
+
+					Kidzou_Utils::log('[get_request_metropole] setcookie : '. $cook_m);
 				}	
 
 			}
 
 			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
-			if ($cook_m=='' && isset($_GET['kz_metropole'])) 
+			if ($cook_m=='' && isset($_GET['kz_metropole']))  {
+				Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $kz_metropole);
 				$cook_m = strtolower($_GET['kz_metropole']);
+			}
 
 		    $isCovered = false;
 
 		    if ($cook_m!='') 
 		    	$isCovered = self::is_metropole($cook_m);
+
+		    Kidzou_Utils::log('[get_request_metropole] isCovered : '. $isCovered);
 
 		    if ($isCovered) 
 		    	self::$request_metropole = $cook_m;
@@ -350,6 +361,8 @@ class Kidzou_Geo {
 	        }   
 
 	        set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
+
+	        Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
 	    }
 
 	    return $result;
@@ -622,6 +635,10 @@ class Kidzou_Geo {
 		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
 		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
 			add_rewrite_rule($regexp.'/(.*)/page/?([0-9]{1,})/?$','index.php?pagename=$matches[2]&paged=$matches[3]&kz_metropole=$matches[1]','top');
+
+			//si la ville n'est pas spécifiée en requete, car le user est arrivé directement sur un post (donc pas préfixé par une ville)
+			//et navigue ensuite vers une rubrique ou autre:
+			add_rewrite_rule('/?rubrique/(.*)/?','index.php?category_name=$matches[1]','top');
 
 		}
 		

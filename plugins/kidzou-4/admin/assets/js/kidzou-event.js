@@ -11,7 +11,6 @@ var kidzouEventsModule = (function() { //havre de paix
 	};
 
 
-
 	ko.bindingHandlers.date = {
         update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
             var value = valueAccessor();
@@ -108,7 +107,7 @@ var kidzouEventsModule = (function() { //havre de paix
 
 			self.isReccuring = ko.observable(false);
 
-			self.repeatIterations = 0; //toutes les x semaines, mois
+			// self.repeatIterations = 0; //toutes les x semaines, mois
 
 			function RepeatOption( label, value, repeatEach, multipleChoice) {
 				this.label = label;
@@ -128,13 +127,16 @@ var kidzouEventsModule = (function() { //havre de paix
 			self.weeklyModel = new RepeatOption('Toutes les semaines','weekly', [{ label:'Lundi', value: 01}, {label:'Mardi', value:02}, {label:'Mercredi', value:03}, {label:'Jeudi', value:04}, {label:'Vendredi', value:05}, {label:'Samedi', value:06}, {label:'Dimanche', value:07}], true);
 			self.monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [{label:'Jour du mois', value: 'day_of_month'}, {label:'Jour de la semaine', value : 'day_of_week'}], false) ;
 			
-			self.selectedRepeat = ko.observable(self.weeklyModel);
+			//quelles sont les spossibilités de récurrence ?
 			self.repeatOptions = ko.observableArray([
 				self.weeklyModel,
 				self.monthlyModel
 			]);
+			//et celle choisie par le User?
+			self.selectedRepeat = ko.observable(self.weeklyModel);
 			
 			//la valeur qui est transmise au serveur
+			//pas utilisée dans le UI
 			self.repeatItemsValue = ko.computed(function() {
 				var _r = '';
 				if (self.selectedRepeat().value=='weekly') {
@@ -161,7 +163,7 @@ var kidzouEventsModule = (function() { //havre de paix
 			//si la recurrence se termine à une date donnée
 			self.reccurenceEndDate = ko.observable("");
 
-			//utilisée pour stocler les données en base
+			//utilisée pour renvoyer au serveur uniquement, pas dans le UI
 			self.formattedReccurenceEndDate = ko.computed({
 		    	read: function() {
 		    		if ( moment( self.reccurenceEndDate() ).isValid() ) {
@@ -175,7 +177,6 @@ var kidzouEventsModule = (function() { //havre de paix
 		    		return '';
 		    	},
 		    	write: function(value) {
-
 		    		if ( moment(value).isValid() ) {
 						self.reccurenceEndDate(moment(value).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
 		    			self.reccurenceEndDate.notifySubscribers();
@@ -200,20 +201,15 @@ var kidzouEventsModule = (function() { //havre de paix
 					occ = ', jusqu\'au ' + moment(self.reccurenceEndDate()).format("DD/MM/YYYY");
 				
 				if (self.selectedRepeat().value=='weekly') {
-					
 					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
 				        if (day=='') day += ', le ';
 				        else day+= ' - '
 				        day += item.label ;
 				    });
-
 					return 'Toutes les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'semaines ' :  self.selectedRepeat().selectedRepeatEvery() + ' semaines ' )  + day + occ;
 				} else {
-
 					if (self.selectedRepeat().selectedRepeatEachItems().value=='day_of_month') {
-
 						day += ', le ' + moment(model.eventData().start_date()).date();
-
 					} else if (self.selectedRepeat().selectedRepeatEachItems().value=='day_of_week') {
 
 						//obtention du numéro de semaine dans le mois
@@ -225,7 +221,6 @@ var kidzouEventsModule = (function() { //havre de paix
 						//obtention du jour dans la semaine
 						day += ', le ' + week_number + week_number_suffix + ' ' + moment(model.eventData().start_date()).format('dddd');
 					}
-
 					return 'Tous les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'mois ' :  self.selectedRepeat().selectedRepeatEvery() + ' mois ' ) + day + occ ;
 				}
 		        	
@@ -234,13 +229,9 @@ var kidzouEventsModule = (function() { //havre de paix
 		}
 
 		
-
-
 		function EventModel() {
 
 			var self = this;
-
-			// self.place 				= ko.observable(new Place());
 			
 			//les dates sont des JS dates
 		    self.start_date 	 	= ko.observable("");//= ko.observable(moment().startOf("day").toDate());
@@ -318,11 +309,6 @@ var kidzouEventsModule = (function() { //havre de paix
 				return true;
 			});
 
-		    //ouverture du UI permettant de spécifier les options de récurrence
-			// self.openReccurrenceOptions = ko.computed(function() {
-			// 	return self.isReccurenceEnabled() ;
-			// });
-
 		    
 		}
 
@@ -336,7 +322,7 @@ var kidzouEventsModule = (function() { //havre de paix
 
 
 			//recuperation au format 2014-12-03 23:59:59 et mise au format JS date
-			self.initDates = function(start, end ) {
+			self.initDates = function(start, end, reccurenceData ) {
 				
 				var start_mom, end_mom;
 
@@ -348,6 +334,30 @@ var kidzouEventsModule = (function() { //havre de paix
 				if (end!=='' && moment(end).isValid()) {
 					end_mom = moment(end);
 					self.eventData().end_date(end_mom.toDate());
+				}
+
+				//si le tableau est correctement formatté
+				console.debug(reccurenceData[0]);
+				if (typeof reccurenceData!='undefined' && reccurenceData.hasOwnProperty(0)) {
+
+					self.eventData().recurrenceModel().isReccuring(true);
+
+					if (reccurenceData[0].model=='weekly') {
+						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().weeklyModel);
+						console.debug(reccurenceData[0].repeatItems);
+					} else {
+						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().monthlyModel);
+						self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems.push(reccurenceData[0].repeatItems);
+					}
+
+					self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery(reccurenceData[0].repeatEach);
+					self.eventData().recurrenceModel().endType(reccurenceData[0].endType);
+
+					if (reccurenceData[0].endType=='date')
+						self.eventData().recurrenceModel().reccurenceEndDate(reccurenceData[0].endValue);
+					else if (reccurenceData[0].endType=='occurences')
+						self.eventData().recurrenceModel().occurencesNumber(reccurenceData[0].endValue);
+						
 				}
 				
 			};
