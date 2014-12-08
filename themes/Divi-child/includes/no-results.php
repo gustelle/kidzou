@@ -13,7 +13,7 @@
 		<?php
 		$metropoles = Kidzou_Geo::get_metropoles();
 		foreach ($metropoles as $m) {
-			echo sprintf("<a href='%s' title='%s' class='et_pb_more_button'><i class='fa fa-map-marker pull-left fa-2x'></i>%s</a>", site_url().'/'.$m->slug, $m->name, $m->name);
+			echo sprintf("<a href='%s' title='%s' class='et_pb_more_button metropole'><i class='fa fa-map-marker pull-left fa-2x'></i>%s</a>", site_url().'/'.$m->slug, $m->name, $m->name);
 		}
 		?>
 	</p>

@@ -104,16 +104,20 @@ var kidzouEventsModule = (function() { //havre de paix
 		function RecurrenceModel() {
 
 			var self = this;
+			
+			//utilisé également à l'init des RepeatOptions
+			self.days = [{ label:'Lundi', value: 1}, {label:'Mardi', value:2}, {label:'Mercredi', value:3}, {label:'Jeudi', value:4}, {label:'Vendredi', value:5}, {label:'Samedi', value:6}, {label:'Dimanche', value:7}];
+			self.day_of_month = {label:'Jour du mois', value: 'day_of_month'};
+			self.day_of_week = {label:'Jour de la semaine', value : 'day_of_week'};
 
 			self.isReccuring = ko.observable(false);
 
-			// self.repeatIterations = 0; //toutes les x semaines, mois
-
 			function RepeatOption( label, value, repeatEach, multipleChoice) {
+
 				this.label = label;
 				this.value = value;
 
-				this.repeatEvery = [1,2,3];  //les options possibles
+				this.repeatEvery = [1,2,3,4];  //les options possibles
 				this.selectedRepeatEvery = ko.observable(1);  //l'option choisie
 
 				this.repeatEach = repeatEach;  // les options possibles
@@ -124,14 +128,15 @@ var kidzouEventsModule = (function() { //havre de paix
 				this.multipleChoice = multipleChoice; 
 			}
 
-			self.weeklyModel = new RepeatOption('Toutes les semaines','weekly', [{ label:'Lundi', value: 01}, {label:'Mardi', value:02}, {label:'Mercredi', value:03}, {label:'Jeudi', value:04}, {label:'Vendredi', value:05}, {label:'Samedi', value:06}, {label:'Dimanche', value:07}], true);
-			self.monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [{label:'Jour du mois', value: 'day_of_month'}, {label:'Jour de la semaine', value : 'day_of_week'}], false) ;
+			self.weeklyModel = new RepeatOption('Toutes les semaines','weekly', self.days, true);
+			self.monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [self.day_of_month, self.day_of_week], false) ;
 			
 			//quelles sont les spossibilités de récurrence ?
-			self.repeatOptions = ko.observableArray([
-				self.weeklyModel,
-				self.monthlyModel
-			]);
+			self.repeatOptions = [
+			 	self.weeklyModel,
+			 	self.monthlyModel
+			];
+
 			//et celle choisie par le User?
 			self.selectedRepeat = ko.observable(self.weeklyModel);
 			
@@ -337,26 +342,44 @@ var kidzouEventsModule = (function() { //havre de paix
 				}
 
 				//si le tableau est correctement formatté
-				console.debug(reccurenceData[0]);
 				if (typeof reccurenceData!='undefined' && reccurenceData.hasOwnProperty(0)) {
 
+					//c'est plus simple a manipuler
+					var data = reccurenceData[0]; 
+
+					//activation de la checkbox
 					self.eventData().recurrenceModel().isReccuring(true);
 
-					if (reccurenceData[0].model=='weekly') {
+					//activation de la selectbox
+					if (data.model=='weekly') {
+
 						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().weeklyModel);
-						console.debug(reccurenceData[0].repeatItems);
+						ko.utils.arrayForEach(data.repeatItems, function(item) {
+					        var v = parseInt(item);
+					        if (!isNaN(v)) {
+					            self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems.push(self.eventData().recurrenceModel().days[v-1]);
+					        }
+					    });
 					} else {
+
+						//modele monthly
 						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().monthlyModel);
-						self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems.push(reccurenceData[0].repeatItems);
-					}
+						if (data.repeatItems=='day_of_month')
+							self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems(self.eventData().recurrenceModel().day_of_month);
+						else
+							self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems(self.eventData().recurrenceModel().day_of_week);
+					}	
 
-					self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery(reccurenceData[0].repeatEach);
-					self.eventData().recurrenceModel().endType(reccurenceData[0].endType);
+					//l'evenement se repete tous les ...
+					self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery(data.repeatEach);
 
-					if (reccurenceData[0].endType=='date')
-						self.eventData().recurrenceModel().reccurenceEndDate(reccurenceData[0].endValue);
-					else if (reccurenceData[0].endType=='occurences')
-						self.eventData().recurrenceModel().occurencesNumber(reccurenceData[0].endValue);
+					//et se termine : à une date fixe ? au bout d'un nombre de repetitions ? jamais ?
+					self.eventData().recurrenceModel().endType(data.endType);
+
+					if (data.endType=='date')
+						self.eventData().recurrenceModel().reccurenceEndDate(data.endValue);
+					else if (data.endType=='occurences')
+						self.eventData().recurrenceModel().occurencesNumber(data.endValue);
 						
 				}
 				
