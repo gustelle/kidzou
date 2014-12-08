@@ -855,7 +855,17 @@ class Kidzou_Admin {
 		
 		$start_date		= get_post_meta($post->ID, 'kz_event_start_date', TRUE);
 		$end_date 		= get_post_meta($post->ID, 'kz_event_end_date', TRUE);
-		$recurrence		= get_post_meta($post->ID, 'kz_event_recurrence', FALSE);
+		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
+
+		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
+		if (is_array($recurrence[0]))
+		{
+			//plus facile à menipuler
+			$data = $recurrence[0];
+			Kidzou_Utils::log('Model:'.$data['model']);
+			Kidzou_Utils::log('repeatEach:'.$data['repeatEach']);
+			Kidzou_Utils::log('endType:'.$data['endType']);
+		}
 
 		echo '<script>
 		jQuery(document).ready(function() {

@@ -65,6 +65,12 @@ class Kidzou_Events {
 	public static $meta_featured = 'kz_event_featured';
 
 	/**
+	 * les événements qui sont recurrents sont marqués de cette meta
+	 *
+	 */
+	public static $meta_recurring = 'kz_event_recurrence';
+
+	/**
 	 * les types de posts qui supportent les meta event
 	 *
 	 */
@@ -250,41 +256,95 @@ class Kidzou_Events {
 		$obsoletes = self::getObsoletePosts();
 
 		foreach ($obsoletes as $event) {
-						
-			$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
 
-			clean_post_cache( $event->ID );
+			//gestion de la recurrence:
+			$recurrence		= get_post_meta($event->ID, Kidzou_Events::$meta_recurring, FALSE);
+			
+			if (is_array($recurrence[0]))
+			{
+				//plus facile à menipuler
+				$data 		= $recurrence[0];
+				$endType 	= $data['endType'];
 				
-			$old_status = $event->post_status;
-			$event->post_status = 'draft';
-			wp_transition_post_status( 'draft', $old_status, $event );
+				$event_dates 	= self::getEventDates($event->ID);
+				$start_date 	= $event_dates['start_date'];
+				$end_date 		= $event_dates['end_date'];
 
-			Kidzou_Utils::log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
+				if($data['model'] == 'weekly')
+				{
+					//semaine 0
+					//imaginons que l'evenement doivent etre répété certains jours 
+					//de la semaine ou se passe l'événement (ex: l'evenement est en début/fin le mercredi 03/12, il doit se répéter le vendredi 05/12)
+					//Dans ce cas il ne faut pas encore ajouter les semaines (repeatEach)
+
+					//modele de répétition hebdo : les valeurs de répétition sont les jours
+					//1: lundi -> 7: dimanche
+					$days = (array)$data['repeatItems'];
+					$start_time = new DateTime($start_date);
+
+					//Recupérer le jour de start_date
+
+					//puis comparer avec les jours de répétition
+
+					//si les jours de répét sont après le jour de start_Date, on répète
+					if (true)
+					{
+						
+					}
+					else
+					{
+						//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
+						//toutes les x semaines
+						$jumpWeeks =  (int)$data['repeatEach'];
+						$start_time->add(new DateInterval( "P".$jumpWeeks."W" ));
+					}
+
+				}
+				else
+				{
+					//modele de répétition mensuelle
+					
+				}
+			} 
+
+			//plus besoin de ces posts s'ils ne sont pas recurrents
+			else
+			{
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
+
+				clean_post_cache( $event->ID );
+					
+				$old_status = $event->post_status;
+				$event->post_status = 'draft';
+				wp_transition_post_status( 'draft', $old_status, $event );
+
+				Kidzou_Utils::log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
+			}
 
 		}
 
 	}
 
-	/**
-	 * Aspiration de l'agenda sur lille.fr
-	 *
-	 * 
-	 *
-	 */
-	public static function getFeed() {
+	// /**
+	//  * Aspiration de l'agenda sur lille.fr
+	//  *
+	//  * 
+	//  *
+	//  */
+	// public static function getFeed() {
 
-		Kidzou_Utils::log("feed_import_events " );
+	// 	Kidzou_Utils::log("feed_import_events " );
 
-		$content = file_get_contents("http://www.lille.fr/cms/agenda?template=events.rss&definitionName=events");
-	    $x = new SimpleXmlElement($content);
+	// 	$content = file_get_contents("http://www.lille.fr/cms/agenda?template=events.rss&definitionName=events");
+	//     $x = new SimpleXmlElement($content);
 
-	    Kidzou_Utils::log("feed_import_events after " );
+	//     Kidzou_Utils::log("feed_import_events after " );
 	     
-	    foreach($x->channel->item as $entry) {
-	        Kidzou_Utils::log("Import RSS : " . $entry->title );
-	    }
+	//     foreach($x->channel->item as $entry) {
+	//         Kidzou_Utils::log("Import RSS : " . $entry->title );
+	//     }
 
-	}
+	// }
 
 	
 
