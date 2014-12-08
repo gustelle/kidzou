@@ -857,15 +857,55 @@ class Kidzou_Admin {
 		$end_date 		= get_post_meta($post->ID, 'kz_event_end_date', TRUE);
 		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
 
-		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
-		if (is_array($recurrence[0]))
-		{
-			//plus facile à menipuler
-			$data = $recurrence[0];
-			Kidzou_Utils::log('Model:'.$data['model']);
-			Kidzou_Utils::log('repeatEach:'.$data['repeatEach']);
-			Kidzou_Utils::log('endType:'.$data['endType']);
-		}
+			
+			if (is_array($recurrence[0]))
+			{
+				//plus facile à menipuler
+				$data 		= $recurrence[0];
+				$endType 	= $data['endType'];
+				
+				$event_dates 	= Kidzou_Events::getEventDates($event->ID);
+				$start_date 	= $event_dates['start_date'];
+				$end_date 		= $event_dates['end_date'];
+
+				if($data['model'] == 'weekly')
+				{
+					//semaine 0
+					//imaginons que l'evenement doivent etre répété certains jours 
+					//de la semaine ou se passe l'événement (ex: l'evenement est en début/fin le mercredi 03/12, il doit se répéter le vendredi 05/12)
+					//Dans ce cas il ne faut pas encore ajouter les semaines (repeatEach)
+
+					//modele de répétition hebdo : les valeurs de répétition sont les jours
+					//1: lundi -> 7: dimanche
+					$days = (array)$data['repeatItems'];
+					$start_time = new DateTime($start_date);
+
+					//Recupérer le jour de start_date
+					$start_day = $start_time->format('N'); 
+					Kidzou_Utils::log('Jour de début ' . $start_day);
+
+					//puis comparer avec les jours de répétition
+
+					//si les jours de répét sont après le jour de start_Date, on répète
+					if (true)
+					{
+
+					}
+					else
+					{
+						//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
+						//toutes les x semaines
+						$jumpWeeks =  (int)$data['repeatEach'];
+						$start_time->add(new DateInterval( "P".$jumpWeeks."W" ));
+					}
+
+				}
+				else
+				{
+					//modele de répétition mensuelle
+
+				}
+			} 
 
 		echo '<script>
 		jQuery(document).ready(function() {

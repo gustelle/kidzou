@@ -257,18 +257,41 @@ class Kidzou_Events {
 
 		foreach ($obsoletes as $event) {
 
+			$event_dates 	= self::getEventDates($event->ID);
+			$start_date 	= $event_dates['start_date'];
+			$end_date 		= $event_dates['end_date'];
+
+			$start_time = new DateTime($start_date);
+			$end_time = new DateTime($end_date);
+
 			//gestion de la recurrence:
 			$recurrence		= get_post_meta($event->ID, Kidzou_Events::$meta_recurring, FALSE);
-			
+			$occurences 	= intval($data['endValue']);
+
+			$repeatable = false;
+
 			if (is_array($recurrence[0]))
 			{
 				//plus facile à menipuler
 				$data 		= $recurrence[0];
 				$endType 	= $data['endType'];
-				
-				$event_dates 	= self::getEventDates($event->ID);
-				$start_date 	= $event_dates['start_date'];
-				$end_date 		= $event_dates['end_date'];
+
+				if ($endType=='never') {
+					$repeatable = true;
+				} else if ($endType=='date') {
+					$now = new DateTime(date('Y-m-d 00:00:00', time()));
+					if ($end_time > $now)
+						$repeatable = true;
+				} else if ($endType=='occurences') {
+					if ( $occurences > 0)
+						$repeatable = true;
+				}
+					
+			}
+
+			if ($repeatable)
+			{
+				$data 			= $recurrence[0]; //
 
 				if($data['model'] == 'weekly')
 				{
@@ -280,23 +303,48 @@ class Kidzou_Events {
 					//modele de répétition hebdo : les valeurs de répétition sont les jours
 					//1: lundi -> 7: dimanche
 					$days = (array)$data['repeatItems'];
-					$start_time = new DateTime($start_date);
-
+					
 					//Recupérer le jour de start_date
+					//1: lundi...7:dimanche
+					$start_day = $start_time->format('N'); 
 
-					//puis comparer avec les jours de répétition
-
-					//si les jours de répét sont après le jour de start_Date, on répète
-					if (true)
+					//dans la semaaine de la start_date, y a-t-il un jour ou l'événement se répété ?
+					if (intval($start_day)<7) 
 					{
-						
+						foreach ($days as $day) {
+
+							if (intval($day)>intval($start_day)) {
+
+								//positionner le jour de répétition
+								$diff = intval($day) - intval($start_day);
+								$start_time->add(new DateInterval( "P".$diff."D" ));
+								$end_time->add(new DateInterval( "P".$diff."D" ));
+
+								break;
+							}
+						}
 					}
+					
+					//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
+					//toutes les x semaines
 					else
 					{
-						//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
-						//toutes les x semaines
 						$jumpWeeks =  (int)$data['repeatEach'];
 						$start_time->add(new DateInterval( "P".$jumpWeeks."W" ));
+						$end_time->add(new DateInterval( "P".$jumpWeeks."W" ));
+
+						//attention :
+						//on est le dimanche de la semaine 1, l'événement se répéte le mardi de la semaine 3
+						//on ajout 2 semaines, mais on retire 7-2
+						//autre exemple : on est le le mardi, l'événement se répété le mardi suivant: il ne faut rien retirer cette fois
+						$first_day_of_repeat = $days[0];
+						$diff = intval($start_day)-intval($first_day_of_repeat);
+						if ($diff>0)
+						{
+							$start_time->sub(new DateInterval( "P".$diff."D" ));
+							$end_time->sub(new DateInterval( "P".$diff."D" ));
+						}
+
 					}
 
 				}
@@ -305,6 +353,10 @@ class Kidzou_Events {
 					//modele de répétition mensuelle
 					
 				}
+
+				//sauvegarder les meta
+				if ($endType=='occurences')
+					$occurences++;
 			} 
 
 			//plus besoin de ces posts s'ils ne sont pas recurrents
