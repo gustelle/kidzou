@@ -45,6 +45,7 @@ if ( ! defined( 'WPINC' ) ) {
 $directories = array(
             'includes/',
             'includes/TGM/',
+            'includes/Carbon/',
             'public/',
             'public/includes/',
             'public/views/',

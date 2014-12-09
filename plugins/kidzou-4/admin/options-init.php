@@ -241,6 +241,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'title'     => __('Quelle ville a une port&eacute;e &eacute;tendue ?', 'kidzou'),
                             'subtitle'  => __('Lorsque des contenus y sont attach&eacute;s, ils sont visibles pour tous les utilisateurs quelque soit leur m&eacute;tropole de rattachement', 'kidzou'),
                         ),
+
+                        array(
+                            'id'        => 'geo_default_metropole',
+                            'type'      => 'select',
+                            'data' => 'terms',
+                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
+                            'title'     => __('Ville par d&eacute;faut ?', 'kidzou'),
+                            'subtitle'  => __('Si l&apos;utilisateur ne se geolocalise pas ou si une erreur survient lors de la geoloc...les contenus de cette ville lui sont affich&eacute;s', 'kidzou'),
+                        ),
                     )
                 );
 

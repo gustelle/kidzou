@@ -9,12 +9,10 @@ if( !wp_next_scheduled( 'unpublish_posts' ) ) {
  
 add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
-//import RSS d'agenda
-// if( !wp_next_scheduled( 'feed_events' ) ) {
-//    wp_schedule_event( time(), 'daily', 'feed_import' );
-// }
- 
-// add_action( 'feed_events', array( Kidzou_Events::get_instance(), 'getFeed') );
+
+//https://github.com/briannesbitt/Carbon
+// require 'Carbon/Carbon.php';
+use Carbon\Carbon;
 
 
 /**
@@ -249,7 +247,8 @@ class Kidzou_Events {
 	 * dépublie les events dont la date est dépassée
 	 *
 	 */
-	public static function unpublish_obsolete_posts() {
+	public static function unpublish_obsolete_posts() 
+	{
 
 		global $wpdb;
 		
@@ -277,16 +276,20 @@ class Kidzou_Events {
 				$endType 	= $data['endType'];
 
 				if ($endType=='never') {
+
 					$repeatable = true;
+
 				} else if ($endType=='date') {
+
 					$now = new DateTime(date('Y-m-d 00:00:00', time()));
 					if ($end_time > $now)
 						$repeatable = true;
-				} else if ($endType=='occurences') {
-					if ( $occurences > 0)
+
+				} else {
+
+					if ( $endType=='occurences' && ($occurences > 0))
 						$repeatable = true;
-				}
-					
+				}			
 			}
 
 			if ($repeatable)
@@ -350,18 +353,55 @@ class Kidzou_Events {
 				}
 				else
 				{
+
+					//dans ce modele, repeatItems est une string
+					$days = $data['repeatItems'];
+
 					//modele de répétition mensuelle
-					
+					$jumpMonths =  (int)$data['repeatEach'];
+
+					if ($days=='day_of_month') {
+
+						//le 3 du mois
+						$start_time->add(new DateInterval( "P".$jumpMonths."M" ));
+						$end_time->add(new DateInterval( "P".$jumpMonths."M" ));
+
+					} else if ($days=='day_of_week') {
+
+						//Ex : le 2e jeudi du mois
+
+						//le numéro de la semaine 
+						$carbon = Carbon::instance($start_time);
+						$week_number = $carbon->weekOfMonth;
+
+						//Recupérer le jour de start_date
+						//1: lundi...7:dimanche
+						$start_day = $start_time->format('N'); 
+
+						//RAF : positionner ce jour dans les mois suivant
+						//next month
+						$start_time->add(new DateInterval( "P".$jumpMonths."M" ));
+						$end_time->add(new DateInterval( "P".$jumpMonths."M" ));
+						
+						$dt = Carbon::parse($start_date);
+						$next_day = $dt->next(Carbon::WEDNESDAY); 
+
+						// echo $next_day; 
+						
+					}
+
 				}
 
 				//sauvegarder les meta
 				if ($endType=='occurences')
 					$occurences++;
-			} 
 
-			//plus besoin de ces posts s'ils ne sont pas recurrents
+				Kidzou_Utils::log( 'Recurrence : Modification des dates sur ' . $event->ID. ' ['. $event->post_name .']' );
+			} 
 			else
 			{
+				//plus besoin de ces posts s'ils ne sont pas recurrents
+				
 				$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
 
 				clean_post_cache( $event->ID );
@@ -374,7 +414,6 @@ class Kidzou_Events {
 			}
 
 		}
-
 	}
 
 	// /**

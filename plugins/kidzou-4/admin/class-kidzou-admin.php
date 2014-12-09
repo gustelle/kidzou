@@ -963,16 +963,14 @@ class Kidzou_Admin {
 		    		<label for="kz_event_reccurence_mod">R&eacute;ccurence:</label>
 					<select name="kz_event_reccurence_mod" data-bind="options: $root.eventData().recurrenceModel().repeatOptions,
 																		optionsText: \'label\',
-												                       	value: $root.eventData().recurrenceModel().selectedRepeat,
-												                       	optionsCaption: \'Choose...\'" ></select>
+												                       	value: $root.eventData().recurrenceModel().selectedRepeat" ></select>
 					<input type="hidden" name="kz_event_reccurence_model" data-bind="value: eventData().recurrenceModel().selectedRepeat().value" />
 
 		    	</li>
 		    	<li>
 		    		<label for="kz_event_reccurence_repeat_select">R&eacute;p&eacute;ter tous les :</label>
 					<select name="kz_event_reccurence_repeat_select" data-bind="options: $root.eventData().recurrenceModel().selectedRepeat().repeatEvery,
-																		value: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery,
-												                       	optionsCaption: \'...\'" ></select>
+																		value: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery" ></select>
 
 		    	</li>
 		    	

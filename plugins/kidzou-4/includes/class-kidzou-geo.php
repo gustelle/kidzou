@@ -310,16 +310,22 @@ class Kidzou_Geo {
 
 			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
 			if ($cook_m=='' && isset($_GET['kz_metropole']))  {
-				Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $kz_metropole);
 				$cook_m = strtolower($_GET['kz_metropole']);
-			}
+				Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
+			} 
+
+			//si rien ne match, on prend la ville par défaut
+			if ($cook_m=='')  {
+				$cook_m = self::get_default_metropole();
+				Kidzou_Utils::log('[get_request_metropole] ville par défaut : '. $cook_m);
+			} 
 
 		    $isCovered = false;
 
 		    if ($cook_m!='') 
 		    	$isCovered = self::is_metropole($cook_m);
 
-		    Kidzou_Utils::log('[get_request_metropole] isCovered : '. $isCovered);
+		    // Kidzou_Utils::log('[get_request_metropole] isCovered : '. $isCovered);
 
 		    if ($isCovered) 
 		    	self::$request_metropole = $cook_m;
@@ -426,7 +432,7 @@ class Kidzou_Geo {
 	public static function get_default_metropole()
 	{
 
-	    $term = get_term_by('id', Kidzou_Utils::get_option('geo_national_metropole') , 'ville');
+	    $term = get_term_by('id', Kidzou_Utils::get_option('geo_default_metropole') , 'ville');
 
 	    if (!is_wp_error($term) && is_object($term))
 	    	return $term->slug;
