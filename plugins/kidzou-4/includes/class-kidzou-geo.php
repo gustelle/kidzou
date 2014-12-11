@@ -366,7 +366,8 @@ class Kidzou_Geo {
 	            }
 	        }   
 
-	        set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
+	        if (!empty($result) && count($result)>0)
+	       		set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
 
 	        Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
 	    }
@@ -614,8 +615,9 @@ class Kidzou_Geo {
 	            }
 	        }
 	        $regexp .= ')'; //'|'.self::$no_filter.
-
-			set_transient( 'kz_metropole_uri_regexp' , $regexp, 60 * 60 * 24 ); //1 jour de cache
+	
+			if ($regexp != '()')
+				set_transient( 'kz_metropole_uri_regexp' , $regexp, 60 * 60 * 24 ); //1 jour de cache
    		}
 
    		return $regexp;

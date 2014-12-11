@@ -174,7 +174,8 @@ class Kidzou_Notif {
 							if (is_single()) $content[] = self::get_vote_message();
 						}
 
-						set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
+						if (!empty($content) && count($content)>0)
+							set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
 
 					}
 

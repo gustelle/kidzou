@@ -10,8 +10,6 @@ if( !wp_next_scheduled( 'unpublish_posts' ) ) {
 add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
 
-//https://github.com/briannesbitt/Carbon
-// require 'Carbon/Carbon.php';
 use Carbon\Carbon;
 
 
@@ -63,10 +61,29 @@ class Kidzou_Events {
 	public static $meta_featured = 'kz_event_featured';
 
 	/**
-	 * les événements qui sont recurrents sont marqués de cette meta
+	 * les meta qui définissent la recurrence d'un événement
 	 *
 	 */
 	public static $meta_recurring = 'kz_event_recurrence';
+
+	/**
+	 * les événements qui sont recurrents et passés sont marqués de cette meta
+	 *
+	 */
+	public static $meta_past_dates = 'kz_event_past_dates';
+
+	/**
+	 * les événements qui sont recurrents sont marqués de cette meta
+	 *
+	 */
+	public static $meta_start_date = 'kz_event_start_date';
+
+	/**
+	 * les événements qui sont recurrents sont marqués de cette meta
+	 *
+	 */
+	public static $meta_end_date = 'kz_event_end_date';
+
 
 	/**
 	 * les types de posts qui supportent les meta event
@@ -256,46 +273,35 @@ class Kidzou_Events {
 
 		foreach ($obsoletes as $event) {
 
-			$event_dates 	= self::getEventDates($event->ID);
-			$start_date 	= $event_dates['start_date'];
-			$end_date 		= $event_dates['end_date'];
+			////////////////////////////////
+
+			//le jour de la semaine n'est pas bon (ex: 2e mercredi -> 3e mardi)
+			//la date de fin ne marche pas (ex: début le 10/12, tous les 2 mois / fin le 12/12 )
+
+			$start_date		= get_post_meta($event->ID, self::$meta_start_date, TRUE);
+			$end_date 		= get_post_meta($event->ID, self::$meta_end_date, TRUE);
+			$recurrence		= get_post_meta($event->ID, self::$meta_recurring, FALSE);
+			$past_dates		= get_post_meta($event->ID, self::$meta_past_dates, FALSE);
 
 			$start_time = new DateTime($start_date);
 			$end_time = new DateTime($end_date);
 
 			//gestion de la recurrence:
-			$recurrence		= get_post_meta($event->ID, Kidzou_Events::$meta_recurring, FALSE);
-			$occurences 	= intval($data['endValue']);
-
+			$occurences 	= 0;
 			$repeatable = false;
+
+			//pour les récurrences : les dates mises à jour
+			$new_start_date = $start_date;
+			$new_end_date = $end_date;
 
 			if (is_array($recurrence[0]))
 			{
 				//plus facile à menipuler
 				$data 		= $recurrence[0];
 				$endType 	= $data['endType'];
+				$occurences = intval($data['endValue']);
 
-				if ($endType=='never') {
-
-					$repeatable = true;
-
-				} else if ($endType=='date') {
-
-					$now = new DateTime(date('Y-m-d 00:00:00', time()));
-					if ($end_time > $now)
-						$repeatable = true;
-
-				} else {
-
-					if ( $endType=='occurences' && ($occurences > 0))
-						$repeatable = true;
-				}			
-			}
-
-			if ($repeatable)
-			{
-				$data 			= $recurrence[0]; //
-
+				////////////////////////////////
 				if($data['model'] == 'weekly')
 				{
 					//semaine 0
@@ -350,6 +356,13 @@ class Kidzou_Events {
 
 					}
 
+					//on met à jour les dates
+					$carbon = Carbon::instance($start_time);
+					$new_start_date = $carbon->toDateTimeString() ; 
+
+					$carbon = Carbon::instance($end_time);
+					$new_end_date = $carbon->toDateTimeString() ; 
+
 				}
 				else
 				{
@@ -362,46 +375,102 @@ class Kidzou_Events {
 
 					if ($days=='day_of_month') {
 
-						//le 3 du mois
-						$start_time->add(new DateInterval( "P".$jumpMonths."M" ));
-						$end_time->add(new DateInterval( "P".$jumpMonths."M" ));
+						//ex : le 3 du mois
+
+						$startCarbon = Carbon::parse($start_date);
+						$endCarbon = Carbon::parse($end_date);
+
+						$new_start_date = $startCarbon->addMonths(intval($jumpMonths))->toDateTimeString();
+						$new_end_date = $endCarbon->addMonths(intval($jumpMonths))->toDateTimeString();
+
 
 					} else if ($days=='day_of_week') {
 
 						//Ex : le 2e jeudi du mois
 
 						//le numéro de la semaine 
-						$carbon = Carbon::instance($start_time);
-						$week_number = $carbon->weekOfMonth;
+						$startCarbon = Carbon::parse($start_date);
+						$endCarbon = Carbon::parse($end_date);
 
-						//Recupérer le jour de start_date
-						//1: lundi...7:dimanche
-						$start_day = $start_time->format('N'); 
+						$diffInDays = $startCarbon->diffInDays( $endCarbon, false );
 
-						//RAF : positionner ce jour dans les mois suivant
-						//next month
-						$start_time->add(new DateInterval( "P".$jumpMonths."M" ));
-						$end_time->add(new DateInterval( "P".$jumpMonths."M" ));
+						$week_number = intval($startCarbon->weekOfMonth)-1; //car on se recalera déjà sur le 1er par next() 
+
+						$start_day = $startCarbon->dayOfWeek; 
+						$end_day = $endCarbon->dayOfWeek;
 						
-						$dt = Carbon::parse($start_date);
-						$next_day = $dt->next(Carbon::WEDNESDAY); 
-
-						// echo $next_day; 
+						$new_start_date = $startCarbon->startOfMonth()->addMonths(intval($jumpMonths))->next($start_day)->addWeeks(intval($week_number))->toDateTimeString();
+						$new_end_date = $endCarbon->startOfMonth()->addMonths(intval($jumpMonths))->next($end_day)->addWeeks(intval($week_number))->toDateTimeString();
 						
 					}
 
 				}
 
-				//sauvegarder les meta
-				if ($endType=='occurences')
-					$occurences++;
+				////////////////////////////////
 
-				Kidzou_Utils::log( 'Recurrence : Modification des dates sur ' . $event->ID. ' ['. $event->post_name .']' );
-			} 
+				if ($endType=='never') {
+
+					$repeatable = true;
+
+				} else if ($endType=='date') {
+
+					$untill = Carbon::parse($data['endValue']);
+					$nextStart = Carbon::parse($new_start_date); 
+
+					if ( $nextStart->diffInDays( $untill, false ) >= 0 ) { //pas en valeur absolue !
+						Kidzou_Utils::log('endType = days, diff = '. $untill->diffInDays( $nextStart ));
+						$repeatable = true;
+					}
+						
+
+				} else {
+	 				
+	 				//on est forcément sur les occurences
+	 				//endtype = occurences
+					if ( $occurences>0 ) {
+						$repeatable = true;
+						$occurences--; //on décrémente les occurences, pas l'inverse...sinon ca ne se termine jamais
+					}
+						
+				}	
+					
+			}
+
+			if ($repeatable)
+			{
+				$events_meta['start_date'] 	= $new_start_date;
+				$events_meta['end_date'] 	= $new_end_date;
+
+				$events_meta['recurrence'] = array(
+						"model" => $data['model'],
+						"repeatEach" => (int)$data['repeatEach'],
+						"repeatItems" => $data['repeatItems'], 
+						"endType" 	=> $data['endType'],
+						"endValue"	=> ($data['endType'] == 'date' ? $data['endValue'] : $occurences) 
+					);
+
+				$old_dates = array(
+						'start_date' => $start_date,
+						'end_date'	=> $end_date
+					);
+
+				if (!isset($past_dates[0]))
+					$past_dates[0] = array();
+
+				array_push($past_dates[0], $old_dates);
+
+				$events_meta['past_dates'] = $past_dates[0];
+
+				Kidzou_Admin::save_meta($event->ID, $events_meta, "kz_event_");	
+
+				Kidzou_Utils::log( 'Event dates updates (recurrence) : ' . $event->ID. '['. $event->post_name .']' );
+
+				// Kidzou_Utils::log($events_meta);
+			}
 			else
 			{
 				//plus besoin de ces posts s'ils ne sont pas recurrents
-				
+					
 				$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
 
 				clean_post_cache( $event->ID );
@@ -415,28 +484,6 @@ class Kidzou_Events {
 
 		}
 	}
-
-	// /**
-	//  * Aspiration de l'agenda sur lille.fr
-	//  *
-	//  * 
-	//  *
-	//  */
-	// public static function getFeed() {
-
-	// 	Kidzou_Utils::log("feed_import_events " );
-
-	// 	$content = file_get_contents("http://www.lille.fr/cms/agenda?template=events.rss&definitionName=events");
-	//     $x = new SimpleXmlElement($content);
-
-	//     Kidzou_Utils::log("feed_import_events after " );
-	     
-	//     foreach($x->channel->item as $entry) {
-	//         Kidzou_Utils::log("Import RSS : " . $entry->title );
-	//     }
-
-	// }
-
 	
 
 	/**
