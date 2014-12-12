@@ -857,6 +857,7 @@ class Kidzou_Admin {
 		$start_date		= get_post_meta($post->ID, Kidzou_Events::$meta_start_date, TRUE);
 		$end_date 		= get_post_meta($post->ID, Kidzou_Events::$meta_end_date, TRUE);
 		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
+		$past_dates		= get_post_meta($post->ID, Kidzou_Events::$meta_past_dates, FALSE);
 
 		echo '<script>
 		jQuery(document).ready(function() {
@@ -961,9 +962,23 @@ class Kidzou_Admin {
 			<ul>	
 		    	<li><b>R&eacute;sum&eacute; : <span data-bind="text: eventData().recurrenceModel().recurrenceSummary()" /></b></li>
 			</ul>
-			<!-- /ko -->
+			<!-- /ko -->';
 
-		</div>';
+			if (!empty($past_dates) && count($past_dates[0])>0)
+			{
+				echo '<ul><h4>Ev&eacute;nements pass&eacute;s :</h4>';
+				foreach ($past_dates[0] as  $value) {
+					Kidzou_Utils::log($value);
+					$past_start_date=date_create($value['start_date']);
+					$past_end_date=date_create($value['end_date']);
+					echo '<li>Du '.date_format($past_start_date,"d/m/Y").' au '.date_format($past_end_date,"d/m/Y").'</li>';
+				}
+				echo '</ul>';
+
+			}
+
+		echo 
+		'</div>';
 
 	}
 

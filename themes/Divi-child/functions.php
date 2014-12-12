@@ -79,6 +79,10 @@ function override_divi_parent_functions()
 	//passer en dernier pour retirer et_fixed_nav pour rendre la barre de header floattante
 	add_filter( 'body_class', 'kz_add_class_habillage', 100 ); 
 
+	//optimisation de performance
+	//pas besoin de passer par cette fonction, les css sont dans style.css
+	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
+
 }
 
 function custom_excerpt_length( $length ) {
