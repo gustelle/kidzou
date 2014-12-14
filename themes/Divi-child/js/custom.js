@@ -412,7 +412,7 @@
 			} );
 		}
 
-		if ( $et_post_gallery.length ) {
+		if ( $et_post_gallery.length && $.fn.magnificPopup) {
 			$et_post_gallery.magnificPopup( {
 				delegate: 'a',
 				type: 'image',
@@ -2139,10 +2139,10 @@
 			
 			var options, a;
 			options = { 
-				source: kidzou_suggest.terms_list ,
+				source: et_custom.terms_list ,
 				messages: {
-			        noResults: kidzou_suggest.no_results,
-			        results: function() {return kidzou_suggest.results;}
+			        noResults: et_custom.no_results,
+			        results: function() {return et_custom.results;}
 			    },
 			    minLength: 1,
 			    delay : 100,
@@ -2154,22 +2154,25 @@
 
 			    	// console.debug(kidzou_suggest.site_url + "/" + ui.item.id);
 			    	
-	                window.location.href = kidzou_suggest.site_url + "/" + ui.item.id;
+	                window.location.href = et_custom.site_url + "/" + ui.item.id;
 	            },
 	            //si le user lance une recherche sans selectionner d'item, et sans valider le formulaire
 	            search: function( event, ui ) {
-	            	$('#kz_searchbutton').attr('href', kidzou_suggest.site_url + "/?s=" + $("#kz_searchinput").val());
+	            	$('#kz_searchbutton').attr('href', et_custom.site_url + "/?s=" + $("#kz_searchinput").val());
 	            }
 			
 			};
-			$('.kz_searchbox input').autocomplete(options).data('ui-autocomplete')._renderMenu = function( ul, items ) {
+			if ($.fn.autocomplete) {
+				$('.kz_searchbox input').autocomplete(options).data('ui-autocomplete')._renderMenu = function( ul, items ) {
 				  var that = this;
 				  $.each( items, function( index, item ) {
 				    that._renderItemData( ul, item );
 				  });
-				  $(ul).prepend("<h4>" + kidzou_suggest.suggest_title + "</h4>");
+				  $(ul).prepend("<h4>" + et_custom.suggest_title + "</h4>");
 				  
 				};
+			}
+			
 
 			//submission du formulaire
 			jQuery(".kz_searchbox").submit(function(){

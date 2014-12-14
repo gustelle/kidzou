@@ -92,7 +92,7 @@
 				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', $post->post_title, $post->post_title, false, 'thumbnail' );
 				$thumb = $thumbnail["thumb"];
 				$output .= "<li class='sidebar_post_item'><a href='".get_permalink()."'>";
-				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, $instance['thumb_width'], $instance['thumb_height'], '', false); 
+				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, '', '', '', false); 
 				$output .= $post->post_title."</a></li>";
 			}
 

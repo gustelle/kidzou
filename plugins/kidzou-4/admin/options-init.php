@@ -456,6 +456,22 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     ),
                 )
             );
+
+            // ACTUAL DECLARATION OF SECTIONS
+            $this->sections[] = array(
+                'title'     => __('Performances', 'kidzou'),
+                'icon'      => 'el-icon-wrench',
+                'fields'    => array(
+
+                        array(
+                            'id'=>'perf_exclude_jshandle',
+                            'type' => 'multi_text',
+                            'title' => __('Exclure les JS suivants des optimisations de performance op&eacute;r&eacute;es par Kidzou', 'kidzou'),
+                            'subtitle' => __('Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                        ),
+                        
+                    )
+                );
             
         }
 

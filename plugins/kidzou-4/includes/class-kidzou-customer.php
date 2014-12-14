@@ -258,9 +258,9 @@ class Kidzou_Customer {
 		 
 		$rd_query = new WP_Query( $rd_args );
 
-		Kidzou_Utils::log('getPostsByCustomerID ');
+		// Kidzou_Utils::log('getPostsByCustomerID ');
 
-		Kidzou_Utils::log($rd_query);
+		// Kidzou_Utils::log($rd_query);
 
 		$list = 	$rd_query->get_posts(); 
 

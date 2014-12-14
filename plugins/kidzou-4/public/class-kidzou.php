@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '28-nov-fix-geo';
+	const VERSION = '13-dec';
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -46,7 +46,7 @@ class Kidzou {
 	 *
 	 * @var      string
 	 */
-	protected $plugin_slug = 'kidzou';
+	public $plugin_slug = 'kidzou';
 
 	/**
 	 * Instance of this class.
@@ -528,11 +528,11 @@ class Kidzou {
 
 		global $kidzou_options;
 
-		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( 'kidzou-4/assets/js/kidzou-storage.js' ), array( 'jquery' ), self::VERSION, true);
-		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko' ), self::VERSION, true );
+		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( 'kidzou-4/assets/js/kidzou-storage.js' ), array( 'jquery', 'ko', 'ko-mapping' ), self::VERSION, true);
+		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko', 'kidzou-storage'), self::VERSION, true );
 		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
-	
+		
 		wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
 				'msg_wait'			 			 => 'Merci de patienter...',
 				'msg_loading'				 	 => 'Chargement en cours...',

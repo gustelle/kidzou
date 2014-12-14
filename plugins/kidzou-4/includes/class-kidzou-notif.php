@@ -22,7 +22,7 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Notif', 'get_instance' ) );
  *
  * @TODO: Rename this class to a proper name for your plugin.
  *
- * @package Kidzou_API
+ * @package Kidzou_Notif
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_Notif {
@@ -80,17 +80,20 @@ class Kidzou_Notif {
 
 		$kidzou_instance = Kidzou::get_instance();
 
+		wp_enqueue_style( 'endbox', plugins_url( 'kidzou-4/public/assets/css/endpage-box.css' ), array(), Kidzou::VERSION );
+
 		wp_enqueue_script('endbox',	 plugins_url( 'kidzou-4/public/assets/js/jquery.endpage-box.min.js' ),array(), Kidzou::VERSION, true);
-		wp_enqueue_style( 'endbox', plugins_url( 'kidzou-4/public/assets/css/endpage-box.css' ), null, Kidzou::VERSION );
+		wp_enqueue_script( 'kidzou-notif', plugins_url( 'kidzou-4/public/assets/js/kidzou-notif.js' ), array('jquery', 'ko', 'endbox','kidzou-plugin-script', 'kidzou-storage'), Kidzou::VERSION, true);
 		// wp_enqueue_style( 'ns-other', plugins_url( 'kidzou-4/public/assets/css/ns-style-other.css' ), null, Kidzou::VERSION );
 
-		wp_localize_script($kidzou_instance->get_plugin_slug() . '-plugin-script', 'kidzou_notif', array(
-				
+		wp_localize_script('kidzou-notif', 'kidzou_notif', array(
 				'messages'				=> self::get_messages(),
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
 			)
 		);
+
+		// echo 'kidzou_notif:'.wp_script_is('kidzou-notif', 'enqueued');
 	}
 
 	/**

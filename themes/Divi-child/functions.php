@@ -83,6 +83,10 @@ function override_divi_parent_functions()
 	//pas besoin de passer par cette fonction, les css sont dans style.css
 	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
 
+	//script utilisé dans les shortcodes 
+	// add_action('init', 'kz_register_shortcode_script');
+	// add_action('wp_head', 'kz_print_shortcode_script', 1);
+
 }
 
 function custom_excerpt_length( $length ) {
@@ -150,7 +154,23 @@ function filter_archive_query($query)
 function kz_divi_load_scripts ()
 {
 	wp_dequeue_script( 'divi-custom-script' );
-	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery' ), '1.0.0', true );
+	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery', 'jquery-ui-autocomplete' ), '1.0.0', true );
+
+	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
+
+	$items = array();
+
+	foreach ($terms as $term) {
+
+		if ($term->taxonomy == 'divers')
+			$tax = 'famille';
+		elseif ($term->taxonomy == 'category') 
+			$tax = 'rubrique';
+		else
+			$tax = $term->taxonomy;
+		
+		$items[] = array("id" => $tax.'/'.$term->slug, "label" => $term->name);
+	}
 
 	wp_localize_script( 'kidzou-custom-script', 'et_custom', array(
 		'ajaxurl'             => admin_url( 'admin-ajax.php' ),
@@ -163,6 +183,11 @@ function kz_divi_load_scripts ()
 		'captcha'             => esc_html__( 'Captcha', 'Divi' ),
 		'prev'				  => esc_html__( 'Prev', 'Divi' ),
 		'next'				  => esc_html__( 'Next', 'Divi' ),
+		"terms_list" 		=> $items, 
+		'no_results'		=> __('Aucun r&eacute;sultat trouv&eacute; !','Divi'),
+		'results' 			=> __('Utilisez les fl&egrave;ches pour naviguer dans les resultats', 'Divi'),
+		'suggest_title' 	=> __('Quelques suggestions de cat&eacute;gories : ','Divi'),
+		'site_url' 			=> site_url()
 	) );
 }
 
@@ -467,6 +492,17 @@ function kz_pb_submit_subscribe_form() {
 }
 
 
+// function kz_register_shortcode_script() {
+
+// }
+
+// function kz_print_shortcode_script() {
+
+
+// 	wp_enqueue_script(  );
+
+// }
+
 /**
  * undocumented function
  *
@@ -475,33 +511,7 @@ function kz_pb_submit_subscribe_form() {
  **/
 function searchbox()
 {
-	wp_enqueue_script( 'jquery-ui-autocomplete' );	
 
-	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
-
-	$items = array();
-
-	foreach ($terms as $term) {
-
-		if ($term->taxonomy == 'divers')
-			$tax = 'famille';
-		elseif ($term->taxonomy == 'category') 
-			$tax = 'rubrique';
-		else
-			$tax = $term->taxonomy;
-		
-		$items[] = array("id" => $tax.'/'.$term->slug, "label" => $term->name);
-	}
-
-	$args = array( 
-		"terms_list" => $items, 
-		'no_results'=> __('Aucun r&eacute;sultat trouv&eacute; !','Divi'),
-		'results' => __('Utilisez les fl&egrave;ches pour naviguer dans les resultats', 'Divi'),
-		'suggest_title' => __('Quelques suggestions de cat&eacute;gories : ','Divi'),
-		'site_url' => site_url()
-		);			
-
-	wp_localize_script(  'jquery-ui-autocomplete', 'kidzou_suggest', $args );
 
 	$output = sprintf(
 		'<form class="kz_searchbox" method="get" action="%2$s">
