@@ -1322,7 +1322,7 @@ class Kidzou_Admin {
 
 		// Kidzou_Utils::log('save_client_meta');
 
-		if ( ! isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
+		if ( !isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
 
 			//OK, le user ne voit pas la meta client, c'est peut-être qu'il n'a pas le droit de voir la metabox
 			//Car elle a été cachée par un autre plugin
@@ -1348,7 +1348,7 @@ class Kidzou_Admin {
 
 		// verify this came from the our screen and with proper authorization,
 		// because save_post can be triggered at other times
-		if ( !wp_verify_nonce( $_POST['clientmeta_noncename'], plugin_basename(__FILE__) )) {
+		if ( !isset( $_POST['clientmeta_noncename'] ) || !wp_verify_nonce( $_POST['clientmeta_noncename'], plugin_basename(__FILE__) )) {
 			return $post_id;
 		}
 

@@ -829,18 +829,18 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
-	ob_start();
-
-	query_posts( $args );
+	$projects = get_portfolio_items( $args );
 
 	$categories_included = array();
+
+	ob_start();
 
 	$index = 0;
 	$inserted = false;
 
-	if ( have_posts() ) {
+	if ( $projects->post_count > 0 ) {
 
-		while ( have_posts() ) {
+		while ( $projects->have_posts() ) {
 
 			$insert = false;
 
@@ -875,7 +875,7 @@ function kz_pb_portfolio( $atts ) {
 
 			} else {
 
-				the_post(); 
+				$projects->the_post();
 
 				$categories = get_the_terms( get_the_ID(), 'category' );
 				if ( $categories ) {
@@ -1375,13 +1375,17 @@ function get_portfolio_items( $args = array() ) {
 
 	$default_args = array(
 		'post_type' => Kidzou::post_types(),
-		'tax_query' => array(
-			Kidzou_Geo::get_query_args()
-		),
-
 	);
 
 	$args = wp_parse_args( $args, $default_args );
+
+	if ( isset($args['tax_query']) )
+		$tax = $args['tax_query'];
+	else
+		$tax = array();
+
+	$tax[] = Kidzou_Geo::get_query_args();
+	$args['tax_query'] = $tax;
 
 	$q = new WP_Query( $args );
 

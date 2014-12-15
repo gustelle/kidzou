@@ -177,6 +177,8 @@ class Kidzou_Geo {
 
 		$urladapter = new Kidzou_Geo_URLAdapter();
 
+		// Kidzou_Utils::log('geo_filter_query ? '.$urladapter->is_adaptable() );
+
 		if ( $urladapter->is_adaptable() )
 		{
 			// global $wp_query;
