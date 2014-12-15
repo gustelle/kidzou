@@ -119,46 +119,49 @@ class Kidzou_WebPerf {
 		global $wp_scripts;
 
 		// print_r($wp_scripts->queue);
+		if (!is_admin())
+		{
 
-		$all_exceptions = array_merge( Kidzou_Utils::get_option('perf_exclude_jshandle', array()) , self::$exceptions);
+			$all_exceptions = array_merge( Kidzou_Utils::get_option('perf_exclude_jshandle', array()) , self::$exceptions);
 		
-	    foreach( $wp_scripts->queue as $queued ) {
+		    foreach( $wp_scripts->queue as $queued ) {
 
-	    	$is_exception = in_array($queued, $all_exceptions);
+		    	$is_exception = in_array($queued, $all_exceptions);
 
-	    	if ( !$is_exception ) { //wp_script_is( $registered->handle ,'enqueued') && && !in_array($registered->handle, self::$removed_from_queue)
+		    	if ( !$is_exception ) { //wp_script_is( $registered->handle ,'enqueued') && && !in_array($registered->handle, self::$removed_from_queue)
 
-	    		$registered = $wp_scripts->registered[$queued];
-	    		array_push(self::$removed_from_queue, array(
-		    			'handle' => $queued,
-		    			'src' => $registered->src,
-		    			'deps' => $registered->deps
-	    			)
-	    		);
+		    		$registered = $wp_scripts->registered[$queued];
+		    		array_push(self::$removed_from_queue, array(
+			    			'handle' => $queued,
+			    			'src' => $registered->src,
+			    			'deps' => $registered->deps
+		    			)
+		    		);
 
-	    	} else {
+		    	} else {
 
-	    		if ( !in_array($queued, self::$do_not_touch) ) {
+		    		if ( !in_array($queued, self::$do_not_touch) ) {
 
-	    			$registered = $wp_scripts->registered[$queued];
-	    			//s'assurer que ces scripts snt bien dans le footer s'ils ne sont pas chargés par webperf.js
-		    		wp_deregister_script($registered->handle);
-	    			wp_dequeue_script( $registered->handle );
-	    			wp_register_script($registered->handle, $registered->src, $registered->deps, Kidzou::VERSION, true);
-					wp_enqueue_script( $registered->handle );
-	    		}
-	    		
-	    	}
+		    			$registered = $wp_scripts->registered[$queued];
+		    			//s'assurer que ces scripts snt bien dans le footer s'ils ne sont pas chargés par webperf.js
+			    		wp_deregister_script($registered->handle);
+		    			wp_dequeue_script( $registered->handle );
+		    			wp_register_script($registered->handle, $registered->src, $registered->deps, Kidzou::VERSION, true);
+						wp_enqueue_script( $registered->handle );
+		    		}
+		    		
+		    	}
 
-	    }
+		    }
 
-	    wp_enqueue_script( 'kidzou-webperf' , plugins_url( '../assets/js/kidzou-webperf.js', __FILE__ ), array(  ), Kidzou::VERSION, true );
-		wp_localize_script('kidzou-webperf', 'kidzou_webperf', array(
-				'js' => self::$removed_from_queue,
-				'version' => Kidzou::VERSION
-			)
-		);
+		    wp_enqueue_script( 'kidzou-webperf' , plugins_url( '../assets/js/kidzou-webperf.js', __FILE__ ), array(  ), Kidzou::VERSION, true );
+			wp_localize_script('kidzou-webperf', 'kidzou_webperf', array(
+					'js' => self::$removed_from_queue,
+					'version' => Kidzou::VERSION
+				)
+			);
 
+		}
 	}
 
 	/**
@@ -168,16 +171,17 @@ class Kidzou_WebPerf {
 	 */
 	public static function arrange_scripts() {
 
+		if (!is_admin())
+		{
+			foreach( self::$removed_from_queue as $registered ) {
 
-	    foreach( self::$removed_from_queue as $registered ) {
-
-    		//il n'a plus rien à faire dans la queue, il sera chargé par JS 
-    		wp_deregister_script($registered['handle']);
-    		wp_dequeue_script( $registered['handle'] );
-    		// Kidzou_Utils::log($registered->handle.' supprimé de la queue...');
-    	
-	    }
-
+	    		//il n'a plus rien à faire dans la queue, il sera chargé par JS 
+	    		wp_deregister_script($registered['handle']);
+	    		wp_dequeue_script( $registered['handle'] );
+	    		// Kidzou_Utils::log($registered->handle.' supprimé de la queue...');
+	    	
+		    }
+		}
 	
 	}
 
@@ -198,12 +202,18 @@ class Kidzou_WebPerf {
 
 	// ACTION wp_footer
 	public static function load_js_async($url) {
-		
-		if ( FALSE === strpos( $url, '.js' ) )
-	    { // not our file
-	    	return $url;
-	    }
-		return "$url' async='async";
+
+		//jquery est vraiment chiant...
+		if (!is_admin() && !preg_match('#jquery.js#', $url) )
+		{
+			if ( FALSE === strpos( $url, '.js' ) )
+		    { // not our file
+		    	return $url;
+		    }
+			return "$url' async='async";
+		}
+		else
+			return $url;
 		
 	}
 

@@ -25,7 +25,8 @@
 
 	<script>
 	document.addEventListener('DOMContentLoaded', function() {
-	   kidzouTracker.trackEvent("Aucun Contenu", "URL", window.location.pathname , 0);
+		if (window.kidzouTracker)
+	  		kidzouTracker.trackEvent("Aucun Contenu", "URL", window.location.pathname , 0);
 	});
 		
 	</script>
