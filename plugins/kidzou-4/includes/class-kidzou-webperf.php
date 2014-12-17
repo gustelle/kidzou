@@ -38,24 +38,23 @@ class Kidzou_WebPerf {
 	protected static $instance = null;
 
 	/**
-	 * les JS qui ne sont un peu particuliers et qui méritent un traitement spécial car ils embarquent des variables contextuelles
-	 * via wp_localize_script.
+	 * les JS qui ne sont un peu particuliers et qui méritent un traitement spécial 
 	 * il restent dans le footer mais ne sont pas chargés par webperf.js
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      object
 	 */
-	protected static $exceptions = array( 'jquery', 'jquery-core', 'jquery-migrate','endbox', 'kidzou-storage', 'ko', 'ko-mapping', 'kidzou-plugin-script', 'kidzou-geo','kidzou-notif' ,'google-maps-api', 'magnific-popup'); //'jquery', 'ko','endbox'
+	protected static $exceptions = array( 'jquery-migrate' ); 
 
 	/**
-	 * les JS qui doivent rester en header
+	 * les JS qui restent tels quels car ils embarquent des variables contextuelles par wp_localize_script
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      object
 	 */
-	protected static $do_not_touch = array( 'jquery-core', 'kidzou-plugin-script', 'kidzou-geo' , 'kidzou-custom-script','kidzou-notif' ,'magnific-popup' ); //'jquery', 'ko','endbox'
+	protected static $do_not_touch = array( 'jquery', 'jquery-core', 'kidzou-plugin-script', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-notif','kidzou-geo' ); 
 
 
 	/**
@@ -118,29 +117,32 @@ class Kidzou_WebPerf {
 
 		global $wp_scripts;
 
-		// print_r($wp_scripts->queue);
-		if (!is_admin())
-		{
+		$activate= ((bool)Kidzou_Utils::get_option('geo_activate',false)) ;
 
+		if (!is_admin() && $activate )
+		{
 			$all_exceptions = array_merge( Kidzou_Utils::get_option('perf_exclude_jshandle', array()) , self::$exceptions);
-		
+			$all_not_touch = array_merge( Kidzou_Utils::get_option('perf_do_not_touch', array()) , self::$do_not_touch);
+
 		    foreach( $wp_scripts->queue as $queued ) {
 
-		    	$is_exception = in_array($queued, $all_exceptions);
+		    	$is_not_touch = in_array($queued, $all_not_touch);
 
-		    	if ( !$is_exception ) { //wp_script_is( $registered->handle ,'enqueued') && && !in_array($registered->handle, self::$removed_from_queue)
+		    	if ( !$is_not_touch ) {
 
-		    		$registered = $wp_scripts->registered[$queued];
-		    		array_push(self::$removed_from_queue, array(
-			    			'handle' => $queued,
-			    			'src' => $registered->src,
-			    			'deps' => $registered->deps
-		    			)
-		    		);
+		    		$is_exception = in_array($queued, $all_exceptions);
 
-		    	} else {
+		    		if ( !$is_exception ) { //wp_script_is( $registered->handle ,'enqueued') && && !in_array($registered->handle, self::$removed_from_queue)
 
-		    		if ( !in_array($queued, self::$do_not_touch) ) {
+			    		$registered = $wp_scripts->registered[$queued];
+			    		array_push(self::$removed_from_queue, array(
+				    			'handle' => $queued,
+				    			'src' => $registered->src,
+				    			'deps' => $registered->deps
+			    			)
+			    		);
+
+		    		} else {
 
 		    			$registered = $wp_scripts->registered[$queued];
 		    			//s'assurer que ces scripts snt bien dans le footer s'ils ne sont pas chargés par webperf.js
@@ -171,7 +173,9 @@ class Kidzou_WebPerf {
 	 */
 	public static function arrange_scripts() {
 
-		if (!is_admin())
+		$activate= ((bool)Kidzou_Utils::get_option('geo_activate',false)) ;
+
+		if (!is_admin() && $activate)
 		{
 			foreach( self::$removed_from_queue as $registered ) {
 
@@ -203,8 +207,10 @@ class Kidzou_WebPerf {
 	// ACTION wp_footer
 	public static function load_js_async($url) {
 
+		$activate= ((bool)Kidzou_Utils::get_option('geo_activate',false)) ;
+
 		//jquery est vraiment chiant...
-		if (!is_admin() && !preg_match('#jquery.js#', $url) )
+		if (!is_admin() && $activate && !preg_match('#jquery.js#', $url)  && !preg_match('#knockout-min.js#', $url) )
 		{
 			if ( FALSE === strpos( $url, '.js' ) )
 		    { // not our file

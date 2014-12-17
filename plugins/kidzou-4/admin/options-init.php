@@ -464,10 +464,24 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'fields'    => array(
 
                         array(
+                            'id'        => 'perf_activate',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Activer les optimisations de performance', 'kidzou'),
+                        ),
+
+                        array(
                             'id'=>'perf_exclude_jshandle',
                             'type' => 'multi_text',
-                            'title' => __('Exclure les JS suivants des optimisations de performance op&eacute;r&eacute;es par Kidzou', 'kidzou'),
-                            'subtitle' => __('Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                            'title' => __('Ne pas charger les JS suivants en arri&egrave;re plan par Javascript', 'kidzou'),
+                            'subtitle' => __('Les scripts list&eacute;s seront charg&eacute;s dans le footer. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'=>'perf_do_not_touch',
+                            'type' => 'multi_text',
+                            'title' => __('Ne pas du tout toucher les JS suivants', 'kidzou'),
+                            'subtitle' => __('En particulier les scripts qui utilisent des variables localis&eacute;s par wp_localize_script. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
                         ),
                         
                     )
