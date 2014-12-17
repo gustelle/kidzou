@@ -240,7 +240,12 @@ class Kidzou_Geo {
 	    return $query;
 	}
 
-
+	/**
+	 * Recupérer les args de Geoquery
+	 *
+	 * @return Array
+	 * @author 
+	 **/
 	public static function get_query_args() {
 
 		$the_metropole = array();
@@ -256,6 +261,34 @@ class Kidzou_Geo {
                 );
 
 	}
+
+	/**
+	 * injecter les params de geoloc dans les arguments d'une Query
+	 *
+	 * @return Array
+	 * @author 
+	 **/
+	public static function get_geo_query( $args = array() ) {
+
+		$default_args = array(
+			'post_type' => Kidzou::post_types(),
+		);
+
+		$args = wp_parse_args( $args, $default_args );
+
+		if ( isset($args['tax_query']) )
+			$tax = $args['tax_query'];
+		else
+			$tax = array();
+
+		$tax[] = self::get_query_args();
+		$args['tax_query'] = $tax;
+
+		return $args;
+
+	}
+
+
 	/**
 	 * la metropole de rattachement de la requete
 	 * si aucune metropole ne sort de la requete, et si aucun cookie n'est détecté, la chaine $no_filter est retournée

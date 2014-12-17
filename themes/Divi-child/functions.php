@@ -492,17 +492,6 @@ function kz_pb_submit_subscribe_form() {
 }
 
 
-// function kz_register_shortcode_script() {
-
-// }
-
-// function kz_print_shortcode_script() {
-
-
-// 	wp_enqueue_script(  );
-
-// }
-
 /**
  * undocumented function
  *
@@ -763,7 +752,6 @@ function kz_pb_portfolio( $atts ) {
 			'background_layout' => 'light',
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
-			// 'show_filters' => 'on',
 			'show_ad' => 'on',
 			'filter' => 'none',
 			'orderby' => 'publish_date'
@@ -829,7 +817,9 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
-	$projects = get_portfolio_items( $args );
+	$args =  Kidzou_Geo::get_geo_query($args);
+
+	query_posts( $args );
 
 	$categories_included = array();
 
@@ -838,9 +828,9 @@ function kz_pb_portfolio( $atts ) {
 	$index = 0;
 	$inserted = false;
 
-	if ( $projects->post_count > 0 ) {
+	if ( have_posts() ) {
 
-		while ( $projects->have_posts() ) {
+		while(have_posts()){
 
 			$insert = false;
 
@@ -875,7 +865,7 @@ function kz_pb_portfolio( $atts ) {
 
 			} else {
 
-				$projects->the_post();
+				the_post();
 
 				$categories = get_the_terms( get_the_ID(), 'category' );
 				if ( $categories ) {
@@ -1015,7 +1005,7 @@ function kz_pb_portfolio( $atts ) {
 		//fin de boucle while
 		}
 
-		if ( 'on' === $show_pagination && ! is_search() ) {
+		if ( 'on' === $show_pagination && !is_search() ) {
 			echo '</div> <!-- .et_pb_portfolio -->';
 
 			$container_is_closed = true;
@@ -1024,9 +1014,11 @@ function kz_pb_portfolio( $atts ) {
 				wp_pagenavi();
 			else
 				get_template_part( 'includes/navigation', 'index' );
+
 		}
 
 		wp_reset_query();
+
 	} else {
 		get_template_part( 'includes/no-results', 'index' );
 	}
@@ -1373,23 +1365,7 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  */
 function get_portfolio_items( $args = array() ) {
 
-	$default_args = array(
-		'post_type' => Kidzou::post_types(),
-	);
-
-	$args = wp_parse_args( $args, $default_args );
-
-	if ( isset($args['tax_query']) )
-		$tax = $args['tax_query'];
-	else
-		$tax = array();
-
-	$tax[] = Kidzou_Geo::get_query_args();
-	$args['tax_query'] = $tax;
-
-	$q = new WP_Query( $args );
-
-	return $q;
+	return Kidzou_Geo::get_geo_query( $args );
 
 }
 
