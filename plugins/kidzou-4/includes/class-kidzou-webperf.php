@@ -54,7 +54,7 @@ class Kidzou_WebPerf {
 	 *
 	 * @var      object
 	 */
-	protected static $do_not_touch = array( 'jquery', 'jquery-core', 'kidzou-plugin-script', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-notif','kidzou-geo' ); 
+	protected static $do_not_touch = array( 'jquery', 'jquery-core', 'kidzou-plugin-script', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-notif','kidzou-geo','kidzou-webperf' ); 
 
 
 	/**
