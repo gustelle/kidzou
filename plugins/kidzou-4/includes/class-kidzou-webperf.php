@@ -117,7 +117,7 @@ class Kidzou_WebPerf {
 
 		global $wp_scripts;
 
-		$activate= ((bool)Kidzou_Utils::get_option('geo_activate',false)) ;
+		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
 
 		if (!is_admin() && $activate )
 		{
@@ -173,7 +173,7 @@ class Kidzou_WebPerf {
 	 */
 	public static function arrange_scripts() {
 
-		$activate= ((bool)Kidzou_Utils::get_option('geo_activate',false)) ;
+		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
 
 		if (!is_admin() && $activate)
 		{
@@ -207,7 +207,7 @@ class Kidzou_WebPerf {
 	// ACTION wp_footer
 	public static function load_js_async($url) {
 
-		$activate= ((bool)Kidzou_Utils::get_option('geo_activate',false)) ;
+		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
 
 		//jquery est vraiment chiant...
 		if (!is_admin() && $activate && !preg_match('#jquery.js#', $url)  && !preg_match('#knockout-min.js#', $url) )

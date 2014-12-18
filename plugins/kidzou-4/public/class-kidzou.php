@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '13-dec';
+	const VERSION = '18-dec';
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin

@@ -1251,20 +1251,15 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 	}
 
 	if ( '' !== $include_categories ) {
-		// $args['tax_query'] = array(
-		// 	array(
-		// 		'taxonomy' => 'category',
-		// 		'field' => 'id',
-		// 		'terms' => explode( ',', $include_categories ),
-		// 		'operator' => 'IN'
-		// 	)
-		// );
+		
 		$args['category__in'] = explode( ',', $include_categories );
 	}
 
-	// Kidzou_Utils::log($args);
 
 	$projects = get_portfolio_items( $args );
+
+	// 	Kidzou_Utils::log($args);
+	// Kidzou_Utils::log($projects);
 
 	ob_start();
 	
@@ -1365,7 +1360,7 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  */
 function get_portfolio_items( $args = array() ) {
 
-	return Kidzou_Geo::get_geo_query( $args );
+	return new WP_Query( Kidzou_Geo::get_geo_query( $args ) );
 
 }
 
