@@ -53,6 +53,13 @@ class Kidzou_Geo {
 		//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
 		add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
 
+		//nettoyage des transients de geoloc lorsque la taxo "ville bouge"
+		//merci https://www.dougv.com/2014/06/25/hooking-wordpress-taxonomy-changes-with-the-plugins-api/
+		add_action('create_ville', 	array( $this, 'rebuild_geo_rules') );
+		add_action('edit_ville', 	array( $this, 'rebuild_geo_rules') );
+		add_action('delete_ville', 	array( $this, 'rebuild_geo_rules') );
+
+
 		//Le filtrage n'est pas actif pour certaines requetes, typiquement les API d'export de contenu
 		if (preg_match('#\/api\/#', $_SERVER['REQUEST_URI']) ) {
 
@@ -162,6 +169,30 @@ class Kidzou_Geo {
 		$wp_rewrite->set_category_base('rubrique/');
 		$wp_rewrite->set_tag_base('tag/');
 		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function rebuild_geo_rules()
+	{
+
+		//si la geoloc est active uniquement
+		if ((bool)Kidzou_Utils::get_option('geo_activate',false)) 
+		{
+			//nettoyager les transients
+			delete_transient('kz_covered_metropoles_all_fields');
+			delete_transient('kz_metropole_uri_regexp');
+
+			//create rewrite rules
+			self::create_rewrite_rules();
+
+			Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
+		}
+
 	}
 
 	
@@ -304,7 +335,7 @@ class Kidzou_Geo {
 			//d'abord on prend la ville dans l'URI
 			$uri = $_SERVER['REQUEST_URI'];
 
-			Kidzou_Utils::log('[get_request_metropole] REQUEST_URI : '. $uri);
+			// Kidzou_Utils::log('[get_request_metropole] REQUEST_URI : '. $uri);
 
 			$regexp = self::get_metropole_uri_regexp();
 
@@ -314,17 +345,17 @@ class Kidzou_Geo {
 			if ( isset($_COOKIE['kz_metropole']) )
 				$cook_m = strtolower($_COOKIE['kz_metropole']);
 
-			Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
+			// Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
 
 			//en dépit du cookie, la valeur de la metropole passée en requete prime
 			if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
 
-				Kidzou_Utils::log('[get_request_metropole] Regexp identifiée ');
+				// Kidzou_Utils::log('[get_request_metropole] Regexp identifiée ');
 				
 				$ret = rtrim($matches[0], '/'); //suppression du slash à la fin
 				$metropole = ltrim($ret, '/'); //suppression du slash au début
 
-				Kidzou_Utils::log('[get_request_metropole] Regexp : '. $metropole);
+				// Kidzou_Utils::log('[get_request_metropole] Regexp : '. $metropole);
 
 				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
 				//la valeur de metropole passée en requete devient la metropole du cookie
@@ -338,7 +369,7 @@ class Kidzou_Geo {
 					//positionner cette variable pour ne pas aller plus loin
 					$cook_m = self::$request_metropole;
 
-					Kidzou_Utils::log('[get_request_metropole] setcookie : '. $cook_m);
+					// Kidzou_Utils::log('[get_request_metropole] setcookie : '. $cook_m);
 				}	
 
 			}
@@ -346,13 +377,13 @@ class Kidzou_Geo {
 			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
 			if ($cook_m=='' && isset($_GET['kz_metropole']))  {
 				$cook_m = strtolower($_GET['kz_metropole']);
-				Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
+				// Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
 			} 
 
 			//si rien ne match, on prend la ville par défaut
 			if ($cook_m=='')  {
 				$cook_m = self::get_default_metropole();
-				Kidzou_Utils::log('[get_request_metropole] ville par défaut : '. $cook_m);
+				// Kidzou_Utils::log('[get_request_metropole] ville par défaut : '. $cook_m);
 			} 
 
 		    $isCovered = false;
@@ -367,7 +398,7 @@ class Kidzou_Geo {
 		    else
 		    	self::$request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
 
-		    Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
+		    // Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
 		}
 
 		return self::$request_metropole;
