@@ -341,6 +341,8 @@ var kidzouEventsModule = (function() { //havre de paix
 					self.eventData().end_date(end_mom.toDate());
 				}
 
+				// console.debug(reccurenceData);
+
 				//si le tableau est correctement formatté
 				if (typeof reccurenceData!='undefined' && reccurenceData.hasOwnProperty(0)) {
 

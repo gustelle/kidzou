@@ -40,6 +40,10 @@ class Kidzou_Geo {
 
 	protected static $request_metropole = null;
 
+	protected static $rewrite_tag = '%kz_metropole%';
+
+	protected static $cookie_name = 'kz_metropole';
+
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -123,7 +127,7 @@ class Kidzou_Geo {
 						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
 						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
 						// 'geo_default_metropole'		=> self::get_default_metropole(),
-						'geo_cookie_name'			=> "kz_metropole",
+						'geo_cookie_name'			=> self::$cookie_name,
 						// 'geo_select_cookie_name'	=> "kz_metropole_selected",
 						'geo_possible_metropoles'	=> $villes ,
 					);
@@ -146,8 +150,8 @@ class Kidzou_Geo {
 		
 		global $wp_rewrite;
 
-		$wp_rewrite->set_category_base('%kz_metropole%/rubrique/');
-		$wp_rewrite->set_tag_base('%kz_metropole%/tag/');
+		$wp_rewrite->set_category_base( self::$rewrite_tag . '/rubrique/');
+		$wp_rewrite->set_tag_base( self::$rewrite_tag . '/tag/');
 
 		self::create_rewrite_rules();
 		
@@ -172,7 +176,7 @@ class Kidzou_Geo {
 	}
 
 	/**
-	 * undocumented function
+	 * permet de reconstruire les regles de ré-ecriture de permaliens et de nettoyer les caches des metropoles
 	 *
 	 * @return void
 	 * @author 
@@ -180,18 +184,22 @@ class Kidzou_Geo {
 	public function rebuild_geo_rules()
 	{
 
+		//nettoyager les transients
+		delete_transient('kz_covered_metropoles_all_fields');
+		delete_transient('kz_metropole_uri_regexp');
+
 		//si la geoloc est active uniquement
 		if ((bool)Kidzou_Utils::get_option('geo_activate',false)) 
 		{
-			//nettoyager les transients
-			delete_transient('kz_covered_metropoles_all_fields');
-			delete_transient('kz_metropole_uri_regexp');
-
-			//create rewrite rules
-			self::create_rewrite_rules();
-
-			Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
+			self::set_permalink_rules();
 		}
+		else
+		{
+			self::unset_permalink_rules();
+		}
+
+        flush_rewrite_rules();
+		Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
 
 	}
 
@@ -342,8 +350,8 @@ class Kidzou_Geo {
 			$cook_m = '';
 
 			//la metropole en provenance du cookie
-			if ( isset($_COOKIE['kz_metropole']) )
-				$cook_m = strtolower($_COOKIE['kz_metropole']);
+			if ( isset($_COOKIE[self::$cookie_name]) )
+				$cook_m = strtolower($_COOKIE[self::$cookie_name]);
 
 			// Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
 
@@ -361,7 +369,7 @@ class Kidzou_Geo {
 				//la valeur de metropole passée en requete devient la metropole du cookie
 				if ($cook_m!=$metropole && $metropole!='') {
 
-					setcookie("kz_metropole", $metropole);
+					setcookie(self::$cookie_name, $metropole);
 					// setcookie("kz_metropole_selected", true, time()+(60*60*24), '/' ); //cookie valable 1 jour... 
 
 					self::$request_metropole = $metropole;
@@ -375,8 +383,8 @@ class Kidzou_Geo {
 			}
 
 			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
-			if ($cook_m=='' && isset($_GET['kz_metropole']))  {
-				$cook_m = strtolower($_GET['kz_metropole']);
+			if ($cook_m=='' && isset($_GET[self::$cookie_name]))  {
+				$cook_m = strtolower($_GET[self::$cookie_name]);
 				// Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
 			} 
 
@@ -517,10 +525,10 @@ class Kidzou_Geo {
 			$m = urlencode(self::get_request_metropole());
 
 		    // Check if the %kz_metropole% tag is present in the url:
-		    if ( true === strpos( $permalink, '%kz_metropole%' ) ) {
+		    if ( true === strpos( $permalink, self::$rewrite_tag ) ) {
 
 			    // Replace '%kz_metropole%'
-			    $permalink = str_replace( '%kz_metropole%', $m , $permalink );
+			    $permalink = str_replace( self::$rewrite_tag, $m , $permalink );
 
 		    } 
 			    
@@ -568,13 +576,13 @@ class Kidzou_Geo {
 		{
 
 			// Check if the %kz_metropole% tag is present in the url:
-		    if ( false === strpos( $url, '%kz_metropole%' ) )
+		    if ( false === strpos( $url, self::$rewrite_tag ) )
 		        return $url;
 		 
 		    $m = urlencode(self::get_request_metropole());
 		 
 		    // Replace '%kz_metropole%'
-		    $url = str_replace( '%kz_metropole%', $m , $url );
+		    $url = str_replace( self::$rewrite_tag, $m , $url );
 
 		}
 	 
@@ -701,7 +709,7 @@ class Kidzou_Geo {
 			global $wp_rewrite; 
 
 			$regexp = self::get_metropole_uri_regexp();
-			add_rewrite_tag('%kz_metropole%',$regexp, 'kz_metropole=');
+			add_rewrite_tag( self::$rewrite_tag ,$regexp, 'kz_metropole=');
 
 			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
 		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
@@ -766,7 +774,7 @@ class Kidzou_Geo {
 	            $save_me = $roots[$i];
 	            foreach ($roots as $root) {
 	                
-	            	$def = Kidzou_Utils::get_option('geo_national_metropole');;
+	            	$def = Kidzou_Utils::get_option('geo_national_metropole');
 	            	if ( intval($def)!=intval($root->term_id) ) {
 	                    unset($roots[$i]);
 	                } else {

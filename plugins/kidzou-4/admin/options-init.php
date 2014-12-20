@@ -95,23 +95,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
               }
              */
 
-            Kidzou_Utils::log($options);
+            // Kidzou_Utils::log($options);
 
             // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
             delete_transient('kz_notifications_content_offres');
             delete_transient('kz_notifications_content_page');
             delete_transient('kz_notifications_content_post');
 
-            if ($options['geo_activate'])
-            {
-                kidzou_Geo::set_permalink_rules();
-            } 
-            else
-            {
-                kidzou_Geo::unset_permalink_rules();
-            }
-
-            flush_rewrite_rules();
+            kidzou_Geo::rebuild_geo_rules();
         }
 
         /**
@@ -207,13 +198,13 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'icon'      => 'el-icon-compass',
                 'fields'    => array(
 
-                        array(
-                            'id'    => 'geo_warning',
-                            'type'  => 'info',
-                            'title' => __('Visitez la page de permalien apr&egrave;s activation / d&eacute;sactivation de la geolocalisation', 'kidzou'),
-                            'style' => 'warning',
-                            'desc'  => sprintf( __( 'Un bug qui emp&ecirc;che wordpress de rafraichir les r&egrave;gles de re-ecriture d&apos;URL, <a href="%s">visitez cette page pour les rafraichir</a> si vous activez ou desactivez la geolocalisation', 'kidzou' ), $permalink_href ),
-                        ),
+                        // array(
+                        //     'id'    => 'geo_warning',
+                        //     'type'  => 'info',
+                        //     'title' => __('Visitez la page de permalien apr&egrave;s activation / d&eacute;sactivation de la geolocalisation', 'kidzou'),
+                        //     'style' => 'warning',
+                        //     'desc'  => sprintf( __( 'Un bug qui emp&ecirc;che wordpress de rafraichir les r&egrave;gles de re-ecriture d&apos;URL, <a href="%s">visitez cette page pour les rafraichir</a> si vous activez ou desactivez la geolocalisation', 'kidzou' ), $permalink_href ),
+                        // ),
 
                         array(
                             'id'       => 'geo_activate',

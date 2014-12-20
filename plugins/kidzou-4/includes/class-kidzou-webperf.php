@@ -38,8 +38,7 @@ class Kidzou_WebPerf {
 	protected static $instance = null;
 
 	/**
-	 * les JS qui ne sont un peu particuliers et qui méritent un traitement spécial 
-	 * il restent dans le footer mais ne sont pas chargés par webperf.js
+	 * les JS qui restent dans le footer mais ne sont pas chargés par webperf.js
 	 *
 	 * @since    1.0.0
 	 *
@@ -54,7 +53,7 @@ class Kidzou_WebPerf {
 	 *
 	 * @var      object
 	 */
-	protected static $do_not_touch = array( 'jquery', 'jquery-core', 'kidzou-plugin-script', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-notif','kidzou-geo','kidzou-webperf' ); 
+	protected static $do_not_touch = array( 'jquery', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-webperf','jquery-core', 'kidzou-plugin-script', 'kidzou-notif','kidzou-geo' ); //
 
 
 	/**
@@ -182,7 +181,6 @@ class Kidzou_WebPerf {
 	    		//il n'a plus rien à faire dans la queue, il sera chargé par JS 
 	    		wp_deregister_script($registered['handle']);
 	    		wp_dequeue_script( $registered['handle'] );
-	    		// Kidzou_Utils::log($registered->handle.' supprimé de la queue...');
 	    	
 		    }
 		}
@@ -210,7 +208,7 @@ class Kidzou_WebPerf {
 		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
 
 		//jquery est vraiment chiant...
-		if (!is_admin() && $activate && !preg_match('#jquery.js#', $url)  && !preg_match('#knockout-min.js#', $url) )
+		if (!is_admin() && $activate && !preg_match('#(jquery.js|knockout-min.js)#', $url) )
 		{
 			if ( FALSE === strpos( $url, '.js' ) )
 		    { // not our file

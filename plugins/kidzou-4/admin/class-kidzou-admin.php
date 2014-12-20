@@ -859,6 +859,10 @@ class Kidzou_Admin {
 		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
 		$past_dates		= get_post_meta($post->ID, Kidzou_Events::$meta_past_dates, FALSE);
 
+		Kidzou_Utils::log('--------- event_metabox() -------------');
+		Kidzou_Utils::log($recurrence);
+		Kidzou_Utils::log('--------- /event_metabox() -------------');
+
 		echo '<script>
 		jQuery(document).ready(function() {
 			kidzouEventsModule.model.initDates("'.$start_date.'","'.$end_date.'", '.json_encode($recurrence).');
@@ -968,7 +972,7 @@ class Kidzou_Admin {
 			{
 				echo '<ul><h4>Ev&eacute;nements pass&eacute;s :</h4>';
 				foreach ($past_dates[0] as  $value) {
-					Kidzou_Utils::log($value);
+					// Kidzou_Utils::log($value);
 					$past_start_date=date_create($value['start_date']);
 					$past_end_date=date_create($value['end_date']);
 					echo '<li>Du '.date_format($past_start_date,"d/m/Y").' au '.date_format($past_end_date,"d/m/Y").'</li>';
