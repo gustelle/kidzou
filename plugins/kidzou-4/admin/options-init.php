@@ -180,6 +180,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
+                            'id'        => 'user_favs_page',
+                            'type'      => 'select',
+                            'data'      => 'page',
+                            'title'     => __('Page de Favoris utilisateur', 'kidzou'),
+                            'subtitle'  => __('Les users retrouvent dans cette page les lieux et &eacute;v&eacute;nements qu&apos;ils ont aim&eacute;', 'kidzou'),
+                        ),
+
+                        array(
                             'id'        => 'debug_mode',
                             'type'      => 'checkbox',
                             'default'      => '0',
