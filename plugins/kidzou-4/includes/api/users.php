@@ -11,7 +11,7 @@ class JSON_API_Users_Controller {
 
 		global $json_api;
 
-		if (!current_user_can("edit_users") || !current_user_can("manage_options"))
+		if (!Kidzou_Utils::current_user_is('author'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		$id 		= $json_api->query->id;

@@ -412,7 +412,7 @@
 			} );
 		}
 
-		if ( $et_post_gallery.length ) {
+		if ( $et_post_gallery.length && $.fn.magnificPopup) {
 			$et_post_gallery.magnificPopup( {
 				delegate: 'a',
 				type: 'image',
@@ -894,6 +894,8 @@
 
 						$the_portfolio_items.imagesLoaded( function() {
 
+							$('.waiting').hide();
+
 							$the_portfolio.show(); //after all the content is loaded we can show the portfolio
 
 							$the_portfolio_items.masonry({
@@ -956,6 +958,7 @@
 			}); // End $(window).load()
 
 			set_filterable_grid_items = function( $the_portfolio ) {
+
 				var min_height = 0,
 					$the_portfolio_items = $the_portfolio.find('.et_pb_portfolio_items'),
 					active_category = $the_portfolio.find('.et_pb_portfolio_filter > a.active').data('category-slug'),
@@ -1895,6 +1898,7 @@
 				$firstname = $newsletter_container.find( 'input[name="et_pb_signup_firstname"]' ),
 				$lastname = $newsletter_container.find( 'input[name="et_pb_signup_lastname"]' ),
 				$email = $newsletter_container.find( 'input[name="et_pb_signup_email"]' ),
+				$zipcode = $newsletter_container.find( 'input[name="et_pb_signup_zipcode"]' ),
 				list_id = $newsletter_container.find( 'input[name="et_pb_signup_list_id"]' ).val(),
 				$result = $newsletter_container.find( '.et_pb_newsletter_result' ).hide(),
 				service = $(this).closest( '.et_pb_newsletter_form' ).data( 'service' ) || 'mailchimp';
@@ -1902,13 +1906,16 @@
 			$firstname.removeClass( 'et_pb_signup_error' );
 			$lastname.removeClass( 'et_pb_signup_error' );
 			$email.removeClass( 'et_pb_signup_error' );
+			$zipcode.removeClass( 'et_pb_signup_error' );
 
 			et_pb_remove_placeholder_text( $(this).closest( '.et_pb_newsletter_form' ) );
 
-			if ( $firstname.val() === '' || $email.val() === '' || list_id === '' ) {
+			if ( $firstname.val() === '' || $email.val() === '' || list_id === '' || $zipcode.val() === '' ) {
 				if ( $firstname.val() === '' ) $firstname.addClass( 'et_pb_signup_error' );
 
 				if ( $email.val() === '' ) $email.addClass( 'et_pb_signup_error' );
+
+				if ( $zipcode.val() === '' ) $zipcode.addClass( 'et_pb_signup_error' );
 
 				if ( $firstname.val() === '' )
 					$firstname.val( $firstname.siblings( '.et_pb_contact_form_label' ).text() );
@@ -1918,6 +1925,10 @@
 
 				if ( $email.val() === '' )
 					$email.val( $email.siblings( '.et_pb_contact_form_label' ).text() );
+
+				if ( $zipcode.val() === '' )
+					$zipcode.val( $zipcode.siblings( '.et_pb_contact_form_label' ).text() );
+
 
 				return;
 			}
@@ -1933,12 +1944,15 @@
 					et_firstname : $firstname.val(),
 					et_lastname : $lastname.val(),
 					et_email : $email.val(),
+					kz_zipcode : $zipcode.val(),
 					et_service : service
 				},
 				success: function( data ){
 					if ( data ) {
+						var obj = JSON.parse(data);
+						var message = obj.error || obj.success;
 						$newsletter_container.find( '.et_pb_newsletter_form > p' ).hide();
-						$result.html( data ).show();
+						$result.html( message ).show();
 					} else {
 						$result.html( et_custom.subscription_failed ).show();
 					}
@@ -2123,14 +2137,15 @@
 	//searchbox
 	$(document).ready(function() {
 
+		//sur la home page, le filtre de recherche des sorties
 		if ($(".kz_searchbox").length) {
 			
 			var options, a;
 			options = { 
-				source: kidzou_suggest.terms_list ,
+				source: et_custom.terms_list ,
 				messages: {
-			        noResults: kidzou_suggest.no_results,
-			        results: function() {return kidzou_suggest.results;}
+			        noResults: et_custom.no_results,
+			        results: function() {return et_custom.results;}
 			    },
 			    minLength: 1,
 			    delay : 100,
@@ -2139,23 +2154,28 @@
 			    	kidzouTracker.trackEvent("Filtre Home", "Categorie", ui.item.id, 0);
 			    	$("#kz_searchinput").val( ui.item.label );
 			    	$('#kz_searchbutton').html('<i class="fa fa-circle-o-notch fa-spin"></i> Recherche');
+
+			    	// console.debug(kidzou_suggest.site_url + "/" + ui.item.id);
 			    	
-	                window.location.href = kidzou_suggest.site_url + "/" + ui.item.id;
+	                window.location.href = et_custom.site_url + "/" + ui.item.id;
 	            },
 	            //si le user lance une recherche sans selectionner d'item, et sans valider le formulaire
 	            search: function( event, ui ) {
-	            	$('#kz_searchbutton').attr('href', kidzou_suggest.site_url + "/?s=" + $("#kz_searchinput").val());
+	            	$('#kz_searchbutton').attr('href', et_custom.site_url + "/?s=" + $("#kz_searchinput").val());
 	            }
 			
 			};
-			$('.kz_searchbox input').autocomplete(options).data('ui-autocomplete')._renderMenu = function( ul, items ) {
+			if ($.fn.autocomplete) {
+				$('.kz_searchbox input').autocomplete(options).data('ui-autocomplete')._renderMenu = function( ul, items ) {
 				  var that = this;
 				  $.each( items, function( index, item ) {
 				    that._renderItemData( ul, item );
 				  });
-				  $(ul).prepend("<h4>" + kidzou_suggest.suggest_title + "</h4>");
+				  $(ul).prepend("<h4>" + et_custom.suggest_title + "</h4>");
 				  
 				};
+			}
+			
 
 			//submission du formulaire
 			jQuery(".kz_searchbox").submit(function(){
@@ -2164,6 +2184,8 @@
 			});	
 			
 		}
+
+		
 
 	});
 

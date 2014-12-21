@@ -207,8 +207,8 @@ table.shop_table { margin-bottom: 30px !important; }
 
 		#et-info { float: left; padding-bottom: 10px; }
 		#et-secondary-menu { float: right; padding-bottom: 10px; }
-		.et_nav_text_color_light, .et_nav_text_color_light #et-secondary-nav a, .et_nav_text_color_light .et-social-icon a { color: rgba( 255, 255, 255, 0.6 ); }
-		.et_nav_text_color_dark, .et_nav_text_color_dark #et-secondary-nav a, .et_nav_text_color_dark .et-social-icon a { color: rgba( 0, 0, 0, 0.5 ); }
+		.et_nav_text_color_light, .et_nav_text_color_light #et-secondary-nav a, .et_nav_text_color_light .et-social-icon a, .et_nav_text_color_light #kz-villes a, .et_nav_text_color_light #et-secondary-menu a { color: rgba( 255, 255, 255, 0.6 ); }
+		.et_nav_text_color_dark, .et_nav_text_color_dark #et-secondary-nav a, .et_nav_text_color_dark .et-social-icon a, .et_nav_text_color_dark #kz-villes a, .et_nav_text_color_dark #et-secondary-menu a  { color: rgba( 0, 0, 0, 0.5 ); }
 		.et-cart-info { color: inherit; }
 		#top-header .et-cart-info { margin-left: 15px; }
 		#et-top-navigation .et-cart-info { float: left; margin: 12px 0 0 22px; }
@@ -223,8 +223,8 @@ table.shop_table { margin-bottom: 30px !important; }
 		#et-secondary-menu .et-social-icons { margin-right: 20px; }
 			#top-header .et-social-icons li { margin-left: 12px; margin-top: -2px; }
 				#top-header .et-social-icon a { font-size: 14px; }
-				.et_nav_text_color_light .et-social-icon a:hover, .et_nav_text_color_light #et-secondary-nav a:hover, .et_nav_text_color_light .et-cart-info:hover { color: rgba(255, 255, 255, 1) !important; }
-				.et_nav_text_color_dark .et-social-icon a:hover, .et_nav_text_color_dark #et-secondary-nav a:hover, .et_nav_text_color_dark .et-cart-info:hover { color: rgba(0, 0, 0, 0.7) !important; }
+				.et_nav_text_color_light .et-social-icon a:hover, .et_nav_text_color_light #et-secondary-nav a:hover, .et_nav_text_color_light .et-cart-info:hover, .et_nav_text_color_light #kz-villes a:hover, .et_nav_text_color_light #et-secondary-menu a:hover { color: rgba(255, 255, 255, 1) !important; }
+				.et_nav_text_color_dark .et-social-icon a:hover, .et_nav_text_color_dark #et-secondary-nav a:hover, .et_nav_text_color_dark .et-cart-info:hover, .et_nav_text_color_dark #kz-villes a:hover, .et_nav_text_color_dark #et-secondary-menu a:hover  { color: rgba(0, 0, 0, 0.7) !important; }
 		#et-secondary-nav, #et-secondary-nav li { display: inline-block  }
 			#et-secondary-nav li { margin-right: 15px; }
 			#et-secondary-nav > li:last-child { margin-right: 0; }
@@ -608,7 +608,7 @@ p.woocommerce-result-count { font-weight: 500; font-size: 14px; color: #999; pad
 .woocommerce .products .star-rating, .woocommerce-page .products .star-rating { margin: 4px 0 .3em 0 !important;  }
 .woocommerce .star-rating:before, .woocommerce-page .star-rating:before { content: "\53\53\53\53\53" !important; color: #ccc !important; }
 
-.woocommerce div.product div.images, .woocommerce-page div.product div.images, .woocommerce #content div.product div.images, .woocommerce-page #content div.product div.images { width: 510px !important; }
+.woocommerce div.product div.images, .woocommerce-page div.product div.images, .woocommerce #content div.product div.images, .woocommerce-page #content div.product div.images { width: 510px !important; float: left !important; margin-right: 10px;}
 	.woocommerce div.product div.images img, .woocommerce-page div.product div.images img, .woocommerce #content div.product div.images img, .woocommerce-page #content div.product div.images img {
     -moz-box-shadow: none !important; -webkit-box-shadow: none !important; box-shadow: none !important; }
 .woocommerce div.product div.images div.thumbnails, .woocommerce-page div.product div.images div.thumbnails, .woocommerce #content div.product div.images div.thumbnails, .woocommerce-page #content div.product div.images div.thumbnails { padding-top: 20px !important; }
@@ -3132,7 +3132,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 .et_pb_text_align_justify{ text-align: justify; }
 
 .post_ad {float: right; max-width: 300px; max-height: 250px; margin: 0 0 20px 20px;}
-.ad {padding:2px 6px 30px 6px;background-color: #c6c6c6;}
+.ad {padding:2px 6px 30px 6px;background-color: #c6c6c6; margin-bottom: 30px !important;}
 .ad:before {content: attr(data-content); font-size: 12px;} /*'Publicite'*/
 
 /* ---- Portfolio sur 3 colonnes --- */
@@ -3142,7 +3142,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {
 	width: 300px;
 	height: 280px;
-	margin-bottom: 70px;
+	margin-bottom: 60px;
 	margin-right: 50px;
 }
 
@@ -3171,6 +3171,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		width: 680px;
 		overflow: hidden;
 		position: relative;
+		margin-right: 30px;
+		margin-bottom: 60px;
 	}
 
 	.et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item_featured img:hover {
@@ -3354,6 +3356,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 /*-------------------[Habillage]------------------*/
 
+.kz_habillage #logo { max-height: 43px; margin-bottom: 0; }
+
 @media only screen and ( min-width: 1001px ) {
 
 	body.kz_habillage #page-container {width: 1000px; margin: auto;}
@@ -3383,4 +3387,15 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item_featured {width: 580px;}
 }
 
+/*-------------------[Metropoles / Header]------------------*/
+#kz-villes {float: left; padding-left: 30px; font-size: 1.2em;}
+@media only screen and ( max-width: 767px ) {
+	#kz-villes {display: none;}
+}
 
+/*----------------------[CSS générées en fonction des options]------------------------*/
+a{color:#1ea4e8}body{color:#666}.et_pb_counter_amount, .et_pb_featured_table .et_pb_pricing_heading,.et_quote_content,.et_link_content,.et_audio_content{background-color:#1ea4e8}#main-header, #main-header .nav li ul, .et-search-form, #main-header
+.et_mobile_menu{background-color:#fff}#top-header, #et-secondary-nav li
+ul{background-color:#1ea4e8}.woocommerce a.button.alt, .woocommerce-page a.button.alt, .woocommerce button.button.alt, .woocommerce-page button.button.alt, .woocommerce input.button.alt, .woocommerce-page input.button.alt, .woocommerce #respond input#submit.alt, .woocommerce-page #respond input#submit.alt, .woocommerce #content input.button.alt, .woocommerce-page #content input.button.alt, .woocommerce a.button, .woocommerce-page a.button, .woocommerce button.button, .woocommerce-page button.button, .woocommerce input.button, .woocommerce-page input.button, .woocommerce #respond input#submit, .woocommerce-page #respond input#submit, .woocommerce #content input.button, .woocommerce-page #content input.button,.woocommerce-message,.woocommerce-error,.woocommerce-info{background:#1ea4e8 !important}#et_search_icon:hover, .mobile_menu_bar:before, .footer-widget h4, .et-social-icon a:hover, .comment-reply-link, .form-submit input, .et_pb_sum, .et_pb_pricing li a, .et_pb_pricing_table_button, .et_overlay:before, .entry-summary p.price ins, .woocommerce div.product span.price, .woocommerce-page div.product span.price, .woocommerce #content div.product span.price, .woocommerce-page #content div.product span.price, .woocommerce div.product p.price, .woocommerce-page div.product p.price, .woocommerce #content div.product p.price, .woocommerce-page #content div.product p.price, .et_pb_member_social_links a:hover{color:#1ea4e8 !important}.woocommerce .star-rating span:before, .woocommerce-page .star-rating span:before, .et_pb_widget li a:hover, .et_pb_bg_layout_light .et_pb_promo_button, .et_pb_bg_layout_light .et_pb_more_button, .et_pb_filterable_portfolio .et_pb_portfolio_filters li a.active, .et_pb_filterable_portfolio .et_pb_portofolio_pagination ul li a.active, .et_pb_gallery .et_pb_gallery_pagination ul li a.active, .wp-pagenavi span.current, .wp-pagenavi a:hover, .et_pb_contact_submit, .et_pb_bg_layout_light .et_pb_newsletter_button, .nav-single a, .posted_in
+a{color:#1ea4e8 !important}.et-search-form, .nav li ul, .et_mobile_menu, .footer-widget li:before, .et_pb_pricing li:before,blockquote{border-color:#1ea4e8}#main-footer{background-color:#114949}#top-menu
+a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-menu-item > a, .bottom-nav li.current-menu-item>a{color:#1ea4e8}h1,h2,h3,h4,h5,h6{font-family:'Bree Serif',Georgia,"Times New Roman",serif}body,input,textarea,select{font-family:'Roboto',Helvetica,Arial,Lucida,sans-serif}

@@ -51,7 +51,7 @@ class Kidzou_Dashboard_Widgets {
     	//pour tout le monde
     	remove_meta_box( 'dashboard_primary', 'dashboard', 'side');
  	
- 		if (!current_user_can('manage_options')) {
+ 		if (!Kidzou_Utils::current_user_is('administrator')) {
 
  			remove_meta_box( 'dashboard_activity', 'dashboard', 'normal');
  		}
@@ -63,7 +63,7 @@ class Kidzou_Dashboard_Widgets {
     	global $kidzou_options;
 
     	//uniquement poru ceux qui peuvent contribuer
-    	if (isset($kidzou_options['widget_guidelines_activate']) && $kidzou_options['widget_guidelines_activate'] && current_user_can('edit_posts')) {
+    	if (isset($kidzou_options['widget_guidelines_activate']) && $kidzou_options['widget_guidelines_activate'] && Kidzou_Utils::current_user_is('contributor') ) {
 
     		 wp_add_dashboard_widget(
 	            'kidzou_contributor_guidelines',

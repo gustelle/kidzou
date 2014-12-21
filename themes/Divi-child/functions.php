@@ -42,11 +42,22 @@ function override_divi_parent_functions()
     add_shortcode('kz_pb_fullwidth_portfolio','kz_pb_fullwidth_portfolio');
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
     add_shortcode('searchbox','searchbox');
+    add_shortcode('kz_pb_user_favs','kz_pb_user_favs');
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
     add_shortcode( 'et_pb_fullwidth_map', 'kz_pb_map' );
 	add_shortcode( 'et_pb_map', 'kz_pb_map' );
+
+	//ajout du codepostal dans le formulaire d'inscription à la newsletter
+	remove_shortcode('et_pb_signup');
+	add_shortcode( 'et_pb_signup', 'kz_pb_signup' );
+
+	remove_action('wp_ajax_et_pb_submit_subscribe_form','et_pb_submit_subscribe_form'); //meme ordre que le parent
+	remove_action('wp_ajax_nopriv_et_pb_submit_subscribe_form','et_pb_submit_subscribe_form'); //meme ordre que le parent
+	
+	add_action( 'wp_ajax_et_pb_submit_subscribe_form', 'kz_pb_submit_subscribe_form' );
+	add_action( 'wp_ajax_nopriv_et_pb_submit_subscribe_form', 'kz_pb_submit_subscribe_form' );
 
 	//image gallery incluse manuellement au bon endroit dans single.php
 	remove_filter( 'the_content', 'easy_image_gallery_append_to_content' ); 
@@ -69,6 +80,11 @@ function override_divi_parent_functions()
 	//passer en dernier pour retirer et_fixed_nav pour rendre la barre de header floattante
 	add_filter( 'body_class', 'kz_add_class_habillage', 100 ); 
 
+	//optimisation de performance
+	//pas besoin de passer par cette fonction, les css sont dans style.css
+	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
+
+
 }
 
 function custom_excerpt_length( $length ) {
@@ -79,19 +95,23 @@ function custom_excerpt_length( $length ) {
 //et le body est doté d'une classe qui permet de contraindre le container
 function kz_add_class_habillage( $classes ){
 
-	global $kidzou_options;
+	global $kidzou_options;	
 
-	$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
+	if (isset($kidzou_options['pub_habillage']) && trim($kidzou_options['pub_habillage'])<>'') {
 
-	if ($is_habillage) {
-		$classes[] = 'kz_habillage';
-		if (in_array('et_fixed_nav', $classes)) {
-			$key = array_search('et_fixed_nav', $classes);
-			unset($classes[$key]);
+		$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
+
+		if ($is_habillage) {
+
+			$classes[] = 'kz_habillage';
+			if (in_array('et_fixed_nav', $classes)) {
+				$key = array_search('et_fixed_nav', $classes);
+				unset($classes[$key]);
+			}
 		}
-	}
 		
-
+	}
+	
 	return $classes;
 }
 
@@ -132,7 +152,23 @@ function filter_archive_query($query)
 function kz_divi_load_scripts ()
 {
 	wp_dequeue_script( 'divi-custom-script' );
-	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery' ), '1.0.0', true );
+	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery', 'jquery-ui-autocomplete' ), '1.0.0', true );
+
+	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
+
+	$items = array();
+
+	foreach ($terms as $term) {
+
+		if ($term->taxonomy == 'divers')
+			$tax = 'famille';
+		elseif ($term->taxonomy == 'category') 
+			$tax = 'rubrique';
+		else
+			$tax = $term->taxonomy;
+		
+		$items[] = array("id" => $tax.'/'.$term->slug, "label" => $term->name);
+	}
 
 	wp_localize_script( 'kidzou-custom-script', 'et_custom', array(
 		'ajaxurl'             => admin_url( 'admin-ajax.php' ),
@@ -145,7 +181,17 @@ function kz_divi_load_scripts ()
 		'captcha'             => esc_html__( 'Captcha', 'Divi' ),
 		'prev'				  => esc_html__( 'Prev', 'Divi' ),
 		'next'				  => esc_html__( 'Next', 'Divi' ),
+		"terms_list" 		=> $items, 
+		'no_results'		=> __('Aucun r&eacute;sultat trouv&eacute; !','Divi'),
+		'results' 			=> __('Utilisez les fl&egrave;ches pour naviguer dans les resultats', 'Divi'),
+		'suggest_title' 	=> __('Quelques suggestions de cat&eacute;gories : ','Divi'),
+		'site_url' 			=> site_url()
 	) );
+}
+
+function kz_mailchimp_key()
+{
+	return '1b5be0ebf3';
 }
 
 
@@ -157,11 +203,11 @@ function kz_divi_load_scripts ()
  **/
 function get_post_footer()
 {
+	
 	$lists = et_pb_get_mailchimp_lists();
 
 	if(!empty($lists) && is_array($lists)) {
-		$keys = array_keys($lists);
-		$key = $keys[1];
+		$key = kz_mailchimp_key();
 
 		$posts_ids_objects = Kidzou_Geo::get_related_posts();
 		$ids = array();
@@ -190,6 +236,261 @@ function get_post_footer()
 }
 
 /**
+ * le formulaire de souscription newsletter, à la sauce Kidzou (avec le codepostal)
+ *
+ */
+function kz_pb_signup( $atts, $content = null ) {
+
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'title' => '',
+			'button_text' => __( 'Subscribe', 'Divi' ),
+			'background_color' => et_get_option( 'accent_color', '#7EBEC5' ),
+			'background_layout' => 'dark',
+			'mailchimp_list' => '',
+			'aweber_list' => '',
+			'text_orientation' => 'left',
+			'use_background_color' => 'on',
+			'provider' => 'mailchimp',
+			'feedburner_uri' => '',
+		), $atts
+	) );
+
+	$class = " et_pb_bg_layout_{$background_layout} et_pb_text_align_{$text_orientation}";
+
+	$form = '';
+
+	$firstname     = __( 'First Name', 'Divi' );
+	$lastname      = __( 'Last Name', 'Divi' );
+	$email_address = __( 'Email Address', 'Divi' );
+	$zipcode   = __( 'Code Postal', 'Divi' );
+
+	// Kidzou_Utils::log('mailchimp_list '.$mailchimp_list);
+
+	switch ( $provider ) {
+		case 'mailchimp' :
+			if ( ! in_array( $mailchimp_list, array( '', 'none' ) ) ) {
+				$form = sprintf( '
+					<div class="et_pb_newsletter_form">
+						<div class="et_pb_newsletter_result"></div>
+						<p>
+							<label class="et_pb_contact_form_label" for="et_pb_signup_firstname" style="display: none;">%3$s</label>
+							<input id="et_pb_signup_firstname" class="input" type="text" value="%4$s" name="et_pb_signup_firstname">
+						</p>
+						<p>
+							<label class="et_pb_contact_form_label" for="et_pb_signup_lastname" style="display: none;">%5$s</label>
+							<input id="et_pb_signup_lastname" class="input" type="text" value="%6$s" name="et_pb_signup_lastname">
+						</p>
+						<p>
+							<label class="et_pb_contact_form_label" for="et_pb_signup_email" style="display: none;">%7$s</label>
+							<input id="et_pb_signup_email" class="input" type="text" value="%8$s" name="et_pb_signup_email">
+						</p>
+						<p>
+							<label class="et_pb_contact_form_label" for="et_pb_signup_zipcode" style="display: none;">%9$s</label>
+							<input id="et_pb_signup_zipcode" class="input" type="text" value="%10$s" name="et_pb_signup_zipcode">
+						</p>
+						<p><a class="et_pb_newsletter_button" href="#"><span class="et_subscribe_loader"></span><span class="et_pb_newsletter_button_text">%1$s</span></a></p>
+						<input type="hidden" value="%2$s" name="et_pb_signup_list_id" />
+					</div>',
+					esc_html( $button_text ),
+					( ! in_array( $mailchimp_list, array( '', 'none' ) ) ? esc_attr( $mailchimp_list ) : '' ),
+					esc_html( $firstname ),
+					esc_attr( $firstname ),
+					esc_html( $lastname ),
+					esc_attr( $lastname ),
+					esc_html( $email_address ),
+					esc_attr( $email_address ),
+					esc_html( $zipcode ),
+					esc_attr( $zipcode )
+				);
+			}
+
+			break;
+		case 'feedburner':
+			$form = sprintf( '
+				<div class="et_pb_newsletter_form et_pb_feedburner_form">
+					<form action="http://feedburner.google.com/fb/a/mailverify" method="post" target="popupwindow" onsubmit="window.open(\'http://feedburner.google.com/fb/a/mailverify?uri=%4$s\', \'popupwindow\', \'scrollbars=yes,width=550,height=520\'); return true">
+					<p>
+						<label class="et_pb_contact_form_label" for="email" style="display: none;">%2$s</label>
+						<input id="email" class="input" type="text" value="%3$s" name="email">
+					</p>
+					<p><button class="et_pb_newsletter_button" type="submit">%1$s</button></p>
+					<input type="hidden" value="%4$s" name="uri" />
+					<input type="hidden" name="loc" value="%5$s" />
+				</div>',
+				esc_html( $button_text ),
+				esc_html( $email_address ),
+				esc_attr( $email_address ),
+				esc_attr( $feedburner_uri ),
+				esc_attr( get_locale() )
+			);
+
+			break;
+		case 'aweber' :
+			$firstname = __( 'Name', 'Divi' );
+
+			if ( ! in_array( $aweber_list, array( '', 'none' ) ) ) {
+				$form = sprintf( '
+					<div class="et_pb_newsletter_form" data-service="aweber">
+						<div class="et_pb_newsletter_result"></div>
+						<p>
+							<label class="et_pb_contact_form_label" for="et_pb_signup_firstname" style="display: none;">%3$s</label>
+							<input id="et_pb_signup_firstname" class="input" type="text" value="%4$s" name="et_pb_signup_firstname">
+						</p>
+						<p>
+							<label class="et_pb_contact_form_label" for="et_pb_signup_email" style="display: none;">%5$s</label>
+							<input id="et_pb_signup_email" class="input" type="text" value="%6$s" name="et_pb_signup_email">
+						</p>
+						<p><a class="et_pb_newsletter_button" href="#"><span class="et_subscribe_loader"></span><span class="et_pb_newsletter_button_text">%1$s</span></a></p>
+						<input type="hidden" value="%2$s" name="et_pb_signup_list_id" />
+					</div>',
+					esc_html( $button_text ),
+					( ! in_array( $aweber_list, array( '', 'none' ) ) ? esc_attr( $aweber_list ) : '' ),
+					esc_html( $firstname ),
+					esc_attr( $firstname ),
+					esc_html( $email_address ),
+					esc_attr( $email_address )
+				);
+			}
+
+			break;
+	}
+
+	// Kidzou_Utils::log($form);
+
+	$output = sprintf(
+		'<div%6$s class="et_pb_newsletter clearfix%4$s%7$s%8$s"%5$s>
+			<div class="et_pb_newsletter_description">
+				%1$s
+				%2$s
+			</div>
+			%3$s
+		</div>',
+		( '' !== $title ? '<h2>' . esc_html( $title ) . '</h2>' : '' ),
+		do_shortcode( et_pb_fix_shortcodes( $content ) ),
+		$form,
+		esc_attr( $class ),
+		( 'on' === $use_background_color
+			? sprintf( ' style="background-color: %1$s;"', esc_attr( $background_color ) )
+			: ''
+		),
+		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+		( 'on' !== $use_background_color ? ' et_pb_no_bg' : '' )
+	);
+
+	// Kidzou_Utils::log($output);
+
+	return $output;
+}
+
+
+/**
+ * validation du formulaire de souscription newsletter, à la sauce Kidzou (avec le codepostal)
+ *
+ */
+function kz_pb_submit_subscribe_form() {
+
+	if ( ! wp_verify_nonce( $_POST['et_load_nonce'], 'et_load_nonce' ) ) die( json_encode( array( 'error' => __( 'Configuration error', 'Divi' ) ) ) );
+
+	$service = sanitize_text_field( $_POST['et_service'] );
+
+	$list_id = sanitize_text_field( $_POST['et_list_id'] );
+
+	$email = sanitize_email( $_POST['et_email'] );
+
+	$firstname = sanitize_text_field( $_POST['et_firstname'] );
+
+	$zipcode = sanitize_text_field( $_POST['kz_zipcode'] );
+
+	// Kidzou_Utils::log('zipcode : '.$zipcode);
+
+	if ( '' === $firstname ) die( json_encode( array( 'error' => __( 'Please enter first name', 'Divi' ) ) ) );
+
+	if ( ! is_email( sanitize_email( $_POST['et_email'] ) ) ) die( json_encode( array( 'error' => __( 'Incorrect email', 'Divi' ) ) ) );
+
+	if ( !  preg_match('#^[0-9]{5}$#',$zipcode) ) die( json_encode( array( 'error' => __( 'Le Code Postal est incorrect', 'Divi' ) ) ) );
+
+	if ( '' == $list_id ) die( json_encode( array( 'error' => __( 'Configuration error: List is not defined', 'Divi' ) ) ) );
+
+	$success_message = __( '<h2 class="et_pb_subscribed">Subscribed - look for the confirmation email!</h2>', 'Divi' );
+
+	switch ( $service ) {
+		case 'mailchimp' :
+			$lastname = sanitize_text_field( $_POST['et_lastname'] );
+			$email = array( 'email' => $email );
+
+			if ( ! class_exists( 'MailChimp' ) )
+				require_once( get_template_directory() . '/includes/subscription/mailchimp/mailchimp.php' );
+
+			$mailchimp_api_key = et_get_option( 'divi_mailchimp_api_key' );
+
+			if ( '' === $mailchimp_api_key ) die( json_encode( array( 'error' => __( 'Configuration error: api key is not defined', 'Divi' ) ) ) );
+
+
+				$mailchimp = new MailChimp( $mailchimp_api_key );
+
+				$merge_vars = array(
+					'PRENOM' => $firstname,
+					'NOM' => $lastname,
+					'CODEPOSTAL' => $zipcode
+				);
+
+				$retval =  $mailchimp->call('lists/subscribe', array(
+					'id'         => $list_id,
+					'email'      => $email,
+					'merge_vars' => $merge_vars,
+				));
+
+				if ( isset($retval['error']) ) {
+					if ( '214' == $retval['code'] ){
+						$error_message = str_replace( 'Click here to update your profile.', '', $retval['error'] );
+						$result = json_encode( array( 'success' => $error_message ) );
+					} else {
+						$result = json_encode( array( 'success' => $retval['error'] ) );
+					}
+				} else {
+					$result = json_encode( array( 'success' => $success_message ) );
+				}
+
+			die( $result );
+			break;
+		case 'aweber' :
+			if ( ! class_exists( 'AWeberAPI' ) ) {
+				require_once( get_template_directory() . '/includes/subscription/aweber/aweber_api.php' );
+			}
+
+			$account = et_pb_get_aweber_account();
+
+			if ( ! $account ) {
+				die( json_encode( array( 'error' => __( 'Aweber: Wrong configuration data', 'Divi' ) ) ) );
+			}
+
+			try {
+				$list_url = "/accounts/{$account->id}/lists/{$list_id}";
+				$list = $account->loadFromUrl( $list_url );
+
+				$new_subscriber = $list->subscribers->create(
+					array(
+						'email' => $email,
+						'name'  => $firstname,
+					)
+				);
+
+				die( json_encode( array( 'success' => $success_message ) ) );
+			} catch ( Exception $exc ) {
+				die( json_encode( array( 'error' => $exc->message ) ) );
+			}
+
+			break;
+	}
+
+	die();
+}
+
+
+/**
  * undocumented function
  *
  * @return void
@@ -197,26 +498,7 @@ function get_post_footer()
  **/
 function searchbox()
 {
-	wp_enqueue_script( 'jquery-ui-autocomplete' );	
 
-	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
-
-	$items = array();
-
-	foreach ($terms as $term) {
-		$tax = ($term->taxonomy == 'divers' ? 'famille' : $term->taxonomy);
-		$items[] = array("id" => $tax.'/'.$term->slug, "label" => $term->name);
-	}
-
-	$args = array( 
-		"terms_list" => $items, 
-		'no_results'=> __('Aucun r&eacute;sultat trouv&eacute; !','Divi'),
-		'results' => __('Utilisez les fl&egrave;ches pour naviguer dans les resultats', 'Divi'),
-		'suggest_title' => __('Quelques suggestions de cat&eacute;gories : ','Divi'),
-		'site_url' => site_url()
-		);			
-
-	wp_localize_script(  'jquery-ui-autocomplete', 'kidzou_suggest', $args );
 
 	$output = sprintf(
 		'<form class="kz_searchbox" method="get" action="%2$s">
@@ -468,7 +750,6 @@ function kz_pb_portfolio( $atts ) {
 			'background_layout' => 'light',
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
-			// 'show_filters' => 'on',
 			'show_ad' => 'on',
 			'filter' => 'none',
 			'orderby' => 'publish_date'
@@ -534,19 +815,32 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
-	ob_start();
+	$args =  Kidzou_Geo::get_geo_query($args);
 
 	query_posts( $args );
 
 	$categories_included = array();
 
+	ob_start();
+
 	$index = 0;
+	$inserted = false;
 
 	if ( have_posts() ) {
 
-		while ( have_posts() ) {
+		while(have_posts()){
 
-			if ($index==2 && $show_ad=='on') {
+			$insert = false;
+
+			//si le précédent post était featured, la pub vient tout de suite...
+			if (Kidzou_Events::isFeatured() && !$inserted && $show_ad=='on')
+				$insert = true;
+			else if ($index==2 && !$inserted && $show_ad=='on')
+				$insert = true;
+
+			if ($insert) {
+
+				$inserted = true;
 
 				//insertion de pub
 				global $kidzou_options;
@@ -569,7 +863,7 @@ function kz_pb_portfolio( $atts ) {
 
 			} else {
 
-				the_post(); 
+				the_post();
 
 				$categories = get_the_terms( get_the_ID(), 'category' );
 				if ( $categories ) {
@@ -608,12 +902,18 @@ function kz_pb_portfolio( $atts ) {
 						$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 						$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 						$formatted = '';
-						setlocale(LC_TIME, "fr_FR"); 
+						
+						//bon OK c'est un hack pour régler un pb d'affichage
+						//la date de fin s'affiche au lendemain de la date souhaitée
+						$end->sub(new DateInterval('PT1H'));
+						
+						$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+						$formatter->setPattern('EEEE dd MMMM');
 
 						if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-							$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+							$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
 						else
-							$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
+							$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
 					
 					 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
 					
@@ -703,7 +1003,7 @@ function kz_pb_portfolio( $atts ) {
 		//fin de boucle while
 		}
 
-		if ( 'on' === $show_pagination && ! is_search() ) {
+		if ( 'on' === $show_pagination && !is_search() ) {
 			echo '</div> <!-- .et_pb_portfolio -->';
 
 			$container_is_closed = true;
@@ -712,9 +1012,11 @@ function kz_pb_portfolio( $atts ) {
 				wp_pagenavi();
 			else
 				get_template_part( 'includes/navigation', 'index' );
+
 		}
 
 		wp_reset_query();
+
 	} else {
 		get_template_part( 'includes/no-results', 'index' );
 	}
@@ -919,6 +1221,245 @@ function kz_pb_filterable_portfolio( $atts ) {
 }
 
 /**
+ * genere un portfolio des favoris utilisateur
+ *
+ */
+function kz_pb_user_favs( $atts ) {
+	
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'fullwidth' => 'on',
+			'show_title' => 'on',
+			'show_categories' => 'on',
+			'background_layout' => 'light',
+			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
+			'show_ad' => 'off',
+			'show_pagination' => 'off',
+			'posts_number' => 1000
+		), $atts
+	) );
+
+	wp_enqueue_script( 'jquery-masonry-3' );
+	wp_enqueue_script( 'hashchange' );
+
+	$container_is_closed = false;
+
+	$voted =  Kidzou_Vote::getUserVotedPosts( );
+
+	global $post;
+
+	ob_start();
+
+	if ( count($voted)>0 ) {
+
+		foreach ($voted as $key => $value) {
+			
+			$post = get_post( $value['id'] );
+			setup_postdata( $post ); 
+
+			$category_classes = array();
+			$categories = get_the_terms( get_the_ID(), 'category' );
+			if ( $categories ) {
+				foreach ( $categories as $category ) {
+					$category_classes[] = 'project_category_' . $category->slug;
+					$categories_included[] = $category->term_id;
+				}
+			}
+
+			$category_classes = implode( ' ', $category_classes );
+
+			$featured = Kidzou_Events::isFeatured();
+			$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
+		?>
+
+			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item '.$kz_class. ' '. $category_classes ); ?>>
+
+				<?php 
+				
+				$thumb = '';
+
+				$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
+				$height = 'on' === $fullwidth ?  9999 : 284;
+				$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+				$titletext = get_the_title();
+				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
+				
+				$thumb = $thumbnail["thumb"];
+
+				$event_meta = '';
+				$output = '';
+
+				if (Kidzou_Events::isTypeEvent()) {
+
+					Kidzou_Utils::log(get_the_ID());
+
+					$location = Kidzou_Events::getEventDates(get_the_ID());
+
+					$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+					$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+					$formatted = '';
+					
+					//bon OK c'est un hack pour régler un pb d'affichage
+					//la date de fin s'affiche au lendemain de la date souhaitée
+					$end->sub(new DateInterval('PT1H'));
+					
+					$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+					$formatter->setPattern('EEEE dd MMMM');
+
+					if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+						$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
+					else
+						$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
+				
+				 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+				
+				} 
+
+				if ( '' !== $thumb ) : ?>
+					
+					<?php
+
+					if ( $featured ) {
+
+						$fb = '';
+
+						$output = sprintf("<div class='kz_portfolio_featured_hover'>
+												%s 
+												<a href='%s'><h2>%s</h2></a>
+												%s
+												%s
+												%s
+											</div>",
+								Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
+								get_permalink(),
+								get_the_title(),
+								kz_get_post_meta(),
+								$event_meta,
+								$fb);
+						
+					} else if ( $with_votes ) {
+						$output = Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
+					}
+
+					$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
+
+					if ($featured) {
+
+						echo sprintf("
+								
+									%s <a href='%s'>%s</a>								
+							
+							",
+							$output,
+							get_permalink(),
+							$image
+							);
+
+					} else if ( 'on' !== $fullwidth ) { 
+						echo sprintf("
+								<a href='%s'>
+									<span class='et_portfolio_image'>
+										%s %s
+										<span class='et_overlay'></span>
+									</span><!--  et_portfolio_image -->
+								</a>
+							",
+							get_permalink(),
+							$output,
+							$image
+							);
+
+					} 
+					?>
+
+			<?php
+				endif;
+			?>
+
+				<?php if ( 'on' === $show_title && !$featured) : ?>
+					<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+				<?php endif; ?>
+
+				<?php if ( 'on' === $show_categories && !$featured ) : ?>
+					<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
+				<?php endif; ?>
+
+				<?php if (!$featured) echo $event_meta; ?>
+
+			</div> <!-- .et_pb_portfolio_item -->
+
+<?php
+
+		}
+
+		//fin de boucle foreach
+
+	} 
+
+	$posts = ob_get_contents();
+
+	ob_end_clean();
+
+	if ( count($voted)>0 )
+	{
+		$categories_included = array_unique( $categories_included );
+		$terms_args = array(
+			'include' => $categories_included,
+			'orderby' => 'name',
+			'order' => 'ASC',
+		);
+		$terms = get_terms( 'category', $terms_args );
+
+		$category_filters = '<ul class="clearfix">';
+		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#" class="active" data-category-slug="all">%1$s</a></li>',
+			esc_html__( 'All', 'Divi' )
+		);
+		foreach ( $terms as $term  ) {
+			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="#" data-category-slug="%1$s">%2$s</a></li>',
+				esc_attr( $term->slug ),
+				esc_html( $term->name )
+			);
+		}
+		$category_filters .= '</ul>';
+
+		$class = " et_pb_bg_layout_{$background_layout}";
+
+		$output = sprintf(
+			'<div%5$s class="et_pb_filterable_portfolio %1$s%4$s%6$s" data-posts-number="%7$d">
+				<div class="et_pb_portfolio_filters clearfix">%2$s</div><!-- .et_pb_portfolio_filters -->
+
+				<div class="et_pb_portfolio_items_wrapper %8$s">
+					<div class="column_width"></div>
+					<div class="gutter_width"></div>
+					<div class="et_pb_portfolio_items">%3$s</div><!-- .et_pb_portfolio_items -->
+				</div>
+				%9$s
+			</div> <!-- .et_pb_filterable_portfolio -->',
+			( 'on' === $fullwidth ? 'et_pb_filterable_portfolio_fullwidth' : 'et_pb_filterable_portfolio_grid clearfix' ),
+			$category_filters,
+			$posts,
+			esc_attr( $class ),
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+			esc_attr( $posts_number),
+			('on' === $show_pagination ? '' : 'no_pagination' ),
+			('on' === $show_pagination ? '<div class="et_pb_portofolio_pagination"></div>' : '' )
+		);
+
+		$output .= '<div class="waiting vote"><i class="fa fa-spinner fa-spin fa-2x pull-left"></i><h1>Hum...Patience petit scarab&eacute;e</h1></div>';
+
+		return $output;
+	}
+	else
+	{
+		get_template_part( 'includes/no-results', 'user-favs' );
+	}
+
+	
+}
+
+/**
  * Option ajoutée 'post__in' pour formatter les Contextual Related Posts en portfolio
  *
  */
@@ -947,17 +1488,15 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 	}
 
 	if ( '' !== $include_categories ) {
-		$args['tax_query'] = array(
-			array(
-				'taxonomy' => 'category',
-				'field' => 'id',
-				'terms' => explode( ',', $include_categories ),
-				'operator' => 'IN'
-			)
-		);
+		
+		$args['category__in'] = explode( ',', $include_categories );
 	}
 
+
 	$projects = get_portfolio_items( $args );
+
+	// 	Kidzou_Utils::log($args);
+	// Kidzou_Utils::log($projects);
 
 	ob_start();
 	
@@ -1058,13 +1597,7 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  */
 function get_portfolio_items( $args = array() ) {
 
-	$default_args = array(
-		'post_type' => Kidzou::post_types(),
-	);
-
-	$args = wp_parse_args( $args, $default_args );
-
-	return new WP_Query( $args );
+	return new WP_Query( Kidzou_Geo::get_geo_query( $args ) );
 
 }
 
@@ -1163,7 +1696,8 @@ function kz_pb_map( $atts, $content = '' ) {
 		), $atts
 	) );
 
-	wp_enqueue_script( 'google-maps-api' );
+	if (!wp_script_is( 'google-maps-api', 'enqueued' )) 
+		wp_enqueue_script( 'google-maps-api' );
 
 	$all_pins_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
 

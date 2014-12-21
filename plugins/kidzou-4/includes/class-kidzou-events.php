@@ -10,6 +10,9 @@ if( !wp_next_scheduled( 'unpublish_posts' ) ) {
 add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
 
+use Carbon\Carbon;
+
+
 /**
  * Kidzou
  *
@@ -57,6 +60,37 @@ class Kidzou_Events {
 
 	public static $meta_featured = 'kz_event_featured';
 
+	/**
+	 * les meta qui définissent la recurrence d'un événement
+	 *
+	 */
+	public static $meta_recurring = 'kz_event_recurrence';
+
+	/**
+	 * les événements qui sont recurrents et passés sont marqués de cette meta
+	 *
+	 */
+	public static $meta_past_dates = 'kz_event_past_dates';
+
+	/**
+	 * les événements qui sont recurrents sont marqués de cette meta
+	 *
+	 */
+	public static $meta_start_date = 'kz_event_start_date';
+
+	/**
+	 * les événements qui sont recurrents sont marqués de cette meta
+	 *
+	 */
+	public static $meta_end_date = 'kz_event_end_date';
+
+
+	/**
+	 * les types de posts qui supportent les meta event
+	 *
+	 */
+	public static $supported_post_types = array('post','offres');
+
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -91,7 +125,8 @@ class Kidzou_Events {
 	
 
 	/**
-	 * ON considere un post de type evenement si les dates ne sont pas nulles
+	 * On considere un post de type evenement si les dates ne sont pas nulles
+	 * il s'agit d'un hack pour tenir compte d'un legacy ou les event étaient des post types différents des posts normaux
 	 *
 	 */ 
     public static function isTypeEvent($event_id=0) {
@@ -109,7 +144,7 @@ class Kidzou_Events {
     }
 
     /**
-	 * undocumented function
+	 * Un evenement est actif si la date de fin est postérieure à la date courante
 	 *
 	 * @return true si l'événement est en cours, false si il est terminé ou pas visible
 	 * @author 
@@ -168,9 +203,8 @@ class Kidzou_Events {
 	}
 
 	/**
-	 * on requete a la main sans passer par un wp_query
-	 * car par expérience utiliser cela dasn le filtre posts_results crée un out of memory
-	 * je suppose que maintenir en mémoire 2 wp_query est trop gourmand ?
+	 * la liste des post featured 
+	 * il s'agit d'un tableau d'objets WP_Post
 	 *
 	 * @return void
 	 * @author 
@@ -179,22 +213,14 @@ class Kidzou_Events {
 	{
 		
 
-		global $wpdb;
-		$table = $wpdb->prefix.'posts';
-		$table_meta = $wpdb->prefix.'postmeta';
+		$list = get_posts(array(
+					'meta_key'         => self::$meta_featured,
+					'meta_value'       => 'A',
+					'post_type'        => self::$supported_post_types,
+				));
 
-		$meta_key = self::$meta_featured;
 
-		$results = $wpdb->get_results( "
-			SELECT p.ID, p.post_title FROM $table p 
-				INNER JOIN $table_meta m on (p.ID = m.post_id)
-			WHERE 
-				1=1
-			AND m.meta_key = '$meta_key' AND m.meta_value = 'A' 
-			AND p.post_type in ('post', 'offres')
-			AND p.post_status =  'publish'", OBJECT );
-
-		return $results;
+		return $list;
 	}
 
 
@@ -238,28 +264,226 @@ class Kidzou_Events {
 	 * dépublie les events dont la date est dépassée
 	 *
 	 */
-	public static function unpublish_obsolete_posts() {
+	public static function unpublish_obsolete_posts() 
+	{
 
 		global $wpdb;
 		
 		$obsoletes = self::getObsoletePosts();
 
 		foreach ($obsoletes as $event) {
+
+			////////////////////////////////
+
+			//le jour de la semaine n'est pas bon (ex: 2e mercredi -> 3e mardi)
+			//la date de fin ne marche pas (ex: début le 10/12, tous les 2 mois / fin le 12/12 )
+
+			$start_date		= get_post_meta($event->ID, self::$meta_start_date, TRUE);
+			$end_date 		= get_post_meta($event->ID, self::$meta_end_date, TRUE);
+			$recurrence		= get_post_meta($event->ID, self::$meta_recurring, FALSE);
+			$past_dates		= get_post_meta($event->ID, self::$meta_past_dates, FALSE);
+
+			$start_time = new DateTime($start_date);
+			$end_time = new DateTime($end_date);
+
+			//gestion de la recurrence:
+			$occurences 	= 0;
+			$repeatable = false;
+
+			//pour les récurrences : les dates mises à jour
+			$new_start_date = $start_date;
+			$new_end_date = $end_date;
+
+			if (is_array($recurrence[0]))
+			{
+				//plus facile à menipuler
+				$data 		= $recurrence[0];
+				$endType 	= $data['endType'];
+				$occurences = intval($data['endValue']);
+
+				////////////////////////////////
+				if($data['model'] == 'weekly')
+				{
+					//semaine 0
+					//imaginons que l'evenement doivent etre répété certains jours 
+					//de la semaine ou se passe l'événement (ex: l'evenement est en début/fin le mercredi 03/12, il doit se répéter le vendredi 05/12)
+					//Dans ce cas il ne faut pas encore ajouter les semaines (repeatEach)
+
+					//modele de répétition hebdo : les valeurs de répétition sont les jours
+					//1: lundi -> 7: dimanche
+					$days = (array)$data['repeatItems'];
+					
+					//Recupérer le jour de start_date
+					//1: lundi...7:dimanche
+					$start_day = $start_time->format('N'); 
+
+					//dans la semaaine de la start_date, y a-t-il un jour ou l'événement se répété ?
+					if (intval($start_day)<7) 
+					{
+						foreach ($days as $day) {
+
+							if (intval($day)>intval($start_day)) {
+
+								//positionner le jour de répétition
+								$diff = intval($day) - intval($start_day);
+								$start_time->add(new DateInterval( "P".$diff."D" ));
+								$end_time->add(new DateInterval( "P".$diff."D" ));
+
+								break;
+							}
+						}
+					}
+					
+					//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
+					//toutes les x semaines
+					else
+					{
+						$jumpWeeks =  (int)$data['repeatEach'];
+						$start_time->add(new DateInterval( "P".$jumpWeeks."W" ));
+						$end_time->add(new DateInterval( "P".$jumpWeeks."W" ));
+
+						//attention :
+						//on est le dimanche de la semaine 1, l'événement se répéte le mardi de la semaine 3
+						//on ajout 2 semaines, mais on retire 7-2
+						//autre exemple : on est le le mardi, l'événement se répété le mardi suivant: il ne faut rien retirer cette fois
+						$first_day_of_repeat = $days[0];
+						$diff = intval($start_day)-intval($first_day_of_repeat);
+						if ($diff>0)
+						{
+							$start_time->sub(new DateInterval( "P".$diff."D" ));
+							$end_time->sub(new DateInterval( "P".$diff."D" ));
+						}
+
+					}
+
+					//on met à jour les dates
+					$carbon = Carbon::instance($start_time);
+					$new_start_date = $carbon->toDateTimeString() ; 
+
+					$carbon = Carbon::instance($end_time);
+					$new_end_date = $carbon->toDateTimeString() ; 
+
+				}
+				else
+				{
+
+					//dans ce modele, repeatItems est une string
+					$days = $data['repeatItems'];
+
+					//modele de répétition mensuelle
+					$jumpMonths =  (int)$data['repeatEach'];
+
+					if ($days=='day_of_month') {
+
+						//ex : le 3 du mois
+
+						$startCarbon = Carbon::parse($start_date);
+						$endCarbon = Carbon::parse($end_date);
+
+						$new_start_date = $startCarbon->addMonths(intval($jumpMonths))->toDateTimeString();
+						$new_end_date = $endCarbon->addMonths(intval($jumpMonths))->toDateTimeString();
+
+
+					} else if ($days=='day_of_week') {
+
+						//Ex : le 2e jeudi du mois
+
+						//le numéro de la semaine 
+						$startCarbon = Carbon::parse($start_date);
+						$endCarbon = Carbon::parse($end_date);
+
+						$diffInDays = $startCarbon->diffInDays( $endCarbon, false );
+
+						$week_number = intval($startCarbon->weekOfMonth)-1; //car on se recalera déjà sur le 1er par next() 
+
+						$start_day = $startCarbon->dayOfWeek; 
+						$end_day = $endCarbon->dayOfWeek;
 						
-			$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
+						$new_start_date = $startCarbon->startOfMonth()->addMonths(intval($jumpMonths))->next($start_day)->addWeeks(intval($week_number))->toDateTimeString();
+						$new_end_date = $endCarbon->startOfMonth()->addMonths(intval($jumpMonths))->next($end_day)->addWeeks(intval($week_number))->toDateTimeString();
+						
+					}
 
-			clean_post_cache( $event->ID );
-				
-			$old_status = $event->post_status;
-			$event->post_status = 'draft';
-			wp_transition_post_status( 'draft', $old_status, $event );
+				}
 
-			Kidzou_Utils::log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
+				////////////////////////////////
+
+				if ($endType=='never') {
+
+					$repeatable = true;
+
+				} else if ($endType=='date') {
+
+					$untill = Carbon::parse($data['endValue']);
+					$nextStart = Carbon::parse($new_start_date); 
+
+					if ( $nextStart->diffInDays( $untill, false ) >= 0 ) { //pas en valeur absolue !
+						Kidzou_Utils::log('endType = days, diff = '. $untill->diffInDays( $nextStart ));
+						$repeatable = true;
+					}
+						
+
+				} else {
+	 				
+	 				//on est forcément sur les occurences
+	 				//endtype = occurences
+					if ( $occurences>0 ) {
+						$repeatable = true;
+						$occurences--; //on décrémente les occurences, pas l'inverse...sinon ca ne se termine jamais
+					}
+						
+				}	
+					
+			}
+
+			if ($repeatable)
+			{
+				$events_meta['start_date'] 	= $new_start_date;
+				$events_meta['end_date'] 	= $new_end_date;
+
+				$events_meta['recurrence'] = array(
+						"model" => $data['model'],
+						"repeatEach" => (int)$data['repeatEach'],
+						"repeatItems" => $data['repeatItems'], 
+						"endType" 	=> $data['endType'],
+						"endValue"	=> ($data['endType'] == 'date' ? $data['endValue'] : $occurences) 
+					);
+
+				$old_dates = array(
+						'start_date' => $start_date,
+						'end_date'	=> $end_date
+					);
+
+				if (!isset($past_dates[0]))
+					$past_dates[0] = array();
+
+				array_push($past_dates[0], $old_dates);
+
+				$events_meta['past_dates'] = $past_dates[0];
+
+				Kidzou_Admin::save_meta($event->ID, $events_meta, "kz_event_");	
+
+				Kidzou_Utils::log( 'Event dates updates (recurrence) : ' . $event->ID. '['. $event->post_name .']' );
+
+				// Kidzou_Utils::log($events_meta);
+			}
+			else
+			{
+				//plus besoin de ces posts s'ils ne sont pas recurrents
+					
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
+
+				clean_post_cache( $event->ID );
+					
+				$old_status = $event->post_status;
+				$event->post_status = 'draft';
+				wp_transition_post_status( 'draft', $old_status, $event );
+
+				Kidzou_Utils::log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
+			}
 
 		}
-
 	}
-
 	
 
 	/**

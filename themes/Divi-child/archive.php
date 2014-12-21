@@ -166,12 +166,18 @@
 															$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 															$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 															$formatted = '';
-															setlocale(LC_TIME, "fr_FR"); 
+
+															//bon OK c'est un hack pour régler un pb d'affichage
+															//la date de fin s'affiche au lendemain de la date souhaitée
+															$end->sub(new DateInterval('PT1H'));
+
+															$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+															$formatter->setPattern('EEEE dd MMMM');
 
 															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-																$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+																$formatted = __( 'Le ', 'Divi'). $formatter->format($start) ;
 															else
-																$formatted = __( 'Du '. strftime("%d %b", $start->getTimestamp()).' au '.strftime("%d %b", $end->getTimestamp()), 'Divi' );
+																$formatted = __( 'Du ', 'Divi'). $formatter->format($start).__(' au ', 'Divi').$formatter->format($end);
 														?>
 															<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
 														
@@ -268,8 +274,8 @@
 										$lists = et_pb_get_mailchimp_lists();
 
 										if(!empty($lists) && is_array($lists)) {
-											$keys = array_keys($lists);
-											$key = $keys[1];
+											
+											$key = kz_mailchimp_key();
 											
 											echo do_shortcode('[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="'.$key.'" aweber_list="none" title="Inscrivez-vous à notre Newsletter" button_text="Inscrivez-vous " use_background_color="on" background_color="#ed0a71" background_layout="dark" text_orientation="left"]<p>Nous distribuons la newsletter 1 à 2 fois par mois, elle contient les meilleures recommandations de la communauté des parents Kidzou, ainsi que des jeux concours de temps en temps ! </p>[/et_pb_signup]'); 
 										}

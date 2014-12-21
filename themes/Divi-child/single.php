@@ -71,13 +71,21 @@
 
 								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+
+								//bon OK c'est un hack pour régler un pb d'affichage
+								//la date de fin s'affiche au lendemain de la date souhaitée
+								$end->sub(new DateInterval('PT1H'));
+
+								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::NONE, IntlDateFormatter::NONE);
+								$formatter->setPattern('EEEE dd MMMM');
+
 								$formatted = '';
-								setlocale(LC_TIME, "fr_FR"); 
+
 
 								if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-									$formatted = __( 'Le '. strftime("%A %d %B", $start->getTimestamp()), 'Divi' );
+									$formatted = __( 'Le ', 'Divi').  $formatter->format($start) ;
 								else
-									$formatted = __( 'Du '. strftime("%A %d %B", $start->getTimestamp()).' au '.strftime("%A %d %B", $end->getTimestamp()), 'Divi' );
+									$formatted = __( 'Du ', 'Divi').  $formatter->format($start).__(' au ', 'Divi'). $formatter->format($end);
 							?>
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php echo '<p class="location font-2x"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
@@ -89,7 +97,7 @@
 							<?php 
 								//easy social share buttons
 								if ( shortcode_exists( 'easy-social-share' ) )
-									echo do_shortcode('[easy-social-share counters=1 counter_pos="inside" total_counter_pos="hidden"]');
+									echo do_shortcode('[easy-social-share counters=0 hide_names="yes" counter_pos="hidden" native="no" hide_total="yes"]');
 							?>
 
 							

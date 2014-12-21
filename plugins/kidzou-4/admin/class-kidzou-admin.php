@@ -42,13 +42,22 @@ class Kidzou_Admin {
 	protected $plugin_screen_hook_suffix = null;
 
 	/**
-	 * les ecrans qui meritent qu'on y ajoute des meta 
+	 * les ecrans qui meritent qu'on y ajoute des meta  d'evenement
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      string
 	 */
-	protected $screen_with_meta = array('post', 'offres');
+	protected $screen_with_meta_event = array('post', 'offres');
+
+	/**
+	 * les ecrans qui meritent qu'on y ajoute des meta  client
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      string
+	 */
+	protected $screen_with_meta_client = array('post', 'offres', 'product');
 
 	/**
 	 * les ecrans customer, ils sont particuliers et ne bénéficient pas des 
@@ -121,10 +130,7 @@ class Kidzou_Admin {
 		//sauvegarde des meta à l'enregistrement
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
-		//affichage
-		// add_filter('default_hidden_meta_boxes', array($this,'hide_metaboxes'), 10, 2);
-		// add_action('wp_dashboard_setup', array($this,'remove_dashboard_widgets') );
-
+	
 		//http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
 		add_filter('wp_handle_upload_prefilter', array($this, 'handle_upload_prefilter'));
 		add_filter('wp_handle_upload', array($this,'handle_upload'));
@@ -143,13 +149,6 @@ class Kidzou_Admin {
 		add_action( 'edit_user_profile', array($this,'enrich_profile') );
 		add_action( 'edit_user_profile_update', array($this,'save_user_profile') );
 
-		/**
-		 * custom view pour les contribs
-		 *
-		 */
-		// add_action( 'admin_menu' , array($this,'remove_metaboxes' ) );
-		// add_action( 'admin_bar_menu', array($this, 'remove_media_node') , 999 );
-		// add_action( 'wp_dashboard_setup', array($this,'wptutsplus_add_dashboard_widgets' ));
 
 		/**
 		 * filtre la liste des evenements dans l'écran d'admin pour que les 'pro', contrib et auteurs
@@ -184,12 +183,13 @@ class Kidzou_Admin {
 	 * @see http://shinephp.com/hide-draft-and-pending-posts-from-other-authors/ 
 	 **/
 	public function contrib_contents_filter( $wp_query ) {
+
 	    if ( is_admin() && strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false && 
-	        ( !current_user_can('manage_options') ) ) {
-	        global $current_user;
-	        $wp_query->set( 'author', $current_user->id );
-	        // print_r($wp_query);
-	    }
+	        ( !Kidzou_Utils::current_user_is('author') ) ) {
+		        global $current_user;
+		        $wp_query->set( 'author', $current_user->id );
+		        // print_r($wp_query);
+		    }
 	}
 
 	/**
@@ -204,7 +204,7 @@ class Kidzou_Admin {
 	    $tax = get_taxonomy( 'ville' );
 
 	    /* Make sure the user is admin. */
-	    if ( !current_user_can( 'edit_user' ) )
+	    if ( !Kidzou_Utils::current_user_is('admin'))
 	        return;
 
 	    /* Get the terms of the 'profession' taxonomy. */
@@ -263,7 +263,7 @@ class Kidzou_Admin {
 	    if( !isset( $_POST['kz_user_info_nonce'] ) || !wp_verify_nonce( $_POST['kz_user_info_nonce'], 'kz_save_user_nonce' ) ) 
 	    	return;
 
-	    if ( !current_user_can( 'edit_user', $user_id )) 
+	    if ( !Kidzou_Utils::current_user_is('admin')) 
 	    	return;
 
 	    //meta metropole
@@ -306,7 +306,7 @@ class Kidzou_Admin {
 
 	
 	/**
-	 * pour les users contribs, rattachement automatique du post à la metropole du contrib
+	 * Rattachement automatique du post à la metropole du user
 	 *
 	 * @return void
 	 * @todo gérer le cas ou le user n'a pas de metropole de rattachement  
@@ -315,7 +315,7 @@ class Kidzou_Admin {
 	{
 	    if (!$post_id) return;
 
-	    if (!current_user_can('manage_options')) {
+	    if (!Kidzou_Utils::current_user_is('author')) {
 
 	    	//la metropole est la metropole de rattachement du user
 		    $metropoles = (array)self::get_user_metropoles();
@@ -336,7 +336,7 @@ class Kidzou_Admin {
 	public function has_family_card()
 	{
 
-	    if (current_user_can('manage_options'))
+	    if (Kidzou_Utils::current_user_is('admin'))
 	        return true;
 
 	    $current_user = wp_get_current_user();
@@ -406,7 +406,7 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta)  ) {
+		if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
 
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Kidzou::VERSION );
 		
@@ -416,6 +416,7 @@ class Kidzou_Admin {
 
 			//datepicker pour les events
 			wp_enqueue_style( 'jquery-ui-custom', plugins_url( 'assets/css/jquery-ui-1.10.3.custom.min.css', __FILE__ ) );	
+
 
 		} elseif ($screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 			
@@ -446,7 +447,8 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta) ) {
+		//ajout de la meta client
+		if (in_array($screen->id , $this->screen_with_meta_client) ) {
 
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'assets/js/admin.js', __FILE__ ), array( 'jquery' ), Kidzou::VERSION );
 
@@ -461,6 +463,11 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
 			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
 			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
+
+		}  
+
+		if ( in_array($screen->id , $this->screen_with_meta_event) ) {
+
 			//selection des places dans Google Places
 			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', __FILE__ ),array('jquery-select2', 'google-maps'), '1.0', true);
 			
@@ -477,6 +484,7 @@ class Kidzou_Admin {
 			wp_enqueue_script('jquery-ui-core');
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', __FILE__ ), array('jquery-ui-datepicker'),'1.0', true);
+
 
 		} elseif ( $screen->id == $this->plugin_screen_hook_suffix || in_array($screen->id, $this->customer_screen)) {
 
@@ -530,9 +538,14 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta) ) { 
+		if ( in_array($screen->id , $this->screen_with_meta_client) ) { 
 
 			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
+		
+		} 
+
+		if ( in_array($screen->id , $this->screen_with_meta_event) ) { 
+
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
 		
@@ -561,7 +574,7 @@ class Kidzou_Admin {
 		global $post;
 
 		$args = array(
-			'post_type' => array('post','offres'),
+			'post_type' => Kidzou_Customer::$supported_post_types,
 		   'meta_query' => array(
 		       array(
 		           'key' => Kidzou_Customer::$meta_customer,
@@ -644,16 +657,6 @@ class Kidzou_Admin {
 			}
 		}
 
-		// print_r($user_query);
-
-		//plus tard:
-		// $user_query = new WP_User_Query( array( 
-		// 	'meta_key' => 'kz_customer', 
-		// 	'meta_value' => $post_id , 
-		// 	'role' => 'editor' , 
-		// 	'fields' => array('ID', 'user_login') 
-		// 	) 
-		// );
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
@@ -671,19 +674,10 @@ class Kidzou_Admin {
 			</ul>',
 			$main_users
 		);
-			// $second_users
-			//);
+
 
 		echo $output;
 
-		//plus tard
-		//
-		// <li>
-		// 	<label for="second_users_input" style="display:block;">
-		// 		Utilisateurs <strong>secondaires</strong> autoris&eacute;s &agrave; saisir des contenus
-		// 	</label>
-		// 	<input type="hidden" name="second_users_input" id="second_users_input" value="%2$s" style="width:50%% ; display:block;" />
-		// </li>
 
 	}
 
@@ -774,7 +768,7 @@ class Kidzou_Admin {
 
 		$clients = array();
 		$args = array(
-				'post_type' => 'customer', 
+				'post_type' => Kidzou_Customer::$post_type, 
 				'order' => 'ASC', 
 				'orderby' => 'title', 
 				'posts_per_page' => -1,
@@ -783,12 +777,10 @@ class Kidzou_Admin {
 		$q = null;
 
 		//il faut que le client soit > contributeur pour voir tous els clients
-		if ( !current_user_can( 'edit_published_posts' ) ) {
+		if ( !Kidzou_Utils::current_user_is('author') ) {
 
 			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
-
-			Kidzou_Utils::log(  'client_metabox [getCustomersIDByUserID] -> ' . count($user_customers) );
-			
+		
 			//si le user est affecté à au moins un client, on filtre la liste des clients
 
 			if (count($user_customers)>0)
@@ -801,8 +793,10 @@ class Kidzou_Admin {
 			//si le user n'est affecté à aucun client on ne fait rien
 			//dans ce cas $q est null
 			
-		} else 
+		} else {
 			$q = new WP_Query( $args );
+		}
+			
 
 		if (null!=$q)
 		{
@@ -853,27 +847,29 @@ class Kidzou_Admin {
 	public function event_metabox()
 	{
 		global $post; 
-		// global $wpdb;
-		
+
+		////////////////////////////////
+
 		$checkbox = false;
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'event_metabox', 'event_metabox_nonce' );
-		//echo '<input type="hidden" name="eventmeta_noncename" id="eventmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 		
-		$start_date		= get_post_meta($post->ID, 'kz_event_start_date', TRUE);
-		$end_date 		= get_post_meta($post->ID, 'kz_event_end_date', TRUE);
+		$start_date		= get_post_meta($post->ID, Kidzou_Events::$meta_start_date, TRUE);
+		$end_date 		= get_post_meta($post->ID, Kidzou_Events::$meta_end_date, TRUE);
+		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
+		$past_dates		= get_post_meta($post->ID, Kidzou_Events::$meta_past_dates, FALSE);
 
 		echo '<script>
 		jQuery(document).ready(function() {
-			kidzouEventsModule.model.initDates("'.$start_date.'","'.$end_date.'");
+			kidzouEventsModule.model.initDates("'.$start_date.'","'.$end_date.'", '.json_encode($recurrence).');
 		});
 		</script>
 
 		<div class="kz_form" id="event_form">';
 
 			//si le user n'est pas un "pro", on permet des fonctions d'administration supplémentaires
-			if (current_user_can('manage_options')) {
+			if (Kidzou_Utils::current_user_is('administrator')) {
 
 				echo '<h4>Fonctions client</h4>
 						<ul>';
@@ -901,10 +897,89 @@ class Kidzou_Admin {
 					<input type="hidden" name="kz_event_end_date"  data-bind="value: eventData().formattedEndDate" />
 					<em data-bind="if: eventData().eventDuration()!==\'\'">(<span data-bind="text: eventData().eventDuration"></span>)</em>
 					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>
-				</li>
-			</ul>
+				</li>';
 
-		</div>';
+				if (Kidzou_Utils::current_user_is('editor')) {
+					echo
+					'<li>
+						<label for="kz_event_is_reccuring">Cet &eacute;v&eacute;nement est r&eacute;current </label>
+						<input type="checkbox" name="kz_event_is_reccuring" data-bind="enable: eventData().isReccurenceEnabled, checked: eventData().recurrenceModel().isReccuring" />
+					</li>';
+				}
+
+			echo '</ul>
+
+			<!-- ko if: eventData().recurrenceModel().isReccuring -->
+			<h4>R&eacute;p&eacute;tition de L&apos;&eacute;v&eacute;nement</h4>
+			<ul>	
+		    	<li data-bind="visible: $root.eventData().recurrenceModel().showSelectRepeat">
+		    		<label for="kz_event_reccurence_mod">R&eacute;ccurence:</label>
+					<select name="kz_event_reccurence_mod" data-bind="options: $root.eventData().recurrenceModel().repeatOptions,
+																		optionsText: \'label\',
+												                       	value: $root.eventData().recurrenceModel().selectedRepeat" ></select>
+					<input type="hidden" name="kz_event_reccurence_model" data-bind="value: eventData().recurrenceModel().selectedRepeat().value" />
+
+		    	</li>
+		    	<li>
+		    		<label for="kz_event_reccurence_repeat_select">R&eacute;p&eacute;ter tous les :</label>
+					<select name="kz_event_reccurence_repeat_select" data-bind="options: $root.eventData().recurrenceModel().selectedRepeat().repeatEvery,
+																		value: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery" ></select>
+
+		    	</li>
+		    	
+		    	<li>
+		    		<label for="kz_event_reccurence_repeat_choices">R&eacute;p&eacute;ter le :</label>
+		    		<!-- ko if: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+			    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
+			    			<input type="checkbox" name="kz_event_reccurence_repeat_choices"  data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
+			    			<input type="hidden" name="kz_event_reccurence_repeat_weekly_items" data-bind="value: $root.eventData().recurrenceModel().repeatItemsValue()" />
+			    		</span>
+			    	<!-- /ko -->
+		    		<!-- ko ifnot: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
+			    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
+			    			<input type="radio" name="kz_event_reccurence_repeat_choices" data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
+			    			<input type="hidden" name="kz_event_reccurence_repeat_monthly_items" data-bind="value: $root.eventData().recurrenceModel().repeatItemsValue()" />
+			    		</span>
+		    		<!-- /ko -->
+		    	</li>
+
+			</ul>
+			<ul>	
+				<li>
+					<label for="kz_event_reccurence_end_type">L&apos;&eacute;v&eacute;nement prend fin :</label>
+		    		<input type="radio" name="kz_event_reccurence_end_type" value="never" data-bind="checked: eventData().recurrenceModel().endType" /> never
+		    	</li>
+		    	<li>
+		    		<label> </label>
+		    		<input type="radio" name="kz_event_reccurence_end_type" value="date" data-bind="checked: eventData().recurrenceModel().endType" /> Le
+		    		<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().recurrenceModel().reccurenceEndDate, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> 
+			    	<input type="hidden" name="kz_event_reccurence_end_date" data-bind="value: eventData().recurrenceModel().formattedReccurenceEndDate" />
+		    	</li>
+			   	<li>
+			   		<label> </label>
+			    	<input type="radio" name="kz_event_reccurence_end_type" value="occurences" data-bind="checked: eventData().recurrenceModel().endType" /> Apr&egrave;s <input type="text" name="kz_event_reccurence_end_after_occurences" data-bind="value: eventData().recurrenceModel().occurencesNumber" /> occurences
+			    </li>
+			</ul>
+			<ul>	
+		    	<li><b>R&eacute;sum&eacute; : <span data-bind="text: eventData().recurrenceModel().recurrenceSummary()" /></b></li>
+			</ul>
+			<!-- /ko -->';
+
+			if (!empty($past_dates) && count($past_dates[0])>0)
+			{
+				echo '<ul><h4>Ev&eacute;nements pass&eacute;s :</h4>';
+				foreach ($past_dates[0] as  $value) {
+					// Kidzou_Utils::log($value);
+					$past_start_date=date_create($value['start_date']);
+					$past_end_date=date_create($value['end_date']);
+					echo '<li>Du '.date_format($past_start_date,"d/m/Y").' au '.date_format($past_end_date,"d/m/Y").'</li>';
+				}
+				echo '</ul>';
+
+			}
+
+		echo 
+		'</div>';
 
 	}
 
@@ -936,7 +1011,7 @@ class Kidzou_Admin {
 
 			$id = 0;
 
-			if (!current_user_can( 'manage_options' ) ) {
+			if (!Kidzou_Utils::current_user_is('administrator') ) {
 
 				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
 
@@ -1086,8 +1161,12 @@ class Kidzou_Admin {
 	public function save_metaboxes($post_id) {
 
 		$this->save_rewrite_meta($post_id);
+
+		//
 		$this->save_event_meta($post_id);
 		$this->save_client_meta($post_id);
+
+		//
 		$this->save_post_metropole($post_id);
 		$this->set_post_metropole($post_id);
 
@@ -1098,6 +1177,7 @@ class Kidzou_Admin {
 
 		//pour tout le monde
 		$this->save_place_meta($post_id);
+
 		
 	}
 
@@ -1144,7 +1224,7 @@ class Kidzou_Admin {
 	 **/
 	public function save_event_meta($post_id)
 	{
-		
+
 
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['event_metabox_nonce'] ) )
@@ -1162,28 +1242,35 @@ class Kidzou_Admin {
 		//output : 2014-02-23 00:00:01 (start_date) ou 2014-02-23 23:59:59 (end_date)
 		$events_meta['start_date'] 			= (isset($_POST['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
 		$events_meta['end_date'] 				= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
+
+		//les options de récurrence
+		if (isset($_POST['kz_event_is_reccuring']) && $_POST['kz_event_is_reccuring']=='on')
+		{
+			$events_meta['recurrence'] = array(
+					"model" => $_POST['kz_event_reccurence_model'],
+					"repeatEach" => $_POST['kz_event_reccurence_repeat_select'],
+					"repeatItems" => (isset($_POST['kz_event_reccurence_repeat_monthly_items']) ? $_POST['kz_event_reccurence_repeat_monthly_items'] : json_decode($_POST['kz_event_reccurence_repeat_weekly_items'])), 
+					"endType" 	=> $_POST['kz_event_reccurence_end_type'],
+					"endValue"	=> ($_POST['kz_event_reccurence_end_type']=='date' ? $_POST['kz_event_reccurence_end_date'] : $_POST['kz_event_reccurence_end_after_occurences'])
+				);
+		}
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
 		// echo ''
-		if ( current_user_can( 'manage_options' ) ) 
+		if ( Kidzou_Utils::current_user_is('administrator') ) 
 			$events_meta['featured'] 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on' ? "A" : "B");
 		else {
 			if (get_post_meta($post_id, 'kz_event_featured', TRUE)!='') {
-
 				$events_meta['featured'] 			= get_post_meta($post_id, 'kz_event_featured', TRUE);
-				
-				// if ($events_meta['featured']!='A')
-				// 	$events_meta['featured'] = ($events_meta['start_date']!='' ? "B" : "Z");
-			}
-				
-			else {
+			} else {
 				$events_meta['featured'] = "B";//($events_meta['start_date']!='' ? "B" : "Z");
 			}
 				
 		}
 
 		self::save_meta($post_id, $events_meta, "kz_event_");
+
 	}
 
 	/**
@@ -1204,7 +1291,7 @@ class Kidzou_Admin {
 			return $post_id;
 		}
 		// Is the user allowed to edit the post or page?
-		if ( !current_user_can( 'edit_posts', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('contributor') )
 			return $post_id;
 
 		$type = get_post_type($post_id);
@@ -1234,12 +1321,35 @@ class Kidzou_Admin {
 	public function save_client_meta ($post_id)
 	{
 
-		if ( ! isset( $_POST['clientmeta_noncename'] ) )
+		// Kidzou_Utils::log('save_client_meta');
+
+		if ( !isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
+
+			//OK, le user ne voit pas la meta client, c'est peut-être qu'il n'a pas le droit de voir la metabox
+			//Car elle a été cachée par un autre plugin
+			//dans ce cas, le post est rattaché à la méta "client" du user courant
+
+			$current_user_customers = Kidzou_Customer::getCustomersIDByUserID(); //c'est un tableau
+
+			Kidzou_Utils::log($current_user_customers);
+
+			if (count($current_user_customers)>0)
+			{
+				self::save_meta($post_id, array(
+					Kidzou_Customer::$meta_customer => $current_user_customers[0] //on prend le premier
+					)
+				); 
+			}
+
+			//pas la peine d'aller plus loin
 			return $post_id;
+		
+		}
+			
 
 		// verify this came from the our screen and with proper authorization,
 		// because save_post can be triggered at other times
-		if ( !wp_verify_nonce( $_POST['clientmeta_noncename'], plugin_basename(__FILE__) )) {
+		if ( !isset( $_POST['clientmeta_noncename'] ) || !wp_verify_nonce( $_POST['clientmeta_noncename'], plugin_basename(__FILE__) )) {
 			return $post_id;
 		}
 
@@ -1248,8 +1358,6 @@ class Kidzou_Admin {
 		$tmp_post = $_POST[$key];
 		$tmp_arr = explode("#", $tmp_post );
 		$events_meta[$key] 	= $tmp_arr[0];
-
-		Kidzou_Utils::log( 'save_client_meta : ' . $events_meta[$key] );
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
@@ -1284,7 +1392,7 @@ class Kidzou_Admin {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !current_user_can( 'manage_options', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -1453,7 +1561,7 @@ class Kidzou_Admin {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !current_user_can( 'manage_options', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -1489,7 +1597,7 @@ class Kidzou_Admin {
 		       )
 		   ),
 		   'post_per_page' => -1,
-		   'post_type' => array('offres', 'post')
+		   'post_type' => Kidzou_Customer::$supported_post_types
 		);
 		$query = new WP_Query($args);
 
@@ -1532,7 +1640,7 @@ class Kidzou_Admin {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !current_user_can( 'manage_options', $post_id ) )
+		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -1576,6 +1684,9 @@ class Kidzou_Admin {
 
 	/**
 	 * rattache un post à une metropole
+	 * 
+	 * les "editeurs" ou supérieur peuvent forcer la metropole (saisie manuelle)
+	 * les autres : la metropole est rattachée automatiquement en fonction de leur profil
 	 *
 	 * @return void
 	 * @author 
@@ -1584,9 +1695,9 @@ class Kidzou_Admin {
 	{
 		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 	    
-	    if ( current_user_can( 'manage_options', $post_id )) {
+	    if ( Kidzou_Utils::current_user_is('author') ) {
 
-	    
+	    	
 	    } else {
 
 	    	//la metropole est la metropole de rattachement du user

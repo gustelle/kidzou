@@ -52,13 +52,13 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             
             // Function to test the compiler hook and demo CSS output.
             // Above 10 is a priority, but 2 in necessary to include the dynamically generated CSS to be sent to the function.
-            //add_filter('redux/options/'.$this->args['opt_name'].'/compiler', array( $this, 'compiler_action' ), 10, 2);
+            add_filter('redux/options/'.$this->args['opt_name'].'/compiler', array( $this, 'compiler_action' ), 10, 2);
             
             // Change the arguments after they've been declared, but before the panel is created
             //add_filter('redux/options/'.$this->args['opt_name'].'/args', array( $this, 'change_arguments' ) );
             
             // Change the default value of a field after it's been set, but before it's been useds
-            //add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
+            // add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
             
             // Dynamically add a section. Can be also used to modify sections/fields
             //add_filter('redux/options/' . $this->args['opt_name'] . '/sections', array($this, 'dynamic_section'));
@@ -94,6 +94,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 );
               }
              */
+
+            // Kidzou_Utils::log($options);
+
+            // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
+            delete_transient('kz_notifications_content_offres');
+            delete_transient('kz_notifications_content_page');
+            delete_transient('kz_notifications_content_post');
+
+            kidzou_Geo::rebuild_geo_rules();
         }
 
         /**
@@ -154,7 +163,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
         public function setSections() {
 
-
+            $permalink_href = admin_url('options-permalink.php');
 
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
@@ -170,6 +179,22 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'subtitle'  => __('Ben c&apos;est l&agrave; qu&apos;on se connecte', 'kidzou'),
                         ),
 
+                        array(
+                            'id'        => 'user_favs_page',
+                            'type'      => 'select',
+                            'data'      => 'page',
+                            'title'     => __('Page de Favoris utilisateur', 'kidzou'),
+                            'subtitle'  => __('Les users retrouvent dans cette page les lieux et &eacute;v&eacute;nements qu&apos;ils ont aim&eacute;', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'debug_mode',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Mode debug', 'kidzou'),
+                            'subtitle'  => __('En cas de soucis, activez cette option et consultez la console Javascript', 'kidzou'),
+                        ),
+
                         
                     )
                 );
@@ -177,38 +202,34 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
                 'title'     => __('G&eacute;olocalisation', 'kidzou'),
-                'desc'      => __('lorem ipsum', 'kidzou'),
+                'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, Les contenus ne sont pas filtr&eacute;s. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
                 'icon'      => 'el-icon-compass',
                 'fields'    => array(
+
+                        // array(
+                        //     'id'    => 'geo_warning',
+                        //     'type'  => 'info',
+                        //     'title' => __('Visitez la page de permalien apr&egrave;s activation / d&eacute;sactivation de la geolocalisation', 'kidzou'),
+                        //     'style' => 'warning',
+                        //     'desc'  => sprintf( __( 'Un bug qui emp&ecirc;che wordpress de rafraichir les r&egrave;gles de re-ecriture d&apos;URL, <a href="%s">visitez cette page pour les rafraichir</a> si vous activez ou desactivez la geolocalisation', 'kidzou' ), $permalink_href ),
+                        // ),
+
+                        array(
+                            'id'       => 'geo_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Activer la geolocalisation des contenus ?', 'kidzou'), 
+                            'subtitle'  => __('Si cette est active, les contenus seront filtr&eacute;s pour ne s&apos;afficher que si la m&eacute;tropole de rattachement du contenu est celle qui transite dans la requ&ecirc.te.', 'kidzou'),
+                            'desc'      => __('La requ&ecirc;te peut soit contenir la m&eacute;tropole <em>(../lille/...)</em> soit contenir un cookie <em>kz_metropole</em>". <br/>Tout ceci est calcul&eacute; automatiquement &agrave; la 1ere connexion du user.<br/>Si le user refuse de se faire geolocaliser ou si vous <strong>d&eacute;sactivez la geolocalisation des contenus</strong> les contenus ne seront pas filtr&eacute;s, m&ecirc;me si ils sont rattach&eacute;s &agrave; une m&eacute;tropole','kidzou'),
+                            'default'  => '0',// 1 = on | 0 = off
+                            'compiler'  => true
+                        ),
 
                         array(
                             'id'        => 'geo_mapquest_key',
                             'type'      => 'text',
                             'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
-                            'subtitle'  => __('Cette cl&eacute; permet d&apos;utiliser l&apos;API qui fournit des adresses a partir de coordonn&eacute;es GPS et vice-versa', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_metropole',
-                            'type'      => 'select',
-                            'data' => 'terms',
-                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
-                            'title'     => __('Ville par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_lat',
-                            'type'      => 'text',
-                            'title'     => __('Latitude de la ville par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_lng',
-                            'type'      => 'text',
-                            'title'     => __('Longitude de la ville par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('La ville par d&eacute;faut est utilis&eacute;e si l&apos;utilisateur n&apos;utilise pas la geolocalisation', 'kidzou'),
+                            'subtitle'  => __('Cette cl&eacute; est <strong>n&eacute;cessaire au bon fonctionnement de la geolocalisation des contenus</strong>. ', 'kidzou'),
+                            'desc'      => __('La clef permet d&apos;utiliser l&apos;API <a href="http://developer.mapquest.com/fr/web/products/dev-services/geocoding-ws">Maquest</a> qui fournit la m&eacute;tropole a partir des coordonn&eacute;es GPS du navigateur. La <em>M&eacute;tropole</em> est ensuite pass&eacute;e en param&egrave;tre de la requ&ecirc;te pour filtrer les contenus en base de donn&eacute;e (les contenus sont rattach&eacute;s a une ville)','kidzou')
                         ),
 
                         array(
@@ -216,8 +237,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'type'      => 'select',
                             'data' => 'terms',
                             'args' => array('taxonomies'=>'ville', 'args'=>array()),
-                            'title'     => __('Ville &agrave; port&eacute;e nationale', 'kidzou'),
+                            'title'     => __('Quelle ville a une port&eacute;e &eacute;tendue ?', 'kidzou'),
                             'subtitle'  => __('Lorsque des contenus y sont attach&eacute;s, ils sont visibles pour tous les utilisateurs quelque soit leur m&eacute;tropole de rattachement', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'geo_default_metropole',
+                            'type'      => 'select',
+                            'data' => 'terms',
+                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
+                            'title'     => __('Ville par d&eacute;faut ?', 'kidzou'),
+                            'subtitle'  => __('Si l&apos;utilisateur ne se geolocalise pas ou si une erreur survient lors de la geoloc...les contenus de cette ville lui sont affich&eacute;s', 'kidzou'),
                         ),
                     )
                 );
@@ -276,7 +306,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
             
             $this->sections[] = array(
-                'title'     => __('API', 'kidzou'),
+                'title'     => __('API Kidzou', 'kidzou'),
                 'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
                 'icon'      => 'el-icon-rss',
                 'fields'    => array(
@@ -309,15 +339,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
-                'title'     => __('Dashboard Admin', 'kidzou'),
-                'desc'      => __('Widgets qui sont affich&eacute;s dans l\'admin', 'kidzou'),
-                'icon'      => 'el-icon-puzzle',
+                'title'     => __('Espace Contributeurs', 'kidzou'),
+                'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
+                'icon'      => 'el-icon-edit',
                 'fields'    => array(
 
                     array(
                         'id'       => 'widget_guidelines_activate',
                         'type'     => 'checkbox',
-                        'title'    => __('Activer le widget Tutorial ?', 'kidzou'), 
+                        'title'    => __('Activer le Tutorial  sur le dashboard des contributeurs ?', 'kidzou'), 
                         'default'  => '0'// 1 = on | 0 = off
                     ),
                     array(
@@ -337,6 +367,124 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     
                 )
             );
+
+            
+            $this->sections[] = array(
+                'title'     => __('Notifications', 'kidzou'),
+                'desc'      => __('Les notifications apparaissent en bas &agrave; droite des pages, elles sugg&egrave;rent des contenus ou des actions (call-to-action). <br/>L&apos;ensemble des messages &agrave; afficher sont dans une queue d&eacute;pil&eacute;e au fur et &agrave; mesure. <br/>Lorsqu&apos;un message est affich&eacute; un cookie est stock&eacute; sur le poste de l&apos;utilisateur pendant 30 jours de sorte qu&apos;il ne reverra plus cette notification pendant ce laps de temps. Le message suivant peut &ecirc;tre lu.<br/>Un utilisateur ne recoit que 1 seul message par page', 'kidzou'),
+                'icon'      => 'el-icon-envelope',
+                'fields'    => array(
+
+                    array(
+                        'id'       => 'notifications_activate',
+                        'type'     => 'checkbox',
+                        'title'    => __('Activer les notifications ?', 'kidzou'), 
+                        'default'  => '0',// 1 = on | 0 = off
+                        'compiler'  => true
+                    ),
+
+                    array(
+                        'id'       => 'notifications_first_message',
+                        'type'     => 'radio',
+                        'title'    => __('Ordre des messages', 'kidzou'), 
+                        'subtitle' => __('si plusieurs messages sont dans la queue, lequel afficher en premier ?', 'kidzou'),
+                        'options'  => array(
+                            'vote' => 'Inciter l&apos;utilisateur a clicker sur le coeur de recommandation', 
+                            'featured' => 'Les post featured d&apos;abord !', 
+                        ),
+                        'default' => 'vote'
+                    ),
+
+                    array(
+                        'id'       => 'notifications_post_type',
+                        'type'     => 'checkbox',
+                        'title'    => __('Activer les notifications pour les types de contenu :', 'kidzou'), 
+                     
+                        //Must provide key => value pairs for multi checkbox options
+                        'options'  => array(
+                            'post' => 'Post',
+                            'offres' => 'Offres',
+                            'page' => 'page'
+                        ),
+                     
+                        //See how default has changed? you also don't need to specify opts that are 0.
+                        'default' => array(
+                            'post' => '1', 
+                            'offres' => '0', 
+                            'page' => '0'
+                        ),
+                        'compiler'  => true
+                    
+                    ),
+
+                    array(
+                        'id'       => 'notifications_message_title',
+                        'type'     => 'text',
+                        'title'    => __('Titre de la boite de notification', 'kidzou'),
+                        'subtitle' => __('Ce titre surplombe les suggestion d&apos;article qui apparaissent dans la boite de notification', 'kidzou'),
+                        'desc'     => __('ce texte est entour&eacute; d&apos;un &lt;h3&gt; dans la boite de notification. <b>Il n&apos;apparait pas lorsque la notification concerne une suggestion de vote</b>', 'kidzou'),
+                    ),
+
+                     array(
+                        'id'       => 'notifications_context',
+                        'type'     => 'radio',
+                        'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
+                        'subtitle' => __('Un m&ecirc;me message apprait a quelle frequence ?', 'kidzou'),
+                        // 'desc'     => __('todo.', 'kidzou'),
+                        //Must provide key => value pairs for radio options
+                        'options'  => array(
+                            'daily' => '1 fois par jour', 
+                            'page' => 'Sur chaque page consult&eacute;e', 
+                            'monthly' => '1 fois par mois',
+                            'weekly' => '1 fois par semaine',
+                        ),
+                        'default' => 'page',
+                        'compiler'  => true
+                    ),
+
+                     array(
+                        'id'       => 'notifications_include_categories',
+                        'type'     => 'select',
+                        'multi'    => true,
+                        'title'    => __('Inclure les cat&eacute;gories suivantes dans les notifications', 'kidzou'), 
+                        'subtitle' => __('En plus des recos et des featured. Tous les posts publi&eacute;s dans ces cat&eacute;gories seront dans le &apos;queue&apos; des messages &agrave; afficher', 'kidzou'),
+                        'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                        //Must provide key => value pairs for radio options
+                        'data'      => 'categories',
+                        'compiler'  => true
+                    ),
+                )
+            );
+
+            // ACTUAL DECLARATION OF SECTIONS
+            $this->sections[] = array(
+                'title'     => __('Performances', 'kidzou'),
+                'icon'      => 'el-icon-wrench',
+                'fields'    => array(
+
+                        array(
+                            'id'        => 'perf_activate',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Activer les optimisations de performance', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'=>'perf_exclude_jshandle',
+                            'type' => 'multi_text',
+                            'title' => __('Ne pas charger les JS suivants en arri&egrave;re plan par Javascript', 'kidzou'),
+                            'subtitle' => __('Les scripts list&eacute;s seront charg&eacute;s dans le footer. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'=>'perf_do_not_touch',
+                            'type' => 'multi_text',
+                            'title' => __('Ne pas du tout toucher les JS suivants', 'kidzou'),
+                            'subtitle' => __('En particulier les scripts qui utilisent des variables localis&eacute;s par wp_localize_script. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                        ),
+                        
+                    )
+                );
             
         }
 

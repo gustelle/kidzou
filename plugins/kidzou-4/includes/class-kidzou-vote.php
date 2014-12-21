@@ -211,9 +211,6 @@ class Kidzou_Vote {
 				$slug,
 				$id);
 
-		// Kidzou_Utils::log($id);
-		// Kidzou_Utils::log($out);
-
 		if ($echo)
 			echo $out;
 		else
@@ -301,13 +298,16 @@ class Kidzou_Vote {
 			{
 				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				$meta_posts = get_user_meta(intval($user_id), self::$meta_user_votes);
+
+				// Kidzou_Utils::log($meta_posts);
 				
 				$voted_posts = $meta_posts[0]; 
 
 				if(!is_array($voted_posts))
 					$voted_posts = array();
 
-				array_push($voted_posts, $id) ;
+				//maintenant on stocke le timestamps du vote
+				array_push($voted_posts, array('id' => $id, 'timestamp' => time() ) ) ;
 
 				//@todo : tracker le timestamp du vote pour reutilisation analytique
 				update_user_meta( $user_id, self::$meta_user_votes, $voted_posts);
@@ -348,6 +348,8 @@ class Kidzou_Vote {
 		$meta_count = get_post_meta($id, self::$meta_vote_count, true);
 		$message 	= '';
 
+		// Kidzou_Utils::log('minusOne for user '. $user_id . ' [initial] : '. $meta_count );
+
 		//on ne recalcule pas systématiquement le hash du user, 
 		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
@@ -356,6 +358,7 @@ class Kidzou_Vote {
 		// Use has already voted ?
 		if(self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
 		{
+			// Kidzou_Utils::log('Update post and user meta');
 			update_post_meta($id, self::$meta_vote_count, --$meta_count);
 
 			//update les user meta pour indiquer les posts qu'il recommande
@@ -374,8 +377,20 @@ class Kidzou_Vote {
 					$voted_posts = array();
 
 				foreach ($voted_posts as $i => $value) {
-				    //retrait du vote sur le user
-				    if ( intval($value)==intval($id) )
+
+					//il y a eu changement 
+					//au debut les values étaient les id
+					//mais maintenant les value sont des tableaux (id=>timestamp)
+					if ( is_array($value) && isset($value['id']) )
+					{
+						
+						$val = $value['id'];
+						// Kidzou_Utils::log('minusOne sur user '. $user_id);
+						// Kidzou_Utils::log($value);
+						if (intval($val) == intval($id))
+							unset($voted_posts[$i]);
+
+					} else if ( intval($value)==intval($id) )
 						unset($voted_posts[$i]);
 				}
 
@@ -385,8 +400,6 @@ class Kidzou_Vote {
 			else
 				delete_post_meta(intval($id), self::$meta_anomymous_vote, $user_hash );
 
-			//kz_clear_cache();
-
 		}
 		
 		return array("user_hash" => $user_hash);
@@ -394,32 +407,32 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * undocumented function
+	 * le nombre de votes pour un post
 	 *
-	 * @return void
+	 * @return Array
 	 * @author 
 	 **/
 	public static function getPostVotes($post_id=0)
 	{
-		if ($post_id==0)
-			return ;
+		if ($post_id==0) 
+		{
+			global $post;
+			$post_id = $post->ID;
+		}
 
-		global $wpdb;
-			
-			$res = $wpdb->get_results(
-				"SELECT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id = $id", ARRAY_A);
+		$results = get_post_meta($post_id, self::$meta_vote_count, true);
 
 		return array(
-				"id" 	=> $res[0]['id'],
-		      	"votes"	=> $res[0]['votes']
+				"id" 	=> $post_id,
+		      	"votes"	=> intval($results)
 			);
 
 	}
 
 	/**
-	 * undocumented function
+	 * le nombre de votes pour une liste de post
 	 *
-	 * @return void
+	 * @return Array
 	 * @author 
 	 **/
 	public static function getPostsListVotes($list_array=array())
@@ -448,9 +461,43 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * undocumented function
+	 * Retourne le tableau des WP_Post que le user a voté
 	 *
-	 * @return void
+	 * @return Array
+	 * @since Noel2014
+	 * @author Guillaume
+	 **/
+	public static function getUserVotedPosts( $user_id = 0 )
+	{
+
+		if ($user_id == 0)
+			$user_id = get_current_user_id();
+
+		$meta = get_user_meta( $user_id, self::$meta_user_votes , false ); 
+		$data = $meta[0];
+
+		//gestion du legacy 
+		foreach ($data as $key => $value) {
+			if (!is_array($value)) {
+
+				$data[$key] = array(
+					'id' => $value,
+					'timestamp' => 0,
+				);
+
+			}
+		}
+
+		return $data;
+
+	}
+
+	/**
+	 * retourne un tableau d'ID correspondant aux posts que le user a voté 
+	 *
+	 * @return Array
+	 * @deprecated 
+	 * @todo c'est une API, bouger cela dans les API...ca sert uniquement en Ajax pour le UI
 	 * @author 
 	 **/
 	public static function getUserVotes($user_hash='') 
@@ -472,12 +519,22 @@ class Kidzou_Vote {
 								"SELECT meta_value as serialized FROM $wpdb->usermeta WHERE user_id=$user_id AND meta_key='kz_reco_post_id'",
 								ARRAY_A
 							);
-			$unserialized = maybe_unserialize($res[0]['serialized']);//print_r($unserialized);
+			$unserialized = maybe_unserialize($res[0]['serialized']);
+			// Kidzou_Utils::log('user_id '. $user_id);
+			// Kidzou_Utils::log( $unserialized);
 			$voted = array();
 			if ($unserialized!=null)
 			{ 
-				foreach ($unserialized as &$ares) 
-					array_push($voted, array ('id' => intval($ares))) ;
+				foreach ($unserialized as $i => $ares) 
+				{
+					//gestion du legacy
+					//certains items sont les valeurs directes des id
+					//d'autres sont un array (id, timestamp)
+					if (is_array($ares) && isset($ares['id']))
+						array_push($voted, array ('id' => intval($ares['id']) ) ) ;
+					else
+						array_push($voted, array ('id' => $ares ) ) ;
+				}
 			}
 
 			$voted_posts['voted'] = $voted;
@@ -517,11 +574,23 @@ class Kidzou_Vote {
 	 * @return TRUE si le user a déjà voté le post
 	 * @author Kidzou
 	 **/
-	public static function hasAlreadyVoted($post_id, $loggedIn, $user_id, $user_hash)
+	public static function hasAlreadyVoted($post_id, $loggedIn='', $user_id=0, $user_hash='')
 	{
 
-		if ($loggedIn)
+		// Kidzou_Utils::log('hasAlreadyVoted ? ' );
+
+		if ($loggedIn=='')
+			$loggedIn = is_user_logged_in();
+
+		if ($user_id==0 && $loggedIn)
+			$user_id = intval(get_user('ID'));
+
+		// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' . $loggedIn);
+		// Kidzou_Utils::log('hasAlreadyVoted user_id ' . $user_id);
+
+		if ($loggedIn && $user_id>0)
 		{
+			// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' );
 			//check DB
 			$meta_posts = get_user_meta($user_id, self::$meta_user_votes);
 			$voted_posts = $meta_posts[0];
@@ -531,10 +600,25 @@ class Kidzou_Vote {
 
 			if(in_array($post_id, $voted_posts))
 				return true;
+			else {
+				//gestion des nouveaux modes de vote
+				//maintenant on tracke les timestamp donc les valeurs sont des array(id, timestamps)
+				foreach ($voted_posts as $index => $id_tmsp) {
+					if( isset($id_tmsp['id']) && intval($id_tmsp['id'])==intval($post_id) )
+						return true;
+				}
+			}
 
 		}
-		else
+		else {
+			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' );
+			if ($user_hash=='') {
+				$user_hash = self::hash_anonymous();
+			}
+			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' .$user_hash);
 			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
+		}
+			
 
 		return false;
 

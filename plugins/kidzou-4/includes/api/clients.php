@@ -14,12 +14,12 @@ class JSON_API_Clients_Controller {
 
 		$id 		= $json_api->query->id;
 
-		if (!current_user_can("edit_posts"))
+		if (!Kidzou_Utils::current_user_is('contributor'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		//attention au hack
 		//si le user n'est pas au moins auteur, l'API ne peut être utilisée que avec le $id du customer du user courant
-		if (!current_user_can('edit_published_posts')) {
+		if (!Kidzou_Utils::current_user_is('author')) {
 
 			$current_customers = Kidzou_Customer::getCustomersIDByUserID();
 			if (!in_array($id, $current_customers))
@@ -43,7 +43,7 @@ class JSON_API_Clients_Controller {
 
 		$term 		= $json_api->query->term;
 
-		if (!current_user_can("edit_users") || !current_user_can("manage_options"))
+		if (!Kidzou_Utils::current_user_is('author'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		if ($term=='')
@@ -56,7 +56,7 @@ class JSON_API_Clients_Controller {
 		$posts = $json_api->introspector->get_posts( array(
 				'post_title' => $term,
 				'posts_per_page' => 10,
-				'post_type' => array('post', 'offres'),
+				'post_type' => Kidzou_Customer::$supported_post_types,
 				'meta_query' => array(
 			        'relation' => 'OR',
 			            array( // new and edited posts
@@ -99,15 +99,15 @@ class JSON_API_Clients_Controller {
 
 		global $json_api;
 
-		if (!current_user_can("edit_users") || !current_user_can("manage_options"))
+		if (!Kidzou_Utils::current_user_is('admin'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		$id 		= $json_api->query->id; 	//ID du client
 
 		$posts = $json_api->introspector->get_posts(array(
-				'post_type' => array('post','offres'), 
+				'post_type' => Kidzou_Customer::$supported_post_types, 
 				'post_status' => 'publish' ,
-				'meta_key' => 'kz_customer',
+				'meta_key' => Kidzou_Customer::$meta_customer,
 				'meta_value' => $id,
 			));
 

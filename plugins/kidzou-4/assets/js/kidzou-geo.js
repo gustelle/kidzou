@@ -2,17 +2,18 @@ var kidzouGeoContent = (function () {
 
 	jQuery(document).ready(function() {
 
-		/////////////// Selection de Metropole ////////////////
+		/////////////// Selection de Metropole dans la topnav ////////////////
 		//////////////////////////////////////
-
 		jQuery(".metropole").click(function(){
 			setCurrentMetropole(jQuery(this).data('metropole'));
 		});
 
 		//fonction initiale au chargement de la page
-		getUserLocation(function(pos){
-			getClosestContent(pos);
-		}); 
+		if (kidzou_geo_jsvars.geo_activate) {
+			getUserLocation(function(pos){
+				getClosestContent(pos);
+			}); 
+		} 
 
 	});
 
@@ -23,9 +24,8 @@ var kidzouGeoContent = (function () {
 		jQuery.getJSON(kidzou_geo_jsvars.geo_mapquest_reverse_url + "?key=" + kidzou_geo_jsvars.geo_mapquest_key + "&location=" + pos,{})
 			.done(function (data) {
 
-				var metropole = (typeof data.results[0].locations[0]!=="undefined" ? data.results[0].locations[0].adminArea4 : kidzou_geo_jsvars.geo_default_metropole);
+				var metropole = (typeof data.results[0].locations[0]!=="undefined" ? data.results[0].locations[0].adminArea4 : '');
 				var covered = false;
-				// console.debug(metropole);
 
 				//verifier qu'on est dans une des metropoles couvertes
 				for (var m in kidzou_geo_jsvars.geo_possible_metropoles) {
@@ -43,24 +43,24 @@ var kidzouGeoContent = (function () {
 					}
 				}
 
-				if (!covered) metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
+				//si la metreopole n'est pas couverte on ne filtre pas
 
 				//toujours renvoyer la metropole en minuscule pour analyse regexp coté serveur
-				if (callback) callback(metropole.toLowerCase());
+				if (callback && covered) callback(metropole.toLowerCase());
 
 				return metropole;
 				
 			})
 			.fail(function( jqxhr, textStatus, error ) {
-			    
-			    metropole = kidzou_geo_jsvars.geo_default_metropole.toLowerCase();
 
-				if (callback) callback(metropole);
+				//silence, pas de filtrage sur la metropole si erreur
 
 			});
 
 	}
 
+	//et voilà, ici on stocke l'info de la métropole du user dans un cookie
+	//pour éviter de recalculer sa position à chaque fois
 	function refreshGeoCookie(metropole) {
 
 		var precedenteMetropole = storageSupport.getCookie(kidzou_geo_jsvars.geo_cookie_name);
@@ -70,8 +70,8 @@ var kidzouGeoContent = (function () {
 			setCurrentMetropole(metropole.toLowerCase()); //on force encore une fois le toLowerCase() pour assurer le regexp coté serveur
 
 			//forcer le rafraichissement si la ville diffère de la ville par défaut
-			if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
-				location.reload(true);	
+			// if (metropole.toLowerCase()!=kidzou_geo_jsvars.geo_default_metropole.toLowerCase())
+			// 	location.reload(true);	
 		}
 	}
 
@@ -80,42 +80,44 @@ var kidzouGeoContent = (function () {
 	function getClosestContent(position) {
 
 		//si le user a cliqué expressément sur une ville pour la sélectionné, pas d'update du contenu
-		var isMetropoleSelected = storageSupport.getCookie(kidzou_geo_jsvars.geo_select_cookie_name);
+		var isMetropole = storageSupport.getCookie(kidzou_geo_jsvars.geo_cookie_name);
 
-		if (isMetropoleSelected==="undefined" || !isMetropoleSelected) {
+		if (isMetropole==="undefined" || !isMetropole) {
 
 			//le contenu sera rafraichit (callback: "refreshGeoCookie") avec la metropole
 			//obtenue par geoloc du navigateur
-			getMetropole(position.lat, position.lng, refreshGeoCookie);
+
+			position = position || {};
+
+			//si la mposition n'est pas fournie, on prend la ville par défaut
+			if ( position.latitude && position.longitude ) {
+				getMetropole(position.latitude, position.longitude, refreshGeoCookie);
+			}
+			// else
+			// 	refreshGeoCookie( kidzou_geo_jsvars.geo_default_metropole.toLowerCase() );
 			
-		} 
+		}  
 
 		//si effectivement la metropole est pré-selectionnée, elle a été passée dans la requete, et le contenu
 		//a été distribué en en tenant compte
-
 		
 	}
 
 
 	function setCurrentMetropole(metropole) {
 		storageSupport.setCookie(kidzou_geo_jsvars.geo_cookie_name, metropole.toLowerCase());
-		storageSupport.setCookie(kidzou_geo_jsvars.geo_select_cookie_name, true); //forcer cette ville, elle vient d'être selectionnée par le user
+		// storageSupport.setCookie(kidzou_geo_jsvars.geo_select_cookie_name, true); //forcer cette ville, elle vient d'être selectionnée par le user
 	}
 
 
 	function getUserLocation(callback) {
-
-		var defaultLoc = {
-				latitude  : kidzou_geo_jsvars.default_geo_lat,
-				longitude : kidzou_geo_jsvars.default_geo_lng,
-				altitude  : 0
-			};
 
 		if (navigator.geolocation) {
 
 			navigator.geolocation.getCurrentPosition(
 
 					function(position) { 
+
 						if (callback)
 							callback({
 								latitude: position.coords.latitude,
@@ -124,25 +126,21 @@ var kidzouGeoContent = (function () {
 							}); 
 					}, 
 					function(err) { 
-						if (callback)
-							callback(defaultLoc); 
+						//silence, pas de filtrage du contenu si le user refus la geoloc
+						// if (callback)
+						// 	callback( ); 
 					}
-				); //, 	{maximumAge:600000,enableHighAccuracy:true}
+				); 
 
 		} else {
-			if (callback)
-				callback(defaultLoc); 
+			//silence, pas de filtrage du contenu si le user refus la geoloc
+			// if (callback)
+			// 	callback( ); 
 		}
 	}
 
 	//fonction utilitaire pour récuperer lat et lng à partir d'une adresse
 	function getLatLng (address,callback ) {
-
-		var defaultLoc = {
-				latitude  : kidzou_geo_jsvars.default_geo_lat,
-				longitude : kidzou_geo_jsvars.default_geo_lng,
-				altitude  : 0
-			};
 
 		jQuery.getJSON(kidzou_geo_jsvars.geo_mapquest_address_url + "?key=" + kidzou_geo_jsvars.geo_mapquest_key + "&location=" + address,{})
 			.done(function (d) {
@@ -158,7 +156,7 @@ var kidzouGeoContent = (function () {
 			}).
 			fail(function( jqxhr, textStatus, error ) {
 			    
-				if (callback) callback(defaultLoc);
+				if (callback) callback( );
 
 			});
 

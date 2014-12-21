@@ -45,41 +45,6 @@
 		});
 	
 
-		//PLUS TARD
-		// $("#second_users_input").select2({
-		// 	placeholder: "Selectionnez un ou plusieurs utilisateurs",
-		// 	allowClear: true,
-		// 	multiple: true,
-		// 	// data: secondusers,
-		// 	initSelection : function (element, callback) {
-		// 	    var data = [];
-		// 	    $(element.val().split(",")).each(function () {
-		// 	        var pieces = this.split(":");
-		// 			data.push({id: pieces[0], user_login: pieces[1]});
-		// 	    });
-		// 	    callback(data);
-		// 	},
-		// 	ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-		//         url: client_jsvars.api_get_userinfo,
-		//         dataType: 'jsonp',
-		//         data: function (term, page) {
-		//             return {
-		//                 term: term, // search term
-		//                 term_field: 'user_login',
-		//             };
-		//         },
-		//         results: function (data, page) { // parse the results into the format expected by Select2.
-		//             // since we are using custom formatting functions we do not need to alter remote JSON data
-		//             // console.debug(data)
-		//             return {results: data.status};
-
-		//         }
-		//     },
-		//     formatResult : formatUser,
-		//     formatSelection : formatUser,
-		//     id : formatUserId,
-		// });
-
 
 		//liste des posts du client
 

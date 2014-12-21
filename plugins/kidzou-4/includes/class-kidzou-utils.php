@@ -76,7 +76,7 @@ class Kidzou_Utils {
 
 	public static function log( $log ) {
 
-        if ( true === WP_DEBUG ) {
+        if ( true === WP_DEBUG && self::current_user_is('admin') ) {
             if ( is_array( $log ) || is_object( $log ) ) {
                 error_log( print_r( $log, true ) );
             } else {
@@ -98,6 +98,54 @@ class Kidzou_Utils {
 
 		return $default;
 
+	}
+
+	public static function get_request_path() {
+
+		return $_SERVER['REQUEST_URI'];
+	}
+
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function current_user_is($role = '')
+	{
+		$is_user = false;
+		switch ($role) {
+			case 'subscriber':
+				$is_user = current_user_can('read');
+				break;
+
+			case 'contributor':
+				$is_user = current_user_can('edit_posts');
+				break;
+
+			case 'author':
+				$is_user = current_user_can('edit_published_posts');
+				break;
+
+			case 'editor':
+				$is_user = current_user_can('manage_categories');
+				break;
+
+			case 'admin':
+				$is_user = current_user_can('manage_options');
+				break;
+
+			case 'administrator':
+				$is_user = current_user_can('manage_options');
+				break;
+
+			default:
+				return new WP_Error( 'unknown_role', __( "Role inconnu", "kidzou" ) );
+				break;
+		}
+
+		return $is_user;
 	}
 
 

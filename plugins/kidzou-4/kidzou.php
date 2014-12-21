@@ -45,12 +45,13 @@ if ( ! defined( 'WPINC' ) ) {
 $directories = array(
             'includes/',
             'includes/TGM/',
+            'includes/Carbon/',
             'public/',
             'public/includes/',
             'public/views/',
             'admin/',
             'admin/includes/',
-            'admin/views'
+            'admin/views/'
 );
 foreach ($directories as $directory) {
     foreach(glob( plugin_dir_path( __FILE__ ) .$directory . "*.php") as $class) {
