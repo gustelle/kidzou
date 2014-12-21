@@ -894,6 +894,8 @@
 
 						$the_portfolio_items.imagesLoaded( function() {
 
+							$('.waiting').hide();
+
 							$the_portfolio.show(); //after all the content is loaded we can show the portfolio
 
 							$the_portfolio_items.masonry({
@@ -956,6 +958,7 @@
 			}); // End $(window).load()
 
 			set_filterable_grid_items = function( $the_portfolio ) {
+
 				var min_height = 0,
 					$the_portfolio_items = $the_portfolio.find('.et_pb_portfolio_items'),
 					active_category = $the_portfolio.find('.et_pb_portfolio_filter > a.active').data('category-slug'),

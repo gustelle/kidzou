@@ -183,6 +183,7 @@ class Kidzou_Admin {
 	 * @see http://shinephp.com/hide-draft-and-pending-posts-from-other-authors/ 
 	 **/
 	public function contrib_contents_filter( $wp_query ) {
+
 	    if ( is_admin() && strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false && 
 	        ( !Kidzou_Utils::current_user_is('author') ) ) {
 		        global $current_user;
@@ -858,10 +859,6 @@ class Kidzou_Admin {
 		$end_date 		= get_post_meta($post->ID, Kidzou_Events::$meta_end_date, TRUE);
 		$recurrence		= get_post_meta($post->ID, Kidzou_Events::$meta_recurring, FALSE);
 		$past_dates		= get_post_meta($post->ID, Kidzou_Events::$meta_past_dates, FALSE);
-
-		Kidzou_Utils::log('--------- event_metabox() -------------');
-		Kidzou_Utils::log($recurrence);
-		Kidzou_Utils::log('--------- /event_metabox() -------------');
 
 		echo '<script>
 		jQuery(document).ready(function() {
