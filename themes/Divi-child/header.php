@@ -128,7 +128,7 @@
 										$ttes_metros .= '&nbsp;|&nbsp;';
 
 									$ttes_metros .= sprintf(
-										'<a class="et_nav_text_color_light metropole" data-metropole="%s" href="%s" alt="%s" title="%s">%s</a>',
+										'<a class="metropole" data-metropole="%s" href="%s" alt="%s" title="%s">%s</a>',
 										$m->slug,
 										site_url().'/'.$m->slug,
 										$m->name,
@@ -153,10 +153,11 @@
 
 					if (!is_user_logged_in()) {
 
-						global $kidzou_options;
 						printf(
-							'<i class="fa fa-users font-bigger"></i><a href="%1$s" class="et_nav_text_color_light font-bigger">Connexion</a>',
-							get_page_link($kidzou_options['login_page'])
+							'<a href="%1$s" class="font-bigger"><i class="fa fa-users font-bigger"></i>Connexion</a>',
+							get_page_link( 
+								Kidzou_Utils::get_option('login_page', '')
+							)
 						);	
 
 						echo '&nbsp;|&nbsp;<a href="'.wp_registration_url().'" class="et_nav_text_color_light font-bigger">Inscription</a>';
@@ -164,12 +165,22 @@
 					} else {
 
 						printf(
-							'<a href="%1$s" class="et_nav_text_color_light font-bigger"><i class="fa fa-cog"></i><span>%2$s</span></a>&nbsp;', 
+							'<a href="%1$s" class="font-bigger"><i class="fa fa-heart"></i><span>%2$s</span></a>&nbsp;', 
+							get_page_link( 
+								Kidzou_Utils::get_option('user_favs_page', '')
+							),
+							__('Vos favoris','Divi')
+						);	
+
+						echo '&nbsp;|&nbsp;';
+
+						printf(
+							'<a href="%1$s" class="font-bigger"><i class="fa fa-pencil"></i><span>%2$s</span></a>&nbsp;', 
 							get_admin_url(),
 							current_user_can('edit_posts') ? 'G&eacute;rer vos articles' : 'Votre profil'
 						);	
 
-						echo '&nbsp;|&nbsp;<a class="et_nav_text_color_light font-bigger" href="'.wp_logout_url( get_permalink() ).'" title="'.__('Deconnexion','Divi').'">'.__('Deconnexion','Divi').'</a>';
+						echo '&nbsp;|&nbsp;<a class="font-bigger" href="'.wp_logout_url( get_permalink() ).'" title="'.__('Deconnexion','Divi').'">'.__('Deconnexion','Divi').'</a>';
 
 					}
 

@@ -207,8 +207,8 @@ table.shop_table { margin-bottom: 30px !important; }
 
 		#et-info { float: left; padding-bottom: 10px; }
 		#et-secondary-menu { float: right; padding-bottom: 10px; }
-		.et_nav_text_color_light, .et_nav_text_color_light #et-secondary-nav a, .et_nav_text_color_light .et-social-icon a { color: rgba( 255, 255, 255, 0.6 ); }
-		.et_nav_text_color_dark, .et_nav_text_color_dark #et-secondary-nav a, .et_nav_text_color_dark .et-social-icon a { color: rgba( 0, 0, 0, 0.5 ); }
+		.et_nav_text_color_light, .et_nav_text_color_light #et-secondary-nav a, .et_nav_text_color_light .et-social-icon a, .et_nav_text_color_light #kz-villes a, .et_nav_text_color_light #et-secondary-menu a { color: rgba( 255, 255, 255, 0.6 ); }
+		.et_nav_text_color_dark, .et_nav_text_color_dark #et-secondary-nav a, .et_nav_text_color_dark .et-social-icon a, .et_nav_text_color_dark #kz-villes a, .et_nav_text_color_dark #et-secondary-menu a  { color: rgba( 0, 0, 0, 0.5 ); }
 		.et-cart-info { color: inherit; }
 		#top-header .et-cart-info { margin-left: 15px; }
 		#et-top-navigation .et-cart-info { float: left; margin: 12px 0 0 22px; }
@@ -223,8 +223,8 @@ table.shop_table { margin-bottom: 30px !important; }
 		#et-secondary-menu .et-social-icons { margin-right: 20px; }
 			#top-header .et-social-icons li { margin-left: 12px; margin-top: -2px; }
 				#top-header .et-social-icon a { font-size: 14px; }
-				.et_nav_text_color_light .et-social-icon a:hover, .et_nav_text_color_light #et-secondary-nav a:hover, .et_nav_text_color_light .et-cart-info:hover { color: rgba(255, 255, 255, 1) !important; }
-				.et_nav_text_color_dark .et-social-icon a:hover, .et_nav_text_color_dark #et-secondary-nav a:hover, .et_nav_text_color_dark .et-cart-info:hover { color: rgba(0, 0, 0, 0.7) !important; }
+				.et_nav_text_color_light .et-social-icon a:hover, .et_nav_text_color_light #et-secondary-nav a:hover, .et_nav_text_color_light .et-cart-info:hover, .et_nav_text_color_light #kz-villes a:hover, .et_nav_text_color_light #et-secondary-menu a:hover { color: rgba(255, 255, 255, 1) !important; }
+				.et_nav_text_color_dark .et-social-icon a:hover, .et_nav_text_color_dark #et-secondary-nav a:hover, .et_nav_text_color_dark .et-cart-info:hover, .et_nav_text_color_dark #kz-villes a:hover, .et_nav_text_color_dark #et-secondary-menu a:hover  { color: rgba(0, 0, 0, 0.7) !important; }
 		#et-secondary-nav, #et-secondary-nav li { display: inline-block  }
 			#et-secondary-nav li { margin-right: 15px; }
 			#et-secondary-nav > li:last-child { margin-right: 0; }

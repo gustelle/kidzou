@@ -1,0 +1,4 @@
+
+.et-pb-all-modules .kz_pb_portfolio:before { content: '\57'; }
+.et-pb-all-modules .kz_pb_filterable_portfolio:before { content: '\63'; }
+.et-pb-all-modules .kz_pb_user_favs:before { content: '\47'; }

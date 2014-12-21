@@ -42,6 +42,7 @@ function override_divi_parent_functions()
     add_shortcode('kz_pb_fullwidth_portfolio','kz_pb_fullwidth_portfolio');
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
     add_shortcode('searchbox','searchbox');
+    add_shortcode('kz_pb_user_favs','kz_pb_user_favs');
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
@@ -83,9 +84,6 @@ function override_divi_parent_functions()
 	//pas besoin de passer par cette fonction, les css sont dans style.css
 	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
 
-	//script utilisé dans les shortcodes 
-	// add_action('init', 'kz_register_shortcode_script');
-	// add_action('wp_head', 'kz_print_shortcode_script', 1);
 
 }
 
@@ -1220,6 +1218,245 @@ function kz_pb_filterable_portfolio( $atts ) {
 	);
 
 	return $output;
+}
+
+/**
+ * genere un portfolio des favoris utilisateur
+ *
+ */
+function kz_pb_user_favs( $atts ) {
+	
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'fullwidth' => 'on',
+			'show_title' => 'on',
+			'show_categories' => 'on',
+			'background_layout' => 'light',
+			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
+			'show_ad' => 'off',
+			'show_pagination' => 'off',
+			'posts_number' => 1000
+		), $atts
+	) );
+
+	wp_enqueue_script( 'jquery-masonry-3' );
+	wp_enqueue_script( 'hashchange' );
+
+	$container_is_closed = false;
+
+	$voted =  Kidzou_Vote::getUserVotedPosts( );
+
+	global $post;
+
+	ob_start();
+
+	if ( count($voted)>0 ) {
+
+		foreach ($voted as $key => $value) {
+			
+			$post = get_post( $value['id'] );
+			setup_postdata( $post ); 
+
+			$category_classes = array();
+			$categories = get_the_terms( get_the_ID(), 'category' );
+			if ( $categories ) {
+				foreach ( $categories as $category ) {
+					$category_classes[] = 'project_category_' . $category->slug;
+					$categories_included[] = $category->term_id;
+				}
+			}
+
+			$category_classes = implode( ' ', $category_classes );
+
+			$featured = Kidzou_Events::isFeatured();
+			$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
+		?>
+
+			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item '.$kz_class. ' '. $category_classes ); ?>>
+
+				<?php 
+				
+				$thumb = '';
+
+				$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
+				$height = 'on' === $fullwidth ?  9999 : 284;
+				$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+				$titletext = get_the_title();
+				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
+				
+				$thumb = $thumbnail["thumb"];
+
+				$event_meta = '';
+				$output = '';
+
+				if (Kidzou_Events::isTypeEvent()) {
+
+					Kidzou_Utils::log(get_the_ID());
+
+					$location = Kidzou_Events::getEventDates(get_the_ID());
+
+					$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+					$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+					$formatted = '';
+					
+					//bon OK c'est un hack pour régler un pb d'affichage
+					//la date de fin s'affiche au lendemain de la date souhaitée
+					$end->sub(new DateInterval('PT1H'));
+					
+					$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+					$formatter->setPattern('EEEE dd MMMM');
+
+					if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+						$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
+					else
+						$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
+				
+				 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+				
+				} 
+
+				if ( '' !== $thumb ) : ?>
+					
+					<?php
+
+					if ( $featured ) {
+
+						$fb = '';
+
+						$output = sprintf("<div class='kz_portfolio_featured_hover'>
+												%s 
+												<a href='%s'><h2>%s</h2></a>
+												%s
+												%s
+												%s
+											</div>",
+								Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
+								get_permalink(),
+								get_the_title(),
+								kz_get_post_meta(),
+								$event_meta,
+								$fb);
+						
+					} else if ( $with_votes ) {
+						$output = Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
+					}
+
+					$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
+
+					if ($featured) {
+
+						echo sprintf("
+								
+									%s <a href='%s'>%s</a>								
+							
+							",
+							$output,
+							get_permalink(),
+							$image
+							);
+
+					} else if ( 'on' !== $fullwidth ) { 
+						echo sprintf("
+								<a href='%s'>
+									<span class='et_portfolio_image'>
+										%s %s
+										<span class='et_overlay'></span>
+									</span><!--  et_portfolio_image -->
+								</a>
+							",
+							get_permalink(),
+							$output,
+							$image
+							);
+
+					} 
+					?>
+
+			<?php
+				endif;
+			?>
+
+				<?php if ( 'on' === $show_title && !$featured) : ?>
+					<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
+				<?php endif; ?>
+
+				<?php if ( 'on' === $show_categories && !$featured ) : ?>
+					<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
+				<?php endif; ?>
+
+				<?php if (!$featured) echo $event_meta; ?>
+
+			</div> <!-- .et_pb_portfolio_item -->
+
+<?php
+
+		}
+
+		//fin de boucle foreach
+
+	} 
+
+	$posts = ob_get_contents();
+
+	ob_end_clean();
+
+	if ( count($voted)>0 )
+	{
+		$categories_included = array_unique( $categories_included );
+		$terms_args = array(
+			'include' => $categories_included,
+			'orderby' => 'name',
+			'order' => 'ASC',
+		);
+		$terms = get_terms( 'category', $terms_args );
+
+		$category_filters = '<ul class="clearfix">';
+		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#" class="active" data-category-slug="all">%1$s</a></li>',
+			esc_html__( 'All', 'Divi' )
+		);
+		foreach ( $terms as $term  ) {
+			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="#" data-category-slug="%1$s">%2$s</a></li>',
+				esc_attr( $term->slug ),
+				esc_html( $term->name )
+			);
+		}
+		$category_filters .= '</ul>';
+
+		$class = " et_pb_bg_layout_{$background_layout}";
+
+		$output = sprintf(
+			'<div%5$s class="et_pb_filterable_portfolio %1$s%4$s%6$s" data-posts-number="%7$d">
+				<div class="et_pb_portfolio_filters clearfix">%2$s</div><!-- .et_pb_portfolio_filters -->
+
+				<div class="et_pb_portfolio_items_wrapper %8$s">
+					<div class="column_width"></div>
+					<div class="gutter_width"></div>
+					<div class="et_pb_portfolio_items">%3$s</div><!-- .et_pb_portfolio_items -->
+				</div>
+				%9$s
+			</div> <!-- .et_pb_filterable_portfolio -->',
+			( 'on' === $fullwidth ? 'et_pb_filterable_portfolio_fullwidth' : 'et_pb_filterable_portfolio_grid clearfix' ),
+			$category_filters,
+			$posts,
+			esc_attr( $class ),
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+			esc_attr( $posts_number),
+			('on' === $show_pagination ? '' : 'no_pagination' ),
+			('on' === $show_pagination ? '<div class="et_pb_portofolio_pagination"></div>' : '' )
+		);
+
+		$output .= '<div class="waiting vote"><i class="fa fa-spinner fa-spin fa-2x pull-left"></i><h1>Hum...Patience petit scarab&eacute;e</h1></div>';
+
+		return $output;
+	}
+	else
+	{
+		get_template_part( 'includes/no-results', 'user-favs' );
+	}
+
+	
 }
 
 /**

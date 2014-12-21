@@ -80,6 +80,10 @@ console.log(ET_PageBuilder);
 						'label' : 'kz_pb_filterable_portfolio'
 					},
 					{
+						'title' : 'Favoris utilisateurs',
+						'label' : 'kz_pb_user_favs'
+					},
+					{
 						'title' : 'Bar Counters',
 						'label' : 'et_pb_counters'
 					},

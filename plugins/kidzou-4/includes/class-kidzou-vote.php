@@ -409,7 +409,7 @@ class Kidzou_Vote {
 	/**
 	 * le nombre de votes pour un post
 	 *
-	 * @return void
+	 * @return Array
 	 * @author 
 	 **/
 	public static function getPostVotes($post_id=0)
@@ -432,7 +432,7 @@ class Kidzou_Vote {
 	/**
 	 * le nombre de votes pour une liste de post
 	 *
-	 * @return void
+	 * @return Array
 	 * @author 
 	 **/
 	public static function getPostsListVotes($list_array=array())
@@ -461,9 +461,43 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * undocumented function
+	 * Retourne le tableau des WP_Post que le user a voté
 	 *
-	 * @return void
+	 * @return Array
+	 * @since Noel2014
+	 * @author Guillaume
+	 **/
+	public static function getUserVotedPosts( $user_id = 0 )
+	{
+
+		if ($user_id == 0)
+			$user_id = get_current_user_id();
+
+		$meta = get_user_meta( $user_id, self::$meta_user_votes , false ); 
+		$data = $meta[0];
+
+		//gestion du legacy 
+		foreach ($data as $key => $value) {
+			if (!is_array($value)) {
+
+				$data[$key] = array(
+					'id' => $value,
+					'timestamp' => 0,
+				);
+
+			}
+		}
+
+		return $data;
+
+	}
+
+	/**
+	 * retourne un tableau d'ID correspondant aux posts que le user a voté 
+	 *
+	 * @return Array
+	 * @deprecated 
+	 * @todo c'est une API, bouger cela dans les API...ca sert uniquement en Ajax pour le UI
 	 * @author 
 	 **/
 	public static function getUserVotes($user_hash='') 
