@@ -899,7 +899,7 @@ class Kidzou_Admin {
 					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>
 				</li>';
 
-				if (Kidzou_Utils::current_user_is('editor')) {
+				if (Kidzou_Utils::current_user_is('author')) {
 					echo
 					'<li>
 						<label for="kz_event_is_reccuring">Cet &eacute;v&eacute;nement est r&eacute;current </label>

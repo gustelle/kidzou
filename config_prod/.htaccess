@@ -32,16 +32,30 @@ SetEnv MAGIC_QUOTES 0
 
 	ExpiresByType application/json "access plus 12 hours"
 	
-	ExpiresByType text/html "access plus 0 days"
-	ExpiresByType application/xhtml+xml "access plus 0 days"
+	ExpiresByType text/html "access plus 12 hours"
+	ExpiresByType application/xhtml+xml "access plus 1 days"
 	ExpiresByType application/x-shockwave-flash "access plus 7 days"
+
+	# Add correct content-type for fonts 
+	AddType application/vnd.ms-fontobject .eot
+	AddType font/ttf .ttf
+	AddType font/otf .otf
+	AddType font/x-woff .woff
+	AddType image/svg+xml .svg
+	 
+	# Add a far future Expires header for fonts
+	ExpiresByType application/vnd.ms-fontobject "access plus 1 year"
+	ExpiresByType font/ttf "access plus 1 year"
+	ExpiresByType font/otf "access plus 1 year"
+	ExpiresByType font/x-woff "access plus 1 year"
+	ExpiresByType image/svg+xml "access plus 1 year"
 
 </IfModule>
 
 #GZIP
 # MOD_DEFLATE COMPRESSION
 SetOutputFilter DEFLATE
-AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/x-javascript application/x-httpd-php
+AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml font/ttf font/otf image/svg+xml application/x-javascript application/x-httpd-php 
 #Pour les navigateurs incompatibles
 BrowserMatch ^Mozilla/4 gzip-only-text/html
 BrowserMatch ^Mozilla/4\.0[678] no-gzip
@@ -97,34 +111,6 @@ RewriteRule ^/?$  %2 [L,R]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^lille/rubrique/offres/?(page)?/?([0-9])?$  offres/$1/$2 [L,R] 
 RewriteRule ^lille/rubrique/a-gagner/?(.*)$  concours/$1 [L,R] 
-#RewriteRule ^category/(.*)$  lille/rubrique/$1 [L,R] 
-#RewriteRule ^ville/(.*)$  ville/$1 [L,R] 
-#RewriteRule ^age/(.*)$  age/$1 [L,R] 
-
-# présence de la ville dans la requete 
-# surcharge du cookie si la ville est forcée dans la requete
-# on ecrit donc le nouveau cookie
-# NB : cette regle evite les appels Ajax de l'API (*/api/*)
-
-#RewriteCond %{REQUEST_URI} !.*/api/.*
-#RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
-#RewriteCond %{REQUEST_URI} ^.*/?(valenciennes|amiens|lille|regional)/?(.*)$
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteRule ^(.*)$ %2?kz_metropole=%1 [QSA,CO=kz_metropole:%1:localhost:0:/,S=1]
-
-# pas de reprise du cookie
-# le cookie est stocké sur le client pour se souvenir de la préférence utilisateur
-# une fois la ville dans la requete, le cookie n'est plus utilisé
-# NB : cette regle evite les appels Ajax de l'API (*/api/*)
-
-#RewriteCond %{REQUEST_URI} !.*/api/.*
-#RewriteCond %{QUERY_STRING} !.*kz_metropole=.*
-#RewriteCond %{REQUEST_URI} !^(.*)wp-admin(.*)$
-#RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteCond %{REQUEST_URI} !^.*/?(valenciennes|amiens|lille|regional)/?(.*)$
-#RewriteCond %{HTTP:Cookie} (^|;\ *)kz_metropole=([^;\ ]+)
-#RewriteCond %2 !=-1
-#RewriteRule ^(.*)$ %{REQUEST_URI}?kz_metropole=%2 [QSA]
 
 </IfModule>
 

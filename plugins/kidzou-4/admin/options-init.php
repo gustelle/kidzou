@@ -470,17 +470,45 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
-                            'id'=>'perf_exclude_jshandle',
+                            'id'=>'perf_css_in_header',
                             'type' => 'multi_text',
-                            'title' => __('Ne pas charger les JS suivants en arri&egrave;re plan par Javascript', 'kidzou'),
-                            'subtitle' => __('Les scripts list&eacute;s seront charg&eacute;s dans le footer. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                            'title' => __('Ne pas charger les CSS suivants en arri&egrave;re plan par Javascript', 'kidzou'),
+                            'subtitle' => __('Les CSS list&eacute;es seront charg&eacute;es dans le footer. Il faut saisir les handle des CSS - Un handle par ligne', 'kidzou'),
                         ),
 
                         array(
-                            'id'=>'perf_do_not_touch',
+                            'id'=>'perf_js_in_header',
                             'type' => 'multi_text',
-                            'title' => __('Ne pas du tout toucher les JS suivants', 'kidzou'),
+                            'title' => __('Conserver les JS suivants dans le header', 'kidzou'),
                             'subtitle' => __('En particulier les scripts qui utilisent des variables localis&eacute;s par wp_localize_script. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'perf_add_async_attr',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Charger les Javascripts avec l&apos;attribut async', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'=>'perf_js_no_async',
+                            'type' => 'multi_text',
+                            'title' => __('Exclure les Javascripts suivants d&apos;un chargement asynchrone', 'kidzou'),
+                            'subtitle' => __('Cela n&apos;est utile que si les chargements asynchrones sont actifs', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'perf_remove_css_id',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Permettre la combinaison des CSS', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'=>'perf_css_no_combine',
+                            'type' => 'multi_text',
+                            'title' => __('Ne pas combiner les CSS suivants avec les autres', 'kidzou'),
+                            'subtitle' => __('Cela n&apos;est utile que si les l&apos;option de combinaison CSS est active', 'kidzou'),
                         ),
                         
                     )

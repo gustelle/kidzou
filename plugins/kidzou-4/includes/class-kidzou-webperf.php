@@ -38,13 +38,40 @@ class Kidzou_WebPerf {
 	protected static $instance = null;
 
 	/**
-	 * les JS qui restent dans le footer mais ne sont pas chargés par webperf.js
+	 * les JS qui restent dans le header
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      object
 	 */
-	protected static $exceptions = array( 'jquery-migrate' ); 
+	protected static $js_in_header = array( 'jquery-migrate', 'jquery' );  //
+
+	/**
+	 * les CSS qui ne doivent pas etre chargés en arriere plan par JS
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
+	protected static $css_in_header = array( 'admin-bar' );  //
+
+	/**
+	 * les JS qui ne doivent pas avoir l'attribut async
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
+	protected static $js_no_async = array( 'jquery-core' );  //
+
+	/**
+	 * les CSS qui ne sont pas combinés avec les autres
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
+	protected static $css_no_combine = array(  );  //
 
 	/**
 	 * les JS qui restent tels quels car ils embarquent des variables contextuelles par wp_localize_script
@@ -53,18 +80,18 @@ class Kidzou_WebPerf {
 	 *
 	 * @var      object
 	 */
-	protected static $do_not_touch = array( 'jquery', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-webperf','jquery-core', 'kidzou-plugin-script', 'kidzou-notif','kidzou-geo' ); //
+	// protected static $do_not_touch = array( 'jquery', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-webperf','jquery-core', 'kidzou-plugin-script', 'kidzou-notif','kidzou-geo' ); //
 
 
 	/**
-	 * les scripts supprimés de la queue wordpress, donc non rendus en HTML
+	 * les CSS supprimés de la queue wordpress, donc non rendus en HTML
 	 * ils sont chargés par le script de webperf
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      object
 	 */
-	protected static $removed_from_queue = array();
+	public static $css_load_per_js = array();
 
 	
 
@@ -78,7 +105,8 @@ class Kidzou_WebPerf {
 
 		//important de le faire tourner en dernier pour récupérer une liste complete de JS
 		add_action( 'wp_print_scripts', array( $this, 'enqueue_scripts' ), PHP_INT_MAX);
-		add_action( 'wp_print_scripts',	array( $this, 'arrange_scripts'), PHP_INT_MAX);
+		add_action( 'wp_print_styles', array( $this, 'enqueue_styles' ), PHP_INT_MAX);
+		// add_action( 'wp_print_styles',	array( $this, 'arrange_scripts'), PHP_INT_MAX);
 		
 		// add_action( 'wp_footer',	array($this, 'enqueue_scripts'), PHP_INT_MAX);
 		// add_action( 'wp_footer',	array($this, 'arrange_scripts'), PHP_INT_MAX);
@@ -86,7 +114,17 @@ class Kidzou_WebPerf {
 		add_action( 'wp_print_footer_scrits',	array($this,'arrange_footer_scripts'),	PHP_INT_MAX);
 
 		//chargement des scripts du footer en async
-		add_filter( 'clean_url', array($this,'load_js_async'), 11, 1);
+		//todo : utiliser add_filter(script_loader_tag)
+		//voir https://developer.wordpress.org/reference/classes/wp_scripts/do_item/
+		// add_filter( 'clean_url', array($this,'load_js_async'), 11, 1);
+		add_filter('script_loader_tag', array($this,'add_aync_attr'), 11, 2);
+
+		//supprimer les id des css (https://blog.codecentric.de/en/2011/10/wordpress-and-mod_pagespeed-why-combine_css-does-not-work/)
+		add_filter('style_loader_tag', array($this,'remove_style_id'), 11, 2);
+
+		self::$js_no_async = array_merge(self::$js_no_async, Kidzou_Utils::get_option('perf_js_no_async', array()));
+
+		self::$css_no_combine = array_merge(self::$css_no_combine, Kidzou_Utils::get_option('perf_css_no_combine', array()));
 
 	}
 
@@ -120,107 +158,109 @@ class Kidzou_WebPerf {
 
 		if (!is_admin() && $activate )
 		{
-			$all_exceptions = array_merge( Kidzou_Utils::get_option('perf_exclude_jshandle', array()) , self::$exceptions);
-			$all_not_touch = array_merge( Kidzou_Utils::get_option('perf_do_not_touch', array()) , self::$do_not_touch);
+			$all_js_in_header = array_merge( Kidzou_Utils::get_option('perf_js_in_header', array()) , self::$js_in_header);
 
 		    foreach( $wp_scripts->queue as $queued ) {
 
-		    	$is_not_touch = in_array($queued, $all_not_touch);
+    			$registered = $wp_scripts->registered[$queued];
 
-		    	if ( !$is_not_touch ) {
+    			//ce qui provient de wp_localize_script()
+    			$local_script = $wp_scripts->get_data($queued, 'data');    				
+    			
+    			//s'assurer que ces scripts snt bien dans le footer s'ils ne sont pas chargés par webperf.js
+	    		wp_deregister_script($registered->handle);
+    			wp_dequeue_script( $registered->handle );
 
-		    		$is_exception = in_array($queued, $all_exceptions);
+    			$in_footer = true;
+    			if ( in_array($queued , $all_js_in_header) )
+    				$in_footer = false;
 
-		    		if ( !$is_exception ) { //wp_script_is( $registered->handle ,'enqueued') && && !in_array($registered->handle, self::$removed_from_queue)
+	    		wp_register_script($registered->handle, $registered->src, $registered->deps, Kidzou::VERSION, $in_footer);
+				wp_enqueue_script( $registered->handle );	
 
-			    		$registered = $wp_scripts->registered[$queued];
-			    		array_push(self::$removed_from_queue, array(
-				    			'handle' => $queued,
+				//re-attacher les scripts localisés 
+				$wp_scripts->add_data( $registered->handle, 'data', $local_script );
+
+		    }
+			
+
+		}
+	}
+
+	/**
+	 * Register and enqueues public-facing JavaScript files.
+	 *
+	 * @since    1.0.0
+	 */
+	public static function enqueue_styles() {
+
+		global $wp_styles;
+
+		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
+
+		if (!is_admin() && $activate )
+		{
+			$all_css_in_header = array_merge( Kidzou_Utils::get_option('perf_css_in_header', array()) , self::$css_in_header);
+
+			foreach( $wp_styles->queue as $queued ) {
+
+				$is_exception = in_array($queued, $all_css_in_header);
+				if ( !$is_exception )
+				{
+					$registered = $wp_styles->registered[$queued];
+
+					wp_dequeue_style($registered->handle);
+					wp_deregister_style($registered->handle);
+
+					array_push(self::$css_load_per_js, array(
+				    			'handle' => $registered->handle,
 				    			'src' => $registered->src,
-				    			'deps' => $registered->deps
+				    			'media' => $registered->args
 			    			)
 			    		);
 
-		    		} else {
+				}
 
-		    			$registered = $wp_scripts->registered[$queued];
-		    			//s'assurer que ces scripts snt bien dans le footer s'ils ne sont pas chargés par webperf.js
-			    		wp_deregister_script($registered->handle);
-		    			wp_dequeue_script( $registered->handle );
-		    			wp_register_script($registered->handle, $registered->src, $registered->deps, Kidzou::VERSION, true);
-						wp_enqueue_script( $registered->handle );
-		    		}
-		    		
-		    	}
+			}
 
-		    }
-
-		    wp_enqueue_script( 'kidzou-webperf' , plugins_url( '../assets/js/kidzou-webperf.js', __FILE__ ), array(  ), Kidzou::VERSION, true );
+			wp_enqueue_script( 'kidzou-webperf' , plugins_url( '../assets/js/kidzou-webperf.js', __FILE__ ), array(  ), Kidzou::VERSION, true );
 			wp_localize_script('kidzou-webperf', 'kidzou_webperf', array(
-					'js' => self::$removed_from_queue,
-					'version' => Kidzou::VERSION
+					// 'js' => self::$removed_from_queue,
+					'version' => Kidzou::VERSION,
+					'css' => self::$css_load_per_js
 				)
 			);
 
 		}
 	}
 
-	/**
-	 * Register and enqueues public-facing JavaScript files.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function arrange_scripts() {
 
-		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
+	public static function add_aync_attr($html, $handle) {
 
-		if (!is_admin() && $activate)
+		$activate = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
+		$add_async_attr = ((bool)Kidzou_Utils::get_option('perf_add_async_attr',false)) ;
+
+		if (!is_admin() && $activate && $add_async_attr && !in_array($handle, self::$js_no_async) )
 		{
-			foreach( self::$removed_from_queue as $registered ) {
-
-	    		//il n'a plus rien à faire dans la queue, il sera chargé par JS 
-	    		wp_deregister_script($registered['handle']);
-	    		wp_dequeue_script( $registered['handle'] );
-	    	
-		    }
+			return preg_replace("/<script/", "<script async defer", $html);
 		}
-	
-	}
-
-	/**
-	 * Register and enqueues public-facing JavaScript files.
-	 *
-	 * @since    1.0.0
-	 */
-	public static function arrange_footer_scripts() {
-
-
-	    global $wp_scripts;
-	    Kidzou_Utils::log($wp_scripts->registered);
-	
-	}
-
-
-
-	// ACTION wp_footer
-	public static function load_js_async($url) {
-
-		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
-
-		//jquery est vraiment chiant...
-		if (!is_admin() && $activate && !preg_match('#(jquery.js|knockout-min.js)#', $url) )
-		{
-			if ( FALSE === strpos( $url, '.js' ) )
-		    { // not our file
-		    	return $url;
-		    }
-			return "$url' async='async";
-		}
-		else
-			return $url;
+		return $html;
 		
 	}
 
+	public static function remove_style_id($link, $handle) {
+
+		$activate = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
+		$combine_css = ((bool)Kidzou_Utils::get_option('perf_remove_css_id',false)) ;
+
+		//jquery est vraiment chiant...
+		if (!is_admin() && $activate && $combine_css && !in_array($handle, self::$css_no_combine) )
+		{
+			return preg_replace("/id='.*-css'/", "", $link);
+		}
+		return $link;
+		
+	}
 
 
 
