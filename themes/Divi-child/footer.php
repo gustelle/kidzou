@@ -46,5 +46,25 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 
 <!-- </div> .habillage -->
 
+<?php
+	
+	$css_per_js = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
+	if (!is_admin() && $css_per_js)
+	{
+		// global $wp_styles;
+		echo '<noscript>';
+		$css = Kidzou_WebPerf::$css_load_per_js;
+
+		foreach ($css as $item) {
+			$src = $item['src'];
+			$media = $item['media'];
+			$ver = Kidzou::VERSION;
+			echo "<link rel='stylesheet'  href='$src?ver=$ver' type='text/css' media='$media' />";
+		}
+		echo '</noscript>';
+	}
+
+?>
+
 </body>
 </html>

@@ -271,7 +271,7 @@ class Kidzou_Vote {
 		}
 
 
-	  	$user_id 	= get_user("ID");
+	  	$user_id 	= get_current_user_id();//get_user("ID"); //remplacer par get_current_user_id()
 	  	$loggedIn 	= is_user_logged_in();
 
 		// Get votes count for the current post
@@ -341,7 +341,7 @@ class Kidzou_Vote {
 			return array();
 		}
 
-		$user_id = get_user("ID");
+		$user_id = get_current_user_id();//get_user("ID"); //get_current_user_id()
 	  	$loggedIn = is_user_logged_in();
 
 		// Get votes count for the current post
@@ -432,7 +432,7 @@ class Kidzou_Vote {
 	/**
 	 * le nombre de votes pour une liste de post
 	 *
-	 * @return Array
+	 * @return Array<id, votes>
 	 * @author 
 	 **/
 	public static function getPostsListVotes($list_array=array())
@@ -512,7 +512,7 @@ class Kidzou_Vote {
 		{
 			//les posts que le user courant recommande sont dans les meta users
 			//et non dans les meta post !
-			$user_id = intval(get_user('ID'));
+			$user_id = get_current_user_id(); //get_user('ID')
 
 			global $wpdb;
 			$res = $wpdb->get_results(
@@ -583,7 +583,7 @@ class Kidzou_Vote {
 			$loggedIn = is_user_logged_in();
 
 		if ($user_id==0 && $loggedIn)
-			$user_id = intval(get_user('ID'));
+			$user_id = get_current_user_id(); //get_user('ID')
 
 		// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' . $loggedIn);
 		// Kidzou_Utils::log('hasAlreadyVoted user_id ' . $user_id);
