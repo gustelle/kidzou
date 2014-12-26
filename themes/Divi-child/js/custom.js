@@ -2166,6 +2166,27 @@
 			
 			};
 			if ($.fn.autocomplete) {
+
+				//fix sur l'autocomplete..
+				$.ui.autocomplete.prototype._renderItem = function (ul, item) {
+
+			      // Escape any regex syntax inside this.term
+			      var cleanTerm = this.term.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+			      // Build pipe separated string of terms to highlight
+			      var keywords = $.trim(cleanTerm).replace('  ', ' ').split(' ').join('|');
+
+			      // Get the new label text to use with matched terms wrapped
+			      // in a span tag with a class to do the highlighting
+			      var re = new RegExp("(" + keywords + ")", "gi");
+			      var output = item.label.replace(re,  
+			         '$1');
+
+			      return $("<li>")
+			         .append($("<a class='ui-corner-all'>").html(output))
+			         .appendTo(ul);
+			   };
+
 				$('.kz_searchbox input').autocomplete(options).data('ui-autocomplete')._renderMenu = function( ul, items ) {
 				  var that = this;
 				  $.each( items, function( index, item ) {

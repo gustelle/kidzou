@@ -152,7 +152,7 @@ function filter_archive_query($query)
 function kz_divi_load_scripts ()
 {
 	wp_dequeue_script( 'divi-custom-script' );
-	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery', 'jquery-ui-autocomplete' ), '1.0.0', true );
+	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery', 'jquery-ui-autocomplete' ), Kidzou::VERSION, true );
 
 	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
 
