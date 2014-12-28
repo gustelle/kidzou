@@ -181,7 +181,7 @@ class Kidzou_Geo {
 	 * @return void
 	 * @author 
 	 **/
-	public function rebuild_geo_rules()
+	public static function rebuild_geo_rules()
 	{
 
 		//nettoyager les transients

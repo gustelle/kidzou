@@ -497,16 +497,72 @@ class Kidzou_Events {
 			else
 			{
 				//plus besoin de ces posts s'ils ne sont pas recurrents
-					
-				$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
 
-				clean_post_cache( $event->ID );
-					
-				$old_status = $event->post_status;
-				$event->post_status = 'draft';
-				wp_transition_post_status( 'draft', $old_status, $event );
+				$remove_cats 	= Kidzou_Utils::get_option('obsolete_events_remove_cats', array());	
+				$add_cats 		= Kidzou_Utils::get_option('obsolete_events_add_cats', array());
+				
+				//inclure des catégories supplémentaires ou en supprimer
+				if (($add_cats!=null && count($add_cats)>0) || 
+					($remove_cats!=null && count($remove_cats)>0)) {
 
-				Kidzou_Utils::log( 'Unpublished ['. $event->post_name .']' , true);
+					//recuperer les id pre-affectés et faire un diff
+					$term_list = wp_get_post_terms($event->ID, 'category', array("fields" => "ids"));
+
+					Kidzou_Utils::log('Liste initiale :  ' . implode(',', $term_list), true);
+					
+					$remove_ids = array_map( 'intval', $remove_cats );
+					$remove_ids = array_unique( $remove_ids );
+
+					$list_remove = implode(',', $remove_ids);
+					Kidzou_Utils::log('Categories a enlever :  ' . $list_remove, true);
+
+					$add_ids = array_map( 'intval', $add_cats );
+					$add_ids = array_unique( $add_ids );
+
+					$list_add = implode(',', $add_ids);
+
+					Kidzou_Utils::log('Categories a ajouter :  ' . $list_add, true);
+
+					$all_terms_ids = array_merge($term_list, $add_ids) ;
+					$all_terms_ids = array_unique( $all_terms_ids );
+
+					foreach ($remove_ids as $key => $value) {
+						Kidzou_Utils::log('Recherche de ' . $value .' dans '. implode(',', $all_terms_ids) , true);
+						$index = array_search($value, $all_terms_ids, false);
+						if ($index) {
+							Kidzou_Utils::log('Suppression de la categorie ' . $value . ' index ['. $index . ']', true);
+							unset($all_terms_ids[$index]);
+						}
+							
+					}
+
+					$term_taxonomy_ids = wp_set_post_terms( $event->ID , $all_terms_ids, 'category', false ); //replace all cats by new list
+
+					$list = implode(',', $all_terms_ids);
+
+					if ( is_wp_error( $term_taxonomy_ids ) ) {
+						Kidzou_Utils::log( 'Erreur dans affectation de cagtegories ['. $event->post_name .'] = ' .$list , true);
+					} else {
+						Kidzou_Utils::log( 'Nouvelles categories affectees pour  ['. $event->post_name .'] = '.$list , true);
+					}
+
+				}	
+
+				$unpublish 		= (bool)Kidzou_Utils::get_option('obsolete_events_unpublish', false);
+
+				if ($unpublish)
+				{
+					$wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $event->ID ) );
+
+					clean_post_cache( $event->ID );
+						
+					$old_status = $event->post_status;
+					$event->post_status = 'draft';
+					wp_transition_post_status( 'draft', $old_status, $event );
+
+					Kidzou_Utils::log( 'Unpublished ['. $event->post_name .']' , true);
+				}
+					
 			}
 
 		}

@@ -97,6 +97,8 @@ class Kidzou_Admin {
 		 */ 
 		add_action('wp_loaded', array(&$this, 'init'));
 
+		add_action( 'admin_notices', array(&$this, 'notify_admin') );
+
 
 	}
 
@@ -172,6 +174,25 @@ class Kidzou_Admin {
 		}
 
 		return self::$instance;
+	}
+
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function notify_admin ()
+	{
+		if (Kidzou_Utils::current_user_is('author'))
+		{
+			echo '
+			<div class="updated">
+		        <p>'.Kidzou::$version_description.'</p>
+		    </div>';
+		}
+		
 	}
 	
 
