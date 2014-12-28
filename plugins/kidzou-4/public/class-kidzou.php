@@ -30,7 +30,16 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '28-dec-event_fix';
+	const VERSION = 'obsolete-events';
+
+	/**
+	 * Plugin version, used for cache-busting of style and script file references.
+	 *
+	 * @since   1.0.0
+	 *
+	 * @var     string
+	 */
+	public static $version_description = "Vous pouvez ajouter/supprimer des categories aux evenements obsoletes dans les reglages Kidzou";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin

@@ -339,6 +339,38 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
+                'title'     => __('Ev&eacute;nements', 'kidzou'),
+                'desc'      => __('Gestion des r&eacute;rrences, des &eacute;v&eacute;nements termin&eacute;s ', 'kidzou'),
+                'icon'      => 'el-icon-calendar',
+                'fields'    => array(
+
+                    array(
+                        'id'       => 'obsolete_events_unpublish',
+                        'type'     => 'checkbox',
+                        'title'    => __('D&eacute;publier les &eacute;v&eacute;nements termin&eacute;s ?', 'kidzou'), 
+                        'default'  => '0'// 1 = on | 0 = off
+                    ),
+
+                    array(
+                        'id'       => 'obsolete_events_remove_cats',
+                        'type'     => 'select',
+                        'multi'    => true,
+                        'title'    => __('Supprimer les cat&eacute;gories suivantes des &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                        'data'      => 'categories',
+                    ),
+                    
+                    array(
+                        'id'       => 'obsolete_events_add_cats',
+                        'type'     => 'select',
+                        'multi'    => true,
+                        'title'    => __('Ajouter les cat&eacute;gories suivantes &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                        'data'      => 'categories',
+                    ),
+                    
+                )
+            );
+
+            $this->sections[] = array(
                 'title'     => __('Contributeurs', 'kidzou'),
                 'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
                 'icon'      => 'el-icon-edit',
