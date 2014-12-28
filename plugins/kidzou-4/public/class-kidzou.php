@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '26-dec';
+	const VERSION = 'customer-analytics';
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -162,6 +162,16 @@ class Kidzou {
 	        array(
 	            'name'               => 'Redux Framework', // The plugin name.
 	            'slug'               => 'redux-framework', // The plugin slug (typically the folder name).
+	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => true, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
+	        ),
+
+	        array(
+	            'name'               => 'Google Analytics Dashboard for WP', // The plugin name.
+	            'slug'               => 'google-analytics-dashboard-for-wp', // The plugin slug (typically the folder name).
 	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
 	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
 	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.

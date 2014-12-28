@@ -28,15 +28,6 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Customer', 'get_instance' ) );
 class Kidzou_Customer {
 
 	/**
-	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @var     string
-	 */
-	// const VERSION = '04-nov';
-
-	/**
 	 * Instance of this class.
 	 *
 	 * @since    1.0.0
@@ -62,6 +53,8 @@ class Kidzou_Customer {
 
 	public static $meta_api_usage = 'kz_api_usage';
 
+	public static $meta_customer_analytics = 'kz_customer_analytics';
+
 	/**
 	 * Le post type d'un customer
 	 *
@@ -84,8 +77,15 @@ class Kidzou_Customer {
 	 */
 	private function __construct() { 
 
+
 		add_action('init', array($this, 'register_customer_type'));
 
+		//pour le F.O
+		add_action('wp', array($this, 'check_customer_analytics'), 0);
+
+		//pour le B.O (partie admin)
+		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes') );
+		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes'), 10, 1);
 	}
 
 	/**
@@ -103,6 +103,161 @@ class Kidzou_Customer {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Si les analytics sont actifs et que le user a le droit
+	 * on ouvre les tuyaux pour afficher les analytics en bas de page
+	 *
+	 * @return void
+	 * @since customer-analytics
+	 * @author 
+	 **/
+	public function check_customer_analytics()
+	{
+		if (is_user_logged_in() && !is_admin() && !Kidzou_Utils::current_user_is('author'))
+		{
+			$remove_analytics = false;
+			$activate = Kidzou_Utils::get_option('customer_analytics_activate', false);
+		
+			if (!$activate)
+			{
+				//checker si le user à le droit de voir les analytics
+				// Kidzou_Utils::log('Analytics non actifs');
+				$remove_analytics = true;
+			}
+			else
+			{	
+				global $post;
+				// Kidzou_Utils::log($post);
+				//vérif que le customer de la page courante est autorisé à visualiser ses analytics
+				$customer_id = self::getCustomerIDByPostID( $post->ID );
+				$is_authorized = self::isAnalyticsAuthorizedForCustomer($customer_id);
+
+				if (!$is_authorized)
+				{
+					// Kidzou_Utils::log('Client non autorisé pour les analytics ' . $is_authorized);
+					$remove_analytics = true;
+				}
+				else
+				{	
+					//le client du post
+					$current_user_customers = self::getCustomersIDByUserID();
+
+					//hack : les auteurs voient tjrs les analytics
+					// if (Kidzou_Utils::current_user_is('author')) $current_user_customers[] = $customer_id;
+
+					if ( !in_array($customer_id, $current_user_customers) )
+					{
+						$remove_analytics = true;
+					}
+					// else 
+					// 	Kidzou_Utils::log('Bande de veinards');
+				}
+				
+			}
+
+			if ($remove_analytics)
+			{
+				Kidzou_Utils::remove_filters_for_anonymous_class('the_content', 'GADASH_Frontend', 'ga_dash_front_content', 10);
+				Kidzou_Utils::remove_filters_for_anonymous_class('wp_enqueue_scripts', 'GADASH_Frontend', 'ga_dash_front_enqueue_styles', 10);
+			}
+		}
+
+	
+
+	}
+
+	/**
+	 * Ajout des metabox supplémnetaires à celles gérées par Kidzou_Admin
+	 *
+	 * @return void
+	 * @since customer-analytics
+	 * @author 
+	 **/
+	public function add_metaboxes()
+	{
+		if (is_admin())
+		{
+			$screen = get_current_screen(); 
+
+			if ($screen->id =='customer' )
+				add_meta_box('kz_customer_analytics_metabox', 'Google Analytics', array($this, 'add_analytics_metabox'), $screen->id, 'normal', 'high'); 
+
+		}
+	}
+
+	/**
+	 * Ajout d'une metabox pour autoriser ou non les users du customer à visualiser leurs analytics 
+	 *
+	 * @return HTML
+	 * @since customer-analytics
+	 * @author 
+	 **/
+	public function add_analytics_metabox()
+	{
+		global $post;
+
+		// Add an nonce field so we can check for it later.
+		wp_nonce_field( 'analytics_metabox', 'analytics_metabox_nonce' );
+
+		$checkbox = get_post_meta($post->ID, self::$meta_customer_analytics , TRUE);
+
+		echo 	'<ul>
+					<li>
+						<label for="kz_customer_analytics">Autoriser les utilisateurs de ce client &agrave; visualiser les analytics:</label>
+						<input type="checkbox" name="'.self::$meta_customer_analytics.'"'. ( $checkbox ? 'checked="checked"' : '' ).'/>  
+					</li>
+				</ul>';
+	}
+
+	/**
+	 *  sauvegarde des meta lors de l'enregistrement d'un customer
+	 *
+	 * @return void
+	 * @since customer-analytics
+	 * @author 
+	 **/
+	public function save_metaboxes($post_id) {
+
+		$this->save_analytics_metabox($post_id);
+		
+	}
+
+	/**
+	 * sauvegarde de la meta self::$meta_customer_analytics 
+	 * qui indique si les users du client peuvent visualiser sur le front les analytics de leurs pages
+	 *
+	 * @return void
+	 * @since customer-analytics
+	 * @author 
+	 **/
+	public function save_analytics_metabox($post_id)
+	{
+		// Check if our nonce is set.
+		if ( ! isset( $_POST['analytics_metabox_nonce'] ) )
+			return $post_id;
+
+		$nonce = $_POST['analytics_metabox_nonce'];
+
+		// Verify that the nonce is valid.
+		if ( ! wp_verify_nonce( $nonce, 'analytics_metabox' ) )
+			return $post_id;
+
+		// If this is an autosave, our form has not been submitted,
+        // so we don't want to do anything.
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
+			return $post_id;
+
+		$meta = array();
+
+		if ( !isset($_POST[self::$meta_customer_analytics]) )
+			$meta[self::$meta_customer_analytics] = false;
+		else
+			$meta[self::$meta_customer_analytics] = ($_POST[self::$meta_customer_analytics]=='on');
+			
+
+		Kidzou_Admin::save_meta($post_id, $meta);
 	}
 
 	public function register_customer_type() {
@@ -167,6 +322,8 @@ class Kidzou_Customer {
 
 		if (!$customer || $customer=='')
 			$customer = 0;
+
+		// Kidzou_Utils::log('getCustomerIDByPostID '. $customer);
 
 		return intval($customer);
 	}
@@ -258,10 +415,6 @@ class Kidzou_Customer {
 		 
 		$rd_query = new WP_Query( $rd_args );
 
-		// Kidzou_Utils::log('getPostsByCustomerID ');
-
-		// Kidzou_Utils::log($rd_query);
-
 		$list = 	$rd_query->get_posts(); 
 
 		return $list;
@@ -291,6 +444,17 @@ class Kidzou_Customer {
 
 			return get_post_type($item)==$this_type;
 		});
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function isAnalyticsAuthorizedForCustomer($customer_id = 0)
+	{
+		return get_post_meta($customer_id, self::$meta_customer_analytics , TRUE);
 	}
 
 	
