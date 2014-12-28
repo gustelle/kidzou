@@ -5,6 +5,8 @@
 		<div id="content-area" class="clearfix">
 			<div id="left-area"> -->
 
+				<?php echo do_shortcode('[searchbox]'); ?>
+
 				<div class="et_pb_section et_section_regular">
 
 					<div class="et_pb_row">
@@ -14,6 +16,8 @@
 							<div class="et_pb_blog_grid_wrapper" id='et_pb_blog_grid_wrapper'>
 
 								<div class="et_pb_blog_grid clearfix et_pb_bg_layout_light">
+
+
 
 									<?php
 
