@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'customer-analytics';
+	const VERSION = 'searchbox';
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
