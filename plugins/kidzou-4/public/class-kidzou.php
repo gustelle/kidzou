@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'searchbox';
+	const VERSION = '28-dec-event_fix';
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
