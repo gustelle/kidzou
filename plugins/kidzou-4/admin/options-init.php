@@ -339,7 +339,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             );
 
             $this->sections[] = array(
-                'title'     => __('Espace Contributeurs', 'kidzou'),
+                'title'     => __('Contributeurs', 'kidzou'),
                 'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
                 'icon'      => 'el-icon-edit',
                 'fields'    => array(
@@ -363,6 +363,12 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'teeny'            => true,
                             'textarea_rows'    => 10
                         )
+                    ),
+                    array(
+                        'id'       => 'customer_analytics_activate',
+                        'type'     => 'checkbox',
+                        'title'    => __('Ouvrir l&apos;acc&egrave;s aux analytics pour les Pro', 'kidzou'), 
+                        'default'  => '0'// 1 = on | 0 = off
                     ),
                     
                 )

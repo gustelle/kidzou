@@ -560,6 +560,14 @@ class Kidzou_Admin {
 
 		}
 
+		/**
+		 * Permet d'attacher des metabox additionnelles
+		 * 
+		 * @since customer-analytics
+		**/
+
+		do_action('kidzou_add_metabox');
+
 	}
 
 	/**
@@ -1177,6 +1185,14 @@ class Kidzou_Admin {
 
 		//pour tout le monde
 		$this->save_place_meta($post_id);
+
+		/**
+		 * Permet d'attacher des metabox additionnelles
+		 * 
+		 * @since customer-analytics
+		**/
+
+		do_action('kidzou_save_metabox', $post_id);
 
 		
 	}
