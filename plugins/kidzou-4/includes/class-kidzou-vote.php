@@ -5,11 +5,11 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
 // wp_clear_scheduled_hook( 'set_featured_index' );
 
 // rafraichir l'index featured en fonction des votes
-if( !wp_next_scheduled( 'init_vote_meta' ) ) {
-   wp_schedule_event( time(), 'twicedaily', 'init_vote_meta' );
+if( !wp_next_scheduled( 'kidzou_votes_scheduler' ) ) {
+   wp_schedule_event( time(), 'twicedaily', 'kidzou_votes_scheduler' );
 }
  
-add_action( 'init_vote_meta', array( Kidzou_Vote::get_instance(), 'set_vote_meta') );
+add_action( 'kidzou_votes_scheduler', array( Kidzou_Vote::get_instance(), 'set_vote_meta') );
 
 /**
  * Kidzou

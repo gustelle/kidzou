@@ -68,7 +68,7 @@ module.exports = function(grunt) {
 			
 			themes: {
 				auth: {
-				  host: 'www.kidzou.fr',
+				  host: 'vps40390.ovh.net',
 				  port: 21,
 				  authKey: 'prod'
 				},

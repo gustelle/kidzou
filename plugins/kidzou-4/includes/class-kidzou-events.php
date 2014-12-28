@@ -3,11 +3,11 @@
 add_action('kidzou_loaded', array('Kidzou_Events', 'get_instance'));
 
 // schedule the feedburner_refresh event only once
-if( !wp_next_scheduled( 'unpublish_posts' ) ) {
-   wp_schedule_event( time(), 'twicedaily', 'unpublish_posts' );
+if( !wp_next_scheduled( 'kidzou_events_scheduler' ) ) {
+   wp_schedule_event( time(), 'twicedaily', 'kidzou_events_scheduler' );
 }
  
-add_action( 'unpublish_posts', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
+add_action( 'kidzou_events_scheduler', array( Kidzou_Events::get_instance(), 'unpublish_obsolete_posts') );
 
 
 use Carbon\Carbon;
@@ -268,10 +268,16 @@ class Kidzou_Events {
 	{
 
 		global $wpdb;
+
+		Kidzou_Utils::log('------ unpublish_obsolete_posts -------', true);
 		
 		$obsoletes = self::getObsoletePosts();
 
+		Kidzou_Utils::log(count($obsoletes) . ' evenements concernes ', true);
+
 		foreach ($obsoletes as $event) {
+
+			Kidzou_Utils::log('Event ['. $event->post_name . '] ', true );
 
 			////////////////////////////////
 
@@ -316,22 +322,40 @@ class Kidzou_Events {
 					//Recupérer le jour de start_date
 					//1: lundi...7:dimanche
 					$start_day = $start_time->format('N'); 
+					// $nextOccurenceInCurrentWeek = false;
+					$nextDay = 0;
+
+					Kidzou_Utils::log('     start_day=' . $start_day, true);
+
+					//calculer la prochaine date d'occurrence
+					foreach ($days as $day) {
+
+						if (intval($day)>intval($start_day)) {
+
+							//une prochaine occurrence dans la sameine
+							Kidzou_Utils::log('     next occurence found in current week ' . $day, true);
+							// $nextOccurenceInCurrentWeek = true;
+							$nextDay = $day;
+							break;
+
+						}
+					}
 
 					//dans la semaaine de la start_date, y a-t-il un jour ou l'événement se répété ?
-					if (intval($start_day)<7) 
+					if ($nextDay>0) 
 					{
-						foreach ($days as $day) {
+						// foreach ($days as $day) {
 
-							if (intval($day)>intval($start_day)) {
+							// if (intval($day)>intval($start_day)) {
 
 								//positionner le jour de répétition
-								$diff = intval($day) - intval($start_day);
+								$diff = intval($nextDay) - intval($start_day);
 								$start_time->add(new DateInterval( "P".$diff."D" ));
 								$end_time->add(new DateInterval( "P".$diff."D" ));
 
-								break;
-							}
-						}
+								// break;
+							// }
+						// }
 					}
 					
 					//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
@@ -347,6 +371,9 @@ class Kidzou_Events {
 						//on ajout 2 semaines, mais on retire 7-2
 						//autre exemple : on est le le mardi, l'événement se répété le mardi suivant: il ne faut rien retirer cette fois
 						$first_day_of_repeat = $days[0];
+
+						Kidzou_Utils::log('     first_day_of_repeat=' . $first_day_of_repeat, true);
+
 						$diff = intval($start_day)-intval($first_day_of_repeat);
 						if ($diff>0)
 						{
@@ -418,7 +445,7 @@ class Kidzou_Events {
 					$nextStart = Carbon::parse($new_start_date); 
 
 					if ( $nextStart->diffInDays( $untill, false ) >= 0 ) { //pas en valeur absolue !
-						Kidzou_Utils::log('endType = days, diff = '. $untill->diffInDays( $nextStart ));
+						Kidzou_Utils::log('endType = days, diff = '. $untill->diffInDays( $nextStart ), true);
 						$repeatable = true;
 					}
 						
@@ -463,7 +490,7 @@ class Kidzou_Events {
 
 				Kidzou_Admin::save_meta($event->ID, $events_meta, "kz_event_");	
 
-				Kidzou_Utils::log( 'Event dates updates (recurrence) : ' . $event->ID. '['. $event->post_name .']' );
+				Kidzou_Utils::log( 'Event changed dates ['. $event->post_name .'] : new start_date = ' . $events_meta['start_date'] , true);
 
 				// Kidzou_Utils::log($events_meta);
 			}
@@ -479,10 +506,12 @@ class Kidzou_Events {
 				$event->post_status = 'draft';
 				wp_transition_post_status( 'draft', $old_status, $event );
 
-				Kidzou_Utils::log( 'Unpublished : ' . $event->ID. '['. $event->post_name .']' );
+				Kidzou_Utils::log( 'Unpublished ['. $event->post_name .']' , true);
 			}
 
 		}
+
+		Kidzou_Utils::log('------ / unpublish_obsolete_posts -------', true);
 	}
 	
 

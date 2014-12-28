@@ -74,9 +74,14 @@ class Kidzou_Utils {
 		return self::$instance;
 	}
 
-	public static function log( $log ) {
+	public static function log( $log, $force = false) {
 
-        if ( true === WP_DEBUG && self::current_user_is('admin') ) {
+		$logme = $force ;
+
+		if (!$logme)
+			$logme = ( true === WP_DEBUG && self::current_user_is('admin') );
+
+        if ( $logme ) {
             if ( is_array( $log ) || is_object( $log ) ) {
                 error_log( print_r( $log, true ) );
             } else {
