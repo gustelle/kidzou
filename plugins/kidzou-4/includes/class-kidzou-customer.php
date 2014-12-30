@@ -81,7 +81,10 @@ class Kidzou_Customer {
 		add_action('init', array($this, 'register_customer_type'));
 
 		//pour le F.O
-		add_action('wp', array($this, 'check_customer_analytics'), 0);
+		if (class_exists('GADASH_Frontend'))
+		{
+			add_action('wp', array($this, 'check_customer_analytics'), 0);
+		}
 
 		//pour le B.O (partie admin)
 		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes') );
@@ -111,6 +114,7 @@ class Kidzou_Customer {
 	 *
 	 * @return void
 	 * @since customer-analytics
+	 * @see https://wordpress.org/plugins/google-analytics-dashboard-for-wp/
 	 * @author 
 	 **/
 	public function check_customer_analytics()

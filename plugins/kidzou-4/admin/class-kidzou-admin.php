@@ -173,6 +173,8 @@ class Kidzou_Admin {
 			self::$instance = new self;
 		}
 
+		do_action('kidzou_admin_loaded');
+
 		return self::$instance;
 	}
 

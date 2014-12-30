@@ -68,12 +68,14 @@ class Kidzou_Geo_URLAdapter {
 
 		$active = (bool)Kidzou_Utils::get_option('geo_activate',false);
 		if (!$active) {
+			Kidzou_Utils::log('Filtrage desactive dans les reglages Kidzou');
 			return false;
 		}
 
 		//si la geoloc est active mais qu'aucune metropole n'est détectée en requete
 		//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 		if (Kidzou_Geo::get_request_metropole()=='' ) {
+			Kidzou_Utils::log('Filtrage desactive : pas de metropole en requete');
 			return true;
 		}
 

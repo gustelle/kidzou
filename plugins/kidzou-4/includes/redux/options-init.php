@@ -58,93 +58,66 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             //add_filter('redux/options/'.$this->args['opt_name'].'/args', array( $this, 'change_arguments' ) );
             
             // Change the default value of a field after it's been set, but before it's been useds
-            // add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
+            add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
             
             // Dynamically add a section. Can be also used to modify sections/fields
             //add_filter('redux/options/' . $this->args['opt_name'] . '/sections', array($this, 'dynamic_section'));
 
             $this->ReduxFramework = new ReduxFramework($this->sections, $this->args);
+
+            //déclencher les actions Kidzou au changement des settings
+            add_filter('redux/options/'.$this->args['opt_name'].'/validate', array( $this, 'validate_action' ), 10, 1);
+            add_filter('redux/options/'.$this->args['opt_name'].'/saved', array( $this, 'save_action' ), 10, 1);
+
         }
 
-        /**
-
-          This is a test function that will let you see when the compiler hook occurs.
-          It only runs if a field	set with compiler=>true is changed.
-
-         * */
         function compiler_action($options, $css) {
-            //echo '<h1>The compiler hook has run!';
-            //print_r($options); //Option values
-            //print_r($css); // Compiler selector CSS values  compiler => array( CSS SELECTORS )
 
-            /*
-              // Demo of how to use the dynamic CSS and write your own static CSS file
-              $filename = dirname(__FILE__) . '/style' . '.css';
-              global $wp_filesystem;
-              if( empty( $wp_filesystem ) ) {
-                require_once( ABSPATH .'/wp-admin/includes/file.php' );
-              WP_Filesystem();
-              }
+             
 
-              if( $wp_filesystem ) {
-                $wp_filesystem->put_contents(
-                    $filename,
-                    $css,
-                    FS_CHMOD_FILE // predefined mode settings for WP files
-                );
-              }
-             */
-
-            // Kidzou_Utils::log($options);
-
-            // Kidzou_Utils::log('Suppression du transient kz_notifications_content');
-            delete_transient('kz_notifications_content_offres');
-            delete_transient('kz_notifications_content_page');
-            delete_transient('kz_notifications_content_post');
-
-            kidzou_Geo::rebuild_geo_rules();
         }
 
-        /**
+        function validate_action($options) {
 
-          Custom function for filtering the sections array. Good for child themes to override or add to the sections.
-          Simply include this function in the child themes functions.php file.
+            Kidzou_Utils::log('Enregistrement des options / validate_action');
 
-          NOTE: the defined constants for URLs, and directories will NOT be available at this point in a child theme,
-          so you must use get_template_directory_uri() if you want to use any of the built in icons
+            //suppression des transients de notification
+            Kidzou_Notif::cleanup_transients();
 
-         * */
-        // function dynamic_section($sections) {
-        //     //$sections = array();
-        //     $sections[] = array(
-        //         'title' => __('Section via hook', 'redux-framework-demo'),
-        //         'desc' => __('<p class="description">This is a section created by adding a filter to the sections array. Can be used by child themes to add/remove sections from the options.</p>', 'redux-framework-demo'),
-        //         'icon' => 'el-icon-paper-clip',
-        //         // Leave this as a blank section, no options just some intro text set above.
-        //         'fields' => array()
-        //     );
+            //rebuild des regles de rewrite
+            kidzou_Admin_Geo::rebuild_geo_rules();
 
-        //     return $sections;
-        // }
+            //si lu user le demande, on synchronise le Geo Data Store avec les meta kidzou
+            if (isset($options['geo_sync_geods']) && intval($options['geo_sync_geods'])==1) {
 
-        /**
+                Kidzou_Utils::log("Déclenchement de la synchro avec Geo Data Store ");
 
-          Filter hook for filtering the args. Good for child themes to override or add to the args array. Can also be used in other functions.
+                kidzou_Admin_Geo::sync_geo_data();
 
-         * */
+            }
+
+        }
+
+        function save_action($options) {
+
+        }
+
+        
         function change_arguments($args) {
             //$args['dev_mode'] = true;
 
             return $args;
         }
 
-        /**
-
-          Filter hook for filtering the default value of any given field. Very useful in development mode.
-
-         * */
+        
         function change_defaults($defaults) {
-            // $defaults['str_replace'] = 'Testing filter hook!';
+  
+            //on force l'option de synchro de Geo Datastore à 0
+            //afin que le user le recoche explicitement 
+            //cela se fait après que la hook validate_action soit passé
+            //de sorte que si le user l'a coché, la syncrho est tout de même déclenchée
+            //repositionner à 0 pour que le user le redemande explicitement lors d'une prochaine visite
+            $this->ReduxFramework->options['geo_sync_geods'] = '0';
 
             return $defaults;
         }
@@ -249,6 +222,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'title'     => __('Ville par d&eacute;faut ?', 'kidzou'),
                             'subtitle'  => __('Si l&apos;utilisateur ne se geolocalise pas ou si une erreur survient lors de la geoloc...les contenus de cette ville lui sont affich&eacute;s', 'kidzou'),
                         ),
+
+                        array(
+                            'id'       => 'geo_sync_geods',
+                            'type'     => 'checkbox',
+                            'title'    => __('Synchroniser le plugin Geo Data Store avec Kidzou ?', 'kidzou'), 
+                            'subtitle'  => __('Faites cela si vous avez install&eacute; le plugin Geo Data Store apr&egrave,s avoir associ&eacute; des posts avec des lieux. Une fois cette synchro effectu&eacute;e, le plugin sera synchronis&eacute; automatiquement ', 'kidzou'),
+                            'desc'      => __('Ce r&eacute;glage sera remis &agrave; 0 une fois la page valid&eacute;e. Toutefois, la synchro sera bien d&eacute;clench&eacute;e','kidzou'),
+                            'default'  => '0',// 1 = on | 0 = off
+                        ),
+
+
                     )
                 );
 
@@ -363,7 +347,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'id'       => 'obsolete_events_add_cats',
                         'type'     => 'select',
                         'multi'    => true,
-                        'title'    => __('Ajouter les cat&eacute;gories suivantes &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                        'title'    => __('Ajouter les cat&eacute;gories suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
                         'data'      => 'categories',
                     ),
                     

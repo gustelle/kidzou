@@ -46,13 +46,12 @@ $directories = array(
             'includes/',
             'includes/TGM/',
             'includes/Carbon/',
+            'includes/redux/',
             'public/',
             'public/includes/',
             'public/views/',
-            'admin/',
-            'admin/includes/',
-            'admin/views/'
-);
+        );
+
 foreach ($directories as $directory) {
     foreach(glob( plugin_dir_path( __FILE__ ) .$directory . "*.php") as $class) {
         include_once $class;
@@ -103,7 +102,18 @@ add_action( 'plugins_loaded', array( 'Kidzou', 			'get_instance' ) );
  */
 if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
 
-	require_once( plugin_dir_path( __FILE__ ) . 'admin/class-kidzou-admin.php' );
+	// require_once( plugin_dir_path( __FILE__ ) . 'admin/class-kidzou-admin.php' );
+    $admin_directories = array(
+            'admin/',
+            'admin/includes/',
+            'admin/views/'
+    );
+    foreach ($admin_directories as $admin_directory) {
+        foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $class) {
+            include_once $class;
+        }
+    }
+
 	add_action( 'plugins_loaded', array( 'Kidzou_Admin', 'get_instance' ) );
 
 }
