@@ -1,8 +1,6 @@
 <?php
 
 add_action('kidzou_loaded', array('Kidzou_Geo', 'get_instance'));
-/* seulement à l'activation du plugin */
-// add_action( 'kidzou_activate', array('Kidzou_Geo', 'set_permalink_rules'));
 
 /**
  * Kidzou
@@ -40,7 +38,7 @@ class Kidzou_Geo {
 
 	protected static $request_metropole = null;
 
-	protected static $rewrite_tag = '%kz_metropole%';
+	public static $rewrite_tag = '%kz_metropole%';
 
 	protected static $cookie_name = 'kz_metropole';
 
@@ -57,19 +55,8 @@ class Kidzou_Geo {
 		//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
 		add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
 
-		//nettoyage des transients de geoloc lorsque la taxo "ville bouge"
-		//merci https://www.dougv.com/2014/06/25/hooking-wordpress-taxonomy-changes-with-the-plugins-api/
-		add_action('create_ville', 	array( $this, 'rebuild_geo_rules') );
-		add_action('edit_ville', 	array( $this, 'rebuild_geo_rules') );
-		add_action('delete_ville', 	array( $this, 'rebuild_geo_rules') );
-
-
 		//Le filtrage n'est pas actif pour certaines requetes, typiquement les API d'export de contenu
-		if (preg_match('#\/api\/#', $_SERVER['REQUEST_URI']) ) {
-
-			Kidzou_Utils::log('URI non geo-filtrable : '.$_SERVER['REQUEST_URI']);
-
-		} else {
+		if ( !preg_match('#\/api\/#', $_SERVER['REQUEST_URI']) ) {
 
 			add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
 			add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
@@ -79,6 +66,7 @@ class Kidzou_Geo {
 
 			add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
 		}
+
 			
 	}
 
@@ -138,71 +126,33 @@ class Kidzou_Geo {
 	}
 
 	/**
-	 * déclenchée à l'actication de la geoloc
-	 * Mise à jour de la structure des permaliens Category et Tag
+	 * Rewrites incluant les metropoles
 	 *
-	 * Mise à jour du .htaccess avec les règles de geoloc
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function set_permalink_rules () {
-		
-		global $wp_rewrite;
+	 */
+	public static function create_rewrite_rules() {
 
-		$wp_rewrite->set_category_base( self::$rewrite_tag . '/rubrique/');
-		$wp_rewrite->set_tag_base( self::$rewrite_tag . '/tag/');
-
-		self::create_rewrite_rules();
-		
-	}
-
-	/**
-	 * déclenchée à la desactivation de la geoloc
-	 * Mise à jour de la structure des permaliens Category et Tag
-	 *
-	 * Mise à jour du .htaccess avec les règles de geoloc
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function unset_permalink_rules () {
-		
-		global $wp_rewrite;
-
-		$wp_rewrite->set_category_base('rubrique/');
-		$wp_rewrite->set_tag_base('tag/');
-		
-	}
-
-	/**
-	 * permet de reconstruire les regles de ré-ecriture de permaliens et de nettoyer les caches des metropoles
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function rebuild_geo_rules()
-	{
-
-		//nettoyager les transients
-		delete_transient('kz_covered_metropoles_all_fields');
-		delete_transient('kz_metropole_uri_regexp');
-
-		//si la geoloc est active uniquement
 		if ((bool)Kidzou_Utils::get_option('geo_activate',false)) 
 		{
-			self::set_permalink_rules();
-		}
-		else
-		{
-			self::unset_permalink_rules();
-		}
+			global $wp_rewrite; 
 
-        flush_rewrite_rules();
-		Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
+			$regexp = self::get_metropole_uri_regexp();
+			add_rewrite_tag( self::$rewrite_tag ,$regexp, 'kz_metropole=');
 
+			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
+		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
+		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
+		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
+		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
+			add_rewrite_rule($regexp.'/(.*)/page/?([0-9]{1,})/?$','index.php?pagename=$matches[2]&paged=$matches[3]&kz_metropole=$matches[1]','top');
+
+			//si la ville n'est pas spécifiée en requete, car le user est arrivé directement sur un post (donc pas préfixé par une ville)
+			//et navigue ensuite vers une rubrique ou autre:
+			add_rewrite_rule('/?rubrique/(.*)/?','index.php?category_name=$matches[1]','top');
+
+		}
+		
+	    
 	}
-
 	
 
     /**
@@ -215,8 +165,6 @@ class Kidzou_Geo {
 	public static function geo_filter_query( $query ) {
 
 		$urladapter = new Kidzou_Geo_URLAdapter();
-
-		// Kidzou_Utils::log('geo_filter_query ? '.$urladapter->is_adaptable() );
 
 		if ( $urladapter->is_adaptable() )
 		{
@@ -667,7 +615,11 @@ class Kidzou_Geo {
 	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE);
 	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
 
-	    return $location_latitude<>'' && $location_longitude<>'';
+	    $return = ($location_latitude!='' && $location_longitude!='');
+
+	    // Kidzou_Utils::log('has_post_location('.$post_id.') : ' . $return);
+	    
+	    return $return;
 	}
 
 	public static function get_metropole_uri_regexp() {
@@ -698,34 +650,7 @@ class Kidzou_Geo {
 
 	}
 
-	/**
-	 * Rewrites incluant les metropoles
-	 *
-	 */
-	public static function create_rewrite_rules() {
-
-		if ((bool)Kidzou_Utils::get_option('geo_activate',false)) 
-		{
-			global $wp_rewrite; 
-
-			$regexp = self::get_metropole_uri_regexp();
-			add_rewrite_tag( self::$rewrite_tag ,$regexp, 'kz_metropole=');
-
-			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
-		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
-		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
-		    add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
-		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
-			add_rewrite_rule($regexp.'/(.*)/page/?([0-9]{1,})/?$','index.php?pagename=$matches[2]&paged=$matches[3]&kz_metropole=$matches[1]','top');
-
-			//si la ville n'est pas spécifiée en requete, car le user est arrivé directement sur un post (donc pas préfixé par une ville)
-			//et navigue ensuite vers une rubrique ou autre:
-			add_rewrite_rule('/?rubrique/(.*)/?','index.php?category_name=$matches[1]','top');
-
-		}
-		
-	    
-	}
+	
 
 	/**
 	 * la metropole du post courant

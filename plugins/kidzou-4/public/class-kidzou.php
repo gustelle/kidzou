@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'obsolete-events';
+	const VERSION = 'proximite';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Vous pouvez ajouter/supprimer des categories aux evenements obsoletes dans les reglages Kidzou";
+	public static $version_description = "Kidzou fournit maintenant les lieux a proximite";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -181,6 +181,16 @@ class Kidzou {
 	        array(
 	            'name'               => 'Google Analytics Dashboard for WP', // The plugin name.
 	            'slug'               => 'google-analytics-dashboard-for-wp', // The plugin slug (typically the folder name).
+	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => true, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
+	        ),
+
+	        array(
+	            'name'               => 'Geo Data Store', // The plugin name.
+	            'slug'               => 'geo-data-store', // The plugin slug (typically the folder name).
 	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
 	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
 	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
