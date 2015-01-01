@@ -799,6 +799,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 		if ( $featured ) {
 
+			//ultérieur, pour intégration Facebook ?
 			$fb = '';
 
 			$output .= sprintf("<div class='kz_portfolio_featured_hover'>
@@ -825,7 +826,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 		if ($featured) {
 
-			$output .= sprintf("
+			$output = sprintf("
 						%s <a href='%s'>%s</a>								
 				",
 				$output,
@@ -835,7 +836,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 		} else if ( 'on' !== $fullwidth ) { 
 			
-			$output .= sprintf("
+			$output = sprintf("
 					<a href='%s'>
 						<span class='et_portfolio_image'>
 							%s %s
