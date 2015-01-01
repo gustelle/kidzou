@@ -2,7 +2,6 @@
 
 add_action( 'after_setup_theme', 'override_divi_parent_functions');
 
-
 /**
  * surcharger le pagebuilder parent afin de ne pas limiter le portfolio aux projets
  */
@@ -43,6 +42,14 @@ function override_divi_parent_functions()
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
     add_shortcode('searchbox','searchbox');
     add_shortcode('kz_pb_user_favs','kz_pb_user_favs');
+    
+    //pour le shortcode "proximite", le contenu est executé en 2 temps 
+    //temps 1: chargement du JS, détection de la localisation lat/lng
+    add_shortcode('kz_pb_proximite','kz_pb_proximite');
+
+    //temps 2 : envoi du contenu part ajax
+    add_action( 'wp_ajax_kz_pb_proximite', 'kz_pb_proximite_content' );
+	add_action( 'wp_ajax_nopriv_kz_pb_proximite', 'kz_pb_proximite_content' );
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
@@ -95,9 +102,10 @@ function custom_excerpt_length( $length ) {
 //et le body est doté d'une classe qui permet de contraindre le container
 function kz_add_class_habillage( $classes ){
 
-	global $kidzou_options;	
+	// global $kidzou_options;
+	// $is_pub = ( Kidzou_Utils::get_option( 'pub_habillage', '') != '' );	
 
-	if (isset($kidzou_options['pub_habillage']) && trim($kidzou_options['pub_habillage'])<>'') {
+	// if (isset($kidzou_options['pub_habillage']) && trim($kidzou_options['pub_habillage'])<>'') {
 
 		$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
 
@@ -110,17 +118,18 @@ function kz_add_class_habillage( $classes ){
 			}
 		}
 		
-	}
+	// }
 	
 	return $classes;
 }
 
 function kz_habillage() {
 
-	global $kidzou_options;
+	// global $kidzou_options;
+	$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
 
-	if (isset($kidzou_options['pub_habillage']) && $kidzou_options['pub_habillage']!='')
-		echo $kidzou_options['pub_habillage'];
+	if ($is_habillage)
+		echo Kidzou_Utils::get_option('pub_habillage');
 
 }
 
@@ -590,7 +599,10 @@ function kz_pb_blog( $atts ) {
 
 	ob_start();
 
-	query_posts( $args );
+	// query_posts( $args );
+	// Kidzou_Geo::query_posts($args);
+
+	query_posts($args);
 
 	if ( have_posts() ) {
 		while ( have_posts() ) {
@@ -725,6 +737,140 @@ function kz_pb_blog( $atts ) {
 	return $output;
 }
 
+function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '') {
+
+	$category_classes = array();
+	$categories = get_the_terms( get_the_ID(), 'category' );
+	if ( $categories ) {
+		foreach ( $categories as $category ) {
+			$category_classes[] = 'project_category_' . $category->slug;
+			$categories_included[] = $category->term_id;
+		}
+	}
+
+	$category_classes = implode( ' ', $category_classes );
+
+	$featured = Kidzou_Events::isFeatured();
+	$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
+
+	$thumb = '';
+
+	$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
+	$height = 'on' === $fullwidth ?  9999 : 284;
+	$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+	$titletext = get_the_title();
+	$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
+	
+	$thumb = $thumbnail["thumb"];
+
+	$event_meta = '';
+	$output = '';
+
+	if (Kidzou_Events::isTypeEvent()) {
+
+		$location = Kidzou_Events::getEventDates(get_the_ID());
+
+		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+		$formatted = '';
+		
+		//bon OK c'est un hack pour régler un pb d'affichage
+		//la date de fin s'affiche au lendemain de la date souhaitée
+		$end->sub(new DateInterval('PT1H'));
+		
+		$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+		$formatter->setPattern('EEEE dd MMMM');
+
+		if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+			$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
+		else
+			$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
+	
+	 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+	
+	} 
+
+	if ($distance != '') {
+
+		$distance = $distance . ' Km';
+	}
+
+	if ( '' !== $thumb ) {
+
+		if ( $featured ) {
+
+			$fb = '';
+
+			$output .= sprintf("<div class='kz_portfolio_featured_hover'>
+									%s 
+									<a href='%s'><h2>%s</h2></a>
+									%s
+									%s
+									%s
+									%s
+								</div>",
+					Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
+					get_permalink(),
+					get_the_title(),
+					kz_get_post_meta(),
+					$distance,
+					$event_meta,
+					$fb);
+			
+		} else  {
+			$output .= Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
+		}
+
+		$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
+
+		if ($featured) {
+
+			$output .= sprintf("
+						%s <a href='%s'>%s</a>								
+				",
+				$output,
+				get_permalink(),
+				$image
+				);
+
+		} else if ( 'on' !== $fullwidth ) { 
+			
+			$output .= sprintf("
+					<a href='%s'>
+						<span class='et_portfolio_image'>
+							%s %s
+							<span class='et_overlay'></span>
+						</span><!--  et_portfolio_image -->
+					</a>
+				",
+				get_permalink(),
+				$output,
+				$image
+				);
+
+		} 
+	}
+
+	if ( 'on' === $show_title && !$featured) {
+		$output .= '<h2><a href="'.get_the_permalink().'">'.get_the_title().'</a></h2>';
+	}
+
+	if ( 'on' === $show_categories && !$featured ) {
+		$output .= '<p class="post-meta">'.get_the_term_list( get_the_ID(), "category", '', ', ' ).'</p>';
+	}
+
+	if (!$featured) {
+		$output .= $event_meta;
+		$output .= $distance;
+	}
+
+	return sprintf("<div id='post-%1s' class='%2s'>%3s</div>",
+		get_the_ID(),
+		implode(' ', get_post_class( 'et_pb_portfolio_item '.$kz_class. ' '. $category_classes, get_the_ID() )),
+		$output
+	);
+}
+
 /**
  * genere un portfolio incluant les post_types specifiques de Kidzou (les offres n'apparaissent pas dans le portfolio)
  * et utilise la taxonomy 'category' et non pas 'project_category'
@@ -815,9 +961,7 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
-	$args =  Kidzou_Geo::get_geo_query($args);
-
-	query_posts( $args );
+	query_posts($args);
 
 	$categories_included = array();
 
@@ -843,16 +987,17 @@ function kz_pb_portfolio( $atts ) {
 				$inserted = true;
 
 				//insertion de pub
-				global $kidzou_options;
+				// global $kidzou_options; isset($kidzou_options['pub_portfolio']) && trim($kidzou_options['pub_portfolio'])!=''
+				$is_pub = (trim(Kidzou_Utils::get_option('pub_portfolio')) != '');
 
-				if ( isset($kidzou_options['pub_portfolio']) && trim($kidzou_options['pub_portfolio'])!='') {
+				if ($is_pub) {
 
 					$output = sprintf(
 						'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
 							%2$s
 						</div>',
 						'et_pb_portfolio_item kz_portfolio_item ad',
-						$kidzou_options['pub_portfolio'],
+						Kidzou_Utils::get_option('pub_portfolio'),
 						__('Publicite','Divi')
 					);
 
@@ -863,139 +1008,12 @@ function kz_pb_portfolio( $atts ) {
 
 			} else {
 
+				global $post;
+
 				the_post();
 
-				$categories = get_the_terms( get_the_ID(), 'category' );
-				if ( $categories ) {
-					foreach ( $categories as $category ) {
-						$categories_included[] = $category->term_id;
-					}
-				}
-				?>
+				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout);
 
-				<?php
-					$featured = Kidzou_Events::isFeatured();
-					$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
-				?>
-
-				<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item '.$kz_class ); ?>>
-
-					<?php 
-					
-					$thumb = '';
-
-					$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
-					$height = 'on' === $fullwidth ?  9999 : 284;
-					$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-					$titletext = get_the_title();
-					$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
-					
-					$thumb = $thumbnail["thumb"];
-
-					$event_meta = '';
-					$output = '';
-
-					if (Kidzou_Events::isTypeEvent()) {
-
-						$location = Kidzou_Events::getEventDates(get_the_ID());
-
-						$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
-						$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
-						$formatted = '';
-						
-						//bon OK c'est un hack pour régler un pb d'affichage
-						//la date de fin s'affiche au lendemain de la date souhaitée
-						$end->sub(new DateInterval('PT1H'));
-						
-						$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
-						$formatter->setPattern('EEEE dd MMMM');
-
-						if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-							$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
-						else
-							$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
-					
-					 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
-					
-					} 
-
-					if ( '' !== $thumb ) : ?>
-						
-						<?php
-
-						if ( $featured ) {
-
-							$fb = '';
-							// if ( shortcode_exists( 'easy-social-share' ) )
-							// 	$fb = do_shortcode('[easy-share buttons="facebook" template="tiny-retina" counters=1 counter_pos="hidden" native="no" hide_total="yes" facebook_text="Facebook"]');
-
-							$output = sprintf("<div class='kz_portfolio_featured_hover'>
-													%s 
-													<a href='%s'><h2>%s</h2></a>
-													%s
-													%s
-													%s
-												</div>",
-									Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
-									get_permalink(),
-									get_the_title(),
-									kz_get_post_meta(),
-									$event_meta,
-									$fb);
-							
-						} else if ( $with_votes ) {
-							$output = Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
-						}
-
-						$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
-
-						if ($featured) {
-
-							echo sprintf("
-									
-										%s <a href='%s'>%s</a>								
-								
-								",
-								$output,
-								get_permalink(),
-								$image
-								);
-
-						} else if ( 'on' !== $fullwidth ) { 
-							echo sprintf("
-									<a href='%s'>
-										<span class='et_portfolio_image'>
-											%s %s
-											<span class='et_overlay'></span>
-										</span><!--  et_portfolio_image -->
-									</a>
-								",
-								get_permalink(),
-								$output,
-								$image
-								);
-
-						} 
-						?>
-
-				<?php
-					endif;
-				?>
-
-					<?php if ( 'on' === $show_title && !$featured) : ?>
-						<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-					<?php endif; ?>
-
-					<?php if ( 'on' === $show_categories && !$featured ) : ?>
-						<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
-					<?php endif; ?>
-
-					<?php if (!$featured) echo $event_meta; ?>
-
-				</div> <!-- .et_pb_portfolio_item -->
-
-<?php
-			//fin de test sur $index
 			}
 
 			$index++;
@@ -1112,6 +1130,7 @@ function kz_pb_filterable_portfolio( $atts ) {
 	ob_start();
 	if( $projects->post_count > 0 ) {
 		while ( $projects->have_posts() ) {
+			
 			$projects->the_post();
 
 			$category_classes = array();
@@ -1233,10 +1252,6 @@ function kz_pb_user_favs( $atts ) {
 			'show_title' => 'on',
 			'show_categories' => 'on',
 			'background_layout' => 'light',
-			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
-			'show_ad' => 'off',
-			'show_pagination' => 'off',
-			'posts_number' => 1000
 		), $atts
 	) );
 
@@ -1258,138 +1273,7 @@ function kz_pb_user_favs( $atts ) {
 			$post = get_post( $value['id'] );
 			setup_postdata( $post ); 
 
-			$category_classes = array();
-			$categories = get_the_terms( get_the_ID(), 'category' );
-			if ( $categories ) {
-				foreach ( $categories as $category ) {
-					$category_classes[] = 'project_category_' . $category->slug;
-					$categories_included[] = $category->term_id;
-				}
-			}
-
-			$category_classes = implode( ' ', $category_classes );
-
-			$featured = Kidzou_Events::isFeatured();
-			$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
-		?>
-
-			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item '.$kz_class. ' '. $category_classes ); ?>>
-
-				<?php 
-				
-				$thumb = '';
-
-				$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
-				$height = 'on' === $fullwidth ?  9999 : 284;
-				$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-				$titletext = get_the_title();
-				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
-				
-				$thumb = $thumbnail["thumb"];
-
-				$event_meta = '';
-				$output = '';
-
-				if (Kidzou_Events::isTypeEvent()) {
-
-					Kidzou_Utils::log(get_the_ID());
-
-					$location = Kidzou_Events::getEventDates(get_the_ID());
-
-					$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
-					$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
-					$formatted = '';
-					
-					//bon OK c'est un hack pour régler un pb d'affichage
-					//la date de fin s'affiche au lendemain de la date souhaitée
-					$end->sub(new DateInterval('PT1H'));
-					
-					$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
-					$formatter->setPattern('EEEE dd MMMM');
-
-					if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-						$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
-					else
-						$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
-				
-				 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
-				
-				} 
-
-				if ( '' !== $thumb ) : ?>
-					
-					<?php
-
-					if ( $featured ) {
-
-						$fb = '';
-
-						$output = sprintf("<div class='kz_portfolio_featured_hover'>
-												%s 
-												<a href='%s'><h2>%s</h2></a>
-												%s
-												%s
-												%s
-											</div>",
-								Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
-								get_permalink(),
-								get_the_title(),
-								kz_get_post_meta(),
-								$event_meta,
-								$fb);
-						
-					} else if ( $with_votes ) {
-						$output = Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
-					}
-
-					$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
-
-					if ($featured) {
-
-						echo sprintf("
-								
-									%s <a href='%s'>%s</a>								
-							
-							",
-							$output,
-							get_permalink(),
-							$image
-							);
-
-					} else if ( 'on' !== $fullwidth ) { 
-						echo sprintf("
-								<a href='%s'>
-									<span class='et_portfolio_image'>
-										%s %s
-										<span class='et_overlay'></span>
-									</span><!--  et_portfolio_image -->
-								</a>
-							",
-							get_permalink(),
-							$output,
-							$image
-							);
-
-					} 
-					?>
-
-			<?php
-				endif;
-			?>
-
-				<?php if ( 'on' === $show_title && !$featured) : ?>
-					<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-				<?php endif; ?>
-
-				<?php if ( 'on' === $show_categories && !$featured ) : ?>
-					<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
-				<?php endif; ?>
-
-				<?php if (!$featured) echo $event_meta; ?>
-
-			</div> <!-- .et_pb_portfolio_item -->
-
-<?php
+			echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout);
 
 		}
 
@@ -1460,6 +1344,126 @@ function kz_pb_user_favs( $atts ) {
 }
 
 /**
+ * genere un portfolio des posts a proximité
+ *
+ */
+function kz_pb_proximite( $atts ) {
+	
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'fullwidth' => 'on',
+			'show_title' => 'on',
+			'show_categories' => 'on',
+			'background_layout' => 'light',
+			'radius' => 2
+		), $atts
+	) );
+
+	//generer le scripts qui va checker que lat/lng sont présents en localStorage
+	//si lat/lng sont détéctés, déclencher un ajax pour charger le portfolio
+	wp_enqueue_script(
+		'custom-proxi',
+		get_stylesheet_directory_uri() . '/js/custom-proxi.js',
+		array( 'jquery' ),
+		Kidzou::VERSION,
+		true 
+	);
+
+	wp_localize_script( 'custom-proxi', 'kidzou_proxi', array(
+		'ajaxurl'           	=> admin_url( 'admin-ajax.php' ),
+		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous vous g&eacute;olocalisons...</h2>',
+		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
+		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
+		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
+		'action'				=> 'kz_pb_proximite',
+		'fullwidth'				=> $fullwidth,
+		'show_title'			=> $show_title,
+		'show_categories'		=> $show_categories,
+		'background_layout'		=> $background_layout,
+		'radius'				=> $radius,
+		'module_id'				=> $module_id,
+		'module_class'			=> $module_class,
+		'background_layout'		=> $background_layout, 
+
+	) );
+
+	return '<div id="proxi_content"></div>';
+
+}
+
+/**
+ * validation du formulaire de souscription newsletter, à la sauce Kidzou (avec le codepostal)
+ *
+ */
+function kz_pb_proximite_content() {
+
+	if ( !wp_verify_nonce( $_REQUEST['nonce'], "kz_pb_proximite")) {
+		exit("No naughty business please");
+	}   
+
+	$coords 			= $_POST['coords'];
+	$fullwidth 			= (isset($_POST['fullwidth']) ? $_POST['fullwidth'] : '');
+	$radius 			= (isset($_POST['radius']) ? $_POST['radius'] : 5);
+	$show_title 		= (isset($_POST['show_title']) ? $_POST['show_title'] : '');
+	$show_categories 	= (isset($_POST['show_categories']) ? $_POST['show_categories'] : '');
+	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : '');
+	$module_id 			= (isset($_POST['module_id']) ? $_POST['module_id'] : '');
+	$module_class 		= (isset($_POST['module_class']) ? $_POST['module_class'] : '');
+	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : '');
+
+
+	Kidzou_Utils::log('fullwidth: '.$fullwidth);
+
+	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
+
+	Kidzou_Utils::log($ids);
+
+	$posts = '';
+
+	if (!empty($ids))
+	{	
+		global $post;
+
+		foreach ($ids as $key=>$value) 
+		{
+			$post = get_post($value->post_id);
+			setup_postdata($post);
+
+			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $value->distance);
+		}
+
+		wp_reset_postdata();
+	}
+	else
+	{
+		_e('Message a personnaliser', 'Divi');
+		// Kidzou_Utils::log($ids);
+	}
+
+	$class = " et_pb_bg_layout_{$background_layout}";
+	$filters_html = '';
+
+	echo sprintf(
+		'<div%5$s class="%1$s%3$s%6$s">
+			<div class="et_pb_filterable_portfolio ">
+				'.$filters_html.'
+			</div>
+			%2$s
+		%4$s',
+		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
+		$posts,
+		esc_attr( $class ),
+		'',
+		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+		''
+	);
+
+	die(1);
+}
+
+/**
  * Option ajoutée 'post__in' pour formatter les Contextual Related Posts en portfolio
  *
  */
@@ -1495,7 +1499,6 @@ function kz_pb_fullwidth_portfolio( $atts ) {
 
 	$projects = get_portfolio_items( $args );
 
-	// 	Kidzou_Utils::log($args);
 	// Kidzou_Utils::log($projects);
 
 	ob_start();
@@ -1597,7 +1600,10 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  */
 function get_portfolio_items( $args = array() ) {
 
-	return new WP_Query( Kidzou_Geo::get_geo_query( $args ) );
+	// return Kidzou_Geo::WP_Query( $args ) ;
+	// $args['get_portfolio_items'] = true;
+	$args['post_type'] = kidzou::post_types();
+	return new WP_Query($args);
 
 }
 

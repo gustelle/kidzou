@@ -58,7 +58,9 @@
 
 									<?php
 
-										global $kidzou_options;
+										// global $kidzou_options;
+
+									// echo $GLOBALS['wp_query']->request; 
 
 										$with_votes = true;
 										$show_title = 'on';
@@ -71,8 +73,10 @@
 										$module_class = '';
 										$show_ad = 'on';
 
-										if ( isset($kidzou_options['pub_archive']) && $kidzou_options['pub_archive']<>'')
-											echo $kidzou_options['pub_archive'];
+										$is_pub = ( trim(Kidzou_Utils::get_option('pub_archive', '')) != '' );
+
+										if ( $is_pub )
+											echo Kidzou_Utils::get_option('pub_archive', '');
 
 										ob_start();
 
@@ -87,16 +91,17 @@
 												if ($index==2 && $show_ad=='on') {
 
 													//insertion de pub
-													global $kidzou_options;
+													// global $kidzou_options;
+													$is_pub = ( trim(Kidzou_Utils::get_option('pub_portfolio', '')) != '' );
 
-													if ( isset($kidzou_options['pub_portfolio']) && trim($kidzou_options['pub_portfolio'])!='') {
+													if ( $is_pub ) {
 
 														$output = sprintf(
 															'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
 																%2$s
 															</div>',
 															'et_pb_portfolio_item kz_portfolio_item ad',
-															$kidzou_options['pub_portfolio'],
+															Kidzou_Utils::get_option('pub_portfolio', ''),
 															__('Publicite','Divi')
 														);
 

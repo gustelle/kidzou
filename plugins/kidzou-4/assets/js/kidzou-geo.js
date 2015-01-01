@@ -91,10 +91,9 @@ var kidzouGeoContent = (function () {
 
 			//si la mposition n'est pas fournie, on prend la ville par défaut
 			if ( position.latitude && position.longitude ) {
+
 				getMetropole(position.latitude, position.longitude, refreshGeoCookie);
 			}
-			// else
-			// 	refreshGeoCookie( kidzou_geo_jsvars.geo_default_metropole.toLowerCase() );
 			
 		}  
 
@@ -118,24 +117,40 @@ var kidzouGeoContent = (function () {
 
 					function(position) { 
 
+						var myEvent = new CustomEvent("geolocation", {
+							detail: {error: false, acceptGeolocation : true, coords : position.coords}
+						});
+
+						// Trigger it!
+						document.dispatchEvent(myEvent);
+
 						if (callback)
 							callback({
 								latitude: position.coords.latitude,
 								longitude : position.coords.longitude,
 								altitude : position.coords.altitude 
 							}); 
+
 					}, 
 					function(err) { 
-						//silence, pas de filtrage du contenu si le user refus la geoloc
-						// if (callback)
-						// 	callback( ); 
+						
+						var myEvent = new CustomEvent("geolocation", {
+							detail: {error: true, acceptGeolocation : true}
+						});
+
+						// Trigger it!
+						document.dispatchEvent(myEvent);
 					}
 				); 
 
 		} else {
-			//silence, pas de filtrage du contenu si le user refus la geoloc
-			// if (callback)
-			// 	callback( ); 
+			
+			var myEvent = new CustomEvent("geolocation", {
+				detail: {error: true, acceptGeolocation : false}
+			});
+
+			// Trigger it!
+			document.dispatchEvent(myEvent);
 		}
 	}
 

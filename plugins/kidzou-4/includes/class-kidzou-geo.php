@@ -40,7 +40,18 @@ class Kidzou_Geo {
 
 	public static $rewrite_tag = '%kz_metropole%';
 
-	protected static $cookie_name = 'kz_metropole';
+	protected static $cookie_metro = 'kz_metropole';
+
+	protected static $cookie_coords = 'kz_coords';
+
+	protected static $supported_post_types = array('post', 'page', 'offres');
+
+	/**
+	 * par defaut toutes les requetes sont filtrables par geoloc 
+	 * (i.e. toutes les requetes qui vont chercher du contenu en base sont filtrées par geoloc)
+	 * 
+	 */
+	protected static $is_request_filter = true;
 
 
 	/**
@@ -67,6 +78,7 @@ class Kidzou_Geo {
 			add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
 		}
 
+		self::set_request_filter();
 			
 	}
 
@@ -114,10 +126,9 @@ class Kidzou_Geo {
 						'geo_mapquest_key'			=> $key, 
 						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
 						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
-						// 'geo_default_metropole'		=> self::get_default_metropole(),
-						'geo_cookie_name'			=> self::$cookie_name,
-						// 'geo_select_cookie_name'	=> "kz_metropole_selected",
+						'geo_cookie_name'			=> self::$cookie_metro,
 						'geo_possible_metropoles'	=> $villes ,
+						'geo_coords'				=> self::$cookie_coords
 					);
 
 		    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
@@ -153,6 +164,44 @@ class Kidzou_Geo {
 		
 	    
 	}
+
+	/**
+	 * positionnement du booléean qui indique si la requete doit etre filtrée par metropole
+	 * i.e. est-ce que les contenus de la requetes sont filtrés ou non par métropole de rattachement des posts
+	 *
+	 * @return void
+	 * @since proximite 
+	 **/
+	private static function set_request_filter()
+	{
+		//mise à jour du param de filtrage de requete 
+		if (is_admin()) {
+
+			self::$is_request_filter = false;
+
+		} else {
+
+			$filter_active = (bool)Kidzou_Utils::get_option('geo_activate',false);
+			
+			if (!$filter_active) {
+				
+				Kidzou_Utils::log('Filtrage desactive dans les reglages Kidzou');
+				self::$is_request_filter = false;
+			
+			} else {
+
+				//si la geoloc est active mais qu'aucune metropole n'est détectée en requete
+				//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
+				if (self::get_request_metropole()=='' ) {
+					
+					Kidzou_Utils::log('Filtrage desactive : pas de metropole en requete');
+					self::$is_request_filter = false;
+				}
+
+			}
+		}
+			
+	}
 	
 
     /**
@@ -160,33 +209,44 @@ class Kidzou_Geo {
 	 * Celle-ci est soit la metropole passée dans la requete (en provenance du cookie utilisateur), soit la metropole par défaut
 	 * les contenus à portée "nationale" sont également remontés
 	 *
-	 * @since    1.0.0
+	 * @version proximite    
 	 */
 	public static function geo_filter_query( $query ) {
 
-		$urladapter = new Kidzou_Geo_URLAdapter();
-
-		if ( $urladapter->is_adaptable() )
+		if ( self::$is_request_filter )
 		{
-			// global $wp_query;
-			//les pages woo commerce n'ont pas a etre filtrées par metropole
-			//sinon les produits n'apparaissent plus dans les cats...  
-	       	$supported_taxonomies = array('age', 'ville', 'divers', 'category','post_tag');
-	       	$queried_object = get_queried_object();
 
-	       	if (is_wp_error($queried_object) || $queried_object==null)
-	       		return $query;
+			$post_type = $query->get('post_type');
 
-	       	if (!property_exists($queried_object, 'taxonomy') || !in_array($queried_object->taxonomy, $supported_taxonomies))
-	       		return $query;
+			//le post type est il suporté par le filtre ?
+			if (is_array($post_type))
+			{
+				foreach ($post_type as $key => $value) {
+					if (in_array($value, self::$supported_post_types ))
+					{
+						$supported_query = true;
+						break;
+					}
+				}
+			}
+			else
+				$supported_query = in_array($post_type, self::$supported_post_types ) ;
 
-		    if( !is_admin() && !is_search() ) {
+			//cas spécial des archives : le post type n'est pas spécifié
+			//on ouvre au maximim les post types
+			if (is_archive() && $query->is_main_query())
+			{
+				$query->set('post_type', self::$supported_post_types );
+				$supported_query = true;
+			}
+
+		    if( !is_admin() && !is_search() && $supported_query ) {
+
+				//reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
+		        //d'ou l'importance d'executer celle-ci en dernier
+		        $vars = $query->get('tax_query');
 
 		        $ville_tax_present = false;
-
-		        //reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
-		        //d'ou l'importance d'executer celle-ci en dernier
-		        $vars = get_query_var('tax_query');
 
 		        if (isset($vars['taxonomy']) && $vars['taxonomy']=='ville')
 		        	$ville_tax_present = true;
@@ -209,19 +269,15 @@ class Kidzou_Geo {
 
 		        }
 
-		        if (!$ville_tax_present)
-		        	$vars[] = self::get_query_args();
-
-		        if (!empty($vars))
-		        {
-		            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
-		            set_query_var('tax_query', $vars);
-		        }
-
+	        	if (!$ville_tax_present)
+	        	{
+	        		$vars[] = self::get_metropole_args();
+	        	}
+	            //@see http://tommcfarlin.com/pre_get_posts-in-wordpress/
+	            $query->set('tax_query', $vars);
 
 		        return $query;
-		    }
-
+		    } 
 		}
 
 	    return $query;
@@ -233,20 +289,26 @@ class Kidzou_Geo {
 	 * @return Array
 	 * @author 
 	 **/
-	public static function get_query_args() {
+	private static function get_metropole_args() {
 
-		$the_metropole = array();
-  		$the_metropole[] = self::get_request_metropole();
+		if ( self::$is_request_filter )
+		{
+			$the_metropole = array();
+	  		$the_metropole[] = self::get_request_metropole();
 
-        $national = (array)self::get_national_metropoles(); 
-       	$merge = array_merge( $the_metropole, $national );
+	        $national = (array)self::get_national_metropoles(); 
+	       	$merge = array_merge( $the_metropole, $national );
 
-       	return array(
-                  'taxonomy' => 'ville',
-                  'field' => 'slug',
-                  'terms' => $merge
-                );
+	       	return array(
+	                  'taxonomy' => 'ville',
+	                  'field' => 'slug',
+	                  'terms' => $merge
+	                );
 
+		}
+
+		return array();
+		
 	}
 
 	/**
@@ -255,25 +317,63 @@ class Kidzou_Geo {
 	 * @return Array
 	 * @author 
 	 **/
-	public static function get_geo_query( $args = array() ) {
+	private static function add_metropole_tax_args( $args = array() ) {
 
-		$default_args = array(
-			'post_type' => Kidzou::post_types(),
-		);
+		if (self::$is_request_filter)
+		{
+			$default_args = array(
+				'post_type' => Kidzou::post_types(),
+			);
 
-		$args = wp_parse_args( $args, $default_args );
+			$args = wp_parse_args( $args, $default_args );
 
-		if ( isset($args['tax_query']) )
-			$tax = $args['tax_query'];
-		else
-			$tax = array();
+			if ( isset($args['tax_query']) )
+				$tax = $args['tax_query'];
+			else
+				$tax = array();
 
-		$tax[] = self::get_query_args();
-		$args['tax_query'] = $tax;
+			$tax[] = self::get_metropole_args();
+			$args['tax_query'] = $tax;
 
+		}
+		
 		return $args;
 
 	}
+
+	// /**
+	//  * extension de query_posts pour y inclure les arguments de metropole
+	//  *
+	//  * @return Array
+	//  * @since proximite 
+	//  **/
+	// public static function query_posts($args = array()) {
+
+	// 	if (self::$is_request_filter)
+	// 	{
+	// 		$args = self::add_metropole_tax_args($args);
+	// 	}
+
+	// 	query_posts( $args );
+
+	// }
+
+	// /**
+	//  * extension de query_posts pour y inclure les arguments de metropole
+	//  *
+	//  * @return WP_Query
+	//  * @since proximite 
+	//  **/
+	// public static function WP_Query($args = array()) {
+
+	// 	if (self::$is_request_filter)
+	// 	{
+	// 		$args = self::add_metropole_tax_args($args);
+	// 	}
+	  
+	//   	return new WP_Query($args);
+
+	// }
 
 
 	/**
@@ -283,7 +383,7 @@ class Kidzou_Geo {
 	 * @return String (slug)
 	 * @author 
 	 **/
-	public static function get_request_metropole()
+	private static function get_request_metropole()
 	{
 
 		if (self::$request_metropole==null) 
@@ -298,8 +398,8 @@ class Kidzou_Geo {
 			$cook_m = '';
 
 			//la metropole en provenance du cookie
-			if ( isset($_COOKIE[self::$cookie_name]) )
-				$cook_m = strtolower($_COOKIE[self::$cookie_name]);
+			if ( isset($_COOKIE[self::$cookie_metro]) )
+				$cook_m = strtolower($_COOKIE[self::$cookie_metro]);
 
 			// Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
 
@@ -317,22 +417,20 @@ class Kidzou_Geo {
 				//la valeur de metropole passée en requete devient la metropole du cookie
 				if ($cook_m!=$metropole && $metropole!='') {
 
-					setcookie(self::$cookie_name, $metropole);
-					// setcookie("kz_metropole_selected", true, time()+(60*60*24), '/' ); //cookie valable 1 jour... 
-
+					setcookie(self::$cookie_metro, $metropole);
+	
 					self::$request_metropole = $metropole;
 
 					//positionner cette variable pour ne pas aller plus loin
 					$cook_m = self::$request_metropole;
 
-					// Kidzou_Utils::log('[get_request_metropole] setcookie : '. $cook_m);
 				}	
 
 			}
 
 			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
-			if ($cook_m=='' && isset($_GET[self::$cookie_name]))  {
-				$cook_m = strtolower($_GET[self::$cookie_name]);
+			if ($cook_m=='' && isset($_GET[self::$cookie_metro]))  {
+				$cook_m = strtolower($_GET[self::$cookie_metro]);
 				// Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
 			} 
 
@@ -429,7 +527,7 @@ class Kidzou_Geo {
 	 * @return Booléen
 	 * @author 
 	 **/
-	public static function is_metropole($m)
+	private static function is_metropole($m)
 	{
 
 	    if ($m==null || $m=="") return false;
@@ -466,9 +564,9 @@ class Kidzou_Geo {
 
 	public static function rewrite_post_link( $permalink, $post ) {
 
-		$urladapter = new Kidzou_Geo_URLAdapter();
+		// $urladapter = new Kidzou_Geo_URLAdapter();
 
-		if ($urladapter->is_adaptable())
+		if (self::$is_request_filter )
 		{
 			$m = urlencode(self::get_request_metropole());
 
@@ -494,8 +592,8 @@ class Kidzou_Geo {
 	 */
 	public static function rewrite_page_link( $link, $page ) {
 
-		$urladapter = new Kidzou_Geo_URLAdapter();
-		if ($urladapter->is_adaptable())
+		// $urladapter = new Kidzou_Geo_URLAdapter();
+		if (self::$is_request_filter)
 		{
 			$m = urlencode(self::get_request_metropole());
 
@@ -518,9 +616,9 @@ class Kidzou_Geo {
 
 	public static function rewrite_term_link( $url, $term, $taxonomy ) {
 
-		$urladapter = new Kidzou_Geo_URLAdapter();
+		// $urladapter = new Kidzou_Geo_URLAdapter();
 
-		if ($urladapter->is_adaptable())
+		if (self::$is_request_filter)
 		{
 
 			// Check if the %kz_metropole% tag is present in the url:
@@ -618,11 +716,11 @@ class Kidzou_Geo {
 	    $return = ($location_latitude!='' && $location_longitude!='');
 
 	    // Kidzou_Utils::log('has_post_location('.$post_id.') : ' . $return);
-	    
+
 	    return $return;
 	}
 
-	public static function get_metropole_uri_regexp() {
+	private static function get_metropole_uri_regexp() {
 
 		$regexp = get_transient('kz_metropole_uri_regexp'); 
 
@@ -748,6 +846,113 @@ class Kidzou_Geo {
 
 		return $join;
 	}
+
+	/**
+	 * Get all post id's ordered by distance from given point
+	 *
+	 * @param string $post_type The post type of posts you are searching
+	 * @param float $search_lat The latitude of where you are searching
+	 * @param float $search_lng The Longitude of where you are searching
+	 * @param string $orderby What order do you want the ID's returned as? ordered by distance ASC or DESC?
+	 * @return array $wpdb->get_col() array of ID's in ASC or DESC order as distance from point
+	 **/
+	private static function getPostIDsByRange($search_lat = 51.499882, $search_lng = -0.126178, $post_type = 'post')
+	{
+		if (class_exists( 'sc_GeoDataStore' ))
+		{
+			return sc_GeoDataStore::getPostIDsByRange($post_type, $search_lat , $search_lng, "ASC");
+		}
+
+		return new WP_Error( 'missing-plugin', 'Le Plugin Geo Data Store est manquant, vous ne pouvez pas utiliser cette fonction');
+	}
+
+	/**
+	 * Get all post id's of those that are in range
+	 *
+	 * @param string $post_type The post type of posts you are searching
+	 * @param int $radius The search radius in MILES
+	 * @param float $search_lat The latitude of where you are searching
+	 * @param float $search_lng The Longitude of where you are searching
+	 * @param string $orderby What order do you want the ID's returned as? ordered by distance ASC or DESC?
+	 * @return array $wpdb->get_col() array of ID's of posts in radius. You can use this array in 'post__in' in WP_Query
+	*/
+	private static function getPostIDsOfInRange($search_lat = 51.499882, $search_lng = -0.126178, $radius=5, $post_type = 'post')
+	{
+		if (class_exists( 'sc_GeoDataStore' ))
+		{
+			return sc_GeoDataStore::getPostIDsOfInRange($post_type, $radius * 0.621371192 , $search_lat , $search_lng , "ASC");
+		}
+
+		return new WP_Error( 'missing-plugin', 'Le Plugin Geo Data Store est manquant, vous ne pouvez pas utiliser cette fonction');
+	}
+
+	/**
+	 * Ré-eacriture de Geo Data Store pour prévoir le fait que le plugin ne puisse pas être installé
+	 * et convertir les miles en KM
+	 * + remontée de la distance au post 
+	 *
+	 * @author 
+	 **/
+	public static function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
+	{
+		$post_type = 'post';
+		$tablename = "geodatastore";
+		$orderby = "ASC";
+
+		global $wpdb;// Dont forget to include wordpress DB class
+			
+		// Calculate square radius search
+		$lat1 = (float) $search_lat - ( (int) $radius / 69 );
+		$lat2 = (float) $search_lat + ( (int) $radius / 69 );
+		$lng1 = (float) $search_lng - (int) $radius / abs( cos( deg2rad( (float) $search_lat ) ) * 69 );
+		$lng2 = (float) $search_lng + (int) $radius / abs( cos( deg2rad( (float) $search_lat ) ) * 69 );
+		
+		$sqlsquareradius = "
+		SELECT
+			`" . $wpdb->prefix . $tablename . "`.`post_id`,
+			`" . $wpdb->prefix . $tablename . "`.`lat`,
+			`" . $wpdb->prefix . $tablename . "`.`lng`
+		FROM
+			`" . $wpdb->prefix . $tablename . "`
+		WHERE
+			`" . $wpdb->prefix . $tablename . "`.`post_type` = '{$post_type}'
+		AND
+			`" . $wpdb->prefix . $tablename . "`.`lat` BETWEEN '{$lat1}' AND '{$lat2}'
+		AND
+			`" . $wpdb->prefix . $tablename . "`.`lng` BETWEEN '{$lng1}' AND '{$lng2}'
+		"; // End $sqlsquareradius
+		
+		// Create sql for circle radius check
+		$sqlcircleradius = "
+		SELECT
+			`t`.`post_id`,
+			3956 * 2 * ASIN(
+				SQRT(
+					POWER(
+						SIN(
+							( ".(float) $search_lat." - `t`.`lat` ) * pi() / 180 / 2
+						), 2
+					) + COS(
+						".(float) $search_lat." * pi() / 180
+					) * COS(
+						`t`.`lat` * pi() / 180
+					) * POWER(
+						SIN(
+							( ".(float) $search_lng." - `t`.`lng` ) * pi() / 180 / 2
+						), 2
+					)
+				)
+			) / 0.621371192 AS `distance`
+		FROM
+			({$sqlsquareradius}) AS `t`
+		HAVING
+			`distance` <= ".(int) $radius."
+		ORDER BY `distance` {$orderby}
+		"; // End $sqlcircleradius
+
+		return $wpdb->get_results($sqlcircleradius);
+	}
+
 
 
 } //fin de classe

@@ -36,22 +36,13 @@ add_action( 'kidzou_votes_scheduler', array( Kidzou_Vote::get_instance(), 'set_v
 class Kidzou_Vote {
 
 	/**
-	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @var     string
-	 */
-	// const VERSION = '04-nov';
-
-	/**
 	 * marqueur d'insertion du template dans la page
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      Boolean
 	 */
-	protected static $is_template_inserted = false;
+	// protected static $is_template_inserted = false;
 
 	public static $meta_vote_count = 'kz_reco_count';
 
@@ -80,7 +71,7 @@ class Kidzou_Vote {
 	 */
 	private function __construct() { 
 
-		
+		add_action( 'wp_head', array($this, 'insert_template'));
 	}
 
 
@@ -157,6 +148,17 @@ class Kidzou_Vote {
 		return intval($count);
 	}
 
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function insert_template ()
+	{
+		self::set_template('', false, true);
+	}
+
 	protected static function set_template($class='', $useCountText=false, $echo=true) {
 
 		$countText = '';
@@ -175,7 +177,7 @@ class Kidzou_Vote {
 		$class,
 		$countText);
 
-		self::$is_template_inserted = true;
+		// self::$is_template_inserted = true;
 
 		if ($echo)
 			echo $out;
@@ -194,12 +196,12 @@ class Kidzou_Vote {
 
 		$out ='';
 
-		if (!self::$is_template_inserted) {
-			if ($echo)
-				self::set_template('', $useCountText, false, true);
-			else
-				$out .= self::set_template('', $useCountText, false, false);
-		}
+		// if (!self::$is_template_inserted) {
+		// 	if ($echo)
+		// 		self::set_template('', $useCountText, false, true);
+		// 	else
+		// 		$out .= self::set_template('', $useCountText, false, false);
+		// }
 
 		$apost = get_post();
 		$slug = $apost->post_name;

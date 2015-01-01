@@ -168,6 +168,19 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'subtitle'  => __('En cas de soucis, activez cette option et consultez la console Javascript', 'kidzou'),
                         ),
 
+                        array(
+                            'id'        => 'analytics_activate',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Activer Google Analytics', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'analytics_ua',
+                            'type'      => 'text',
+                            'title'     => __('UA de Google Analytics', 'kidzou'),
+                        ),
+
                         
                     )
                 );
@@ -179,13 +192,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'icon'      => 'el-icon-compass',
                 'fields'    => array(
 
-                        // array(
-                        //     'id'    => 'geo_warning',
-                        //     'type'  => 'info',
-                        //     'title' => __('Visitez la page de permalien apr&egrave;s activation / d&eacute;sactivation de la geolocalisation', 'kidzou'),
-                        //     'style' => 'warning',
-                        //     'desc'  => sprintf( __( 'Un bug qui emp&ecirc;che wordpress de rafraichir les r&egrave;gles de re-ecriture d&apos;URL, <a href="%s">visitez cette page pour les rafraichir</a> si vous activez ou desactivez la geolocalisation', 'kidzou' ), $permalink_href ),
-                        // ),
 
                         array(
                             'id'       => 'geo_activate',
@@ -349,6 +355,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'multi'    => true,
                         'title'    => __('Ajouter les cat&eacute;gories suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
                         'data'      => 'categories',
+                    ),
+
+                    array(
+                        'id'       => 'obsolete_events_remove_taxonomies',
+                        'type'     => 'select',
+                        'multi'    => true,
+                        'title'    => __('Supprimer les taxonomies suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                        'data'     => 'taxonomies',
                     ),
                     
                 )

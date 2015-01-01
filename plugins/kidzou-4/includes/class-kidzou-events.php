@@ -101,8 +101,7 @@ class Kidzou_Events {
 	private function __construct() { 
 
 		//mise en avant de posts
-		add_filter( 'posts_results', array( $this, 'order_by_featured'), PHP_INT_MAX, 2  );
-		
+		add_filter( 'posts_results', array( $this, 'order_by_featured'), PHP_INT_MAX, 2  );		
 	}
 
 	/**
@@ -273,7 +272,7 @@ class Kidzou_Events {
 		
 		$obsoletes = self::getObsoletePosts();
 
-		Kidzou_Utils::log(count($obsoletes) . ' evenements concernes ', true);
+		// Kidzou_Utils::log(count($obsoletes) . ' evenements concernes ', true);
 
 		foreach ($obsoletes as $event) {
 
@@ -325,7 +324,7 @@ class Kidzou_Events {
 					// $nextOccurenceInCurrentWeek = false;
 					$nextDay = 0;
 
-					Kidzou_Utils::log('     start_day=' . $start_day, true);
+					// Kidzou_Utils::log('     start_day=' . $start_day, true);
 
 					//calculer la prochaine date d'occurrence
 					foreach ($days as $day) {
@@ -333,7 +332,7 @@ class Kidzou_Events {
 						if (intval($day)>intval($start_day)) {
 
 							//une prochaine occurrence dans la sameine
-							Kidzou_Utils::log('     next occurence found in current week ' . $day, true);
+							// Kidzou_Utils::log('     next occurence found in current week ' . $day, true);
 							// $nextOccurenceInCurrentWeek = true;
 							$nextDay = $day;
 							break;
@@ -372,7 +371,7 @@ class Kidzou_Events {
 						//autre exemple : on est le le mardi, l'événement se répété le mardi suivant: il ne faut rien retirer cette fois
 						$first_day_of_repeat = $days[0];
 
-						Kidzou_Utils::log('     first_day_of_repeat=' . $first_day_of_repeat, true);
+						// Kidzou_Utils::log('     first_day_of_repeat=' . $first_day_of_repeat, true);
 
 						$diff = intval($start_day)-intval($first_day_of_repeat);
 						if ($diff>0)
@@ -445,7 +444,7 @@ class Kidzou_Events {
 					$nextStart = Carbon::parse($new_start_date); 
 
 					if ( $nextStart->diffInDays( $untill, false ) >= 0 ) { //pas en valeur absolue !
-						Kidzou_Utils::log('endType = days, diff = '. $untill->diffInDays( $nextStart ), true);
+						// Kidzou_Utils::log('endType = days, diff = '. $untill->diffInDays( $nextStart ), true);
 						$repeatable = true;
 					}
 						
@@ -508,29 +507,29 @@ class Kidzou_Events {
 					//recuperer les id pre-affectés et faire un diff
 					$term_list = wp_get_post_terms($event->ID, 'category', array("fields" => "ids"));
 
-					Kidzou_Utils::log('Liste initiale :  ' . implode(',', $term_list), true);
+					// Kidzou_Utils::log('Liste initiale :  ' . implode(',', $term_list), true);
 					
 					$remove_ids = array_map( 'intval', $remove_cats );
 					$remove_ids = array_unique( $remove_ids );
 
 					$list_remove = implode(',', $remove_ids);
-					Kidzou_Utils::log('Categories a enlever :  ' . $list_remove, true);
+					// Kidzou_Utils::log('Categories a enlever :  ' . $list_remove, true);
 
 					$add_ids = array_map( 'intval', $add_cats );
 					$add_ids = array_unique( $add_ids );
 
 					$list_add = implode(',', $add_ids);
 
-					Kidzou_Utils::log('Categories a ajouter :  ' . $list_add, true);
+					// Kidzou_Utils::log('Categories a ajouter :  ' . $list_add, true);
 
 					$all_terms_ids = array_merge($term_list, $add_ids) ;
 					$all_terms_ids = array_unique( $all_terms_ids );
 
 					foreach ($remove_ids as $key => $value) {
-						Kidzou_Utils::log('Recherche de ' . $value .' dans '. implode(',', $all_terms_ids) , true);
+						// Kidzou_Utils::log('Recherche de ' . $value .' dans '. implode(',', $all_terms_ids) , true);
 						$index = array_search($value, $all_terms_ids, false);
 						if ($index) {
-							Kidzou_Utils::log('Suppression de la categorie ' . $value . ' index ['. $index . ']', true);
+							// Kidzou_Utils::log('Suppression de la categorie ' . $value . ' index ['. $index . ']', true);
 							unset($all_terms_ids[$index]);
 						}
 							
@@ -544,6 +543,20 @@ class Kidzou_Events {
 						Kidzou_Utils::log( 'Erreur dans affectation de cagtegories ['. $event->post_name .'] = ' .$list , true);
 					} else {
 						Kidzou_Utils::log( 'Nouvelles categories affectees pour  ['. $event->post_name .'] = '.$list , true);
+					}
+
+					//suppression des autres taxonomies
+					$remove_other_taxos = Kidzou_Utils::get_option('obsolete_events_remove_taxonomies', array());
+					
+					foreach ($remove_other_taxos as $key => $value) {
+
+						$res = wp_set_post_terms( $event->ID, array(), $value, false ); 
+
+						if ( is_wp_error( $res ) ) {
+							Kidzou_Utils::log( 'Erreur dans la suppression de la taxonomie '. $value, true);
+						} else {
+							Kidzou_Utils::log( 'Suppression de la taxonomie ' . $value, true);
+						}
 					}
 
 				}	

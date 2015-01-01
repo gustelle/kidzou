@@ -27,6 +27,21 @@
 	<!--[if lt IE 9]>
 	<script src="<?php echo esc_url( $template_directory_uri . '/js/html5.js"' ); ?>" type="text/javascript"></script>
 	<![endif]-->
+	<!--[if lte IE 9]>
+	<script type="text/javascript">
+	    (function () {
+	      function CustomEvent ( event, params ) {
+	        params = params || { bubbles: false, cancelable: false, detail: undefined };
+	        var evt = document.createEvent( 'CustomEvent' );
+	        evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+	        return evt;
+	      };
+
+	      CustomEvent.prototype = window.Event.prototype;
+	  window.CustomEvent = CustomEvent;
+	})();
+	</script>
+	<![endif]-->
 
 	<script type="text/javascript">
 		document.documentElement.className = 'js';
