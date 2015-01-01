@@ -2779,6 +2779,96 @@ echo <<<END
 		</div>
 	</script>
 
+	<script type="text/template" id="et-builder-kz_pb_proximite-module-template">
+		<h3 class="et-pb-settings-heading">A proximit&eacute;</h3>
+
+		<div class="et-pb-main-settings">
+			<div class="et-pb-option">
+				<label for="et_pb_fullwidth">Layout: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_fullwidth" id="et_pb_fullwidth">
+						<option value="on"<%= typeof( et_pb_fullwidth ) !== 'undefined' && 'on' === et_pb_fullwidth ?  ' selected="selected"' : '' %>>Fullwidth</option>
+						<option value="off"<%= typeof( et_pb_fullwidth ) !== 'undefined' && 'off' === et_pb_fullwidth ?  ' selected="selected"' : '' %>>Grid</option>
+					</select>
+
+					<p class="description">Choose your desired portfolio layout style.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_radius">Rayon de recherche: </label>
+				<div class="et-pb-option-container">
+					<input id="et_pb_radius" type="text" class="regular-text" value="<%= typeof( et_pb_radius ) !== 'undefined' ?  et_pb_radius : '2' %>" />
+
+					<p class="description">Jusque quelle distance autour de l&apos;utilisateur doit-on rechercher ?.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_show_title">Title: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_show_title" id="et_pb_show_title">
+						<option value="on"<%= typeof( et_pb_show_title ) !== 'undefined' && 'on' === et_pb_show_title ?  ' selected="selected"' : '' %>>Show Title</option>
+						<option value="off"<%= typeof( et_pb_show_title ) !== 'undefined' && 'off' === et_pb_show_title ?  ' selected="selected"' : '' %>>Don't Show Title</option>
+					</select>
+
+					<p class="description">Turn project titles on or off.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_show_categories">Categories: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_show_categories" id="et_pb_show_categories">
+						<option value="on"<%= typeof( et_pb_show_categories ) !== 'undefined' && 'on' === et_pb_show_categories ?  ' selected="selected"' : '' %>>Show Categories</option>
+						<option value="off"<%= typeof( et_pb_show_categories ) !== 'undefined' && 'off' === et_pb_show_categories ?  ' selected="selected"' : '' %>>Don't Show Categories</option>
+					</select>
+
+					<p class="description">Turn the category links on or off.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_background_layout">Text Color: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_background_layout" id="et_pb_background_layout">
+						<option value="light"<%= typeof( et_pb_background_layout ) !== 'undefined' && 'light' === et_pb_background_layout ?  ' selected="selected"' : '' %>>Dark</option>
+						<option value="dark"<%= typeof( et_pb_background_layout ) !== 'undefined' && 'dark' === et_pb_background_layout ?  ' selected="selected"' : '' %>>Light</option>
+					</select>
+
+					<p class="description">Here you can choose whether your text should be light or dark. If you are working with a dark background, then your text should be light. If your background is light, then your text should be set to dark.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="admin_label">Admin Label: </label>
+
+				<div class="et-pb-option-container">
+					<input id="admin_label" type="text" class="regular-text" value="<%= typeof( admin_label ) !== 'undefined' ?  admin_label : '' %>" />
+					<p class="description">This will change the label of the module in the builder for easy identification.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_module_id">CSS ID: </label>
+
+				<div class="et-pb-option-container">
+					<input id="et_pb_module_id" type="text" class="regular-text" value="<%= typeof( et_pb_module_id ) !== 'undefined' ?  et_pb_module_id : '' %>" />
+					<p class="description">Enter an optional CSS ID to be used for this module. An ID can be used to create custom CSS styling, or to create links to particular sections of your page.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_module_class">CSS Class: </label>
+
+				<div class="et-pb-option-container">
+					<input id="et_pb_module_class" type="text" class="regular-text" value="<%= typeof( et_pb_module_class ) !== 'undefined' ?  et_pb_module_class : '' %>" />
+					<p class="description">Enter optional CSS classes to be used for this module. A CSS class can be used to create custom CSS styling. You can add multiple classes, separated with a space.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+		</div>
+	</script>
+
 	<script type="text/template" id="et-builder-kz_pb_user_favs-module-template">
 		<h3 class="et-pb-settings-heading">Favoris Utilisateur Kidzou</h3>
 

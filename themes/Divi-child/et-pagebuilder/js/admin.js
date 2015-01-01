@@ -84,6 +84,10 @@ console.log(ET_PageBuilder);
 						'label' : 'kz_pb_user_favs'
 					},
 					{
+						'title' : 'A proximit&eacute;',
+						'label' : 'kz_pb_proximite'
+					},
+					{
 						'title' : 'Bar Counters',
 						'label' : 'et_pb_counters'
 					},

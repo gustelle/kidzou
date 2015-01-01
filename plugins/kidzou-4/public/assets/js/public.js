@@ -5,7 +5,8 @@ var kidzouModule = (function() { //havre de paix
 	var kidzou;
 	var logger;
 
-	jQuery(document).ready(function() {
+	// jQuery(document).ready(function() {
+	document.addEventListener('DOMContentLoaded', function() {
 
 		//assurer que les dépendances sont là...
 		if (window.jQuery && window.ko && window.storageSupport) {
@@ -241,8 +242,6 @@ var kidzouModule = (function() { //havre de paix
 						this.voted(true);
 						this.votes(count);
 
-						// logger.info("doVote " + _id + "(+1)");
-
 						//get nonce for voting and proceed to vote
 						jQuery.getJSON(kidzou_commons_jsvars.api_get_nonce,{controller: 'vote',	method: 'up'})
 							.done(function (data) {
@@ -319,7 +318,8 @@ var kidzouModule = (function() { //havre de paix
 				return { 
 					bindView 	: bindView,
 					votable     : VotableItem ,
-					votesModel : votesModel
+					votesModel : votesModel ,
+					feedViewModel : feedViewModel
 				};
 
 			}();
@@ -350,49 +350,52 @@ var kidzouModule = (function() { //havre de paix
 	}
 
 	function getCurrentPageId( ) {
-
 		var current_page_id = jQuery('.votable').first().data('post');
 		return current_page_id;
 
 	}
 
-	function createVotableItem(_id) {
-
-		return new kidzou.votable(_id);
-
-	}
 
 	function getVotesModel() {
-		// console.debug(kidzou.votesModel);
 		return kidzou.votesModel;
 	}
+
+	//parfois du contenu est rechargé en ajax
+	//il faut recharger les votes pour rafraichir les données sur les posts chargés en ajax
+	function refresh() {
+		kidzou.feedViewModel();
+		kidzou.bindView();
+	}
+
 
 	return {
 		afterVoteUpdate : afterVoteUpdate,
 		getCurrentPageId : getCurrentPageId,
-		createVotable 		: createVotableItem,
-		getVotesModel : getVotesModel
+		getVotesModel : getVotesModel,
+		refresh : refresh
 	}
 
 }());  //kidzouModule
 
 
-//ne pas tracker en dev et ne pas tracker les admins
-var _do_track = !kidzou_commons_jsvars.is_admin && location.hostname==='www.kidzou.fr';
-
-if (_do_track) {
-
-	//google analytics
-	(function (i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-	ga('create', 'UA-23017523-1', 'kidzou.fr');
-	ga('send', 'pageview');
-}
-
 var kidzouTracker = (function() {
+
+		//ne pas tracker en dev et ne pas tracker les admins
+		var _do_track = kidzou_commons_jsvars.analytics_activate;
+
+		if (_do_track) {
+
+			//google analytics
+			(function (i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create',  kidzou_commons_jsvars.analytics_ua, 'kidzou.fr');
+			ga('send', 'pageview');
+		} else {
+			console.debug('Analytics non actifs');
+		}
 
 		function trackEvent(context, action, title, loadtime) {
 			if (_do_track)
