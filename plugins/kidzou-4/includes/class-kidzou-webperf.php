@@ -103,6 +103,8 @@ class Kidzou_WebPerf {
 	 */
 	private function __construct() { 
 
+
+
 		//important de le faire tourner en dernier pour récupérer une liste complete de JS
 		add_action( 'wp_print_scripts', array( $this, 'enqueue_scripts' ), PHP_INT_MAX);
 		add_action( 'wp_print_styles', array( $this, 'enqueue_styles' ), PHP_INT_MAX);
@@ -126,6 +128,7 @@ class Kidzou_WebPerf {
 
 		self::$css_no_combine = array_merge(self::$css_no_combine, Kidzou_Utils::get_option('perf_css_no_combine', array()));
 
+		add_action( 'wp_footer', array($this, 'load_css_async'), PHP_INT_MAX);
 	}
 
 	/**
@@ -260,6 +263,34 @@ class Kidzou_WebPerf {
 		}
 		return $link;
 		
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function load_css_async()
+	{
+		$out = '';
+		$css_per_js = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
+		if (!is_admin() && $css_per_js)
+		{
+			// global $wp_styles;
+			$out .= '<noscript>';
+			$css = Kidzou_WebPerf::$css_load_per_js;
+
+			foreach ($css as $item) {
+				$src = $item['src'];
+				$media = $item['media'];
+				$ver = Kidzou::VERSION;
+				$out .= "<link rel='stylesheet'  href='$src?ver=$ver' type='text/css' media='$media' />";
+			}
+			$out .= '</noscript>';
+		}
+
+		echo $out;
 	}
 
 

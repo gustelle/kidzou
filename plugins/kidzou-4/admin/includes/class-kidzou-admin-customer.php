@@ -77,7 +77,7 @@ class Kidzou_Admin_Customer {
 	 **/
 	public function add_metaboxes()
 	{
-		if (is_admin())
+		if ( Kidzou_Utils::is_really_admin()  )
 		{
 			$screen = get_current_screen(); 
 

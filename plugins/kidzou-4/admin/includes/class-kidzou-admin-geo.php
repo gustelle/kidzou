@@ -115,26 +115,33 @@ class Kidzou_Admin_Geo {
 
 		$result = $wpdb->get_results ( "
 		    SELECT ID
-		    FROM  $wpdb->posts 
-		        WHERE wp_posts.post_status = 'publish'
+		    FROM  $wpdb->posts
+		        WHERE $wpdb->posts.post_status = 'publish'
+		        AND $wpdb->posts.post_type in ('post', 'offres')
 		" );
 
 		foreach ( $result as $row )
 		{
 			$id = $row->ID;
-		   if ( Kidzou_Geo::has_post_location($id) )
+		   if ( Kidzou_Geo::has_post_location($id) && Kidzou_Events::isEventActive() )
 		   {	
+		   		$post = get_post($id); 
+	   			$type = $post->post_type;
 		   		$location = Kidzou_Geo::get_post_location($id);
+		   		$meta_key = 'kz_'.$type.'_location_latitude';
 
-		   		//peu importe le meta_id, il n'est pas synchro avec Kidzou
+		   		$mid = $wpdb->get_var( 
+		   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
+		   		);
+		   		// Kidzou_Utils::log($wpdb->last_query);
 		   		sc_GeoDataStore::after_post_meta( 
-		   			0, 
+		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
 		   			self::$meta_coords, 
 		   			$location['location_latitude'].','.$location['location_longitude'] 
 		   		);
 
-		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.'] / ' . $location['location_latitude'].','.$location['location_longitude'] );
+		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $location['location_latitude'].','.$location['location_longitude'] );
  
 		   }
 		}
@@ -176,6 +183,7 @@ class Kidzou_Admin_Geo {
     	switch ($meta_key) {
     		case $lat_meta:
     			self::$coords['latitude'] = $meta_value;
+    			self::$coords['meta_id'] = $meta_id;
     			break;
   			case $lng_meta:
     			self::$coords['longitude'] = $meta_value;
@@ -191,7 +199,7 @@ class Kidzou_Admin_Geo {
     		{
     			Kidzou_Utils::log('Storing in Geo Data Store : ' . self::$coords['latitude'].','. self::$coords['longitude']);
 	    		sc_GeoDataStore::after_post_meta( 
-					0, 
+					self::$coords['meta_id'], 
 					$post_id, 
 					self::$meta_coords, 
 					self::$coords['latitude'].','. self::$coords['longitude']

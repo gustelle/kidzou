@@ -91,7 +91,15 @@ function override_divi_parent_functions()
 	//pas besoin de passer par cette fonction, les css sont dans style.css
 	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
 
+	add_action('wp_footer', 'add_googleanalytics');
 
+
+}
+
+function add_googleanalytics() {
+
+	echo Kidzou::get_analytics_tag();
+	
 }
 
 function custom_excerpt_length( $length ) {
@@ -750,7 +758,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 	$category_classes = implode( ' ', $category_classes );
 
-	$featured = Kidzou_Events::isFeatured();
+	$featured = Kidzou_Featured::isFeatured();
 	$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
 
 	$thumb = '';
@@ -786,13 +794,19 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		else
 			$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
 	
-	 	$event_meta = '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+	 	$event_meta = '<div class="portfolio_meta"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
 	
 	} 
 
 	if ($distance != '') {
 
-		$distance = $distance . ' Km';
+		if (floatval($distance)<1) {
+			$distance = (round($distance, 2)*1000). ' m'; 
+		} else {
+			$distance = round($distance, 1) . ' Km'; 
+		}
+
+		$distance = '<div class="portfolio_meta"><i class="fa fa-location-arrow"></i>'.$distance.'</div>' ;
 	}
 
 	if ( '' !== $thumb ) {
@@ -907,37 +921,11 @@ function kz_pb_portfolio( $atts ) {
 
 	$container_is_closed = false;
 
-	$base_args = array(
+	$args = array(
 		'posts_per_page' => (int) $posts_number,
 		'post_type'      => Kidzou::post_types(),
+		'orderby' 		=> array('date'=>'DESC'), //la base
 	);
-
-	$args = array();
-
-	switch ($orderby) {
-		case 'reco':
-			$args = array_merge($base_args, array(
-					'meta_key' => Kidzou_Vote::$meta_vote_count,
-					'orderby' => array('meta_value_num'=>'DESC'),
-				)
-			);
-			break;
-
-		case 'event_dates':
-			$args = array_merge($base_args, array(
-					'meta_key' => 'kz_event_start_date' , //kz_event_featured
-					'orderby' => array('meta_value' => 'ASC'),
-				)
-			);
-			break;
-		
-		default:
-			$args = array_merge($base_args, array(
-					'orderby' => array('date'=>'DESC'),
-				)
-			);
-			break;
-	}
 
 	if ( '' !== $post__in )
 		$args['post__in'] = explode(",", $post__in);
@@ -962,7 +950,19 @@ function kz_pb_portfolio( $atts ) {
 		$args['paged'] = $et_paged;
 	}
 
-	query_posts($args);
+	switch ($orderby) {
+		case 'reco':
+			$query = new Vote_Query($args);
+			break;
+
+		case 'event_dates':
+			$query = new Event_Query($args);
+			break;
+		
+		default:
+			$query = new WP_Query($args);
+			break;
+	}
 
 	$categories_included = array();
 
@@ -971,14 +971,21 @@ function kz_pb_portfolio( $atts ) {
 	$index = 0;
 	$inserted = false;
 
-	if ( have_posts() ) {
+	// Pagination fix
+	// http://wordpress.stackexchange.com/questions/120407/how-to-fix-pagination-for-custom-loops
+	global $wp_query;
+	$temp_query = $wp_query;
+	$wp_query   = NULL;
+	$wp_query   = $query;
 
-		while(have_posts()){
+	if ( $query->have_posts() ) {
+
+		while( $query->have_posts() ) {
 
 			$insert = false;
 
 			//si le précédent post était featured, la pub vient tout de suite...
-			if (Kidzou_Events::isFeatured() && !$inserted && $show_ad=='on')
+			if (Kidzou_Featured::isFeatured() && !$inserted && $show_ad=='on')
 				$insert = true;
 			else if ($index==2 && !$inserted && $show_ad=='on')
 				$insert = true;
@@ -1004,14 +1011,13 @@ function kz_pb_portfolio( $atts ) {
 
 					echo $output;
 
-				}
-					
+				}	
 
 			} else {
 
 				global $post;
 
-				the_post();
+				$query->the_post();
 
 				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout);
 
@@ -1033,8 +1039,6 @@ function kz_pb_portfolio( $atts ) {
 				get_template_part( 'includes/navigation', 'index' );
 
 		}
-
-		wp_reset_query();
 
 	} else {
 		get_template_part( 'includes/no-results', 'index' );
@@ -1084,6 +1088,12 @@ function kz_pb_portfolio( $atts ) {
 		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
 		$category_filters
 	);
+
+	//hack pour pagination
+	// Reset main query object
+	//@see http://wordpress.stackexchange.com/questions/120407/how-to-fix-pagination-for-custom-loops
+	$wp_query = NULL;
+	$wp_query = $temp_query;
 
 	return $output;
 	
@@ -1282,6 +1292,8 @@ function kz_pb_user_favs( $atts ) {
 
 	} 
 
+	wp_reset_postdata();
+
 	$posts = ob_get_contents();
 
 	ob_end_clean();
@@ -1357,7 +1369,8 @@ function kz_pb_proximite( $atts ) {
 			'show_title' => 'on',
 			'show_categories' => 'on',
 			'background_layout' => 'light',
-			'radius' => 2
+			'radius' => 2,
+			'display_mode' => 'simple'
 		), $atts
 	) );
 
@@ -1386,8 +1399,12 @@ function kz_pb_proximite( $atts ) {
 		'module_id'				=> $module_id,
 		'module_class'			=> $module_class,
 		'background_layout'		=> $background_layout, 
+		'display_mode'			=> $display_mode
 
 	) );
+
+	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode=='with_map') 
+		wp_enqueue_script( 'google-maps-api' );
 
 	return '<div id="proxi_content"></div>';
 
@@ -1408,19 +1425,16 @@ function kz_pb_proximite_content() {
 	$radius 			= (isset($_POST['radius']) ? $_POST['radius'] : 5);
 	$show_title 		= (isset($_POST['show_title']) ? $_POST['show_title'] : '');
 	$show_categories 	= (isset($_POST['show_categories']) ? $_POST['show_categories'] : '');
-	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : '');
 	$module_id 			= (isset($_POST['module_id']) ? $_POST['module_id'] : '');
 	$module_class 		= (isset($_POST['module_class']) ? $_POST['module_class'] : '');
-	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : '');
+	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : 'light');
+	$display_mode 		= (isset($_POST['display_mode']) ? $_POST['display_mode'] : 'simple');
 
-
-	Kidzou_Utils::log('fullwidth: '.$fullwidth);
 
 	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
-	Kidzou_Utils::log($ids);
-
 	$posts = '';
+	$pins = '';
 
 	if (!empty($ids))
 	{	
@@ -1432,18 +1446,51 @@ function kz_pb_proximite_content() {
 			setup_postdata($post);
 
 			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $value->distance);
+		
+			//pre-render de la carte
+			if ($display_mode=='with_map') {
+
+				$pins .= sprintf(
+					'<div class="et_pb_map_pin" data-lat="%1$s" data-lng="%2$s" data-title="%3$s">
+						%4$s
+					</div>',
+					esc_attr( $value->latitude ),
+					esc_attr( $value->longitude ),
+					esc_html( get_the_title() ),
+					( '' != get_the_title() ? sprintf( '<div class="infowindow">%1$s</div>', get_the_title() ) : '' )
+				);
+
+			}
 		}
 
 		wp_reset_postdata();
 	}
 	else
 	{
-		_e('Message a personnaliser', 'Divi');
-		// Kidzou_Utils::log($ids);
+		get_template_part( 'includes/no-results', 'index' );
 	}
 
 	$class = " et_pb_bg_layout_{$background_layout}";
-	$filters_html = '';
+	$filters_html = ''; //pour plus tard, si on veut mettre un filtre de nav
+
+	if ($display_mode=='with_map' && !empty($ids)) {
+
+		echo sprintf(
+			'<div%5$s class="et_pb_map_container%6$s">
+				<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
+				%4$s
+			</div><hr class="et_pb_space et_pb_divider" />',
+			esc_attr( $coords['latitude'] ),
+			esc_attr( $coords['longitude'] ),
+			14, //zoom level
+			$pins,
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+			'on' //mousewheel
+		);
+
+		// return $output;
+	}
 
 	echo sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">

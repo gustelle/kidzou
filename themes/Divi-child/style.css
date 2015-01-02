@@ -3109,10 +3109,10 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 .font-2x { font-size: 200%; }
 .font-bigger {font-size: 120%; font-weight: bold;}
 .overtext {vertical-align: text-top;} /* pour la fleche du content preview */
-.portfolio_dates {
+.portfolio_meta {
 	font-size: 90%;
 }
-.portfolio_dates:before {content: ' ';}
+.portfolio_meta:before {content: ' ';}
 
 
 p.location {line-height: 1.3em; padding-bottom: 0.3em;}

@@ -105,6 +105,30 @@ class Kidzou_Utils {
 
 	}
 
+	/**
+	 * les AJAX sont identifiées dans le domaine de l'admin
+	 * il faut les exclure
+	 *
+	 * @return Bool
+	 * @author 
+	 **/
+	public static function is_really_admin( ) {
+
+		return is_admin() && !( defined('DOING_AJAX') && DOING_AJAX );
+
+	}
+
+	/**
+	 * true si la requete en cours est une api json
+	 *
+	 * @return Bool
+	 * @author 
+	 **/
+	public static function is_api()
+	{
+		return preg_match( '#\/api\/#', self::get_request_path() );
+	}
+
 	public static function get_request_path() {
 
 		return $_SERVER['REQUEST_URI'];

@@ -383,20 +383,6 @@ var kidzouTracker = (function() {
 		//ne pas tracker en dev et ne pas tracker les admins
 		var _do_track = kidzou_commons_jsvars.analytics_activate;
 
-		if (_do_track) {
-
-			//google analytics
-			(function (i,s,o,g,r,a,m) {i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-			ga('create',  kidzou_commons_jsvars.analytics_ua, 'kidzou.fr');
-			ga('send', 'pageview');
-		} else {
-			console.debug('Analytics non actifs');
-		}
-
 		function trackEvent(context, action, title, loadtime) {
 			if (_do_track)
 				ga('send', 'event', context, action, title, loadtime);

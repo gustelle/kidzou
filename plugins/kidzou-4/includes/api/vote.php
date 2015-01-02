@@ -46,6 +46,7 @@ class JSON_API_Vote_Controller {
 	{
 
 		global $json_api;
+
 		$id 		= $json_api->query->post_id;
 		$nonce 		= $json_api->query->nonce;
 		$user_hash 	= $json_api->query->user_hash;
