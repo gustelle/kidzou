@@ -584,8 +584,8 @@ class Kidzou {
 				'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
 				'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
 				'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
-				'analytics_ua'					 => Kidzou_Utils::get_option('analytics_ua', 'UA-23017523-1'),
-				'analytics_activate'			 => (bool)Kidzou_Utils::get_option('analytics_activate'),
+				// 'analytics_ua'					 => Kidzou_Utils::get_option('analytics_ua', 'UA-23017523-1'),
+				// 'analytics_activate'			 => (bool)Kidzou_Utils::get_option('analytics_activate'),
 			)
 		);
 	}
@@ -665,6 +665,34 @@ class Kidzou {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/content.php";
 	}
 
-	
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function get_analytics_tag()
+	{
+		$activate = (bool)Kidzou_Utils::get_option('analytics_activate',false);
+
+		if ($activate)
+		{
+			return sprintf (
+					"<script>
+						(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+						(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+						m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+						})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+						ga('create',  '%s', 'auto');
+						ga('send', 'pageview');
+
+					</script>",
+					Kidzou_Utils::get_option('analytics_ua','')
+				);
+		}
+
+		return '';
+	}
 
 }

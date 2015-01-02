@@ -101,21 +101,10 @@ class Kidzou_Vote {
 		//voir http://wordpress.stackexchange.com/questions/80303/query-all-posts-where-a-meta-key-does-not-exist
 		$args = array(
 			'posts_per_page' => -1,
-			'meta_query' => array(
-			   'relation' => 'OR',
-			    array(
-			     'key' => self::$meta_vote_count,
-			     'compare' => 'NOT EXISTS', // works!
-			     'value' => '' // This is ignored, but is necessary...
-			    ),
-			    array(
-			     'key' => self::$meta_vote_count,
-			     'value' => 1
-			    )
-			)
+			'is_voted'	=> false
 		);
 
-		$query = new WP_Query( $args );
+		$query = new Vote_Query( $args );
 
 		$posts = $query->get_posts();
 

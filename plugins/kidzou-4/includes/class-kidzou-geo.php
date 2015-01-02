@@ -66,17 +66,14 @@ class Kidzou_Geo {
 		//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
 		add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
 
-		//Le filtrage n'est pas actif pour certaines requetes, typiquement les API d'export de contenu
-		if ( !preg_match('#\/api\/#', $_SERVER['REQUEST_URI']) ) {
+		//Le filtrage n'est pas actif pour certaines requetes, typiquement les API
+		add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
+		add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
+		add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
 
-			add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
-			add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
-			add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
-
-			add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
-		}
+		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
 
 		self::set_request_filter();
 			
@@ -175,7 +172,9 @@ class Kidzou_Geo {
 	private static function set_request_filter()
 	{
 		//mise à jour du param de filtrage de requete 
-		if (is_admin()) {
+		if ( Kidzou_Utils::is_really_admin() || Kidzou_Utils::is_api() ) {
+
+			Kidzou_Utils::log('Filtrage desactive ');
 
 			self::$is_request_filter = false;
 
@@ -184,8 +183,7 @@ class Kidzou_Geo {
 			$filter_active = (bool)Kidzou_Utils::get_option('geo_activate',false);
 			
 			if (!$filter_active) {
-				
-				Kidzou_Utils::log('Filtrage desactive dans les reglages Kidzou');
+			
 				self::$is_request_filter = false;
 			
 			} else {
@@ -194,7 +192,6 @@ class Kidzou_Geo {
 				//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 				if (self::get_request_metropole()=='' ) {
 					
-					Kidzou_Utils::log('Filtrage desactive : pas de metropole en requete');
 					self::$is_request_filter = false;
 				}
 
@@ -340,40 +337,6 @@ class Kidzou_Geo {
 		return $args;
 
 	}
-
-	// /**
-	//  * extension de query_posts pour y inclure les arguments de metropole
-	//  *
-	//  * @return Array
-	//  * @since proximite 
-	//  **/
-	// public static function query_posts($args = array()) {
-
-	// 	if (self::$is_request_filter)
-	// 	{
-	// 		$args = self::add_metropole_tax_args($args);
-	// 	}
-
-	// 	query_posts( $args );
-
-	// }
-
-	// /**
-	//  * extension de query_posts pour y inclure les arguments de metropole
-	//  *
-	//  * @return WP_Query
-	//  * @since proximite 
-	//  **/
-	// public static function WP_Query($args = array()) {
-
-	// 	if (self::$is_request_filter)
-	// 	{
-	// 		$args = self::add_metropole_tax_args($args);
-	// 	}
-	  
-	//   	return new WP_Query($args);
-
-	// }
 
 
 	/**
@@ -563,8 +526,6 @@ class Kidzou_Geo {
 
 
 	public static function rewrite_post_link( $permalink, $post ) {
-
-		// $urladapter = new Kidzou_Geo_URLAdapter();
 
 		if (self::$is_request_filter )
 		{
@@ -890,12 +851,13 @@ class Kidzou_Geo {
 	 * Ré-eacriture de Geo Data Store pour prévoir le fait que le plugin ne puisse pas être installé
 	 * et convertir les miles en KM
 	 * + remontée de la distance au post 
+	 * + remontée des lat/lng pour exploitation dans une carte
 	 *
 	 * @author 
 	 **/
 	public static function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
 	{
-		$post_type = 'post';
+		// $post_type = 'post';
 		$tablename = "geodatastore";
 		$orderby = "ASC";
 
@@ -915,7 +877,7 @@ class Kidzou_Geo {
 		FROM
 			`" . $wpdb->prefix . $tablename . "`
 		WHERE
-			`" . $wpdb->prefix . $tablename . "`.`post_type` = '{$post_type}'
+			`" . $wpdb->prefix . $tablename . "`.`post_type` IN ('post', 'offres')
 		AND
 			`" . $wpdb->prefix . $tablename . "`.`lat` BETWEEN '{$lat1}' AND '{$lat2}'
 		AND
@@ -942,7 +904,9 @@ class Kidzou_Geo {
 						), 2
 					)
 				)
-			) / 0.621371192 AS `distance`
+			) / 0.621371192 AS `distance`,
+			`t`.`lat` AS `latitude`,
+			`t`.`lng` AS `longitude`
 		FROM
 			({$sqlsquareradius}) AS `t`
 		HAVING
@@ -950,7 +914,45 @@ class Kidzou_Geo {
 		ORDER BY `distance` {$orderby}
 		"; // End $sqlcircleradius
 
-		return $wpdb->get_results($sqlcircleradius);
+		$results = $wpdb->get_results($sqlcircleradius);
+
+		// Kidzou_Utils::log($wpdb->last_query);
+
+		$nonfeatured = array();
+
+	    $featured =  Kidzou_Featured::getFeaturedPosts( );
+	    
+	    $featured_in_list = array();
+	    $nonfeatured = array();
+
+	    //les featured qui sont dans la liste
+	    foreach ($results as $rk => $rv) {
+
+	    	$is_featured = false;
+
+	    	//safety check
+	    	//les events obsolete sont sortis
+	    	if (Kidzou_Events::isTypeEvent($rv->post_id) && !Kidzou_Events::isEventActive($rv->post_id))
+	    		continue;
+
+	    	foreach ($featured as $fk => $fv) {
+	    		
+	    		if ( intval($fv->ID) == intval($rv->post_id) ) {
+	    			array_push($featured_in_list, $rv);
+	    			$is_featured = true;
+	    		}
+	    	}
+
+	    	if (!$is_featured) {
+	    		array_push($nonfeatured, $rv);
+	    	}
+	    }
+	   
+	    
+	    $posts = array_merge( $featured_in_list, $nonfeatured );
+
+	    return $posts;
+
 	}
 
 

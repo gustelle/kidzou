@@ -2805,6 +2805,16 @@ echo <<<END
 			</div> <!-- .et-pb-option -->
 
 			<div class="et-pb-option">
+				<label for="et_pb_display_mode">Mode d&apos; affichage: </label>
+				<div class="et-pb-option-container">
+					<select name="et_pb_display_mode" id="et_pb_display_mode">
+						<option value="simple"<%= typeof( et_pb_display_mode ) !== 'undefined' && 'simple' === et_pb_display_mode ?  ' selected="selected"' : '' %>>Simple Portfolio</option>
+						<option value="with_map"<%= typeof( et_pb_display_mode ) !== 'undefined' && 'with_map' === et_pb_display_mode ?  ' selected="selected"' : '' %>>Portfolio avec Carte</option>
+					</select>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
 				<label for="et_pb_show_title">Title: </label>
 				<div class="et-pb-option-container">
 					<select name="et_pb_show_title" id="et_pb_show_title">

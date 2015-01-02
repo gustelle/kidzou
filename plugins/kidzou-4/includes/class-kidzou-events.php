@@ -38,18 +38,6 @@ use Carbon\Carbon;
 class Kidzou_Events {
 
 	/**
-	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @var     string
-	 */
-	const VERSION = '04-nov';
-
-
-	// private static $initialized = false;
-
-	/**
 	 * Instance of this class.
 	 *
 	 * @since    1.0.0
@@ -58,7 +46,6 @@ class Kidzou_Events {
 	 */
 	protected static $instance = null;
 
-	public static $meta_featured = 'kz_event_featured';
 
 	/**
 	 * les meta qui définissent la recurrence d'un événement
@@ -89,7 +76,7 @@ class Kidzou_Events {
 	 * les types de posts qui supportent les meta event
 	 *
 	 */
-	public static $supported_post_types = array('post','offres');
+	// public static $supported_post_types = array('post','offres');
 
 
 	/**
@@ -100,8 +87,7 @@ class Kidzou_Events {
 	 */
 	private function __construct() { 
 
-		//mise en avant de posts
-		add_filter( 'posts_results', array( $this, 'order_by_featured'), PHP_INT_MAX, 2  );		
+		
 	}
 
 	/**
@@ -186,81 +172,8 @@ class Kidzou_Events {
 
     }
 
-    public static function isFeatured($post_id = 0)
-	{
-
-		if ($post_id==0)
-		{
-			global $post;
-			$post_id = $post->ID;
-		}
-
-		$featured_index		= get_post_meta($post_id, self::$meta_featured, TRUE);
-		$featured 			= ($featured_index == 'A');
-
-		return $featured;
-	}
-
 	/**
-	 * la liste des post featured 
-	 * il s'agit d'un tableau d'objets WP_Post
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function getFeaturedPosts(  )
-	{
-		
-
-		$list = get_posts(array(
-					'meta_key'         => self::$meta_featured,
-					'meta_value'       => 'A',
-					'post_type'        => self::$supported_post_types,
-				));
-
-
-		return $list;
-	}
-
-
-
-	/**
-	 * Construit une WP_Query contenant des evenements sur une metropole donnée, dans un intervalle donné
-	 *
-	 * @return array()
-	 * @author 
-	 **/
-	public static function getObsoletePosts( )
-	{
-
-		
-		$current= time();
-		$now 	= date('Y-m-d 00:00:00', $current);
-
-		$meta_q = array(
-						array(
-	                         'key' => 'kz_event_end_date',
-	                         'value' => $now,
-	                         'compare' => '<',
-	                         'type' => 'DATETIME'
-	                        )
-			    	);
-
-		$args = array(
-			'posts_per_page' => -1, 
-			'post_status' => 'publish',
-			'meta_query' => $meta_q,
-		);
-
-		$query = new WP_Query($args );	
-
-		$list = 	$query->get_posts(); 
-
-		return $list;
-	}
-
-	/**
-	 * dépublie les events dont la date est dépassée
+	 * traitement par Job des events dont la date est dépassée
 	 *
 	 */
 	public static function unpublish_obsolete_posts() 
@@ -269,8 +182,16 @@ class Kidzou_Events {
 		global $wpdb;
 
 		Kidzou_Utils::log('------ unpublish_obsolete_posts -------', true);
+
+		$args = $args = array(
+	      'posts_per_page' => -1, 
+	      'post_status' => 'publish',
+	      'is_active'	=> false
+	    );
 		
-		$obsoletes = self::getObsoletePosts();
+		// $obsoletes = self::getObsoletePosts();
+		$query = new Event_Query($args);
+		$obsoletes = $query->get_posts(); 
 
 		// Kidzou_Utils::log(count($obsoletes) . ' evenements concernes ', true);
 
@@ -506,30 +427,23 @@ class Kidzou_Events {
 
 					//recuperer les id pre-affectés et faire un diff
 					$term_list = wp_get_post_terms($event->ID, 'category', array("fields" => "ids"));
-
-					// Kidzou_Utils::log('Liste initiale :  ' . implode(',', $term_list), true);
 					
 					$remove_ids = array_map( 'intval', $remove_cats );
 					$remove_ids = array_unique( $remove_ids );
 
 					$list_remove = implode(',', $remove_ids);
-					// Kidzou_Utils::log('Categories a enlever :  ' . $list_remove, true);
 
 					$add_ids = array_map( 'intval', $add_cats );
 					$add_ids = array_unique( $add_ids );
 
 					$list_add = implode(',', $add_ids);
 
-					// Kidzou_Utils::log('Categories a ajouter :  ' . $list_add, true);
-
 					$all_terms_ids = array_merge($term_list, $add_ids) ;
 					$all_terms_ids = array_unique( $all_terms_ids );
 
 					foreach ($remove_ids as $key => $value) {
-						// Kidzou_Utils::log('Recherche de ' . $value .' dans '. implode(',', $all_terms_ids) , true);
 						$index = array_search($value, $all_terms_ids, false);
 						if ($index) {
-							// Kidzou_Utils::log('Suppression de la categorie ' . $value . ' index ['. $index . ']', true);
 							unset($all_terms_ids[$index]);
 						}
 							
@@ -575,6 +489,22 @@ class Kidzou_Events {
 
 					Kidzou_Utils::log( 'Unpublished ['. $event->post_name .']' , true);
 				}
+
+				//dans tous les cas on supprime l'event de la table Geo Data Store
+				if (class_exists( 'sc_GeoDataStore' ))
+				{	
+					//simulation de la suppression de meta pou supprimer la ligne Geo Data Store
+		   			$type = $event->post_type;
+			   		$meta_key = 'kz_'.$type.'_location_latitude';
+
+			   		$mid = $wpdb->get_var( 
+			   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
+			   		);
+
+					sc_GeoDataStore::delete_postmeta($mid);
+
+					Kidzou_Utils::log( 'Remove Entry from Geo Data Store ['. $event->post_name .']' , true);
+				}
 					
 			}
 
@@ -582,55 +512,6 @@ class Kidzou_Events {
 
 		Kidzou_Utils::log('------ / unpublish_obsolete_posts -------', true);
 	}
-	
-
-	/**
-	 * les loops secondaires sont tries pour mettre les featured en 1er
-	 *
-	 */ 
-	public function order_by_featured($posts, $query) {
-
-		if (!is_admin()  && !$query->is_main_query() && !is_page() && !is_single()) { //
-
-			remove_filter( current_filter(), __FUNCTION__, PHP_INT_MAX, 2 );
-
-			$queried = get_queried_object();
-
-			if (isset($queried->term_taxonomy_id )) {
-
-				$nonfeatured = array();
-
-			    $featured =  self::getFeaturedPosts( );
-
-			    $filtered = array_filter($featured, function($item) {
-			    	$queried = get_queried_object();
-			    	$terms = wp_get_post_terms($item->ID, $queried->taxonomy, array('fields' => 'ids'));
-			    	return in_array($queried->term_id, $terms);
-			    });
-
-			    $filtered_posts = array_map(function($el) {
-			    	return get_post($el->ID);
-			    }, $filtered);
-			    
-			    foreach ( $posts as $a_post ) {
-			     
-					if ( !self::isFeatured($a_post->ID) ) {
-
-						$nonfeatured[] = $a_post;
-
-					}			    		
-
-			    }
-		    
-		    	$posts = array_merge( $filtered_posts, $nonfeatured );
-
-			}		   
-
-		} 
-		
-		return $posts;
-	}
-
 
     
 

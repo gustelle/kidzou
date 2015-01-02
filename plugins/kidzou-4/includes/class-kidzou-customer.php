@@ -116,7 +116,7 @@ class Kidzou_Customer {
 	 **/
 	public function check_customer_analytics()
 	{
-		if (is_user_logged_in() && !is_admin() && !Kidzou_Utils::current_user_is('author'))
+		if (is_user_logged_in() && !Kidzou_Utils::is_really_admin() && !Kidzou_Utils::current_user_is('author'))
 		{
 			$remove_analytics = false;
 			$activate = Kidzou_Utils::get_option('customer_analytics_activate', false);

@@ -44,6 +44,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 $directories = array(
             'includes/',
+            'includes/query/',
             'includes/TGM/',
             'includes/Carbon/',
             'includes/redux/',

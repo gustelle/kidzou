@@ -19,8 +19,7 @@
 	</p>
 	<br/><br/>
 
-	<h3><?php esc_html_e('Voici quelques autres propositions :','Divi'); ?></h3>
-	<p><?php esc_html_e('Commencez &agrave; saisir un mot, des suggestions apparaitront [dans ce cas, cliquez dessus], sinon aucune suggestion n&apos;apparait ou ne vous convient, vous pouvez lancer une recherche en cliquant sur "Rechercher"','Divi'); ?></p>
+	<h3><?php esc_html_e('Utilisez notre moteur de recherche :','Divi'); ?></h3>
 	<?php echo do_shortcode('[searchbox]'); ?>
 
 	<script>

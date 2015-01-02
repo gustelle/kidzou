@@ -197,7 +197,7 @@ var kidzouNotifier = (function(){
 	// jQuery(document).ready(function() {
 	document.addEventListener('DOMContentLoaded', function() {
 
-		console.debug('kidzou_notif ' + kidzou_notif.activate);
+		// console.debug('kidzou_notif ' + kidzou_notif.activate);
 
 		if (kidzou_notif.activate && kidzou_notif.messages.content.length) {
 
