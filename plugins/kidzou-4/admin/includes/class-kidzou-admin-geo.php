@@ -113,12 +113,19 @@ class Kidzou_Admin_Geo {
 
 		global $wpdb;
 
+		$post_types_list = implode('\',\'', Kidzou_Geo::get_supported_post_types() );
+
+		//ajouter des quotes autour des valeurs
+		//$post_types_list = array_map( 'mysql_real_escape_string', $post_types_list);
+
 		$result = $wpdb->get_results ( "
 		    SELECT ID
 		    FROM  $wpdb->posts
 		        WHERE $wpdb->posts.post_status = 'publish'
-		        AND $wpdb->posts.post_type in ('post', 'offres')
+		        AND $wpdb->posts.post_type in ('$post_types_list')
 		" );
+
+		Kidzou_Utils::log( "sync_geo_data -> " . $wpdb->last_query);
 
 		foreach ( $result as $row )
 		{
