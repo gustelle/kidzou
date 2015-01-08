@@ -38,6 +38,8 @@ class Kidzou_Geo {
 
 	protected static $request_metropole = null;
 
+	protected static $request_coords = null;	
+
 	public static $rewrite_tag = '%kz_metropole%';
 
 	protected static $cookie_metro = 'kz_metropole';
@@ -75,9 +77,11 @@ class Kidzou_Geo {
 
 		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
 
-		self::set_request_filter();
+		self::init();
 			
 	}
+
+
 
 
     /**
@@ -95,6 +99,185 @@ class Kidzou_Geo {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	private static function init()
+	{
+
+		//extension des post types supportés
+		self::add_supported_post_types();
+
+		//doit on filtrer les queries par metropole ?
+		self::set_request_filter();
+
+		//la metropole explicitement choisie par le user
+		self::set_request_metropole();
+
+		//la partie lat/lng
+		self::set_request_position();
+
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	private static function set_request_metropole()
+	{
+		// if (self::$request_metropole==null) 
+		// {
+			//d'abord on prend la ville dans l'URI
+			$uri = $_SERVER['REQUEST_URI'];
+
+			// Kidzou_Utils::log('[get_request_metropole] REQUEST_URI : '. $uri);
+
+			$regexp = self::get_metropole_uri_regexp();
+
+			$cook_m = '';
+
+			//la metropole en provenance du cookie
+			if ( isset($_COOKIE[self::$cookie_metro]) )
+				$cook_m = strtolower($_COOKIE[self::$cookie_metro]);
+
+			// Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
+
+			//en dépit du cookie, la valeur de la metropole passée en requete prime
+			if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
+
+				// Kidzou_Utils::log('[get_request_metropole] Regexp identifiée ');
+				
+				$ret = rtrim($matches[0], '/'); //suppression du slash à la fin
+				$metropole = ltrim($ret, '/'); //suppression du slash au début
+
+				// Kidzou_Utils::log('[get_request_metropole] Regexp : '. $metropole);
+
+				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
+				//la valeur de metropole passée en requete devient la metropole du cookie
+				if ($cook_m!=$metropole && $metropole!='') {
+
+					setcookie(self::$cookie_metro, $metropole);
+	
+					self::$request_metropole = $metropole;
+
+					//positionner cette variable pour ne pas aller plus loin
+					$cook_m = self::$request_metropole;
+
+				}	
+
+			}
+
+			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
+			if ($cook_m=='' && isset($_GET[self::$cookie_metro]))  {
+				$cook_m = strtolower($_GET[self::$cookie_metro]);
+				// Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
+			} 
+
+			//si rien ne match, on prend la ville par défaut
+			if ($cook_m=='')  {
+				$cook_m = self::get_default_metropole();
+				// Kidzou_Utils::log('[get_request_metropole] ville par défaut : '. $cook_m);
+			} 
+
+		    $isCovered = false;
+
+		    if ($cook_m!='') 
+		    	$isCovered = self::is_metropole($cook_m);
+
+		    // Kidzou_Utils::log('[get_request_metropole] isCovered : '. $isCovered);
+
+		    if ($isCovered) 
+		    	self::$request_metropole = $cook_m;
+		    else
+		    	self::$request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
+
+		    // Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
+		// }
+	}
+
+	/**
+	 * les coordonnées sont déterminées par le navigateur et renvoyées par cookie dans la requete
+	 *
+	 * @return void
+	 * @since proximite
+	 * @author 
+	 **/
+	private static function set_request_position()
+	{
+
+		if ( isset($_COOKIE[self::$cookie_coords]) ) {
+
+			self::$request_coords = json_decode(
+					$_COOKIE[self::$cookie_coords], 
+					true
+				);
+		} else {
+
+			self::$request_coords = array(
+					'latitude' => Kidzou_Utils::get_option('geo_default_lat'),
+					'longitude' => Kidzou_Utils::get_option('geo_default_lng')
+				);
+		}	
+
+		Kidzou_Utils::log('[set_request_position] : ' . self::$request_coords['latitude'] . ' / ' . self::$request_coords['longitude']);
+
+
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	private static function add_supported_post_types()
+	{
+		$more_types = Kidzou_Utils::get_option('geo_supported_post_types', array());
+
+		foreach ($more_types as $key => $value) {
+			array_push(self::$supported_post_types, $value);
+		}
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function get_supported_post_types()
+	{
+		return self::$supported_post_types;
+	}
+
+	/**
+	 * la metropole de rattachement de la requete
+	 * si aucune metropole ne sort de la requete, et si aucun cookie n'est détecté, la chaine $no_filter est retournée
+	 *
+	 * @return String (slug)
+	 * @author 
+	 **/
+	private static function get_request_metropole()
+	{
+		return self::$request_metropole;
+	}
+
+	/**
+	 * les coordonnées lat/lng de la requete, en fonction du cookie transmis
+	 *
+	 * @return Array
+	 * @author 
+	 **/
+	public static function get_request_coords()
+	{
+		return self::$request_coords;
 	}
 
 
@@ -125,7 +308,7 @@ class Kidzou_Geo {
 						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
 						'geo_cookie_name'			=> self::$cookie_metro,
 						'geo_possible_metropoles'	=> $villes ,
-						'geo_coords'				=> self::$cookie_coords
+						'geo_coords'				=> self::$cookie_coords,
 					);
 
 		    wp_localize_script(  'kidzou-geo', 'kidzou_geo_jsvars', $args );
@@ -319,7 +502,8 @@ class Kidzou_Geo {
 		if (self::$is_request_filter)
 		{
 			$default_args = array(
-				'post_type' => Kidzou::post_types(),
+				//'post_type' => Kidzou::post_types(),
+				'post_type' => self::$supported_post_types,
 			);
 
 			$args = wp_parse_args( $args, $default_args );
@@ -338,89 +522,6 @@ class Kidzou_Geo {
 
 	}
 
-
-	/**
-	 * la metropole de rattachement de la requete
-	 * si aucune metropole ne sort de la requete, et si aucun cookie n'est détecté, la chaine $no_filter est retournée
-	 *
-	 * @return String (slug)
-	 * @author 
-	 **/
-	private static function get_request_metropole()
-	{
-
-		if (self::$request_metropole==null) 
-		{
-			//d'abord on prend la ville dans l'URI
-			$uri = $_SERVER['REQUEST_URI'];
-
-			// Kidzou_Utils::log('[get_request_metropole] REQUEST_URI : '. $uri);
-
-			$regexp = self::get_metropole_uri_regexp();
-
-			$cook_m = '';
-
-			//la metropole en provenance du cookie
-			if ( isset($_COOKIE[self::$cookie_metro]) )
-				$cook_m = strtolower($_COOKIE[self::$cookie_metro]);
-
-			// Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
-
-			//en dépit du cookie, la valeur de la metropole passée en requete prime
-			if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
-
-				// Kidzou_Utils::log('[get_request_metropole] Regexp identifiée ');
-				
-				$ret = rtrim($matches[0], '/'); //suppression du slash à la fin
-				$metropole = ltrim($ret, '/'); //suppression du slash au début
-
-				// Kidzou_Utils::log('[get_request_metropole] Regexp : '. $metropole);
-
-				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
-				//la valeur de metropole passée en requete devient la metropole du cookie
-				if ($cook_m!=$metropole && $metropole!='') {
-
-					setcookie(self::$cookie_metro, $metropole);
-	
-					self::$request_metropole = $metropole;
-
-					//positionner cette variable pour ne pas aller plus loin
-					$cook_m = self::$request_metropole;
-
-				}	
-
-			}
-
-			//si l'URI ne contient pas la ville, on prend celle du cookie, sinon celle en parametre de requete
-			if ($cook_m=='' && isset($_GET[self::$cookie_metro]))  {
-				$cook_m = strtolower($_GET[self::$cookie_metro]);
-				// Kidzou_Utils::log('[get_request_metropole] kz_metropole : '. $cook_m);
-			} 
-
-			//si rien ne match, on prend la ville par défaut
-			if ($cook_m=='')  {
-				$cook_m = self::get_default_metropole();
-				// Kidzou_Utils::log('[get_request_metropole] ville par défaut : '. $cook_m);
-			} 
-
-		    $isCovered = false;
-
-		    if ($cook_m!='') 
-		    	$isCovered = self::is_metropole($cook_m);
-
-		    // Kidzou_Utils::log('[get_request_metropole] isCovered : '. $isCovered);
-
-		    if ($isCovered) 
-		    	self::$request_metropole = $cook_m;
-		    else
-		    	self::$request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
-
-		    // Kidzou_Utils::log('Kidzou_Geo::get_request_metropole() : '. self::$request_metropole );
-		}
-
-		return self::$request_metropole;
-		
-	}
 
     public static function get_metropoles()
     {
@@ -860,6 +961,9 @@ class Kidzou_Geo {
 		// $post_type = 'post';
 		$tablename = "geodatastore";
 		$orderby = "ASC";
+		$post_types_list = implode('\',\'', self::$supported_post_types);
+
+		// Kidzou_Utils::log('[getPostsNearToMeInRadius] search_lat: ' . $search_lat . ' / search_lng '. $search_lng);
 
 		global $wpdb;// Dont forget to include wordpress DB class
 			
@@ -877,7 +981,7 @@ class Kidzou_Geo {
 		FROM
 			`" . $wpdb->prefix . $tablename . "`
 		WHERE
-			`" . $wpdb->prefix . $tablename . "`.`post_type` IN ('post', 'offres')
+			`" . $wpdb->prefix . $tablename . "`.`post_type` IN ('{$post_types_list}')
 		AND
 			`" . $wpdb->prefix . $tablename . "`.`lat` BETWEEN '{$lat1}' AND '{$lat2}'
 		AND

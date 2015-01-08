@@ -1,4 +1,7 @@
-
+//support de la console
+window.console = typeof window.console === 'undefined'
+    ? {log:function(str){alert(str)}}
+    : window.console;
 
 var kidzouModule = (function() { //havre de paix
 

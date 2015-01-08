@@ -105,7 +105,7 @@ class Kidzou {
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
 
-
+		add_action('wp_footer', array( $this, 'analytics_tag'));
 
 	}
 
@@ -666,18 +666,20 @@ class Kidzou {
 	}
 
 	/**
-	 * undocumented function
+	 * injecte  dans le footer le tag Google Analytics
 	 *
-	 * @return void
+	 * @return String
+	 * @since proximite
 	 * @author 
 	 **/
-	public static function get_analytics_tag()
+	public static function analytics_tag()
 	{
 		$activate = (bool)Kidzou_Utils::get_option('analytics_activate',false);
 
 		if ($activate)
 		{
-			return sprintf (
+			Kidzou_Utils::log('doing analytics_tag');
+			echo sprintf (
 					"<script>
 						(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 						(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -692,7 +694,6 @@ class Kidzou {
 				);
 		}
 
-		return '';
 	}
 
 }

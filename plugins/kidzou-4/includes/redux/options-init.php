@@ -204,6 +204,16 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
+                            'id'       => 'geo_supported_post_types',
+                            'type'     => 'select',
+                            'title'    => __('Types de contenus sujets &agrave; geolocalisation ?', 'kidzou'), 
+                            'subtitle'  => __('Par d&eacute;faut, les contenus de type <code>post, page</code> et <code>offres</code> sont support&eacute;s.', 'kidzou'),
+                            'desc'      => __('les types de contenu que vous choisirez seront <em>ajout&eacute;s</em> aux contenus nativement support&eacutes;s par Kidzou','kidzou'),
+                            'data'      => 'post_types',
+                            'multi'    => true,
+                        ),
+
+                        array(
                             'id'        => 'geo_mapquest_key',
                             'type'      => 'text',
                             'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
@@ -227,6 +237,25 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'args' => array('taxonomies'=>'ville', 'args'=>array()),
                             'title'     => __('Ville par d&eacute;faut ?', 'kidzou'),
                             'subtitle'  => __('Si l&apos;utilisateur ne se geolocalise pas ou si une erreur survient lors de la geoloc...les contenus de cette ville lui sont affich&eacute;s', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'geo_default_lat',
+                            'type'      => 'text',
+                            'validate' => 'numeric',
+                            'title'     => __('Latitude par d&eacute;faut', 'kidzou'),
+                            'subtitle'  => __('Si vous utilisez les fonctions de localisation de contenu par latitude/longitude, et que le user ne renvoie pas ses coordonn&eacute;es, cette latitude sera utilis&eacute;e par d&eacute;faut', 'kidzou'),
+                            'desc'      => __('Si vous ne savez pas quoi mettre, mettez la latitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
+                        ),
+
+                        array(
+                            'id'        => 'geo_default_lng',
+                            'type'      => 'text',
+                            'validate' => 'numeric',
+                            'title'     => __('Longitude par d&eacute;faut', 'kidzou'),
+                            'subtitle'  => __('Si vous utilisez les fonctions de localisation de contenu par latitude/longitude, et que le user ne renvoie pas ses coordonn&eacute;es, cette longitude sera utilis&eacute;e par d&eacute;faut ', 'kidzou'),         
+                             'desc'      => __('Si vous ne savez pas quoi mettre, mettez la longitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
+ 
                         ),
 
                         array(
@@ -581,7 +610,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'page_slug' => '_options',
                 'page_title' => 'R&eacute;glages',
                 'update_notice' => true,
-                'intro_text' => '<p>Nous avons rangé ici tous les petits réglages de Kidzou.</p>’',
+                'intro_text' => '<p>Nous avons rangé ici tous les petits réglages de Kidzou.</p><br/><em>Version : '.Kidzou::VERSION.'</em>',
                 'footer_text' => '<p>Kidzou, sorties en famille</p>',
                 'admin_bar' => false,
                 'menu_type' => 'menu',

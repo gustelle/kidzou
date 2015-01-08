@@ -91,16 +91,10 @@ function override_divi_parent_functions()
 	//pas besoin de passer par cette fonction, les css sont dans style.css
 	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
 
-	add_action('wp_footer', 'add_googleanalytics');
 
 
 }
 
-function add_googleanalytics() {
-
-	echo Kidzou::get_analytics_tag();
-	
-}
 
 function custom_excerpt_length( $length ) {
 	return 180;
@@ -1406,18 +1400,38 @@ function kz_pb_proximite( $atts ) {
 	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode=='with_map') 
 		wp_enqueue_script( 'google-maps-api' );
 
-	return '<div id="proxi_content"></div>';
+	//initialement : récupérer les coords 
+	$coords = Kidzou_Geo::get_request_coords();
+
+	$out = kz_pb_render_proximite_content(
+		$coords, 
+		$radius,
+		$fullwidth, 
+		$show_title, 
+		$show_categories, 
+		$background_layout, 
+		$display_mode, 
+		$module_id, 
+		$module_class 
+	);
+
+	return sprintf(
+		'<div id="proxi_content">
+			%1$s
+		</div>',
+		$out
+	);
 
 }
 
 /**
- * validation du formulaire de souscription newsletter, à la sauce Kidzou (avec le codepostal)
+ * contenu injecté dans <div id="proxi_content"> en Ajax pour remplacer le contenu initial 
  *
  */
 function kz_pb_proximite_content() {
 
 	if ( !wp_verify_nonce( $_REQUEST['nonce'], "kz_pb_proximite")) {
-		exit("No naughty business please");
+		exit("...la moindre des politesses c'est de passer par un nonce :-o");
 	}   
 
 	$coords 			= $_POST['coords'];
@@ -1431,10 +1445,35 @@ function kz_pb_proximite_content() {
 	$display_mode 		= (isset($_POST['display_mode']) ? $_POST['display_mode'] : 'simple');
 
 
+	echo kz_pb_render_proximite_content(
+		$coords, 
+		$radius,
+		$fullwidth, 
+		$show_title, 
+		$show_categories, 
+		$background_layout, 
+		$display_mode, 
+		$module_id, 
+		$module_class 
+	);
+
+	die(1);
+}
+
+/**
+ * undocumented function
+ *
+ * @return void
+ * @author 
+ **/
+function kz_pb_render_proximite_content ($coords, $radius,$fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
+{
 	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
 	$posts = '';
 	$pins = '';
+
+	$out = '';
 
 	if (!empty($ids))
 	{	
@@ -1475,7 +1514,7 @@ function kz_pb_proximite_content() {
 
 	if ($display_mode=='with_map' && !empty($ids)) {
 
-		echo sprintf(
+		$out .= sprintf(
 			'<div%5$s class="et_pb_map_container%6$s">
 				<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
 				%4$s
@@ -1492,7 +1531,7 @@ function kz_pb_proximite_content() {
 		// return $output;
 	}
 
-	echo sprintf(
+	$out .= sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">
 			<div class="et_pb_filterable_portfolio ">
 				'.$filters_html.'
@@ -1508,7 +1547,7 @@ function kz_pb_proximite_content() {
 		''
 	);
 
-	die(1);
+	return $out;
 }
 
 /**
