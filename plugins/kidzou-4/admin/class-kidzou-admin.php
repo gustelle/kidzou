@@ -157,6 +157,7 @@ class Kidzou_Admin {
 		 * ne voient que LEURS contenus, et pas ceux saisis par les autres dans l'admin
 		 **/
 		add_filter('parse_query', array($this, 'contrib_contents_filter' ));
+
 	}
 
 	/**
@@ -187,13 +188,13 @@ class Kidzou_Admin {
 	 **/
 	public function notify_admin ()
 	{
-		if (Kidzou_Utils::current_user_is('author'))
-		{
-			echo '
-			<div class="updated">
-		        <p>'.Kidzou::$version_description.'</p>
-		    </div>';
-		}
+		// if (Kidzou_Utils::current_user_is('author'))
+		// {
+		// 	echo '
+		// 	<div class="updated">
+		//         <p>'.Kidzou::$version_description.'</p>
+		//     </div>';
+		// }
 		
 	}
 	

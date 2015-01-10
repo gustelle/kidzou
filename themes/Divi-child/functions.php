@@ -1373,16 +1373,20 @@ function kz_pb_proximite( $atts ) {
 	wp_enqueue_script(
 		'custom-proxi',
 		get_stylesheet_directory_uri() . '/js/custom-proxi.js',
-		array( 'jquery' ),
+		array( 'jquery', 'google-maps-api' ),
 		Kidzou::VERSION,
 		true 
 	);
 
+	$is_geolocalized = Kidzou_Geo::is_request_geolocalized();
+
 	wp_localize_script( 'custom-proxi', 'kidzou_proxi', array(
 		'ajaxurl'           	=> admin_url( 'admin-ajax.php' ),
-		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous vous g&eacute;olocalisons...</h2>',
+		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous sommes entrain de d&eacute;terminer votre position...</h2>',
 		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
+		'wait_refreshing' 		=> '<h2><i class="fa fa-refresh fa-spin pull-left"></i>Nous affinons les r&eacute;sultats...</h2>',
 		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
+		'more_results'			=> '<p>Cliquez ici pour voir plus de r&eacute;sultats </p>',
 		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
 		'action'				=> 'kz_pb_proximite',
 		'fullwidth'				=> $fullwidth,
@@ -1393,7 +1397,10 @@ function kz_pb_proximite( $atts ) {
 		'module_id'				=> $module_id,
 		'module_class'			=> $module_class,
 		'background_layout'		=> $background_layout, 
-		'display_mode'			=> $display_mode
+		'display_mode'			=> $display_mode,
+		'geoloc_error_msg'		=> __('','Divi'),
+		'geoloc_pleaseaccept_msg'	=> __('','Divi'),
+		'show_distance'			=> $is_geolocalized,
 
 	) );
 
@@ -1402,10 +1409,13 @@ function kz_pb_proximite( $atts ) {
 
 	//initialement : récupérer les coords 
 	$coords = Kidzou_Geo::get_request_coords();
+	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
 	$out = kz_pb_render_proximite_content(
-		$coords, 
+		$coords,
+		$ids, 
 		$radius,
+		$is_geolocalized, //faut-il ou non montrer la distance ?
 		$fullwidth, 
 		$show_title, 
 		$show_categories, 
@@ -1417,8 +1427,13 @@ function kz_pb_proximite( $atts ) {
 
 	return sprintf(
 		'<div id="proxi_content">
-			%1$s
+			<div class="message">%1$s</div>
+			<div class="more_results"></div>
+			<div class="results">
+				%2$s
+			</div>
 		</div>',
+		'',
 		$out
 	);
 
@@ -1431,7 +1446,7 @@ function kz_pb_proximite( $atts ) {
 function kz_pb_proximite_content() {
 
 	if ( !wp_verify_nonce( $_REQUEST['nonce'], "kz_pb_proximite")) {
-		exit("...la moindre des politesses c'est de passer par un nonce :-o");
+		exit("...<i class='fa pull-left fa-exclamation-circle'></i> Nous ne pouvons rafraichir les r&eacute;sultats");
 	}   
 
 	$coords 			= $_POST['coords'];
@@ -1443,11 +1458,15 @@ function kz_pb_proximite_content() {
 	$module_class 		= (isset($_POST['module_class']) ? $_POST['module_class'] : '');
 	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : 'light');
 	$display_mode 		= (isset($_POST['display_mode']) ? $_POST['display_mode'] : 'simple');
+	$show_distance		= (isset($_POST['show_distance']) ? $_POST['show_distance'] : false );
 
+	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
-	echo kz_pb_render_proximite_content(
-		$coords, 
+	$res = kz_pb_render_proximite_content(
+		$coords,
+		$ids, 
 		$radius,
+		true, //si on arrive ici, le user est geolocalisé donc les distances ont du sens
 		$fullwidth, 
 		$show_title, 
 		$show_categories, 
@@ -1457,7 +1476,13 @@ function kz_pb_proximite_content() {
 		$module_class 
 	);
 
-	die(1);
+	$return = array(
+			'empty_results' =>  empty($ids),
+			'content'		=>  $res
+	);
+
+	wp_send_json($return);
+
 }
 
 /**
@@ -1466,9 +1491,8 @@ function kz_pb_proximite_content() {
  * @return void
  * @author 
  **/
-function kz_pb_render_proximite_content ($coords, $radius,$fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
+function kz_pb_render_proximite_content ($coords, $ids, $radius, $show_distance, $fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
 {
-	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
 	$posts = '';
 	$pins = '';
@@ -1484,10 +1508,15 @@ function kz_pb_render_proximite_content ($coords, $radius,$fullwidth, $show_titl
 			$post = get_post($value->post_id);
 			setup_postdata($post);
 
-			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $value->distance);
+			// Kidzou_Utils::log('show_distance ? ' .$show_distance);
+			$distance = ($show_distance ? $value->distance : '');
+			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance );
 		
 			//pre-render de la carte
 			if ($display_mode=='with_map') {
+
+				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', get_the_title() , get_the_title() , false, 'thumbnail' );
+				$thumb = $thumbnail["thumb"];
 
 				$pins .= sprintf(
 					'<div class="et_pb_map_pin" data-lat="%1$s" data-lng="%2$s" data-title="%3$s">
@@ -1496,7 +1525,9 @@ function kz_pb_render_proximite_content ($coords, $radius,$fullwidth, $show_titl
 					esc_attr( $value->latitude ),
 					esc_attr( $value->longitude ),
 					esc_html( get_the_title() ),
-					( '' != get_the_title() ? sprintf( '<div class="infowindow">%1$s</div>', get_the_title() ) : '' )
+					'<a title="'.get_the_permalink().'" href="'.get_the_permalink().'">'.
+						print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, '', '', '', false). get_the_title().
+					'</a>'
 				);
 
 			}
@@ -1506,7 +1537,9 @@ function kz_pb_render_proximite_content ($coords, $radius,$fullwidth, $show_titl
 	}
 	else
 	{
-		get_template_part( 'includes/no-results', 'index' );
+		ob_start();
+		get_template_part( 'includes/no-results', 'proximite-refresh' );
+		$posts = ob_get_clean();
 	}
 
 	$class = " et_pb_bg_layout_{$background_layout}";
@@ -1530,6 +1563,9 @@ function kz_pb_render_proximite_content ($coords, $radius,$fullwidth, $show_titl
 
 		// return $output;
 	}
+
+	// $filters_html = 'Insérer un message qui dit qu on peut elargir les resultats';
+	$filters_html = '';
 
 	$out .= sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">

@@ -46,6 +46,8 @@ class Kidzou_Geo {
 
 	protected static $cookie_coords = 'kz_coords';
 
+	protected static $is_request_geolocalized = false;
+
 	protected static $supported_post_types = array('post', 'page', 'offres');
 
 	/**
@@ -113,14 +115,19 @@ class Kidzou_Geo {
 		//extension des post types supportés
 		self::add_supported_post_types();
 
-		//doit on filtrer les queries par metropole ?
-		self::set_request_filter();
+		if (!Kidzou_Utils::is_really_admin())
+		{
+			Kidzou_Utils::log('Kidzou_Geo::init');
 
-		//la metropole explicitement choisie par le user
-		self::set_request_metropole();
+			//doit on filtrer les queries par metropole ?
+			self::set_request_filter();
 
-		//la partie lat/lng
-		self::set_request_position();
+			//la metropole explicitement choisie par le user
+			self::set_request_metropole();
+
+			//la partie lat/lng
+			self::set_request_position();
+		}
 
 	}
 
@@ -218,6 +225,10 @@ class Kidzou_Geo {
 					$_COOKIE[self::$cookie_coords], 
 					true
 				);
+
+			// Kidzou_Utils::log('Requete geolocalisée');
+			self::$is_request_geolocalized = true;
+
 		} else {
 
 			self::$request_coords = array(
@@ -226,7 +237,7 @@ class Kidzou_Geo {
 				);
 		}	
 
-		Kidzou_Utils::log('[set_request_position] : ' . self::$request_coords['latitude'] . ' / ' . self::$request_coords['longitude']);
+		// Kidzou_Utils::log('[set_request_position] : ' . self::$request_coords['latitude'] . ' / ' . self::$request_coords['longitude']);
 
 
 	}
@@ -278,6 +289,18 @@ class Kidzou_Geo {
 	public static function get_request_coords()
 	{
 		return self::$request_coords;
+	}
+
+	/**
+	 * les coordonnées lat/lng de la requete sont-elles celles par défaut ?
+	 * autrement dit le user est-il "vraiment geolocalisé " ?
+	 *
+	 * @return Bool
+	 * @author 
+	 **/
+	public static function is_request_geolocalized()
+	{
+		return self::$is_request_geolocalized;
 	}
 
 

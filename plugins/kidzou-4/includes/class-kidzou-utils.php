@@ -114,7 +114,10 @@ class Kidzou_Utils {
 	 **/
 	public static function is_really_admin( ) {
 
-		return is_admin() && !( defined('DOING_AJAX') && DOING_AJAX );
+		if (defined('DOING_AJAX') && DOING_AJAX)
+			return false;
+
+		return is_admin() ;
 
 	}
 
