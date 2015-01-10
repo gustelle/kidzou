@@ -79,7 +79,6 @@ class Kidzou_Admin_Geo {
 
 		}
 
-
 	}
 
 	
@@ -180,6 +179,8 @@ class Kidzou_Admin_Geo {
 	public static function after_post_meta( $meta_id, $post_id, $meta_key, $meta_value )
     {
 
+    	Kidzou_Utils::log('after_post_meta ' . $meta_id.', '.$post_id.', '. $meta_key. ', '. $meta_value );
+
     	$post = get_post($post_id); 
 
 	   	$type = $post->post_type;
@@ -214,6 +215,7 @@ class Kidzou_Admin_Geo {
     		}
 
     	} 
+
 	}
 
 

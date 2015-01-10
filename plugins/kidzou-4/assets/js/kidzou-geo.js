@@ -129,7 +129,10 @@ var kidzouGeoContent = (function () {
 
 						//l'utilisateur change de position
 						//on indique a la page qu'elle peut recharger son contenu "proximite"
+
 						if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
+
+							console.debug('Changement de position : ' + ko.toJSON(short_position) + ' / ' + ko.toJSON(prec_coords) );
 
 							//stockage des résultats dans un cookie pour transmission en requete 
 							storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
@@ -142,6 +145,7 @@ var kidzouGeoContent = (function () {
 							document.dispatchEvent(myEvent);
 
 						} else {
+							
 							console.debug('Pas de changement de geolocation');
 
 							var myEvent = new CustomEvent("geolocation", {
