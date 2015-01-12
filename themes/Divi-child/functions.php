@@ -1380,11 +1380,38 @@ function kz_pb_proximite( $atts ) {
 
 	$is_geolocalized = Kidzou_Geo::is_request_geolocalized();
 
+	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode=='with_map') 
+		wp_enqueue_script( 'google-maps-api' );
+
+	//initialement : récupérer les coords 
+	$coords = Kidzou_Geo::get_request_coords();
+	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
+
+	$portfolio = kz_pb_render_proximite_portfolio(
+		$coords,
+		$ids, 
+		$radius,
+		$is_geolocalized, //faut-il ou non montrer la distance ?
+		$fullwidth, 
+		$show_title, 
+		$show_categories, 
+		$background_layout, 
+		$display_mode, 
+		$module_id, 
+		$module_class 
+	);
+
+	$pins = array();
+
+	if ($display_mode=='with_map') {
+		$pins = get_map_markers($ids);
+	}
+
 	wp_localize_script( 'custom-proxi', 'kidzou_proxi', array(
 		'ajaxurl'           	=> admin_url( 'admin-ajax.php' ),
 		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous sommes entrain de d&eacute;terminer votre position...</h2>',
 		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
-		'wait_refreshing' 		=> '<h2><i class="fa fa-refresh fa-spin pull-left"></i>Nous affinons les r&eacute;sultats...</h2>',
+		'wait_refreshing' 		=> '<h4><i class="fa fa-circle-o-notch fa-spin"></i>Actualisation...</h4>',
 		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
 		'more_results'			=> '<p>Cliquez ici pour voir plus de r&eacute;sultats </p>',
 		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
@@ -1401,28 +1428,41 @@ function kz_pb_proximite( $atts ) {
 		'geoloc_error_msg'		=> __('','Divi'),
 		'geoloc_pleaseaccept_msg'	=> __('','Divi'),
 		'show_distance'			=> $is_geolocalized,
+		'markers'				=> $pins
 
 	) );
 
-	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode=='with_map') 
-		wp_enqueue_script( 'google-maps-api' );
+	$out = sprintf(
+			'<div%5$s class="et_pb_map_container%6$s">
+				<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
+				<!--div class="et_pb_pins">%4$s</div-->
+			</div><hr class="et_pb_space et_pb_divider" />',
+			esc_attr( $coords['latitude'] ),
+			esc_attr( $coords['longitude'] ),
+			14, //zoom level
+			'',//$pins,
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+			'on' //mousewheel
+		);
 
-	//initialement : récupérer les coords 
-	$coords = Kidzou_Geo::get_request_coords();
-	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
+	$class = " et_pb_bg_layout_{$background_layout}";
+	$filters_html = '';
 
-	$out = kz_pb_render_proximite_content(
-		$coords,
-		$ids, 
-		$radius,
-		$is_geolocalized, //faut-il ou non montrer la distance ?
-		$fullwidth, 
-		$show_title, 
-		$show_categories, 
-		$background_layout, 
-		$display_mode, 
-		$module_id, 
-		$module_class 
+	$out .= sprintf(
+		'<div%5$s class="%1$s%3$s%6$s">
+			<div class="et_pb_filterable_portfolio ">
+				'.$filters_html.'
+			</div>
+			<div class="et_pb_portfolio_results">%2$s</div>
+		%4$s',
+		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
+		$portfolio,
+		esc_attr( $class ),
+		'',
+		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+		''
 	);
 
 	return sprintf(
@@ -1462,7 +1502,7 @@ function kz_pb_proximite_content() {
 
 	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
-	$res = kz_pb_render_proximite_content(
+	$portfolio = kz_pb_render_proximite_portfolio(
 		$coords,
 		$ids, 
 		$radius,
@@ -1476,9 +1516,17 @@ function kz_pb_proximite_content() {
 		$module_class 
 	);
 
+	$pins = array();
+
+	if ($display_mode=='with_map') {
+		$pins = get_map_markers($ids);
+	}
+
 	$return = array(
 			'empty_results' =>  empty($ids),
-			'content'		=>  $res
+			'portfolio'		=>  $portfolio,
+			'markers'		=>  $pins
+			// 'map'
 	);
 
 	wp_send_json($return);
@@ -1491,13 +1539,10 @@ function kz_pb_proximite_content() {
  * @return void
  * @author 
  **/
-function kz_pb_render_proximite_content ($coords, $ids, $radius, $show_distance, $fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
+function kz_pb_render_proximite_portfolio ($coords, $ids, $radius, $show_distance, $fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
 {
 
 	$posts = '';
-	$pins = '';
-
-	$out = '';
 
 	if (!empty($ids))
 	{	
@@ -1512,25 +1557,6 @@ function kz_pb_render_proximite_content ($coords, $ids, $radius, $show_distance,
 			$distance = ($show_distance ? $value->distance : '');
 			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance );
 		
-			//pre-render de la carte
-			if ($display_mode=='with_map') {
-
-				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', get_the_title() , get_the_title() , false, 'thumbnail' );
-				$thumb = $thumbnail["thumb"];
-
-				$pins .= sprintf(
-					'<div class="et_pb_map_pin" data-lat="%1$s" data-lng="%2$s" data-title="%3$s">
-						%4$s
-					</div>',
-					esc_attr( $value->latitude ),
-					esc_attr( $value->longitude ),
-					esc_html( get_the_title() ),
-					'<a title="'.get_the_permalink().'" href="'.get_the_permalink().'">'.
-						print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, '', '', '', false). get_the_title().
-					'</a>'
-				);
-
-			}
 		}
 
 		wp_reset_postdata();
@@ -1541,50 +1567,55 @@ function kz_pb_render_proximite_content ($coords, $ids, $radius, $show_distance,
 		get_template_part( 'includes/no-results', 'proximite-refresh' );
 		$posts = ob_get_clean();
 	}
+	
 
-	$class = " et_pb_bg_layout_{$background_layout}";
-	$filters_html = ''; //pour plus tard, si on veut mettre un filtre de nav
-
-	if ($display_mode=='with_map' && !empty($ids)) {
-
-		$out .= sprintf(
-			'<div%5$s class="et_pb_map_container%6$s">
-				<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
-				%4$s
-			</div><hr class="et_pb_space et_pb_divider" />',
-			esc_attr( $coords['latitude'] ),
-			esc_attr( $coords['longitude'] ),
-			14, //zoom level
-			$pins,
-			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-			'on' //mousewheel
-		);
-
-		// return $output;
-	}
-
-	// $filters_html = 'Insérer un message qui dit qu on peut elargir les resultats';
-	$filters_html = '';
-
-	$out .= sprintf(
-		'<div%5$s class="%1$s%3$s%6$s">
-			<div class="et_pb_filterable_portfolio ">
-				'.$filters_html.'
-			</div>
-			%2$s
-		%4$s',
-		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
-		$posts,
-		esc_attr( $class ),
-		'',
-		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-		''
-	);
-
-	return $out;
+	return $posts;
 }
+
+/**
+ * undocumented function
+ *
+ * @return void
+ * @author 
+ **/
+function get_map_markers ($ids)
+{
+
+	$pins = array();
+
+	if (!empty($ids))
+	{	
+		global $post;
+
+		foreach ($ids as $key=>$value) 
+		{
+			$post = get_post($value->post_id);
+			setup_postdata($post);
+
+			$thumbnail = get_thumbnail( 300, 250, 'attachment-shop_thumbnail wp-post-image', get_the_title() , get_the_title() , false );
+			$thumb = $thumbnail["thumb"];
+			$img = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, '', '', '', false);
+
+			$content = '<a title="'.get_the_permalink().'" href="'.get_the_permalink().'">'.
+					$img. get_the_title().
+				'</a>';
+
+			array_push($pins, array(
+					'latitude' => $value->latitude,
+					'longitude'=> $value->longitude,
+					'title'		=> get_the_title() ,
+					'content'	=> $content
+				));
+			
+		}
+
+		wp_reset_postdata();
+	}
+	
+
+	return $pins;
+}
+
 
 /**
  * Option ajoutée 'post__in' pour formatter les Contextual Related Posts en portfolio

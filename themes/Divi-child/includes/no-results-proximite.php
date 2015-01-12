@@ -1,14 +1,10 @@
 <div id="main-content" class="entry">
 <!--If no results are found-->
 
-	<h1><i class="fa pull-left fa-exclamation-circle"></i><?php esc_html_e('Pas grand chose trouv&eacute; &agrave; proximit&eacute;...','Divi'); ?></h1>
+	<h1><i class="fa pull-left fa-exclamation-circle"></i><?php esc_html_e('Nous ne trouvons rien &agrave; proximit&eacute; imm&eacute;diate ...','Divi'); ?></h1>
 	<br/>
 
-	<p>
-		<?php 
-		esc_html_e('Avez-vous tent&eacute; d&apos;&eacute;largir le champs des recherches ?','Divi');
-		?>
-	</p>
+	
 	<p>
 		<?php
 		echo sprintf(
@@ -19,6 +15,8 @@
 		);
 		?>
 	</p>
+
+	<hr class="et_pb_space et_pb_divider" />
 	
 
 	<script>

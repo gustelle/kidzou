@@ -143,7 +143,7 @@ class Kidzou_Notif {
 							if (is_single()) $content[] = self::get_vote_message();
 						}
 
-						$featured = Kidzou_Events::getFeaturedPosts();
+						$featured = Kidzou_Featured::getFeaturedPosts();
 						$include_posts = array();
 
 						//inclure des catégories supplémentaires
