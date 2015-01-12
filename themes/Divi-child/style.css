@@ -3395,9 +3395,25 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 /*-------------------[Fix pour les InfoWindow de Google Maps]------------------*/
 
+/*https://katz.co/resizing-infowindow/*/
 .gm-style-iw {
-	width: 300px; 
-	min-height: 150px;
+	width: auto; 
+	min-height: 70px;
+}
+
+.gm-style-iw a {
+	font-size: 1em;
+	font-weight: bold;
+	color: #666;
+	display: block;
+	padding: 4px;
+}
+/*.gm-style-iw a img {float: left; margin-right: 4px;}*/
+
+/*http://stackoverflow.com/questions/23807044/cant-drag-zoom-interact-with-google-maps*/
+.gm-style * {
+  width:auto;
+  height:auto;
 }
 
 /*----------------------[CSS générées en fonction des options]------------------------*/

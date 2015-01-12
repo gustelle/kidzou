@@ -146,7 +146,7 @@ class Kidzou_Featured {
 
 		if (!Kidzou_Utils::is_really_admin()  && !is_search() && $supported_query ) { //
 
-			Kidzou_Utils::log(' --- order_query_by_featured');
+			// Kidzou_Utils::log(' --- order_query_by_featured');
 
 			remove_filter( current_filter(), __FUNCTION__, PHP_INT_MAX, 2 );
 

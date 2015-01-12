@@ -27,25 +27,38 @@ var kidzouProximite = (function(){
 				},
 				beforeSend : function() {
 
-					// document.querySelector('#proxi_content .message').innerHTML = kidzou_proxi.wait_refreshing;
+					document.querySelector('#proxi_content .message').innerHTML = kidzou_proxi.wait_refreshing;
 
 				},
 				success: function( data ){
 
+					// console.debug(data);
+
 					if (data.empty_results) {
 
-						document.querySelector('#proxi_content .message').innerHTML = data.content; 
+						document.querySelector('#proxi_content .message').innerHTML = data.portfolio; 
 
 					} else {
 
 						document.querySelector('#proxi_content .message').innerHTML = '';
-						document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results;
-						document.querySelector('#proxi_content .results').innerHTML = data.content;
-						// document.querySelector('#proxi_content .results').classList.remove('overlay');
+						document.querySelector('#proxi_content .et_pb_portfolio_results').innerHTML = data.portfolio;
 
 						if (kidzou_proxi.display_mode == 'with_map')
 						{
-							displayMap( document.querySelector('#proxi_content .et_pb_map'), zoom ); //false : la map existe déjà
+							var LatLng = new google.maps.LatLng(lat, lng);
+							map.panTo(LatLng);
+
+							var pins = data.markers;
+							for (var i = 0; i < pins.length; i++) {
+								var pin = pins[i];
+							      addMarker(map, pin.latitude, pin.longitude, pin.title, pin.content);
+							}
+
+						} else {
+
+							console.debug('todo : plus de résultats sans carte');
+							document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results;
+
 						}
 						
 						//Rafraichir les votes...
@@ -57,74 +70,6 @@ var kidzouProximite = (function(){
 
 		};
 
-
-		var displayMap = function displayMapF( _el, _zoom ) {
-
-			var $this_map_container = document.querySelector('#proxi_content .et_pb_map_container');
-
-			if ($this_map_container!=null)
-			{
-
-				var el = _el;
-				var theZoom = _zoom || zoom;
-
-				var map = new google.maps.Map( el, {
-						zoom: theZoom,//fixe
-						center: new google.maps.LatLng( parseFloat( el.dataset.center_lat ) , parseFloat( el.dataset.center_lng )),
-						mapTypeId: google.maps.MapTypeId.ROADMAP
-					});
-
-				google.maps.event.addListener(map, 'dragend', function() { 
-						var center  = map.getCenter();
-						console.debug('center changed ' + center.lat() + ' / ' + center.lng());
-						getContent(
-							center.lat(), 
-							center.lng()
-						);
-					});
-
-				google.maps.event.addListener(map, 'zoom_changed', function() {
-				    zoom = map.getZoom();
-				    console.debug('zoom changed to val ' + zoom);
-				});
-
-				var bounds = new google.maps.LatLngBounds();
-
-				[].forEach.call( $this_map_container.querySelectorAll('#proxi_content .et_pb_map_pin'), function(el) {
-				  	 
-					position = new google.maps.LatLng( parseFloat( el.dataset.lat) , parseFloat( el.dataset.lng ) );
-
-					bounds.extend( position );
-					// console.debug(map);
-
-					var marker = new google.maps.Marker({
-						position: position,
-						map: map,
-						title: el.dataset.title,
-						icon: { url: et_custom.images_uri + '/marker.png', size: new google.maps.Size( 46, 43 ), anchor: new google.maps.Point( 16, 43 ) },
-						shape: { coord: [1, 1, 46, 43], type: 'rect' }
-					});
-
-					var infowindow = new google.maps.InfoWindow({
-						content: el.innerHTML
-					});
-
-					google.maps.event.addListener(marker, 'click', function() {
-						infowindow.open( map, marker );
-					});
-						
-				});
-
-				setTimeout(function(){
-					if (typeof map.getBounds()!=="undefined") {
-						if ( !map.getBounds().contains( bounds.getNorthEast() ) || !map.getBounds().contains( bounds.getSouthWest() ) ) {
-							map.fitBounds( bounds );
-						}
-					}
-				}, 200 );
-
-			} 
-		}; //executée au démarrage
 
 		document.addEventListener("geolocation", function(e) {
 
@@ -154,27 +99,76 @@ var kidzouProximite = (function(){
 
 					}
 
-				} else if (!e.detail.refresh) {
-
-					//affichage initial, sans rafraichissement ajax
-					//juste afficher la carte pré-chargée en HTML
-					if (kidzou_proxi.display_mode == 'with_map')
-					{	
-						displayMap( document.querySelector('#proxi_content .et_pb_map'), zoom  ); //true : creation initiale de la map
-					}
-				}
+				} 
+				
 				
 			}
 				
 		})
 
-		// var map = new MapBuilder( document.querySelector('#proxi_content .et_pb_map') );
 		var mapContainer = document.querySelector('#proxi_content .et_pb_map');
+		var map;
 
-		//initialement
-		displayMap( mapContainer, zoom);
+		function initialize( ) {
 
+
+			if (kidzou_proxi.display_mode == 'with_map')
+			{
+
+				map = new google.maps.Map( mapContainer, {
+						zoom: zoom,
+						center: new google.maps.LatLng( parseFloat( mapContainer.dataset.center_lat ) , parseFloat( mapContainer.dataset.center_lng )),
+						mapTypeId: google.maps.MapTypeId.ROADMAP
+					});
+
+				var pins = kidzou_proxi.markers;
+				for (var i = 0; i < pins.length; i++) {
+					var pin = pins[i];
+					addMarker(map, pin.latitude, pin.longitude, pin.title, pin.content);
+				};
+
+				google.maps.event.addListener(map, 'dragend', function() { 
+					var center  = map.getCenter();
+					getContent(
+						center.lat(), 
+						center.lng()
+					);
+				});
+
+				google.maps.event.addListener(map, 'zomm_changed', function() { 
+					zoom = map.getZoom();
+				});
+
+			}			
+
+		}
+
+		function addMarker(map, lat, lng, title, content ) {
+			
+			var position = new google.maps.LatLng( parseFloat( lat ) , parseFloat( lng ) );
+
+			var marker = new google.maps.Marker({
+				position: position,
+				map: map,
+				title: title,
+				icon: { url: et_custom.images_uri + '/marker.png', size: new google.maps.Size( 46, 43 ), anchor: new google.maps.Point( 16, 43 ) },
+				shape: { coord: [1, 1, 46, 43], type: 'rect' },
+				draggable : true
+			});
+
+			var infowindow = new google.maps.InfoWindow({
+				content: content
+			});
+
+			google.maps.event.addListener(marker, 'click', function() {
+				infowindow.open( map, marker );
+			});
+		}
+		
+		google.maps.event.addDomListener(window, 'load', initialize);
 
 	}); //document.addEventListener('DOMContentLoaded', ..
+
+
 
 })();
