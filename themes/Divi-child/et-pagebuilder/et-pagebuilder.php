@@ -2805,6 +2805,14 @@ echo <<<END
 			</div> <!-- .et-pb-option -->
 
 			<div class="et-pb-option">
+				<label for="et_pb_zoom">Zoom de la carte: </label>
+				<div class="et-pb-option-container">
+					<input id="et_pb_zoom" type="text" class="regular-text" value="<%= typeof( et_pb_zoom ) !== 'undefined' ?  et_pb_zoom : '13' %>" />
+					<p class="description">Il s&apos;agit du <a href="https://developers.google.com/maps/documentation/javascript/tutorial">Zoom Google Map</a></p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
 				<label for="et_pb_display_mode">Mode d&apos; affichage: </label>
 				<div class="et-pb-option-container">
 					<select name="et_pb_display_mode" id="et_pb_display_mode">
