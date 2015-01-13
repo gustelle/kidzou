@@ -3397,8 +3397,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 /*https://katz.co/resizing-infowindow/*/
 .gm-style-iw {
-	width: auto; 
-	min-height: 70px;
+	width: 160px; 
+	min-height: 170px;
 }
 
 .gm-style-iw a {
@@ -3414,6 +3414,33 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 .gm-style * {
   width:auto;
   height:auto;
+}
+
+.kz_pb_map_marker {
+	width: 150px;
+	height: auto;
+	max-height: 150px;
+	overflow: hidden;
+	margin: 4px;
+	display: block;
+}
+
+.et_pb_map_container .message {
+	position: absolute;
+	top: 70px;
+	left: 10px;
+	z-index: 1000;
+	background-color: #fff;
+	margin: 10px;
+	padding: 6px;
+	border-radius: 4px;
+}
+
+.entry .centerbox {
+	width: 90%;
+	margin-left: auto;
+  	margin-right: auto;
+  	text-align: center;
 }
 
 /*----------------------[CSS générées en fonction des options]------------------------*/

@@ -1364,7 +1364,9 @@ function kz_pb_proximite( $atts ) {
 			'show_categories' => 'on',
 			'background_layout' => 'light',
 			'radius' => 2,
-			'display_mode' => 'simple'
+			'zoom'	=> 13,
+			'display_mode' => 'simple',
+			'max_distance'	=> 50
 		), $atts
 	) );
 
@@ -1404,16 +1406,17 @@ function kz_pb_proximite( $atts ) {
 	$pins = array();
 
 	if ($display_mode=='with_map') {
-		$pins = get_map_markers($ids);
+		$pins = kz_get_map_markers($ids);
 	}
 
 	wp_localize_script( 'custom-proxi', 'kidzou_proxi', array(
 		'ajaxurl'           	=> admin_url( 'admin-ajax.php' ),
 		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous sommes entrain de d&eacute;terminer votre position...</h2>',
 		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
-		'wait_refreshing' 		=> '<h4><i class="fa fa-circle-o-notch fa-spin"></i>Actualisation...</h4>',
+		'wait_refreshing' 		=> 'Actualisation',
 		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
 		'more_results'			=> '<p>Cliquez ici pour voir plus de r&eacute;sultats </p>',
+		'distance_message'		=> 'Dans un rayon de {radius} Kilm&egrave;tres',
 		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
 		'action'				=> 'kz_pb_proximite',
 		'fullwidth'				=> $fullwidth,
@@ -1428,7 +1431,10 @@ function kz_pb_proximite( $atts ) {
 		'geoloc_error_msg'		=> __('','Divi'),
 		'geoloc_pleaseaccept_msg'	=> __('','Divi'),
 		'show_distance'			=> $is_geolocalized,
-		'markers'				=> $pins
+		'markers'				=> $pins,
+		'zoom'					=> $zoom,
+		'max_distance'			=> $max_distance,
+		'request_coords'		=> $coords
 
 	) );
 
@@ -1439,7 +1445,7 @@ function kz_pb_proximite( $atts ) {
 			</div><hr class="et_pb_space et_pb_divider" />',
 			esc_attr( $coords['latitude'] ),
 			esc_attr( $coords['longitude'] ),
-			14, //zoom level
+			$zoom, //zoom level
 			'',//$pins,
 			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
 			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
@@ -1466,14 +1472,14 @@ function kz_pb_proximite( $atts ) {
 	);
 
 	return sprintf(
-		'<div id="proxi_content">
-			<div class="message">%1$s</div>
+		'<h1 class="distance_message">Dans un rayon de %1$s kilom&egrave;tres</h1>
+		<div id="proxi_content">
 			<div class="more_results"></div>
 			<div class="results">
 				%2$s
 			</div>
 		</div>',
-		'',
+		$radius,
 		$out
 	);
 
@@ -1500,6 +1506,8 @@ function kz_pb_proximite_content() {
 	$display_mode 		= (isset($_POST['display_mode']) ? $_POST['display_mode'] : 'simple');
 	$show_distance		= (isset($_POST['show_distance']) ? $_POST['show_distance'] : false );
 
+	// Kidzou_Utils::log($_POST);
+
 	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
 	$portfolio = kz_pb_render_proximite_portfolio(
@@ -1519,7 +1527,7 @@ function kz_pb_proximite_content() {
 	$pins = array();
 
 	if ($display_mode=='with_map') {
-		$pins = get_map_markers($ids);
+		$pins = kz_get_map_markers($ids);
 	}
 
 	$return = array(
@@ -1578,7 +1586,7 @@ function kz_pb_render_proximite_portfolio ($coords, $ids, $radius, $show_distanc
  * @return void
  * @author 
  **/
-function get_map_markers ($ids)
+function kz_get_map_markers ($ids)
 {
 
 	$pins = array();
@@ -1592,9 +1600,10 @@ function get_map_markers ($ids)
 			$post = get_post($value->post_id);
 			setup_postdata($post);
 
-			$thumbnail = get_thumbnail( 300, 250, 'attachment-shop_thumbnail wp-post-image', get_the_title() , get_the_title() , false );
+			$thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
+			// Kidzou_Utils::log($thumbnail);
 			$thumb = $thumbnail["thumb"];
-			$img = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, '', '', '', false);
+			$img = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, 100, 100, 'kz_pb_map_marker', false);
 
 			$content = '<a title="'.get_the_permalink().'" href="'.get_the_permalink().'">'.
 					$img. get_the_title().

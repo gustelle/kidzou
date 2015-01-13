@@ -1,11 +1,11 @@
 <div id="main-content" class="entry">
 <!--If no results are found-->
 
-	<h1><i class="fa pull-left fa-exclamation-circle"></i><?php esc_html_e('Nous ne trouvons rien &agrave; proximit&eacute; imm&eacute;diate ...','Divi'); ?></h1>
+	<h1 class="centerbox"><?php esc_html_e('Nous ne trouvons rien &agrave; proximit&eacute; imm&eacute;diate ...','Divi'); ?></h1>
 	<br/>
 
 	
-	<p>
+	<p class="centerbox">
 		<?php
 		echo sprintf(
 			"<a href='%s' title='%s' class='et_pb_more_button'>%s</a>",
@@ -16,7 +16,7 @@
 		?>
 	</p>
 
-	<hr class="et_pb_space et_pb_divider" />
+	<!-- <hr class="et_pb_space et_pb_divider" /> -->
 	
 
 	<script>
