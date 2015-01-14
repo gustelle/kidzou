@@ -2,6 +2,7 @@ var kidzouProximite = (function(){
 
 	document.addEventListener('DOMContentLoaded', function() {
 
+
 		// var zoom = parseInt(kidzou_proxi.zoom);
 		var user_lat = kidzou_proxi.request_coords.latitude;
 		var user_lng = kidzou_proxi.request_coords.longitude;
@@ -13,6 +14,8 @@ var kidzouProximite = (function(){
 				return;
 
 			var radius = _radius || kidzou_proxi.radius;
+
+			// console.debug('getContentF ' + user_lat);
 
 			jQuery.ajax({
 
@@ -54,15 +57,10 @@ var kidzouProximite = (function(){
 
 					doing_ajax = false;
 
-					console.debug(data);
-
 					//nettoyer le message temporaire créé ci-dessus
 					document.querySelector('#proxi_content .et_pb_map_container').removeChild(
-							document.querySelector('#proxi_content .message')
-							);
-
-					var distance_message = kidzou_proxi.distance_message.replace('{radius}', Math.round(radius));
-					document.querySelector('.distance_message').innerHTML = distance_message;
+						document.querySelector('#proxi_content .message')
+					);
 
 					//relacher ce booléen pour que de nouvelles requetes puissent avoir lieu
 					if (callback) {
@@ -71,18 +69,30 @@ var kidzouProximite = (function(){
 
 					if (data.empty_results) {
 
-						// document.querySelector('#proxi_content .more_results').innerHTML = data.portfolio; 
+						//on n'est pas forcément dans le rayon a proximité du point de geoloc :
+						//si aucun résultat, et qu'on était parti sur une requete sans coords, on prend les coords par défaut
+						//et s'il n'y a pas de résultat...on est dans ce cas
+						document.querySelector('.distance_message').innerHTML = '';
 
 					} else {
 
+						var distance_message = kidzou_proxi.distance_message.replace('{radius}', Math.round(radius));
+						document.querySelector('.distance_message').innerHTML = distance_message;
+
 						document.querySelector('#proxi_content .et_pb_portfolio_results').innerHTML = data.portfolio;
+
+						document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results; 
+
+						//nettoyer le eventListener initial pour attacher un autre avec un rayon mis à jour
+						document.querySelector('.load_more_results').removeEventListener("click", loadMoreResults);
+
+						//nouveau listener dynamique
+						document.querySelector('.load_more_results').addEventListener("click", function() {
+							getContent(parseFloat(radius) + 5);
+						});
 
 						if (kidzou_proxi.display_mode == 'with_map')
 						{	
-							//ne pas faire ce panTO, le user peut continuer à bouger sur la carte
-							//pendant un refresh
-							// var LatLng = new google.maps.LatLng(lat, lng);
-							// map.panTo(LatLng);
 
 							var pins = data.markers;
 							for (var i = 0; i < pins.length; i++) {
@@ -115,6 +125,8 @@ var kidzouProximite = (function(){
 				user_lat = e.detail.coords.latitude;
 				user_lng = e.detail.coords.longitude;
 
+				// console.debug('addEventListener ' + user_lat);
+
 				//déclencher une requete Ajax pour afficher les activités autour de la position
 				getContent(kidzou_proxi.radius);
 			    
@@ -124,15 +136,19 @@ var kidzouProximite = (function(){
 				{
 					if (e.detail.acceptGeolocation) {
 
-						console.info("Le user accepte la geoloc, une erreur technique est survenue");
+						// console.info("Le user accepte la geoloc, une erreur technique est survenue");
+						var node = document.querySelector('#proxi_content');
 						var message = document.createTextNode(kidzou_proxi.geoloc_error_msg);
-						document.querySelector('#proxi_content .message').insertBefore(message);
+						console.info(message);
+						node.insertBefore(message, node.childNodes[0]);
 
 					} else {
 
-						console.info("Le user n'accepte pas la geoloc, dégrader les résultats");
+						// console.info("Le user n'accepte pas la geoloc, dégrader les résultats");
+						var node = document.querySelector('#proxi_content');
 						var message = document.createTextNode(kidzou_proxi.geoloc_pleaseaccept_msg);
-						document.querySelector('#proxi_content .message').insertBefore(message);
+						console.info(message);
+						node.insertBefore(message, node.childNodes[0]);
 
 					}
 
@@ -172,12 +188,6 @@ var kidzouProximite = (function(){
 		        	
 		        	//le radius courant de la carte
 		        	var distance = getDistanceToCenter();
-
-		        	//le rafraichissement est en cours, mais le centre a pu changer entre temps
-		        	//le user continue de "draguer" la carte
-	        		// mapCenter = map.getCenter();
-
-	    			// console.log('distance : ' + distance*2 + ' / ' + kidzou_proxi.max_distance + ' / ' + kidzou_proxi.radius);
 
 		        	//prefetcher les prochains resultats
 		        	//si la distance au radius kidzou est dépassée
@@ -251,8 +261,18 @@ var kidzouProximite = (function(){
 
 			return dis;
 		}
+
+		function loadMoreResults() {
+			getContent(
+				parseFloat(kidzou_proxi.radius) + 5 //rajouter 5 Km
+			);
+		}
 		
 		google.maps.event.addDomListener(window, 'load', initialize);
+
+		if (document.querySelector('.load_more_results')) {
+			document.querySelector('.load_more_results').addEventListener("click", loadMoreResults);
+		}
 
 	}); //document.addEventListener('DOMContentLoaded', ..
 

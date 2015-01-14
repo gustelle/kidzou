@@ -1415,8 +1415,8 @@ function kz_pb_proximite( $atts ) {
 		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
 		'wait_refreshing' 		=> 'Actualisation',
 		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
-		'more_results'			=> '<p>Cliquez ici pour voir plus de r&eacute;sultats </p>',
-		'distance_message'		=> 'Dans un rayon de {radius} Kilm&egrave;tres',
+		'more_results'			=> '<hr class="et_pb_space et_pb_divider" /><a title="Etendre la recherche" class="et_pb_more_button center load_more_results">Plus de r&eacute;sultats</a>',
+		'distance_message'		=> 'Dans un rayon de {radius} Kilom&egrave;tres',
 		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
 		'action'				=> 'kz_pb_proximite',
 		'fullwidth'				=> $fullwidth,
@@ -1428,8 +1428,8 @@ function kz_pb_proximite( $atts ) {
 		'module_class'			=> $module_class,
 		'background_layout'		=> $background_layout, 
 		'display_mode'			=> $display_mode,
-		'geoloc_error_msg'		=> __('','Divi'),
-		'geoloc_pleaseaccept_msg'	=> __('','Divi'),
+		'geoloc_error_msg'		=> __('Nous ne parvenons pas &agrave; vous localiser plus pr&eacute;cis&eacute;ment','Divi'),
+		'geoloc_pleaseaccept_msg'	=> __('Pour des r&eacute;sultats plus pertinents, acceptez la geolocalisation de votre navigateur !','Divi'),
 		'show_distance'			=> $is_geolocalized,
 		'markers'				=> $pins,
 		'zoom'					=> $zoom,
@@ -1472,14 +1472,15 @@ function kz_pb_proximite( $atts ) {
 	);
 
 	return sprintf(
-		'<h1 class="distance_message">Dans un rayon de %1$s kilom&egrave;tres</h1>
+		'%1$s
 		<div id="proxi_content">
-			<div class="more_results"></div>
+
 			<div class="results">
 				%2$s
 			</div>
+			<div class="more_results"></div>
 		</div>',
-		$radius,
+		($is_geolocalized ? '<h1 class="distance_message">Dans un rayon de '.$radius.' kilom&egrave;tres</h1>' : ''),
 		$out
 	);
 

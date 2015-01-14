@@ -1,14 +1,13 @@
 <div id="main-content" class="entry">
 <!--If no results are found-->
 
-	<h1 class="centerbox"><?php esc_html_e('Nous ne trouvons rien &agrave; proximit&eacute; imm&eacute;diate ...','Divi'); ?></h1>
+	<h1 class="centerme"><?php esc_html_e('Nous ne trouvons rien &agrave; proximit&eacute; imm&eacute;diate ...','Divi'); ?></h1>
 	<br/>
 
-	<p class="centerbox">
+	<p>
 		<?php
 		echo sprintf(
-			"<a href='%s' title='%s' class='et_pb_more_button'>%s</a>",
-			"",
+			"<a title='%s' class='et_pb_more_button load_more_results centerme'>%s</a>",
 			__('Chercher plus loin','Divi'),
 			__('Chercher plus loin','Divi')
 		);
