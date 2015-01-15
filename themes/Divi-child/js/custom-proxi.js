@@ -78,9 +78,7 @@ var kidzouProximite = (function(){
 
 						var distance_message = kidzou_proxi.distance_message.replace('{radius}', Math.round(radius));
 						document.querySelector('.distance_message').innerHTML = distance_message;
-
 						document.querySelector('#proxi_content .et_pb_portfolio_results').innerHTML = data.portfolio;
-
 						document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results; 
 
 						//nettoyer le eventListener initial pour attacher un autre avec un rayon mis à jour
@@ -102,7 +100,7 @@ var kidzouProximite = (function(){
 
 						} else {
 
-							console.debug('todo : plus de résultats sans carte');
+							// console.debug('todo : plus de résultats sans carte');
 							document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results;
 
 						}
@@ -138,17 +136,17 @@ var kidzouProximite = (function(){
 
 						// console.info("Le user accepte la geoloc, une erreur technique est survenue");
 						var node = document.querySelector('#proxi_content');
-						var message = document.createTextNode(kidzou_proxi.geoloc_error_msg);
-						console.info(message);
-						node.insertBefore(message, node.childNodes[0]);
+						var div1 = document.createElement("DIV");
+						div1.innerHTML = kidzou_proxi.geoloc_error_msg;
+						node.insertBefore(div1, node.childNodes[0]);
 
 					} else {
 
 						// console.info("Le user n'accepte pas la geoloc, dégrader les résultats");
 						var node = document.querySelector('#proxi_content');
-						var message = document.createTextNode(kidzou_proxi.geoloc_pleaseaccept_msg);
-						console.info(message);
-						node.insertBefore(message, node.childNodes[0]);
+						var div1 = document.createElement("DIV");
+						div1.innerHTML = kidzou_proxi.geoloc_pleaseaccept_msg;
+						node.insertBefore(div1, node.childNodes[0]);
 
 					}
 

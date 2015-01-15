@@ -132,7 +132,7 @@ var kidzouGeoContent = (function () {
 
 						if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
 
-							console.debug('Changement de position : ' + ko.toJSON(short_position) + ' / ' + ko.toJSON(prec_coords) );
+							// console.debug('Changement de position : ' + ko.toJSON(short_position) + ' / ' + ko.toJSON(prec_coords) );
 
 							//stockage des résultats dans un cookie pour transmission en requete 
 							storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
@@ -146,7 +146,7 @@ var kidzouGeoContent = (function () {
 
 						} else {
 							
-							console.debug('Pas de changement de geolocation');
+							// console.debug('Pas de changement de geolocation');
 
 							var myEvent = new CustomEvent("geolocation", {
 								detail: {error: false, acceptGeolocation : true, refresh : false}
