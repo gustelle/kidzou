@@ -678,7 +678,7 @@ class Kidzou {
 
 		if ($activate)
 		{
-			Kidzou_Utils::log('doing analytics_tag');
+			// Kidzou_Utils::log('doing analytics_tag');
 			echo sprintf (
 					"<script>
 						(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -688,6 +688,10 @@ class Kidzou {
 
 						ga('create',  '%s', 'auto');
 						ga('send', 'pageview');
+
+						//tracker allofamille
+						ga('create', 'UA-58574680-1', 'auto', {'name': 'af'});
+						ga('af.send', 'pageview');
 
 					</script>",
 					Kidzou_Utils::get_option('analytics_ua','')

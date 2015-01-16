@@ -1,7 +1,0 @@
-phantomjs render/home-1280x800.js
-phantomjs render/home-960x800.js
-phantomjs render/home-768x1024.js
-phantomjs render/home-480x800.js
-phantomjs render/home-320x568.js
-phantomjs render/home-720x1280.js
-//phantomjs render/home-600x1024.js

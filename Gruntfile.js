@@ -79,6 +79,37 @@ module.exports = function(grunt) {
 			}
 		},
 
+		'sftp-deploy': {
+			  rec_plugins: {
+			    auth: {
+			      host: 'vps127696.ovh.net',
+			      port: 22,
+			      authKey: 'rec'
+			    },
+			    cache: 'sftpCache.json',
+			    src: './plugins',
+			    dest: '/var/www/wp-content/plugins',
+			    exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'],
+			    serverSep: '/',
+			    concurrency: 4,
+			    progress: true
+			  },
+			  rec_themes: {
+			    auth: {
+			      host: 'vps127696.ovh.net',
+			      port: 22,
+			      authKey: 'rec'
+			    },
+			    cache: 'sftpCache.json',
+			    src: './themes',
+			    dest: '/var/www/wp-content/themes',
+			    exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images'],
+			    serverSep: '/',
+			    concurrency: 4,
+			    progress: true
+			  }
+			},
+
 		//tache de déploiement en local
 		copy: {
 
@@ -116,6 +147,7 @@ module.exports = function(grunt) {
 	//grunt.loadNpmTasks('grunt-contrib-cssmin'); //
 	grunt.loadNpmTasks('grunt-contrib-csslint'); //
 	grunt.loadNpmTasks('grunt-ftp-deploy'); //
+	grunt.loadNpmTasks('grunt-sftp-deploy');
 	grunt.loadNpmTasks('grunt-contrib-copy'); //
 	grunt.loadNpmTasks('grunt-contrib-imagemin'); //
 	grunt.loadNpmTasks('grunt-contrib-less'); //
