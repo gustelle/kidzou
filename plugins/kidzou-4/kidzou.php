@@ -13,7 +13,6 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Kidzou 4
- * Plugin URI:        @TODO
  * Description:       4e version de la plateforme de contenu dédié à la famille, a l'occasion du 4e anniversaire de Kidzou
  * Version:           1.0.0
  * Author:            Guillaume Patin
@@ -22,7 +21,7 @@
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
- * GitHub Plugin URI: https://github.com/<owner>/<repo>
+ * GitHub Plugin URI:  https://kidzou_guillaume@bitbucket.org/kidzou_guillaume/kidzou.git
  * WordPress-Plugin-Boilerplate: v2.6.1
  */
 
