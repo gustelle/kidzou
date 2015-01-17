@@ -1,0 +1,1132 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'grunt-http',
+1 verbose cli   '--save-dev' ]
+2 info using npm@1.4.23
+3 info using node@v0.10.31
+4 warn package.json kidzou@2014.08.24 No repository field.
+5 warn package.json kidzou@2014.08.24 No README data
+6 verbose readDependencies using package.json deps
+7 verbose cache add [ 'grunt-http', null ]
+8 verbose cache add name=undefined spec="grunt-http" args=["grunt-http",null]
+9 verbose parsed url { protocol: null,
+9 verbose parsed url   slashes: null,
+9 verbose parsed url   auth: null,
+9 verbose parsed url   host: null,
+9 verbose parsed url   port: null,
+9 verbose parsed url   hostname: null,
+9 verbose parsed url   hash: null,
+9 verbose parsed url   search: null,
+9 verbose parsed url   query: null,
+9 verbose parsed url   pathname: 'grunt-http',
+9 verbose parsed url   path: 'grunt-http',
+9 verbose parsed url   href: 'grunt-http' }
+10 silly lockFile 18187b9f-grunt-http grunt-http
+11 verbose lock grunt-http /Users/guillaume/.npm/18187b9f-grunt-http.lock
+12 silly lockFile 18187b9f-grunt-http grunt-http
+13 silly lockFile 18187b9f-grunt-http grunt-http
+14 verbose addNamed [ 'grunt-http', '' ]
+15 verbose addNamed [ null, '*' ]
+16 silly lockFile ce4ed512-grunt-http grunt-http@
+17 verbose lock grunt-http@ /Users/guillaume/.npm/ce4ed512-grunt-http.lock
+18 silly addNameRange { name: 'grunt-http', range: '*', hasData: false }
+19 verbose request where is /grunt-http
+20 verbose request registry https://registry.npmjs.org/
+21 verbose request id 8d077f154b4e37c8
+22 verbose url raw /grunt-http
+23 verbose url resolving [ 'https://registry.npmjs.org/', './grunt-http' ]
+24 verbose url resolved https://registry.npmjs.org/grunt-http
+25 verbose request where is https://registry.npmjs.org/grunt-http
+26 info trying registry request attempt 1 at 14:03:00
+27 http GET https://registry.npmjs.org/grunt-http
+28 http 200 https://registry.npmjs.org/grunt-http
+29 silly registry.get cb [ 200,
+29 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:01 GMT',
+29 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+29 silly registry.get     etag: '"CCMTC8SGALVRPTJI8C15LMITM"',
+29 silly registry.get     'content-type': 'application/json',
+29 silly registry.get     'cache-control': 'max-age=60',
+29 silly registry.get     'content-length': '30724',
+29 silly registry.get     'accept-ranges': 'bytes',
+29 silly registry.get     via: '1.1 varnish',
+29 silly registry.get     age: '0',
+29 silly registry.get     'x-served-by': 'cache-fra1240-FRA',
+29 silly registry.get     'x-cache': 'MISS',
+29 silly registry.get     'x-cache-hits': '0',
+29 silly registry.get     'x-timer': 'S1421499780.710204,VS0,VE856',
+29 silly registry.get     vary: 'Accept',
+29 silly registry.get     'keep-alive': 'timeout=10, max=50',
+29 silly registry.get     connection: 'Keep-Alive' } ]
+30 silly addNameRange number 2 { name: 'grunt-http', range: '*', hasData: true }
+31 silly addNameRange versions [ 'grunt-http',
+31 silly addNameRange   [ '0.0.1',
+31 silly addNameRange     '0.0.2',
+31 silly addNameRange     '0.1.0',
+31 silly addNameRange     '0.2.0',
+31 silly addNameRange     '1.0.0',
+31 silly addNameRange     '1.0.1',
+31 silly addNameRange     '1.1.0',
+31 silly addNameRange     '1.2.0',
+31 silly addNameRange     '1.3.0',
+31 silly addNameRange     '1.3.1',
+31 silly addNameRange     '1.4.0',
+31 silly addNameRange     '1.4.1',
+31 silly addNameRange     '1.4.2',
+31 silly addNameRange     '1.5.0' ] ]
+32 verbose addNamed [ 'grunt-http', '1.5.0' ]
+33 verbose addNamed [ '1.5.0', '1.5.0' ]
+34 silly lockFile bf900703-grunt-http-1-5-0 grunt-http@1.5.0
+35 verbose lock grunt-http@1.5.0 /Users/guillaume/.npm/bf900703-grunt-http-1-5-0.lock
+36 silly lockFile 4fd58f9d--grunt-http-grunt-http-1-5-0-tgz https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz
+37 verbose lock https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz /Users/guillaume/.npm/4fd58f9d--grunt-http-grunt-http-1-5-0-tgz.lock
+38 verbose addRemoteTarball [ 'https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz',
+38 verbose addRemoteTarball   '4da00809ca0e4cc90cf1aa295ebf43e78f62ae4d' ]
+39 info retry fetch attempt 1 at 14:03:01
+40 verbose fetch to= /var/folders/vg/7g3v5k0d46zchcr67nvwm4740000gn/T/npm-86671-vSofxPVF/registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz
+41 http GET https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz
+42 http 200 https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz
+43 silly lockFile 4fd58f9d--grunt-http-grunt-http-1-5-0-tgz https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz
+44 silly lockFile 4fd58f9d--grunt-http-grunt-http-1-5-0-tgz https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz
+45 silly lockFile bf900703-grunt-http-1-5-0 grunt-http@1.5.0
+46 silly lockFile bf900703-grunt-http-1-5-0 grunt-http@1.5.0
+47 silly lockFile ce4ed512-grunt-http grunt-http@
+48 silly lockFile ce4ed512-grunt-http grunt-http@
+49 silly resolved [ { name: 'grunt-http',
+49 silly resolved     description: 'Sends a HTTP request and deals with the response.',
+49 silly resolved     version: '1.5.0',
+49 silly resolved     homepage: 'https://github.com/johngeorgewright/grunt-http',
+49 silly resolved     author: { name: 'John Wright', email: 'johngeorge.wright@gmail.com' },
+49 silly resolved     repository:
+49 silly resolved      { type: 'git',
+49 silly resolved        url: 'git://github.com/johngeorgewright/grunt-http.git' },
+49 silly resolved     bugs: { url: 'https://github.com/johngeorgewright/grunt-http/issues' },
+49 silly resolved     licenses: [ [Object] ],
+49 silly resolved     main: 'Gruntfile.js',
+49 silly resolved     engines: { node: '>= 0.8.0' },
+49 silly resolved     scripts: { test: 'grunt test' },
+49 silly resolved     devDependencies:
+49 silly resolved      { 'form-data': '^0.1.2',
+49 silly resolved        grunt: '~0.4.1',
+49 silly resolved        'grunt-contrib-clean': '~0.6.0',
+49 silly resolved        'grunt-contrib-jshint': '~0.10.0',
+49 silly resolved        'grunt-contrib-nodeunit': '~0.4.1',
+49 silly resolved        sinon: '~1.10.3' },
+49 silly resolved     peerDependencies: { grunt: '~0.4.1' },
+49 silly resolved     keywords: [ 'gruntplugin', 'request', 'http' ],
+49 silly resolved     dependencies:
+49 silly resolved      { async: '^0.9.0',
+49 silly resolved        request: '~2.47.0',
+49 silly resolved        'tough-cookie': '>=0.12.0',
+49 silly resolved        'form-data': '~0.1.0',
+49 silly resolved        'tunnel-agent': '~0.4.0',
+49 silly resolved        'http-signature': '~0.10.0',
+49 silly resolved        'oauth-sign': '~0.4.0',
+49 silly resolved        hawk: '~2.3.0',
+49 silly resolved        'aws-sign2': '~0.5.0' },
+49 silly resolved     optionalDependencies:
+49 silly resolved      { 'tough-cookie': '>=0.12.0',
+49 silly resolved        'form-data': '~0.1.0',
+49 silly resolved        'tunnel-agent': '~0.4.0',
+49 silly resolved        'http-signature': '~0.10.0',
+49 silly resolved        'oauth-sign': '~0.4.0',
+49 silly resolved        hawk: '~2.3.0',
+49 silly resolved        'aws-sign2': '~0.5.0' },
+49 silly resolved     gitHead: 'e13446d8788d81e16fb5e9b635958d8abecbd4fc',
+49 silly resolved     _id: 'grunt-http@1.5.0',
+49 silly resolved     _shasum: '4da00809ca0e4cc90cf1aa295ebf43e78f62ae4d',
+49 silly resolved     _from: 'grunt-http@',
+49 silly resolved     _npmVersion: '1.4.28',
+49 silly resolved     _npmUser:
+49 silly resolved      { name: 'johngeorgewright',
+49 silly resolved        email: 'johngeorge.wright@gmail.com' },
+49 silly resolved     maintainers: [ [Object] ],
+49 silly resolved     dist:
+49 silly resolved      { shasum: '4da00809ca0e4cc90cf1aa295ebf43e78f62ae4d',
+49 silly resolved        tarball: 'http://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz' },
+49 silly resolved     directories: {},
+49 silly resolved     _resolved: 'https://registry.npmjs.org/grunt-http/-/grunt-http-1.5.0.tgz' } ]
+50 info install grunt-http@1.5.0 into /Users/guillaume/DevWP/kidzou
+51 info installOne grunt-http@1.5.0
+52 verbose node_modules/grunt-http unbuild
+53 verbose tar unpack /Users/guillaume/.npm/grunt-http/1.5.0/package.tgz
+54 silly lockFile 1e950b85-P-kidzou-node-modules-grunt-http tar:///Users/guillaume/DevWP/kidzou/node_modules/grunt-http
+55 verbose lock tar:///Users/guillaume/DevWP/kidzou/node_modules/grunt-http /Users/guillaume/.npm/1e950b85-P-kidzou-node-modules-grunt-http.lock
+56 silly lockFile 37cc586b-npm-grunt-http-1-5-0-package-tgz tar:///Users/guillaume/.npm/grunt-http/1.5.0/package.tgz
+57 verbose lock tar:///Users/guillaume/.npm/grunt-http/1.5.0/package.tgz /Users/guillaume/.npm/37cc586b-npm-grunt-http-1-5-0-package-tgz.lock
+58 silly gunzTarPerm modes [ '755', '644' ]
+59 silly gunzTarPerm extractEntry package.json
+60 silly gunzTarPerm modified mode [ 'package.json', 436, 420 ]
+61 silly gunzTarPerm extractEntry .npmignore
+62 silly gunzTarPerm modified mode [ '.npmignore', 436, 420 ]
+63 silly gunzTarPerm extractEntry README.md
+64 silly gunzTarPerm modified mode [ 'README.md', 436, 420 ]
+65 silly gunzTarPerm extractEntry Gruntfile.js
+66 silly gunzTarPerm modified mode [ 'Gruntfile.js', 436, 420 ]
+67 silly gunzTarPerm extractEntry LICENSE-MIT
+68 silly gunzTarPerm modified mode [ 'LICENSE-MIT', 436, 420 ]
+69 silly gunzTarPerm extractEntry .jshintrc
+70 silly gunzTarPerm modified mode [ '.jshintrc', 436, 420 ]
+71 silly gunzTarPerm extractEntry test/http_test.js
+72 silly gunzTarPerm modified mode [ 'test/http_test.js', 436, 420 ]
+73 silly gunzTarPerm extractEntry test/fixtures/compiled.js
+74 silly gunzTarPerm modified mode [ 'test/fixtures/compiled.js', 436, 420 ]
+75 silly gunzTarPerm extractEntry test/fixtures/not-compiled.js
+76 silly gunzTarPerm modified mode [ 'test/fixtures/not-compiled.js', 436, 420 ]
+77 silly gunzTarPerm extractEntry test/fixtures/basic.html
+78 silly gunzTarPerm modified mode [ 'test/fixtures/basic.html', 436, 420 ]
+79 silly gunzTarPerm extractEntry test/fixtures/callback.body
+80 silly gunzTarPerm modified mode [ 'test/fixtures/callback.body', 436, 420 ]
+81 silly gunzTarPerm extractEntry test/fixtures/callback.error
+82 silly gunzTarPerm modified mode [ 'test/fixtures/callback.error', 436, 420 ]
+83 silly gunzTarPerm extractEntry test/fixtures/callback.response
+84 silly gunzTarPerm modified mode [ 'test/fixtures/callback.response', 436, 420 ]
+85 silly gunzTarPerm extractEntry test/fixtures/image.jpg
+86 silly gunzTarPerm modified mode [ 'test/fixtures/image.jpg', 436, 420 ]
+87 silly gunzTarPerm extractEntry tasks/http.js
+88 silly gunzTarPerm modified mode [ 'tasks/http.js', 436, 420 ]
+89 silly lockFile 1e950b85-P-kidzou-node-modules-grunt-http tar:///Users/guillaume/DevWP/kidzou/node_modules/grunt-http
+90 silly lockFile 1e950b85-P-kidzou-node-modules-grunt-http tar:///Users/guillaume/DevWP/kidzou/node_modules/grunt-http
+91 silly lockFile 37cc586b-npm-grunt-http-1-5-0-package-tgz tar:///Users/guillaume/.npm/grunt-http/1.5.0/package.tgz
+92 silly lockFile 37cc586b-npm-grunt-http-1-5-0-package-tgz tar:///Users/guillaume/.npm/grunt-http/1.5.0/package.tgz
+93 info preinstall grunt-http@1.5.0
+94 verbose readDependencies using package.json deps
+95 verbose readDependencies using package.json deps
+96 verbose cache add [ 'async@^0.9.0', null ]
+97 verbose cache add name=undefined spec="async@^0.9.0" args=["async@^0.9.0",null]
+98 verbose parsed url { protocol: null,
+98 verbose parsed url   slashes: null,
+98 verbose parsed url   auth: null,
+98 verbose parsed url   host: null,
+98 verbose parsed url   port: null,
+98 verbose parsed url   hostname: null,
+98 verbose parsed url   hash: null,
+98 verbose parsed url   search: null,
+98 verbose parsed url   query: null,
+98 verbose parsed url   pathname: 'async@^0.9.0',
+98 verbose parsed url   path: 'async@^0.9.0',
+98 verbose parsed url   href: 'async@^0.9.0' }
+99 verbose cache add [ 'request@~2.47.0', null ]
+100 verbose cache add name=undefined spec="request@~2.47.0" args=["request@~2.47.0",null]
+101 verbose parsed url { protocol: null,
+101 verbose parsed url   slashes: null,
+101 verbose parsed url   auth: null,
+101 verbose parsed url   host: null,
+101 verbose parsed url   port: null,
+101 verbose parsed url   hostname: null,
+101 verbose parsed url   hash: null,
+101 verbose parsed url   search: null,
+101 verbose parsed url   query: null,
+101 verbose parsed url   pathname: 'request@~2.47.0',
+101 verbose parsed url   path: 'request@~2.47.0',
+101 verbose parsed url   href: 'request@~2.47.0' }
+102 verbose cache add [ 'tough-cookie@>=0.12.0', null ]
+103 verbose cache add name=undefined spec="tough-cookie@>=0.12.0" args=["tough-cookie@>=0.12.0",null]
+104 verbose parsed url { protocol: null,
+104 verbose parsed url   slashes: null,
+104 verbose parsed url   auth: null,
+104 verbose parsed url   host: null,
+104 verbose parsed url   port: null,
+104 verbose parsed url   hostname: null,
+104 verbose parsed url   hash: null,
+104 verbose parsed url   search: null,
+104 verbose parsed url   query: null,
+104 verbose parsed url   pathname: 'tough-cookie@%3E=0.12.0',
+104 verbose parsed url   path: 'tough-cookie@%3E=0.12.0',
+104 verbose parsed url   href: 'tough-cookie@%3E=0.12.0' }
+105 verbose cache add [ 'form-data@~0.1.0', null ]
+106 verbose cache add name=undefined spec="form-data@~0.1.0" args=["form-data@~0.1.0",null]
+107 verbose parsed url { protocol: null,
+107 verbose parsed url   slashes: null,
+107 verbose parsed url   auth: null,
+107 verbose parsed url   host: null,
+107 verbose parsed url   port: null,
+107 verbose parsed url   hostname: null,
+107 verbose parsed url   hash: null,
+107 verbose parsed url   search: null,
+107 verbose parsed url   query: null,
+107 verbose parsed url   pathname: 'form-data@~0.1.0',
+107 verbose parsed url   path: 'form-data@~0.1.0',
+107 verbose parsed url   href: 'form-data@~0.1.0' }
+108 verbose cache add [ 'tunnel-agent@~0.4.0', null ]
+109 verbose cache add name=undefined spec="tunnel-agent@~0.4.0" args=["tunnel-agent@~0.4.0",null]
+110 verbose parsed url { protocol: null,
+110 verbose parsed url   slashes: null,
+110 verbose parsed url   auth: null,
+110 verbose parsed url   host: null,
+110 verbose parsed url   port: null,
+110 verbose parsed url   hostname: null,
+110 verbose parsed url   hash: null,
+110 verbose parsed url   search: null,
+110 verbose parsed url   query: null,
+110 verbose parsed url   pathname: 'tunnel-agent@~0.4.0',
+110 verbose parsed url   path: 'tunnel-agent@~0.4.0',
+110 verbose parsed url   href: 'tunnel-agent@~0.4.0' }
+111 verbose cache add [ 'http-signature@~0.10.0', null ]
+112 verbose cache add name=undefined spec="http-signature@~0.10.0" args=["http-signature@~0.10.0",null]
+113 verbose parsed url { protocol: null,
+113 verbose parsed url   slashes: null,
+113 verbose parsed url   auth: null,
+113 verbose parsed url   host: null,
+113 verbose parsed url   port: null,
+113 verbose parsed url   hostname: null,
+113 verbose parsed url   hash: null,
+113 verbose parsed url   search: null,
+113 verbose parsed url   query: null,
+113 verbose parsed url   pathname: 'http-signature@~0.10.0',
+113 verbose parsed url   path: 'http-signature@~0.10.0',
+113 verbose parsed url   href: 'http-signature@~0.10.0' }
+114 verbose cache add [ 'oauth-sign@~0.4.0', null ]
+115 verbose cache add name=undefined spec="oauth-sign@~0.4.0" args=["oauth-sign@~0.4.0",null]
+116 verbose parsed url { protocol: null,
+116 verbose parsed url   slashes: null,
+116 verbose parsed url   auth: null,
+116 verbose parsed url   host: null,
+116 verbose parsed url   port: null,
+116 verbose parsed url   hostname: null,
+116 verbose parsed url   hash: null,
+116 verbose parsed url   search: null,
+116 verbose parsed url   query: null,
+116 verbose parsed url   pathname: 'oauth-sign@~0.4.0',
+116 verbose parsed url   path: 'oauth-sign@~0.4.0',
+116 verbose parsed url   href: 'oauth-sign@~0.4.0' }
+117 verbose cache add name="async" spec="^0.9.0" args=["async","^0.9.0"]
+118 verbose parsed url { protocol: null,
+118 verbose parsed url   slashes: null,
+118 verbose parsed url   auth: null,
+118 verbose parsed url   host: null,
+118 verbose parsed url   port: null,
+118 verbose parsed url   hostname: null,
+118 verbose parsed url   hash: null,
+118 verbose parsed url   search: null,
+118 verbose parsed url   query: null,
+118 verbose parsed url   pathname: '^0.9.0',
+118 verbose parsed url   path: '^0.9.0',
+118 verbose parsed url   href: '^0.9.0' }
+119 verbose addNamed [ 'async', '^0.9.0' ]
+120 verbose addNamed [ null, '>=0.9.0-0 <0.10.0-0' ]
+121 silly lockFile 7f39d2c2-async-0-9-0 async@^0.9.0
+122 verbose lock async@^0.9.0 /Users/guillaume/.npm/7f39d2c2-async-0-9-0.lock
+123 verbose cache add name="request" spec="~2.47.0" args=["request","~2.47.0"]
+124 verbose parsed url { protocol: null,
+124 verbose parsed url   slashes: null,
+124 verbose parsed url   auth: null,
+124 verbose parsed url   host: null,
+124 verbose parsed url   port: null,
+124 verbose parsed url   hostname: null,
+124 verbose parsed url   hash: null,
+124 verbose parsed url   search: null,
+124 verbose parsed url   query: null,
+124 verbose parsed url   pathname: '~2.47.0',
+124 verbose parsed url   path: '~2.47.0',
+124 verbose parsed url   href: '~2.47.0' }
+125 verbose addNamed [ 'request', '~2.47.0' ]
+126 verbose addNamed [ null, '>=2.47.0-0 <2.48.0-0' ]
+127 silly lockFile a7e048b7-request-2-47-0 request@~2.47.0
+128 verbose lock request@~2.47.0 /Users/guillaume/.npm/a7e048b7-request-2-47-0.lock
+129 verbose cache add name="tough-cookie" spec=">=0.12.0" args=["tough-cookie",">=0.12.0"]
+130 verbose parsed url { protocol: null,
+130 verbose parsed url   slashes: null,
+130 verbose parsed url   auth: null,
+130 verbose parsed url   host: null,
+130 verbose parsed url   port: null,
+130 verbose parsed url   hostname: null,
+130 verbose parsed url   hash: null,
+130 verbose parsed url   search: null,
+130 verbose parsed url   query: null,
+130 verbose parsed url   pathname: '%3E=0.12.0',
+130 verbose parsed url   path: '%3E=0.12.0',
+130 verbose parsed url   href: '%3E=0.12.0' }
+131 verbose addNamed [ 'tough-cookie', '>=0.12.0' ]
+132 verbose addNamed [ null, '>=0.12.0' ]
+133 silly lockFile 66c18ba7-tough-cookie-0-12-0 tough-cookie@>=0.12.0
+134 verbose lock tough-cookie@>=0.12.0 /Users/guillaume/.npm/66c18ba7-tough-cookie-0-12-0.lock
+135 verbose cache add name="form-data" spec="~0.1.0" args=["form-data","~0.1.0"]
+136 verbose parsed url { protocol: null,
+136 verbose parsed url   slashes: null,
+136 verbose parsed url   auth: null,
+136 verbose parsed url   host: null,
+136 verbose parsed url   port: null,
+136 verbose parsed url   hostname: null,
+136 verbose parsed url   hash: null,
+136 verbose parsed url   search: null,
+136 verbose parsed url   query: null,
+136 verbose parsed url   pathname: '~0.1.0',
+136 verbose parsed url   path: '~0.1.0',
+136 verbose parsed url   href: '~0.1.0' }
+137 verbose addNamed [ 'form-data', '~0.1.0' ]
+138 verbose addNamed [ null, '>=0.1.0-0 <0.2.0-0' ]
+139 silly lockFile 26aa13f4-form-data-0-1-0 form-data@~0.1.0
+140 verbose lock form-data@~0.1.0 /Users/guillaume/.npm/26aa13f4-form-data-0-1-0.lock
+141 verbose cache add name="tunnel-agent" spec="~0.4.0" args=["tunnel-agent","~0.4.0"]
+142 verbose parsed url { protocol: null,
+142 verbose parsed url   slashes: null,
+142 verbose parsed url   auth: null,
+142 verbose parsed url   host: null,
+142 verbose parsed url   port: null,
+142 verbose parsed url   hostname: null,
+142 verbose parsed url   hash: null,
+142 verbose parsed url   search: null,
+142 verbose parsed url   query: null,
+142 verbose parsed url   pathname: '~0.4.0',
+142 verbose parsed url   path: '~0.4.0',
+142 verbose parsed url   href: '~0.4.0' }
+143 verbose addNamed [ 'tunnel-agent', '~0.4.0' ]
+144 verbose addNamed [ null, '>=0.4.0-0 <0.5.0-0' ]
+145 silly lockFile 2550750e-tunnel-agent-0-4-0 tunnel-agent@~0.4.0
+146 verbose lock tunnel-agent@~0.4.0 /Users/guillaume/.npm/2550750e-tunnel-agent-0-4-0.lock
+147 verbose cache add name="http-signature" spec="~0.10.0" args=["http-signature","~0.10.0"]
+148 verbose parsed url { protocol: null,
+148 verbose parsed url   slashes: null,
+148 verbose parsed url   auth: null,
+148 verbose parsed url   host: null,
+148 verbose parsed url   port: null,
+148 verbose parsed url   hostname: null,
+148 verbose parsed url   hash: null,
+148 verbose parsed url   search: null,
+148 verbose parsed url   query: null,
+148 verbose parsed url   pathname: '~0.10.0',
+148 verbose parsed url   path: '~0.10.0',
+148 verbose parsed url   href: '~0.10.0' }
+149 verbose addNamed [ 'http-signature', '~0.10.0' ]
+150 verbose addNamed [ null, '>=0.10.0-0 <0.11.0-0' ]
+151 silly lockFile 8170f292-http-signature-0-10-0 http-signature@~0.10.0
+152 verbose lock http-signature@~0.10.0 /Users/guillaume/.npm/8170f292-http-signature-0-10-0.lock
+153 verbose cache add [ 'hawk@~2.3.0', null ]
+154 verbose cache add name=undefined spec="hawk@~2.3.0" args=["hawk@~2.3.0",null]
+155 verbose parsed url { protocol: null,
+155 verbose parsed url   slashes: null,
+155 verbose parsed url   auth: null,
+155 verbose parsed url   host: null,
+155 verbose parsed url   port: null,
+155 verbose parsed url   hostname: null,
+155 verbose parsed url   hash: null,
+155 verbose parsed url   search: null,
+155 verbose parsed url   query: null,
+155 verbose parsed url   pathname: 'hawk@~2.3.0',
+155 verbose parsed url   path: 'hawk@~2.3.0',
+155 verbose parsed url   href: 'hawk@~2.3.0' }
+156 verbose cache add [ 'aws-sign2@~0.5.0', null ]
+157 verbose cache add name=undefined spec="aws-sign2@~0.5.0" args=["aws-sign2@~0.5.0",null]
+158 verbose parsed url { protocol: null,
+158 verbose parsed url   slashes: null,
+158 verbose parsed url   auth: null,
+158 verbose parsed url   host: null,
+158 verbose parsed url   port: null,
+158 verbose parsed url   hostname: null,
+158 verbose parsed url   hash: null,
+158 verbose parsed url   search: null,
+158 verbose parsed url   query: null,
+158 verbose parsed url   pathname: 'aws-sign2@~0.5.0',
+158 verbose parsed url   path: 'aws-sign2@~0.5.0',
+158 verbose parsed url   href: 'aws-sign2@~0.5.0' }
+159 verbose cache add name="oauth-sign" spec="~0.4.0" args=["oauth-sign","~0.4.0"]
+160 verbose parsed url { protocol: null,
+160 verbose parsed url   slashes: null,
+160 verbose parsed url   auth: null,
+160 verbose parsed url   host: null,
+160 verbose parsed url   port: null,
+160 verbose parsed url   hostname: null,
+160 verbose parsed url   hash: null,
+160 verbose parsed url   search: null,
+160 verbose parsed url   query: null,
+160 verbose parsed url   pathname: '~0.4.0',
+160 verbose parsed url   path: '~0.4.0',
+160 verbose parsed url   href: '~0.4.0' }
+161 verbose addNamed [ 'oauth-sign', '~0.4.0' ]
+162 verbose addNamed [ null, '>=0.4.0-0 <0.5.0-0' ]
+163 silly lockFile eafa1447-oauth-sign-0-4-0 oauth-sign@~0.4.0
+164 verbose lock oauth-sign@~0.4.0 /Users/guillaume/.npm/eafa1447-oauth-sign-0-4-0.lock
+165 verbose cache add name="hawk" spec="~2.3.0" args=["hawk","~2.3.0"]
+166 verbose parsed url { protocol: null,
+166 verbose parsed url   slashes: null,
+166 verbose parsed url   auth: null,
+166 verbose parsed url   host: null,
+166 verbose parsed url   port: null,
+166 verbose parsed url   hostname: null,
+166 verbose parsed url   hash: null,
+166 verbose parsed url   search: null,
+166 verbose parsed url   query: null,
+166 verbose parsed url   pathname: '~2.3.0',
+166 verbose parsed url   path: '~2.3.0',
+166 verbose parsed url   href: '~2.3.0' }
+167 verbose addNamed [ 'hawk', '~2.3.0' ]
+168 verbose addNamed [ null, '>=2.3.0-0 <2.4.0-0' ]
+169 silly lockFile 05419982-hawk-2-3-0 hawk@~2.3.0
+170 verbose lock hawk@~2.3.0 /Users/guillaume/.npm/05419982-hawk-2-3-0.lock
+171 verbose cache add name="aws-sign2" spec="~0.5.0" args=["aws-sign2","~0.5.0"]
+172 verbose parsed url { protocol: null,
+172 verbose parsed url   slashes: null,
+172 verbose parsed url   auth: null,
+172 verbose parsed url   host: null,
+172 verbose parsed url   port: null,
+172 verbose parsed url   hostname: null,
+172 verbose parsed url   hash: null,
+172 verbose parsed url   search: null,
+172 verbose parsed url   query: null,
+172 verbose parsed url   pathname: '~0.5.0',
+172 verbose parsed url   path: '~0.5.0',
+172 verbose parsed url   href: '~0.5.0' }
+173 verbose addNamed [ 'aws-sign2', '~0.5.0' ]
+174 verbose addNamed [ null, '>=0.5.0-0 <0.6.0-0' ]
+175 silly lockFile 82387911-aws-sign2-0-5-0 aws-sign2@~0.5.0
+176 verbose lock aws-sign2@~0.5.0 /Users/guillaume/.npm/82387911-aws-sign2-0-5-0.lock
+177 silly addNameRange { name: 'async', range: '>=0.9.0-0 <0.10.0-0', hasData: false }
+178 silly addNameRange { name: 'request',
+178 silly addNameRange   range: '>=2.47.0-0 <2.48.0-0',
+178 silly addNameRange   hasData: false }
+179 silly addNameRange { name: 'tough-cookie', range: '>=0.12.0', hasData: false }
+180 silly addNameRange { name: 'form-data',
+180 silly addNameRange   range: '>=0.1.0-0 <0.2.0-0',
+180 silly addNameRange   hasData: false }
+181 silly addNameRange { name: 'tunnel-agent',
+181 silly addNameRange   range: '>=0.4.0-0 <0.5.0-0',
+181 silly addNameRange   hasData: false }
+182 silly addNameRange { name: 'http-signature',
+182 silly addNameRange   range: '>=0.10.0-0 <0.11.0-0',
+182 silly addNameRange   hasData: false }
+183 silly addNameRange { name: 'oauth-sign',
+183 silly addNameRange   range: '>=0.4.0-0 <0.5.0-0',
+183 silly addNameRange   hasData: false }
+184 silly addNameRange { name: 'hawk', range: '>=2.3.0-0 <2.4.0-0', hasData: false }
+185 silly addNameRange { name: 'aws-sign2',
+185 silly addNameRange   range: '>=0.5.0-0 <0.6.0-0',
+185 silly addNameRange   hasData: false }
+186 verbose request where is /async
+187 verbose request registry https://registry.npmjs.org/
+188 verbose url raw /async
+189 verbose url resolving [ 'https://registry.npmjs.org/', './async' ]
+190 verbose url resolved https://registry.npmjs.org/async
+191 verbose request where is https://registry.npmjs.org/async
+192 info trying registry request attempt 1 at 14:03:03
+193 verbose etag "897AKOXOUGIU9QBDE25EK5KRB"
+194 http GET https://registry.npmjs.org/async
+195 verbose request where is /tough-cookie
+196 verbose request registry https://registry.npmjs.org/
+197 verbose url raw /tough-cookie
+198 verbose url resolving [ 'https://registry.npmjs.org/', './tough-cookie' ]
+199 verbose url resolved https://registry.npmjs.org/tough-cookie
+200 verbose request where is https://registry.npmjs.org/tough-cookie
+201 info trying registry request attempt 1 at 14:03:03
+202 verbose etag "2P7Q2Z8DH3IKS3NCHPSE9FIQZ"
+203 http GET https://registry.npmjs.org/tough-cookie
+204 verbose request where is /form-data
+205 verbose request registry https://registry.npmjs.org/
+206 verbose url raw /form-data
+207 verbose url resolving [ 'https://registry.npmjs.org/', './form-data' ]
+208 verbose url resolved https://registry.npmjs.org/form-data
+209 verbose request where is https://registry.npmjs.org/form-data
+210 info trying registry request attempt 1 at 14:03:03
+211 verbose etag "1CKM8PYUFZQNA38HU8Y8YO7NH"
+212 http GET https://registry.npmjs.org/form-data
+213 verbose request where is /tunnel-agent
+214 verbose request registry https://registry.npmjs.org/
+215 verbose url raw /tunnel-agent
+216 verbose url resolving [ 'https://registry.npmjs.org/', './tunnel-agent' ]
+217 verbose url resolved https://registry.npmjs.org/tunnel-agent
+218 verbose request where is https://registry.npmjs.org/tunnel-agent
+219 info trying registry request attempt 1 at 14:03:03
+220 verbose etag "8H7EMV3ZRS0R7SH3ZLXNFUROZ"
+221 http GET https://registry.npmjs.org/tunnel-agent
+222 verbose request where is /request
+223 verbose request registry https://registry.npmjs.org/
+224 verbose url raw /request
+225 verbose url resolving [ 'https://registry.npmjs.org/', './request' ]
+226 verbose url resolved https://registry.npmjs.org/request
+227 verbose request where is https://registry.npmjs.org/request
+228 info trying registry request attempt 1 at 14:03:03
+229 verbose etag "RIZK9AD7YUTGTRKNXP7HWD06"
+230 http GET https://registry.npmjs.org/request
+231 verbose request where is /http-signature
+232 verbose request registry https://registry.npmjs.org/
+233 verbose url raw /http-signature
+234 verbose url resolving [ 'https://registry.npmjs.org/', './http-signature' ]
+235 verbose url resolved https://registry.npmjs.org/http-signature
+236 verbose request where is https://registry.npmjs.org/http-signature
+237 info trying registry request attempt 1 at 14:03:03
+238 verbose etag "3LD4VFP3WRB2PYQ6G6M9SDPSV"
+239 http GET https://registry.npmjs.org/http-signature
+240 verbose request where is /oauth-sign
+241 verbose request registry https://registry.npmjs.org/
+242 verbose url raw /oauth-sign
+243 verbose url resolving [ 'https://registry.npmjs.org/', './oauth-sign' ]
+244 verbose url resolved https://registry.npmjs.org/oauth-sign
+245 verbose request where is https://registry.npmjs.org/oauth-sign
+246 info trying registry request attempt 1 at 14:03:03
+247 verbose etag "4ANBO3JGGPSJKJKB7D07ITSI3"
+248 http GET https://registry.npmjs.org/oauth-sign
+249 verbose request where is /hawk
+250 verbose request registry https://registry.npmjs.org/
+251 verbose url raw /hawk
+252 verbose url resolving [ 'https://registry.npmjs.org/', './hawk' ]
+253 verbose url resolved https://registry.npmjs.org/hawk
+254 verbose request where is https://registry.npmjs.org/hawk
+255 info trying registry request attempt 1 at 14:03:03
+256 verbose etag "F313REH4YI37O5TLZHQLJTUEZ"
+257 http GET https://registry.npmjs.org/hawk
+258 verbose request where is /aws-sign2
+259 verbose request registry https://registry.npmjs.org/
+260 verbose url raw /aws-sign2
+261 verbose url resolving [ 'https://registry.npmjs.org/', './aws-sign2' ]
+262 verbose url resolved https://registry.npmjs.org/aws-sign2
+263 verbose request where is https://registry.npmjs.org/aws-sign2
+264 info trying registry request attempt 1 at 14:03:03
+265 verbose etag "CPHOMDH4L0I9IWJ00BYTG2XPN"
+266 http GET https://registry.npmjs.org/aws-sign2
+267 http 200 https://registry.npmjs.org/tunnel-agent
+268 silly registry.get cb [ 200,
+268 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+268 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+268 silly registry.get     etag: '"Y17MVE7UBJ6UG6PYCEZFK2C9"',
+268 silly registry.get     'content-type': 'application/json',
+268 silly registry.get     'cache-control': 'max-age=60',
+268 silly registry.get     'content-length': '3474',
+268 silly registry.get     'accept-ranges': 'bytes',
+268 silly registry.get     via: '1.1 varnish',
+268 silly registry.get     age: '26',
+268 silly registry.get     'x-served-by': 'cache-fra1220-FRA',
+268 silly registry.get     'x-cache': 'HIT',
+268 silly registry.get     'x-cache-hits': '2',
+268 silly registry.get     'x-timer': 'S1421499783.510392,VS0,VE0',
+268 silly registry.get     vary: 'Accept',
+268 silly registry.get     'keep-alive': 'timeout=10, max=50',
+268 silly registry.get     connection: 'Keep-Alive' } ]
+269 silly addNameRange number 2 { name: 'tunnel-agent',
+269 silly addNameRange   range: '>=0.4.0-0 <0.5.0-0',
+269 silly addNameRange   hasData: true }
+270 silly addNameRange versions [ 'tunnel-agent', [ '0.2.0', '0.3.0', '0.4.0' ] ]
+271 verbose addNamed [ 'tunnel-agent', '0.4.0' ]
+272 verbose addNamed [ '0.4.0', '0.4.0' ]
+273 silly lockFile d3ccfadd-tunnel-agent-0-4-0 tunnel-agent@0.4.0
+274 verbose lock tunnel-agent@0.4.0 /Users/guillaume/.npm/d3ccfadd-tunnel-agent-0-4-0.lock
+275 silly lockFile d3ccfadd-tunnel-agent-0-4-0 tunnel-agent@0.4.0
+276 silly lockFile d3ccfadd-tunnel-agent-0-4-0 tunnel-agent@0.4.0
+277 silly lockFile 2550750e-tunnel-agent-0-4-0 tunnel-agent@~0.4.0
+278 silly lockFile 2550750e-tunnel-agent-0-4-0 tunnel-agent@~0.4.0
+279 http 200 https://registry.npmjs.org/form-data
+280 silly registry.get cb [ 200,
+280 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+280 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+280 silly registry.get     etag: '"1GMJIDQTCEX7OKJ7256BC63A1"',
+280 silly registry.get     'content-type': 'application/json',
+280 silly registry.get     'cache-control': 'max-age=60',
+280 silly registry.get     'content-length': '26040',
+280 silly registry.get     'accept-ranges': 'bytes',
+280 silly registry.get     via: '1.1 varnish',
+280 silly registry.get     age: '46',
+280 silly registry.get     'x-served-by': 'cache-fra1234-FRA',
+280 silly registry.get     'x-cache': 'HIT',
+280 silly registry.get     'x-cache-hits': '2',
+280 silly registry.get     'x-timer': 'S1421499783.500446,VS0,VE0',
+280 silly registry.get     vary: 'Accept',
+280 silly registry.get     'keep-alive': 'timeout=10, max=50',
+280 silly registry.get     connection: 'Keep-Alive' } ]
+281 silly addNameRange number 2 { name: 'form-data', range: '>=0.1.0-0 <0.2.0-0', hasData: true }
+282 silly addNameRange versions [ 'form-data',
+282 silly addNameRange   [ '0.0.0',
+282 silly addNameRange     '0.0.2',
+282 silly addNameRange     '0.0.3',
+282 silly addNameRange     '0.0.4',
+282 silly addNameRange     '0.0.5',
+282 silly addNameRange     '0.0.6',
+282 silly addNameRange     '0.0.7',
+282 silly addNameRange     '0.0.8',
+282 silly addNameRange     '0.0.9',
+282 silly addNameRange     '0.0.10',
+282 silly addNameRange     '0.1.0',
+282 silly addNameRange     '0.1.1',
+282 silly addNameRange     '0.1.2',
+282 silly addNameRange     '0.1.3',
+282 silly addNameRange     '0.1.4',
+282 silly addNameRange     '0.2.0' ] ]
+283 verbose addNamed [ 'form-data', '0.1.4' ]
+284 verbose addNamed [ '0.1.4', '0.1.4' ]
+285 silly lockFile 3912a592-form-data-0-1-4 form-data@0.1.4
+286 verbose lock form-data@0.1.4 /Users/guillaume/.npm/3912a592-form-data-0-1-4.lock
+287 silly lockFile 3912a592-form-data-0-1-4 form-data@0.1.4
+288 silly lockFile 3912a592-form-data-0-1-4 form-data@0.1.4
+289 silly lockFile 26aa13f4-form-data-0-1-0 form-data@~0.1.0
+290 silly lockFile 26aa13f4-form-data-0-1-0 form-data@~0.1.0
+291 http 200 https://registry.npmjs.org/oauth-sign
+292 silly registry.get cb [ 200,
+292 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+292 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R14B04)',
+292 silly registry.get     etag: '"1I3MNTFYVR8WDPZA6RUVP9DM1"',
+292 silly registry.get     'content-type': 'application/json',
+292 silly registry.get     'cache-control': 'max-age=60',
+292 silly registry.get     'content-length': '5602',
+292 silly registry.get     'accept-ranges': 'bytes',
+292 silly registry.get     via: '1.1 varnish',
+292 silly registry.get     age: '41',
+292 silly registry.get     'x-served-by': 'cache-fra1234-FRA',
+292 silly registry.get     'x-cache': 'HIT',
+292 silly registry.get     'x-cache-hits': '2',
+292 silly registry.get     'x-timer': 'S1421499783.818814,VS0,VE0',
+292 silly registry.get     vary: 'Accept',
+292 silly registry.get     'keep-alive': 'timeout=10, max=49',
+292 silly registry.get     connection: 'Keep-Alive' } ]
+293 silly addNameRange number 2 { name: 'oauth-sign',
+293 silly addNameRange   range: '>=0.4.0-0 <0.5.0-0',
+293 silly addNameRange   hasData: true }
+294 silly addNameRange versions [ 'oauth-sign',
+294 silly addNameRange   [ '0.2.0', '0.3.0', '0.4.0', '0.5.0', '0.6.0' ] ]
+295 verbose addNamed [ 'oauth-sign', '0.4.0' ]
+296 verbose addNamed [ '0.4.0', '0.4.0' ]
+297 silly lockFile b590a297-oauth-sign-0-4-0 oauth-sign@0.4.0
+298 verbose lock oauth-sign@0.4.0 /Users/guillaume/.npm/b590a297-oauth-sign-0-4-0.lock
+299 silly lockFile fc92dce5--oauth-sign-oauth-sign-0-4-0-tgz https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz
+300 verbose lock https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz /Users/guillaume/.npm/fc92dce5--oauth-sign-oauth-sign-0-4-0-tgz.lock
+301 verbose addRemoteTarball [ 'https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz',
+301 verbose addRemoteTarball   'f22956f31ea7151a821e5f2fb32c113cad8b9f69' ]
+302 info retry fetch attempt 1 at 14:03:04
+303 verbose fetch to= /var/folders/vg/7g3v5k0d46zchcr67nvwm4740000gn/T/npm-86671-vSofxPVF/registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz
+304 http GET https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz
+305 http 200 https://registry.npmjs.org/http-signature
+306 silly registry.get cb [ 200,
+306 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+306 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+306 silly registry.get     etag: '"6KINSXYLUQVS40A1BCXN0CNU5"',
+306 silly registry.get     'content-type': 'application/json',
+306 silly registry.get     'cache-control': 'max-age=60',
+306 silly registry.get     'content-length': '17013',
+306 silly registry.get     'accept-ranges': 'bytes',
+306 silly registry.get     via: '1.1 varnish',
+306 silly registry.get     age: '27',
+306 silly registry.get     'x-served-by': 'cache-fra1220-FRA',
+306 silly registry.get     'x-cache': 'HIT',
+306 silly registry.get     'x-cache-hits': '1',
+306 silly registry.get     'x-timer': 'S1421499783.654738,VS0,VE0',
+306 silly registry.get     vary: 'Accept',
+306 silly registry.get     'keep-alive': 'timeout=10, max=49',
+306 silly registry.get     connection: 'Keep-Alive' } ]
+307 silly addNameRange number 2 { name: 'http-signature',
+307 silly addNameRange   range: '>=0.10.0-0 <0.11.0-0',
+307 silly addNameRange   hasData: true }
+308 silly addNameRange versions [ 'http-signature',
+308 silly addNameRange   [ '0.9.0',
+308 silly addNameRange     '0.9.2',
+308 silly addNameRange     '0.9.3',
+308 silly addNameRange     '0.9.4',
+308 silly addNameRange     '0.9.5',
+308 silly addNameRange     '0.9.6',
+308 silly addNameRange     '0.9.7',
+308 silly addNameRange     '0.9.8',
+308 silly addNameRange     '0.9.9',
+308 silly addNameRange     '0.9.10',
+308 silly addNameRange     '0.9.11',
+308 silly addNameRange     '0.10.0',
+308 silly addNameRange     '0.10.1' ] ]
+309 verbose addNamed [ 'http-signature', '0.10.1' ]
+310 verbose addNamed [ '0.10.1', '0.10.1' ]
+311 silly lockFile 2847f457-http-signature-0-10-1 http-signature@0.10.1
+312 verbose lock http-signature@0.10.1 /Users/guillaume/.npm/2847f457-http-signature-0-10-1.lock
+313 silly lockFile 6389fa52-nature-http-signature-0-10-1-tgz https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz
+314 verbose lock https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz /Users/guillaume/.npm/6389fa52-nature-http-signature-0-10-1-tgz.lock
+315 verbose addRemoteTarball [ 'https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz',
+315 verbose addRemoteTarball   '4fbdac132559aa8323121e540779c0a012b27e66' ]
+316 info retry fetch attempt 1 at 14:03:04
+317 verbose fetch to= /var/folders/vg/7g3v5k0d46zchcr67nvwm4740000gn/T/npm-86671-vSofxPVF/registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz
+318 http GET https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz
+319 http 200 https://registry.npmjs.org/aws-sign2
+320 silly registry.get cb [ 200,
+320 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:04 GMT',
+320 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+320 silly registry.get     etag: '"AFSZBUSPVSW3Z8NPD89SUJC2H"',
+320 silly registry.get     'content-type': 'application/json',
+320 silly registry.get     'cache-control': 'max-age=60',
+320 silly registry.get     'content-length': '2872',
+320 silly registry.get     'accept-ranges': 'bytes',
+320 silly registry.get     via: '1.1 varnish',
+320 silly registry.get     age: '28',
+320 silly registry.get     'x-served-by': 'cache-fra1220-FRA',
+320 silly registry.get     'x-cache': 'HIT',
+320 silly registry.get     'x-cache-hits': '2',
+320 silly registry.get     'x-timer': 'S1421499784.248759,VS0,VE0',
+320 silly registry.get     vary: 'Accept',
+320 silly registry.get     'keep-alive': 'timeout=10, max=48',
+320 silly registry.get     connection: 'Keep-Alive' } ]
+321 silly addNameRange number 2 { name: 'aws-sign2', range: '>=0.5.0-0 <0.6.0-0', hasData: true }
+322 silly addNameRange versions [ 'aws-sign2', [ '0.4.0', '0.5.0' ] ]
+323 verbose addNamed [ 'aws-sign2', '0.5.0' ]
+324 verbose addNamed [ '0.5.0', '0.5.0' ]
+325 silly lockFile 5a1dbd9b-aws-sign2-0-5-0 aws-sign2@0.5.0
+326 verbose lock aws-sign2@0.5.0 /Users/guillaume/.npm/5a1dbd9b-aws-sign2-0-5-0.lock
+327 silly lockFile 5a1dbd9b-aws-sign2-0-5-0 aws-sign2@0.5.0
+328 silly lockFile 5a1dbd9b-aws-sign2-0-5-0 aws-sign2@0.5.0
+329 silly lockFile 82387911-aws-sign2-0-5-0 aws-sign2@~0.5.0
+330 silly lockFile 82387911-aws-sign2-0-5-0 aws-sign2@~0.5.0
+331 http 200 https://registry.npmjs.org/async
+332 silly registry.get cb [ 200,
+332 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+332 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+332 silly registry.get     etag: '"7I8NRMN7LLXBX5242QNINEG21"',
+332 silly registry.get     'content-type': 'application/json',
+332 silly registry.get     'cache-control': 'max-age=60',
+332 silly registry.get     'content-length': '106900',
+332 silly registry.get     'accept-ranges': 'bytes',
+332 silly registry.get     via: '1.1 varnish',
+332 silly registry.get     age: '10',
+332 silly registry.get     'x-served-by': 'cache-fra1242-FRA',
+332 silly registry.get     'x-cache': 'HIT',
+332 silly registry.get     'x-cache-hits': '2',
+332 silly registry.get     'x-timer': 'S1421499783.477841,VS0,VE0',
+332 silly registry.get     vary: 'Accept',
+332 silly registry.get     'keep-alive': 'timeout=10, max=50',
+332 silly registry.get     connection: 'Keep-Alive' } ]
+333 silly addNameRange number 2 { name: 'async', range: '>=0.9.0-0 <0.10.0-0', hasData: true }
+334 silly addNameRange versions [ 'async',
+334 silly addNameRange   [ '0.1.0',
+334 silly addNameRange     '0.1.1',
+334 silly addNameRange     '0.1.2',
+334 silly addNameRange     '0.1.3',
+334 silly addNameRange     '0.1.4',
+334 silly addNameRange     '0.1.5',
+334 silly addNameRange     '0.1.6',
+334 silly addNameRange     '0.1.7',
+334 silly addNameRange     '0.1.8',
+334 silly addNameRange     '0.1.9',
+334 silly addNameRange     '0.1.10',
+334 silly addNameRange     '0.1.11',
+334 silly addNameRange     '0.1.12',
+334 silly addNameRange     '0.1.13',
+334 silly addNameRange     '0.1.14',
+334 silly addNameRange     '0.1.15',
+334 silly addNameRange     '0.1.16',
+334 silly addNameRange     '0.1.17',
+334 silly addNameRange     '0.1.18',
+334 silly addNameRange     '0.1.19',
+334 silly addNameRange     '0.1.20',
+334 silly addNameRange     '0.1.21',
+334 silly addNameRange     '0.1.22',
+334 silly addNameRange     '0.2.0',
+334 silly addNameRange     '0.2.1',
+334 silly addNameRange     '0.2.2',
+334 silly addNameRange     '0.2.3',
+334 silly addNameRange     '0.2.4',
+334 silly addNameRange     '0.2.5',
+334 silly addNameRange     '0.2.6',
+334 silly addNameRange     '0.2.7',
+334 silly addNameRange     '0.2.8',
+334 silly addNameRange     '0.2.9',
+334 silly addNameRange     '0.2.10',
+334 silly addNameRange     '0.3.0',
+334 silly addNameRange     '0.4.0',
+334 silly addNameRange     '0.4.1',
+334 silly addNameRange     '0.5.0',
+334 silly addNameRange     '0.6.0',
+334 silly addNameRange     '0.6.1',
+334 silly addNameRange     '0.6.2',
+334 silly addNameRange     '0.7.0',
+334 silly addNameRange     '0.8.0',
+334 silly addNameRange     '0.9.0' ] ]
+335 verbose addNamed [ 'async', '0.9.0' ]
+336 verbose addNamed [ '0.9.0', '0.9.0' ]
+337 silly lockFile 9a58a886-async-0-9-0 async@0.9.0
+338 verbose lock async@0.9.0 /Users/guillaume/.npm/9a58a886-async-0-9-0.lock
+339 silly lockFile 9a58a886-async-0-9-0 async@0.9.0
+340 silly lockFile 9a58a886-async-0-9-0 async@0.9.0
+341 silly lockFile 7f39d2c2-async-0-9-0 async@^0.9.0
+342 silly lockFile 7f39d2c2-async-0-9-0 async@^0.9.0
+343 http 200 https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz
+344 silly lockFile 6389fa52-nature-http-signature-0-10-1-tgz https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz
+345 silly lockFile 6389fa52-nature-http-signature-0-10-1-tgz https://registry.npmjs.org/http-signature/-/http-signature-0.10.1.tgz
+346 silly lockFile 2847f457-http-signature-0-10-1 http-signature@0.10.1
+347 silly lockFile 2847f457-http-signature-0-10-1 http-signature@0.10.1
+348 silly lockFile 8170f292-http-signature-0-10-0 http-signature@~0.10.0
+349 silly lockFile 8170f292-http-signature-0-10-0 http-signature@~0.10.0
+350 warn optional dep failed, continuing http-signature@~0.10.0
+351 verbose optional dep failed, continuing [ 'http-signature@~0.10.0',
+351 verbose optional dep failed, continuing   { [Error: EACCES, mkdir '/Users/guillaume/.npm/http-signature/0.10.1']
+351 verbose optional dep failed, continuing     errno: 3,
+351 verbose optional dep failed, continuing     code: 'EACCES',
+351 verbose optional dep failed, continuing     path: '/Users/guillaume/.npm/http-signature/0.10.1' } ]
+352 http 200 https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz
+353 http 200 https://registry.npmjs.org/hawk
+354 silly registry.get cb [ 200,
+354 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:04 GMT',
+354 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+354 silly registry.get     etag: '"2IXWRP9NXUWYEXFUSS9TWO4HD"',
+354 silly registry.get     'content-type': 'application/json',
+354 silly registry.get     'cache-control': 'max-age=60',
+354 silly registry.get     'content-length': '85828',
+354 silly registry.get     'accept-ranges': 'bytes',
+354 silly registry.get     via: '1.1 varnish',
+354 silly registry.get     age: '28',
+354 silly registry.get     'x-served-by': 'cache-fra1234-FRA',
+354 silly registry.get     'x-cache': 'HIT',
+354 silly registry.get     'x-cache-hits': '162',
+354 silly registry.get     'x-timer': 'S1421499784.012901,VS0,VE0',
+354 silly registry.get     vary: 'Accept',
+354 silly registry.get     'keep-alive': 'timeout=10, max=48',
+354 silly registry.get     connection: 'Keep-Alive' } ]
+355 silly addNameRange number 2 { name: 'hawk', range: '>=2.3.0-0 <2.4.0-0', hasData: true }
+356 silly addNameRange versions [ 'hawk',
+356 silly addNameRange   [ '0.0.1',
+356 silly addNameRange     '0.0.2',
+356 silly addNameRange     '0.0.3',
+356 silly addNameRange     '0.0.4',
+356 silly addNameRange     '0.0.5',
+356 silly addNameRange     '0.0.6',
+356 silly addNameRange     '0.0.7',
+356 silly addNameRange     '0.0.8',
+356 silly addNameRange     '0.1.0',
+356 silly addNameRange     '0.2.0',
+356 silly addNameRange     '0.3.0',
+356 silly addNameRange     '0.4.0',
+356 silly addNameRange     '0.5.0',
+356 silly addNameRange     '0.5.1',
+356 silly addNameRange     '0.5.2',
+356 silly addNameRange     '0.5.3',
+356 silly addNameRange     '0.6.0',
+356 silly addNameRange     '0.6.1',
+356 silly addNameRange     '0.7.0',
+356 silly addNameRange     '0.7.1',
+356 silly addNameRange     '0.8.1',
+356 silly addNameRange     '0.9.0',
+356 silly addNameRange     '0.10.0',
+356 silly addNameRange     '0.10.1',
+356 silly addNameRange     '0.10.2',
+356 silly addNameRange     '0.11.0',
+356 silly addNameRange     '0.11.1',
+356 silly addNameRange     '0.12.0',
+356 silly addNameRange     '0.12.1',
+356 silly addNameRange     '0.12.2',
+356 silly addNameRange     '0.13.0',
+356 silly addNameRange     '0.13.1',
+356 silly addNameRange     '0.14.0',
+356 silly addNameRange     '0.15.0',
+356 silly addNameRange     '1.0.0',
+356 silly addNameRange     '1.1.0-pre',
+356 silly addNameRange     '1.1.1',
+356 silly addNameRange     '1.1.2',
+356 silly addNameRange     '2.0.0',
+356 silly addNameRange     '2.1.0',
+356 silly addNameRange     '2.1.1',
+356 silly addNameRange     '2.1.2',
+356 silly addNameRange     '2.1.3',
+356 silly addNameRange     '2.2.0',
+356 silly addNameRange     '2.2.1',
+356 silly addNameRange     '2.2.2',
+356 silly addNameRange     '2.2.3',
+356 silly addNameRange     '2.3.0',
+356 silly addNameRange     '2.3.1' ] ]
+357 verbose addNamed [ 'hawk', '2.3.1' ]
+358 verbose addNamed [ '2.3.1', '2.3.1' ]
+359 silly lockFile b676c4e3-hawk-2-3-1 hawk@2.3.1
+360 verbose lock hawk@2.3.1 /Users/guillaume/.npm/b676c4e3-hawk-2-3-1.lock
+361 silly lockFile 7ee7fd30-ry-npmjs-org-hawk-hawk-2-3-1-tgz https://registry.npmjs.org/hawk/-/hawk-2.3.1.tgz
+362 verbose lock https://registry.npmjs.org/hawk/-/hawk-2.3.1.tgz /Users/guillaume/.npm/7ee7fd30-ry-npmjs-org-hawk-hawk-2-3-1-tgz.lock
+363 verbose addRemoteTarball [ 'https://registry.npmjs.org/hawk/-/hawk-2.3.1.tgz',
+363 verbose addRemoteTarball   '1e731ce39447fa1d0f6d707f7bceebec0fd1ec1f' ]
+364 info retry fetch attempt 1 at 14:03:05
+365 verbose fetch to= /var/folders/vg/7g3v5k0d46zchcr67nvwm4740000gn/T/npm-86671-vSofxPVF/registry.npmjs.org/hawk/-/hawk-2.3.1.tgz
+366 http GET https://registry.npmjs.org/hawk/-/hawk-2.3.1.tgz
+367 silly lockFile fc92dce5--oauth-sign-oauth-sign-0-4-0-tgz https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz
+368 silly lockFile fc92dce5--oauth-sign-oauth-sign-0-4-0-tgz https://registry.npmjs.org/oauth-sign/-/oauth-sign-0.4.0.tgz
+369 silly lockFile b590a297-oauth-sign-0-4-0 oauth-sign@0.4.0
+370 silly lockFile b590a297-oauth-sign-0-4-0 oauth-sign@0.4.0
+371 silly lockFile eafa1447-oauth-sign-0-4-0 oauth-sign@~0.4.0
+372 silly lockFile eafa1447-oauth-sign-0-4-0 oauth-sign@~0.4.0
+373 warn optional dep failed, continuing oauth-sign@~0.4.0
+374 verbose optional dep failed, continuing [ 'oauth-sign@~0.4.0',
+374 verbose optional dep failed, continuing   { [Error: EACCES, mkdir '/Users/guillaume/.npm/oauth-sign/0.4.0']
+374 verbose optional dep failed, continuing     errno: 3,
+374 verbose optional dep failed, continuing     code: 'EACCES',
+374 verbose optional dep failed, continuing     path: '/Users/guillaume/.npm/oauth-sign/0.4.0' } ]
+375 http 200 https://registry.npmjs.org/request
+376 silly registry.get cb [ 200,
+376 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+376 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+376 silly registry.get     etag: '"CK400HF21XOHKH87BQY93NSR6"',
+376 silly registry.get     'content-type': 'application/json',
+376 silly registry.get     'cache-control': 'max-age=60',
+376 silly registry.get     'content-length': '133449',
+376 silly registry.get     'accept-ranges': 'bytes',
+376 silly registry.get     via: '1.1 varnish',
+376 silly registry.get     age: '33',
+376 silly registry.get     'x-served-by': 'cache-fra1236-FRA',
+376 silly registry.get     'x-cache': 'HIT',
+376 silly registry.get     'x-cache-hits': '1',
+376 silly registry.get     'x-timer': 'S1421499783.522876,VS0,VE0',
+376 silly registry.get     vary: 'Accept',
+376 silly registry.get     'keep-alive': 'timeout=10, max=50',
+376 silly registry.get     connection: 'Keep-Alive' } ]
+377 silly addNameRange number 2 { name: 'request', range: '>=2.47.0-0 <2.48.0-0', hasData: true }
+378 silly addNameRange versions [ 'request',
+378 silly addNameRange   [ '0.10.0',
+378 silly addNameRange     '0.8.3',
+378 silly addNameRange     '0.9.0',
+378 silly addNameRange     '0.9.1',
+378 silly addNameRange     '0.9.5',
+378 silly addNameRange     '1.0.0',
+378 silly addNameRange     '1.1.0',
+378 silly addNameRange     '1.1.1',
+378 silly addNameRange     '1.2.0',
+378 silly addNameRange     '1.9.0',
+378 silly addNameRange     '1.9.1',
+378 silly addNameRange     '1.9.2',
+378 silly addNameRange     '1.9.3',
+378 silly addNameRange     '1.9.5',
+378 silly addNameRange     '1.9.7',
+378 silly addNameRange     '1.9.8',
+378 silly addNameRange     '1.9.9',
+378 silly addNameRange     '2.0.0',
+378 silly addNameRange     '2.0.1',
+378 silly addNameRange     '2.0.2',
+378 silly addNameRange     '2.0.3',
+378 silly addNameRange     '2.0.4',
+378 silly addNameRange     '2.0.5',
+378 silly addNameRange     '2.1.0',
+378 silly addNameRange     '2.1.1',
+378 silly addNameRange     '2.2.0',
+378 silly addNameRange     '2.2.5',
+378 silly addNameRange     '2.2.6',
+378 silly addNameRange     '2.2.9',
+378 silly addNameRange     '2.9.0',
+378 silly addNameRange     '2.9.1',
+378 silly addNameRange     '2.9.2',
+378 silly addNameRange     '2.9.3',
+378 silly addNameRange     '2.9.100',
+378 silly addNameRange     '2.9.150',
+378 silly addNameRange     '2.9.151',
+378 silly addNameRange     '2.9.152',
+378 silly addNameRange     '2.9.153',
+378 silly addNameRange     '2.9.200',
+378 silly addNameRange     '2.9.201',
+378 silly addNameRange     '2.9.202',
+378 silly addNameRange     '2.9.203',
+378 silly addNameRange     '2.10.0',
+378 silly addNameRange     '2.11.0',
+378 silly addNameRange     '2.11.1',
+378 silly addNameRange     '2.11.2',
+378 silly addNameRange     '2.11.3',
+378 silly addNameRange     '2.11.4',
+378 silly addNameRange     '2.12.0',
+378 silly addNameRange     '2.14.0',
+378 silly addNameRange     '2.16.0',
+378 silly addNameRange     '2.16.2',
+378 silly addNameRange     '2.16.4',
+378 silly addNameRange     '2.16.6',
+378 silly addNameRange     '2.18.0',
+378 silly addNameRange     '2.19.0',
+378 silly addNameRange     '2.20.0',
+378 silly addNameRange     '2.21.0',
+378 silly addNameRange     '2.22.0',
+378 silly addNameRange     '2.23.0',
+378 silly addNameRange     '2.24.0',
+378 silly addNameRange     '2.25.0',
+378 silly addNameRange     '2.26.0',
+378 silly addNameRange     '2.27.0',
+378 silly addNameRange     '2.28.0',
+378 silly addNameRange     '2.29.0',
+378 silly addNameRange     '2.30.0',
+378 silly addNameRange     '2.31.0',
+378 silly addNameRange     '2.32.0',
+378 silly addNameRange     '2.33.0',
+378 silly addNameRange     '2.34.0',
+378 silly addNameRange     '2.35.0',
+378 silly addNameRange     '2.36.0',
+378 silly addNameRange     '2.37.0',
+378 silly addNameRange     '2.38.0',
+378 silly addNameRange     '2.39.0',
+378 silly addNameRange     '2.40.0',
+378 silly addNameRange     '2.41.0',
+378 silly addNameRange     '2.42.0',
+378 silly addNameRange     '2.43.0',
+378 silly addNameRange     '2.44.0',
+378 silly addNameRange     '2.45.0',
+378 silly addNameRange     '2.46.0',
+378 silly addNameRange     '2.47.0',
+378 silly addNameRange     '2.48.0',
+378 silly addNameRange     '2.49.0',
+378 silly addNameRange     '2.50.0',
+378 silly addNameRange     '2.51.0' ] ]
+379 verbose addNamed [ 'request', '2.47.0' ]
+380 verbose addNamed [ '2.47.0', '2.47.0' ]
+381 silly lockFile 6725db09-request-2-47-0 request@2.47.0
+382 verbose lock request@2.47.0 /Users/guillaume/.npm/6725db09-request-2-47-0.lock
+383 silly lockFile 5a101fd8-s-org-request-request-2-47-0-tgz https://registry.npmjs.org/request/-/request-2.47.0.tgz
+384 verbose lock https://registry.npmjs.org/request/-/request-2.47.0.tgz /Users/guillaume/.npm/5a101fd8-s-org-request-request-2-47-0-tgz.lock
+385 verbose addRemoteTarball [ 'https://registry.npmjs.org/request/-/request-2.47.0.tgz',
+385 verbose addRemoteTarball   '09e9fd1a4fed6593a805ef8202b20f0c5ecb485f' ]
+386 info retry fetch attempt 1 at 14:03:05
+387 verbose fetch to= /var/folders/vg/7g3v5k0d46zchcr67nvwm4740000gn/T/npm-86671-vSofxPVF/registry.npmjs.org/request/-/request-2.47.0.tgz
+388 http GET https://registry.npmjs.org/request/-/request-2.47.0.tgz
+389 http 200 https://registry.npmjs.org/tough-cookie
+390 silly registry.get cb [ 200,
+390 silly registry.get   { date: 'Sat, 17 Jan 2015 13:03:03 GMT',
+390 silly registry.get     server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+390 silly registry.get     etag: '"5LYP1EQI33V5G8RQJ1X4WBQXL"',
+390 silly registry.get     'content-type': 'application/json',
+390 silly registry.get     'cache-control': 'max-age=60',
+390 silly registry.get     'content-length': '232508',
+390 silly registry.get     'accept-ranges': 'bytes',
+390 silly registry.get     via: '1.1 varnish',
+390 silly registry.get     age: '27',
+390 silly registry.get     'x-served-by': 'cache-fra1229-FRA',
+390 silly registry.get     'x-cache': 'HIT',
+390 silly registry.get     'x-cache-hits': '1',
+390 silly registry.get     'x-timer': 'S1421499783.487984,VS0,VE1',
+390 silly registry.get     vary: 'Accept',
+390 silly registry.get     'keep-alive': 'timeout=10, max=50',
+390 silly registry.get     connection: 'Keep-Alive' } ]
+391 silly addNameRange number 2 { name: 'tough-cookie', range: '>=0.12.0', hasData: true }
+392 silly addNameRange versions [ 'tough-cookie',
+392 silly addNameRange   [ '0.9.0',
+392 silly addNameRange     '0.9.1',
+392 silly addNameRange     '0.9.3',
+392 silly addNameRange     '0.9.4',
+392 silly addNameRange     '0.9.5',
+392 silly addNameRange     '0.9.6',
+392 silly addNameRange     '0.9.7',
+392 silly addNameRange     '0.9.8',
+392 silly addNameRange     '0.9.9',
+392 silly addNameRange     '0.9.11',
+392 silly addNameRange     '0.9.12',
+392 silly addNameRange     '0.9.13',
+392 silly addNameRange     '0.9.14',
+392 silly addNameRange     '0.9.15',
+392 silly addNameRange     '0.10.0',
+392 silly addNameRange     '0.11.0',
+392 silly addNameRange     '0.12.0',
+392 silly addNameRange     '0.12.1' ] ]
+393 verbose addNamed [ 'tough-cookie', '0.12.1' ]
+394 verbose addNamed [ '0.12.1', '0.12.1' ]
+395 silly lockFile 9dd6163b-tough-cookie-0-12-1 tough-cookie@0.12.1
+396 verbose lock tough-cookie@0.12.1 /Users/guillaume/.npm/9dd6163b-tough-cookie-0-12-1.lock
+397 silly lockFile 9dd6163b-tough-cookie-0-12-1 tough-cookie@0.12.1
+398 silly lockFile 9dd6163b-tough-cookie-0-12-1 tough-cookie@0.12.1
+399 silly lockFile 66c18ba7-tough-cookie-0-12-0 tough-cookie@>=0.12.0
+400 silly lockFile 66c18ba7-tough-cookie-0-12-0 tough-cookie@>=0.12.0
+401 http 200 https://registry.npmjs.org/hawk/-/hawk-2.3.1.tgz
+402 http 200 https://registry.npmjs.org/request/-/request-2.47.0.tgz
+403 silly lockFile 5a101fd8-s-org-request-request-2-47-0-tgz https://registry.npmjs.org/request/-/request-2.47.0.tgz
+404 silly lockFile 5a101fd8-s-org-request-request-2-47-0-tgz https://registry.npmjs.org/request/-/request-2.47.0.tgz
+405 silly lockFile 6725db09-request-2-47-0 request@2.47.0
+406 silly lockFile 6725db09-request-2-47-0 request@2.47.0
+407 silly lockFile a7e048b7-request-2-47-0 request@~2.47.0
+408 silly lockFile a7e048b7-request-2-47-0 request@~2.47.0
+409 verbose about to build /Users/guillaume/DevWP/kidzou/node_modules/grunt-http
+410 verbose node_modules/grunt-http unbuild
+411 info preuninstall grunt-http@1.5.0
+412 info uninstall grunt-http@1.5.0
+413 verbose true,/Users/guillaume/DevWP/kidzou/node_modules,/Users/guillaume/DevWP/kidzou/node_modules unbuild grunt-http@1.5.0
+414 info postuninstall grunt-http@1.5.0
+415 error Error: EACCES, mkdir '/Users/guillaume/.npm/request/2.47.0'
+415 error  { [Error: EACCES, mkdir '/Users/guillaume/.npm/request/2.47.0']
+415 error   errno: 3,
+415 error   code: 'EACCES',
+415 error   path: '/Users/guillaume/.npm/request/2.47.0',
+415 error   parent: 'grunt-http' }
+416 error Please try running this command again as root/Administrator.
+417 error System Darwin 14.0.0
+418 error command "node" "/usr/local/bin/npm" "install" "grunt-http" "--save-dev"
+419 error cwd /Users/guillaume/DevWP/kidzou
+420 error node -v v0.10.31
+421 error npm -v 1.4.23
+422 error path /Users/guillaume/.npm/request/2.47.0
+423 error code EACCES
+424 error errno 3
+425 error stack Error: EACCES, mkdir '/Users/guillaume/.npm/request/2.47.0'
+426 verbose exit [ 3, true ]
