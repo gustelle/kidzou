@@ -110,6 +110,22 @@ module.exports = function(grunt) {
 			  }
 			},
 
+		http: {
+		    recette: {
+		      options: {
+		        url: 'http://kidzou.deployhq.com/projects/kidzou-web/deployments',
+		        method: 'POST',
+		        form: {
+		          parent_identifier: '96694384-f4a6-8acf-f9d2-f90f59893d0c',
+		          mode : "queue",
+		          username : "guillaume@kidzou.fr",
+		          key	: "0pxecoogd50yql675h3xv03l2kkdqgu0vjnqkpn4"
+		        },
+		      }
+		    },
+		    
+		  }
+
 		//tache de déploiement en local
 		copy: {
 
@@ -146,8 +162,11 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify'); //
 	//grunt.loadNpmTasks('grunt-contrib-cssmin'); //
 	grunt.loadNpmTasks('grunt-contrib-csslint'); //
+
 	grunt.loadNpmTasks('grunt-ftp-deploy'); //
 	grunt.loadNpmTasks('grunt-sftp-deploy');
+	grunt.loadNpmTasks('grunt-http');
+
 	grunt.loadNpmTasks('grunt-contrib-copy'); //
 	grunt.loadNpmTasks('grunt-contrib-imagemin'); //
 	grunt.loadNpmTasks('grunt-contrib-less'); //
