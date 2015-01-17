@@ -41,15 +41,15 @@ module.exports = function(grunt) {
 		  },
 
 		//quality check pour les CSS
-		csslint: {
-		  strict: {
-		    options: {
-		      import: false,
-		      "unique-headings": false,
-		    },
-		    src: ['<%= cfg.theme_path %>/style.css'] //'css/vex.css','css/vex-theme-default.css','css/vex-theme-top-w750.css'
-		  }
-		},
+		// csslint: {
+		//   strict: {
+		//     options: {
+		//       import: false,
+		//       "unique-headings": false,
+		//     },
+		//     src: ['<%= cfg.theme_path %>/style.css'] //'css/vex.css','css/vex-theme-default.css','css/vex-theme-top-w750.css'
+		//   }
+		// },
 		
 
 		//tache de déploiement en prod
@@ -124,7 +124,7 @@ module.exports = function(grunt) {
 		      }
 		    },
 		    
-		  }
+		  },
 
 		//tache de déploiement en local
 		copy: {
@@ -158,29 +158,32 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-jshint'); //
-	grunt.loadNpmTasks('grunt-contrib-imagemin'); //
-	grunt.loadNpmTasks('grunt-contrib-uglify'); //
+	// grunt.loadNpmTasks('grunt-contrib-imagemin'); //
+	// grunt.loadNpmTasks('grunt-contrib-uglify'); //
 	//grunt.loadNpmTasks('grunt-contrib-cssmin'); //
-	grunt.loadNpmTasks('grunt-contrib-csslint'); //
+	// grunt.loadNpmTasks('grunt-contrib-csslint'); //
 
 	grunt.loadNpmTasks('grunt-ftp-deploy'); //
 	grunt.loadNpmTasks('grunt-sftp-deploy');
 	grunt.loadNpmTasks('grunt-http');
 
 	grunt.loadNpmTasks('grunt-contrib-copy'); //
-	grunt.loadNpmTasks('grunt-contrib-imagemin'); //
-	grunt.loadNpmTasks('grunt-contrib-less'); //
-	grunt.loadNpmTasks('grunt-contrib-concat');
+	// grunt.loadNpmTasks('grunt-contrib-imagemin'); //
+	// grunt.loadNpmTasks('grunt-contrib-less'); //
+	// grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-plato');
 
 	//distribution automatique des modifs
-	grunt.loadNpmTasks('grunt-contrib-watch');
+	// grunt.loadNpmTasks('grunt-contrib-watch');
 
 	//nettoyage des fichiers
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	//lancement de grunt par defaut
 	grunt.registerTask('default', ['prepjs','theme', 'plugins']);
+
+	//mise en recette
+	grunt.registerTask('recette', ['prepjs','theme', 'plugins', 'http:recette']);
 
 	grunt.registerTask('prepjs', ['jshint','plato']);
 	grunt.registerTask('theme',  ['copy:divi']); //csslint
