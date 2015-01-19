@@ -117,13 +117,13 @@ class Kidzou_Geo {
 
 		if (!Kidzou_Utils::is_really_admin())
 		{
-			Kidzou_Utils::log('Kidzou_Geo::init');
+			//la metropole explicitement choisie par le user
+			//a positionner absolument avant l'initialisation de set_request_filter
+			//car set_request_filter() utilise la request_metropole
+			self::set_request_metropole();
 
 			//doit on filtrer les queries par metropole ?
 			self::set_request_filter();
-
-			//la metropole explicitement choisie par le user
-			self::set_request_metropole();
 
 			//la partie lat/lng
 			self::set_request_position();
