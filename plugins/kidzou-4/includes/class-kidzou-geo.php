@@ -117,13 +117,14 @@ class Kidzou_Geo {
 
 		if (!Kidzou_Utils::is_really_admin())
 		{
-			Kidzou_Utils::log('Kidzou_Geo::init');
+
+			//la metropole explicitement choisie par le user
+			//a faire avant d'initialiser le filtre ...
+			//Car le filtre se sert de la metropole
+			self::set_request_metropole();
 
 			//doit on filtrer les queries par metropole ?
 			self::set_request_filter();
-
-			//la metropole explicitement choisie par le user
-			self::set_request_metropole();
 
 			//la partie lat/lng
 			self::set_request_position();
@@ -139,12 +140,8 @@ class Kidzou_Geo {
 	 **/
 	private static function set_request_metropole()
 	{
-		// if (self::$request_metropole==null) 
-		// {
 			//d'abord on prend la ville dans l'URI
 			$uri = $_SERVER['REQUEST_URI'];
-
-			// Kidzou_Utils::log('[get_request_metropole] REQUEST_URI : '. $uri);
 
 			$regexp = self::get_metropole_uri_regexp();
 
@@ -154,7 +151,7 @@ class Kidzou_Geo {
 			if ( isset($_COOKIE[self::$cookie_metro]) )
 				$cook_m = strtolower($_COOKIE[self::$cookie_metro]);
 
-			// Kidzou_Utils::log('[get_request_metropole] _COOKIE : ' . $cook_m);
+			// Kidzou_Utils::log('[set_request_metropole] _COOKIE : ' . $cook_m);
 
 			//en dépit du cookie, la valeur de la metropole passée en requete prime
 			if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
@@ -164,7 +161,7 @@ class Kidzou_Geo {
 				$ret = rtrim($matches[0], '/'); //suppression du slash à la fin
 				$metropole = ltrim($ret, '/'); //suppression du slash au début
 
-				// Kidzou_Utils::log('[get_request_metropole] Regexp : '. $metropole);
+				// Kidzou_Utils::log('[set_request_metropole] Regexp : '. $metropole);
 
 				//avant de renvoyer la valeur, il faut repositionner le cookie s'il n'était pas en cohérence
 				//la valeur de metropole passée en requete devient la metropole du cookie
@@ -380,7 +377,7 @@ class Kidzou_Geo {
 		//mise à jour du param de filtrage de requete 
 		if ( Kidzou_Utils::is_really_admin() || Kidzou_Utils::is_api() ) {
 
-			Kidzou_Utils::log('Filtrage desactive ');
+			Kidzou_Utils::log( Kidzou_Utils::get_request_path() . ' > Filtrage desactive pour admin / api ');
 
 			self::$is_request_filter = false;
 
@@ -389,6 +386,8 @@ class Kidzou_Geo {
 			$filter_active = (bool)Kidzou_Utils::get_option('geo_activate',false);
 			
 			if (!$filter_active) {
+
+				Kidzou_Utils::log( Kidzou_Utils::get_request_path() . ' > Filtrage desactive dans les options');
 			
 				self::$is_request_filter = false;
 			
@@ -397,6 +396,8 @@ class Kidzou_Geo {
 				//si la geoloc est active mais qu'aucune metropole n'est détectée en requete
 				//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 				if (self::get_request_metropole()=='' ) {
+
+					Kidzou_Utils::log( Kidzou_Utils::get_request_path() . ' > Filtrage desactive / pas de metropole');
 					
 					self::$is_request_filter = false;
 				}
