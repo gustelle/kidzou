@@ -105,7 +105,9 @@ class Kidzou {
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
 
-		add_action('wp_footer', array( $this, 'analytics_tag'));
+		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
+
+		add_action('wp_head', array( $this, 'insert_pub_header'));
 
 	}
 
@@ -672,7 +674,7 @@ class Kidzou {
 	 * @since proximite
 	 * @author 
 	 **/
-	public static function analytics_tag()
+	public static function insert_analytics_tag()
 	{
 		$activate = (bool)Kidzou_Utils::get_option('analytics_activate',false);
 
@@ -698,6 +700,18 @@ class Kidzou {
 				);
 		}
 
+	}
+
+	/**
+	 * injecte  dans le footer le tag Google Analytics
+	 *
+	 * @return String
+	 * @since proximite
+	 * @author 
+	 **/
+	public static function insert_pub_header()
+	{
+		echo Kidzou_Utils::get_option('pub_header','');
 	}
 
 }
