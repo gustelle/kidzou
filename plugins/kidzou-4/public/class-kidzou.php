@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'proximite-deploy';
+	const VERSION = '0115-publicite';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
