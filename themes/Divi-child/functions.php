@@ -1257,6 +1257,7 @@ function kz_pb_user_favs( $atts ) {
 			'show_title' => 'on',
 			'show_categories' => 'on',
 			'background_layout' => 'light',
+			'show_pagination' => 'off'
 		), $atts
 	) );
 
@@ -1271,6 +1272,8 @@ function kz_pb_user_favs( $atts ) {
 
 	ob_start();
 
+	$categories_included = array();
+
 	if ( count($voted)>0 ) {
 
 		foreach ($voted as $key => $value) {
@@ -1280,10 +1283,13 @@ function kz_pb_user_favs( $atts ) {
 
 			echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout);
 
+			$cats = wp_get_post_terms( $post->ID, 'category', array('fields' => 'ids') );
+			foreach ($cats as $cat_key => $cat_value) {
+				$categories_included[] = $cat_value;
+			}
+
 		}
-
 		//fin de boucle foreach
-
 	} 
 
 	wp_reset_postdata();
@@ -1294,7 +1300,9 @@ function kz_pb_user_favs( $atts ) {
 
 	if ( count($voted)>0 )
 	{
+		// Kidzou_Utils::log($categories_included);
 		$categories_included = array_unique( $categories_included );
+		// Kidzou_Utils::log($categories_included);
 		$terms_args = array(
 			'include' => $categories_included,
 			'orderby' => 'name',
@@ -1313,6 +1321,7 @@ function kz_pb_user_favs( $atts ) {
 			);
 		}
 		$category_filters .= '</ul>';
+		// $category_filters = '';
 
 		$class = " et_pb_bg_layout_{$background_layout}";
 
@@ -1333,7 +1342,7 @@ function kz_pb_user_favs( $atts ) {
 			esc_attr( $class ),
 			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
 			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-			esc_attr( $posts_number),
+			0,//esc_attr( $posts_number),
 			('on' === $show_pagination ? '' : 'no_pagination' ),
 			('on' === $show_pagination ? '<div class="et_pb_portofolio_pagination"></div>' : '' )
 		);
