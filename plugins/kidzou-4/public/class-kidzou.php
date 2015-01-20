@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0115-request-metropole-fix-develop';
+	const VERSION = '0115-favoris';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Kidzou fournit maintenant les lieux a proximite";
+	public static $version_description = "Favoris Utilisateurs";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
