@@ -1,4 +1,5 @@
 //support de la console
+
 window.console = typeof window.console === 'undefined'
     ? {log:function(str){alert(str)}}
     : window.console;
@@ -9,10 +10,14 @@ var kidzouModule = (function() { //havre de paix
 	var logger;
 
 	// jQuery(document).ready(function() {
-	document.addEventListener('DOMContentLoaded', function() {
+	document.addEventListener('DOMContentLoaded', function(event) {
+
+		console.debug('DOMContentLoaded in kidzou');
 
 		//assurer que les dépendances sont là...
 		if (window.jQuery && window.ko && window.storageSupport) {
+
+			// console.debug('window ready in kidzou');
 
 			String.prototype.toBoolean = function()
 			{switch(this.toLowerCase()){case "true": case "yes": case "1": return true;case "false": case "no": case "0": case null: return false;default: return Boolean(this);}};
@@ -35,6 +40,8 @@ var kidzouModule = (function() { //havre de paix
 
 
 			kidzou = function() {
+
+				// console.debug('Init kidzou');
 
 				// var message			= new kidzouMessage.message();
 				var votesModel 		= new VotesModel(); 
@@ -333,7 +340,7 @@ var kidzouModule = (function() { //havre de paix
 			kidzou.bindView();
 		}
 
-	}); // jQuery(document).ready(function() {
+	}, false); // jQuery(document).ready(function() {
 
 
 	function afterVoteUpdate(callback) {
