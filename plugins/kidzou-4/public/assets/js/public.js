@@ -12,7 +12,7 @@ var kidzouModule = (function() { //havre de paix
 	// jQuery(document).ready(function() {
 	document.addEventListener('DOMContentLoaded', function(event) {
 
-		console.debug('DOMContentLoaded in kidzou');
+		// console.debug('DOMContentLoaded in kidzou');
 
 		//assurer que les dépendances sont là...
 		if (window.jQuery && window.ko && window.storageSupport) {
