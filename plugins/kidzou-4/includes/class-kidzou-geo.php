@@ -719,6 +719,10 @@ class Kidzou_Geo {
 		    $url = str_replace( self::$rewrite_tag, $m , $url );
 
 		}
+
+		//recuperer la trace complete d'appel pour les cas ou l'URL n'est pas convertie (il reste des %kz_metropole%)
+		if (strpos( $url, self::$rewrite_tag ))
+			debug_print_backtrace();
 	 
 	    return $url; 
 	}
