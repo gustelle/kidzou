@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0115-debug-rewrite';
+	const VERSION = '0115-portfolio';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.

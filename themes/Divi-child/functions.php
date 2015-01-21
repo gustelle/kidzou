@@ -911,6 +911,12 @@ function kz_pb_portfolio( $atts ) {
 		), $atts
 	) );
 
+	//inclure ces scripts pour ne pas corrompre custom.js qui fait référence 
+	//à ces librairies pour les et_pb_portfolio_filter
+	//même si notre portfolio n'est pas filtrable, il inclut un filtre "fake" de navigation qui renvoie vers les taxonomies
+	wp_enqueue_script( 'jquery-masonry-3' );
+	wp_enqueue_script( 'hashchange' );
+
 	global $paged;
 
 	$container_is_closed = false;
