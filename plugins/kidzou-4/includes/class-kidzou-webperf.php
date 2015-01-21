@@ -57,12 +57,13 @@ class Kidzou_WebPerf {
 
 	/**
 	 * les JS qui ne doivent pas avoir l'attribut async
+	 * cette liste est issue de tests en condition réelle (en prod)
 	 *
 	 * @since    1.0.0
 	 *
 	 * @var      object
 	 */
-	protected static $js_no_async = array( 'jquery-core' );  //
+	protected static $js_no_async = array( 'jquery-core' , 'jquery-cookie', 'kidzou-storage', 'kidzou-plugin-script');  //
 
 	/**
 	 * les CSS qui ne sont pas combinés avec les autres
@@ -108,10 +109,6 @@ class Kidzou_WebPerf {
 		//important de le faire tourner en dernier pour récupérer une liste complete de JS
 		add_action( 'wp_print_scripts', array( $this, 'enqueue_scripts' ), PHP_INT_MAX);
 		add_action( 'wp_print_styles', array( $this, 'enqueue_styles' ), PHP_INT_MAX);
-		// add_action( 'wp_print_styles',	array( $this, 'arrange_scripts'), PHP_INT_MAX);
-		
-		// add_action( 'wp_footer',	array($this, 'enqueue_scripts'), PHP_INT_MAX);
-		// add_action( 'wp_footer',	array($this, 'arrange_scripts'), PHP_INT_MAX);
 
 		add_action( 'wp_print_footer_scrits',	array($this,'arrange_footer_scripts'),	PHP_INT_MAX);
 
@@ -160,7 +157,7 @@ class Kidzou_WebPerf {
 		$activate= ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
 
 		if (!is_admin() && $activate )
-		{
+		{	
 			$all_js_in_header = array_merge( Kidzou_Utils::get_option('perf_js_in_header', array()) , self::$js_in_header);
 
 		    foreach( $wp_scripts->queue as $queued ) {
@@ -228,7 +225,6 @@ class Kidzou_WebPerf {
 
 			wp_enqueue_script( 'kidzou-webperf' , plugins_url( '../assets/js/kidzou-webperf.js', __FILE__ ), array(  ), Kidzou::VERSION, true );
 			wp_localize_script('kidzou-webperf', 'kidzou_webperf', array(
-					// 'js' => self::$removed_from_queue,
 					'version' => Kidzou::VERSION,
 					'css' => self::$css_load_per_js
 				)
@@ -245,12 +241,14 @@ class Kidzou_WebPerf {
 
 		if (!is_admin() && $activate && $add_async_attr && !in_array($handle, self::$js_no_async) )
 		{
+			Kidzou_Utils::log('Optimisation du chargement JS de ...' . $handle);
 			return preg_replace("/<script/", "<script async defer", $html);
 		}
 		return $html;
 		
 	}
 
+	//necessaire pour permettre une combinaison des CSS par mod_pagespeed
 	public static function remove_style_id($link, $handle) {
 
 		$activate = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
