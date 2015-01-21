@@ -63,7 +63,7 @@ class Kidzou_WebPerf {
 	 *
 	 * @var      object
 	 */
-	protected static $js_no_async = array( 'jquery-core' , 'jquery-cookie', 'kidzou-storage', 'kidzou-plugin-script');  //
+	protected static $js_no_async = array( 'jquery-core' , 'jquery-cookie', 'kidzou-storage', 'kidzou-plugin-script', 'ko');  //
 
 	/**
 	 * les CSS qui ne sont pas combinés avec les autres
@@ -73,15 +73,6 @@ class Kidzou_WebPerf {
 	 * @var      object
 	 */
 	protected static $css_no_combine = array(  );  //
-
-	/**
-	 * les JS qui restent tels quels car ils embarquent des variables contextuelles par wp_localize_script
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      object
-	 */
-	// protected static $do_not_touch = array( 'jquery', 'ko', 'ko-mapping', 'kidzou-storage' ,'kidzou-webperf','jquery-core', 'kidzou-plugin-script', 'kidzou-notif','kidzou-geo' ); //
 
 
 	/**
@@ -241,7 +232,7 @@ class Kidzou_WebPerf {
 
 		if (!is_admin() && $activate && $add_async_attr && !in_array($handle, self::$js_no_async) )
 		{
-			Kidzou_Utils::log('Optimisation du chargement JS de ...' . $handle);
+			// Kidzou_Utils::log('Optimisation du chargement JS de ...' . $handle);
 			return preg_replace("/<script/", "<script async defer", $html);
 		}
 		return $html;
