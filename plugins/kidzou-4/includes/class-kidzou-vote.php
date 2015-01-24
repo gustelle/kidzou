@@ -2,8 +2,6 @@
 
 add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
 
-// wp_clear_scheduled_hook( 'set_featured_index' );
-
 // rafraichir l'index featured en fonction des votes
 if( !wp_next_scheduled( 'kidzou_votes_scheduler' ) ) {
    wp_schedule_event( time(), 'twicedaily', 'kidzou_votes_scheduler' );
@@ -71,7 +69,8 @@ class Kidzou_Vote {
 	 */
 	private function __construct() { 
 
-		add_action( 'wp_head', array($this, 'insert_template'));
+		if (!Kidzou_Utils::is_really_admin())
+			add_action( 'wp_head', array($this, 'insert_template'));
 	}
 
 

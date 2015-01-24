@@ -41,12 +41,6 @@ class Kidzou_Admin_Geo {
 	 */
 	protected static $coords = array();
 
-	/**
-	 *
-	 * @var      string
-	 */
-	protected static $meta_coords = 'kz_coords';
-
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
@@ -55,6 +49,8 @@ class Kidzou_Admin_Geo {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 
 		//nettoyage des transients de geoloc lorsque la taxo "ville bouge"
 		//merci https://www.dougv.com/2014/06/25/hooking-wordpress-taxonomy-changes-with-the-plugins-api/
@@ -101,6 +97,35 @@ class Kidzou_Admin_Geo {
 	}
 
 	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function enqueue_geo_scripts()
+	{
+		// $locator = self::$locator;
+		wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
+
+		$villes = Kidzou_GeoHelper::get_metropoles();
+
+		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+  
+		$args = array(
+					// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+					'geo_mapquest_key'			=> $key, 
+					'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
+					'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
+					// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
+					'geo_possible_metropoles'	=> $villes ,
+					// 'geo_coords'				=> $locator::COOKIE_COORDS,
+				);
+
+	    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+		
+	}
+
+	/**
 	 * Décleanchée a la demande, cette fonction synchronise les meta lat/lng de Kidzou avec le Geo Data Store
 	 *
 	 * @since proximite
@@ -110,9 +135,10 @@ class Kidzou_Admin_Geo {
 	public function sync_geo_data()
 	{
 
+		Kidzou_Utils::log('Kidzou_Admin_Geo [sync_geo_data]', true);
 		global $wpdb;
 
-		$post_types_list = implode('\',\'', Kidzou_Geo::get_supported_post_types() );
+		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types() );
 
 		//ajouter des quotes autour des valeurs
 		//$post_types_list = array_map( 'mysql_real_escape_string', $post_types_list);
@@ -129,11 +155,11 @@ class Kidzou_Admin_Geo {
 		foreach ( $result as $row )
 		{
 			$id = $row->ID;
-		   if ( Kidzou_Geo::has_post_location($id) && Kidzou_Events::isEventActive() )
+		   if ( Kidzou_GeoHelper::has_post_location($id) && Kidzou_Events::isEventActive() )
 		   {	
 		   		$post = get_post($id); 
 	   			$type = $post->post_type;
-		   		$location = Kidzou_Geo::get_post_location($id);
+		   		$location = Kidzou_GeoHelper::get_post_location($id);
 		   		$meta_key = 'kz_'.$type.'_location_latitude';
 
 		   		$mid = $wpdb->get_var( 
@@ -143,7 +169,7 @@ class Kidzou_Admin_Geo {
 		   		sc_GeoDataStore::after_post_meta( 
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
-		   			self::$meta_coords, 
+		   			Kidzou_GeoHelper::$meta_coords, 
 		   			$location['location_latitude'].','.$location['location_longitude'] 
 		   		);
 
@@ -165,7 +191,7 @@ class Kidzou_Admin_Geo {
 	{
 		global $post;
 
-		$keys[] = self::$meta_coords;
+		$keys[] = Kidzou_GeoHelper::META_COORDS;
     	return $keys;
 	}
 
@@ -178,6 +204,9 @@ class Kidzou_Admin_Geo {
 	*/
 	public static function after_post_meta( $meta_id, $post_id, $meta_key, $meta_value )
     {
+
+    	if (is_array($meta_value))
+    		$meta_value = implode(',', $meta_value);
 
     	Kidzou_Utils::log('after_post_meta ' . $meta_id.', '.$post_id.', '. $meta_key. ', '. $meta_value );
 
@@ -203,13 +232,13 @@ class Kidzou_Admin_Geo {
     	if ( isset(self::$coords['latitude']) && isset(self::$coords['longitude']) ) {
 
     		//checker que les valeurs lat/lng sont non nulles
-    		if (Kidzou_Geo::has_post_location($post_id))
+    		if (Kidzou_GeoHelper::has_post_location($post_id))
     		{
     			Kidzou_Utils::log('Storing in Geo Data Store : ' . self::$coords['latitude'].','. self::$coords['longitude']);
 	    		sc_GeoDataStore::after_post_meta( 
 					self::$coords['meta_id'], 
 					$post_id, 
-					self::$meta_coords, 
+					Kidzou_GeoHelper::META_COORDS, 
 					self::$coords['latitude'].','. self::$coords['longitude']
 				);
     		}
@@ -232,10 +261,10 @@ class Kidzou_Admin_Geo {
 		
 		global $wp_rewrite;
 
-		$wp_rewrite->set_category_base( Kidzou_Geo::$rewrite_tag . '/rubrique/');
-		$wp_rewrite->set_tag_base( Kidzou_Geo::$rewrite_tag . '/tag/');
+		$wp_rewrite->set_category_base( Kidzou_GeoHelper::$rewrite_tag . '/rubrique/');
+		$wp_rewrite->set_tag_base( Kidzou_GeoHelper::$rewrite_tag . '/tag/');
 
-		Kidzou_Geo::create_rewrite_rules();
+		flush_rewrite_rules();
 		
 	}
 
@@ -254,6 +283,8 @@ class Kidzou_Admin_Geo {
 
 		$wp_rewrite->set_category_base('rubrique/');
 		$wp_rewrite->set_tag_base('tag/');
+
+		flush_rewrite_rules();
 		
 	}
 

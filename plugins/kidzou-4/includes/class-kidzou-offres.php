@@ -27,18 +27,6 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Offres', 'get_instance' ) );
 class Kidzou_Offres {
 
 	/**
-	 * Plugin version, used for cache-busting of style and script file references.
-	 *
-	 * @since   1.0.0
-	 *
-	 * @var     string
-	 */
-	// const VERSION = '04-nov';
-
-
-	// private static $initialized = false;
-
-	/**
 	 * Instance of this class.
 	 *
 	 * @since    1.0.0
@@ -90,10 +78,10 @@ class Kidzou_Offres {
 			'menu_icon' 		 => 'dashicons-smiley',
 			'query_var'          => true,
 			'has_archive'        => true,
-			'rewrite' 			=> array('slug' => 'offres'),
+			'rewrite' 			 => array('slug' => 'offres'),
 			'hierarchical'       => false, //pas de hierarchie d'offres
-			'supports' 			=> array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions', 'post-formats'),
-			'taxonomies' 		=> array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
+			'supports' 			 => array( 'title', 'editor', 'author', 'thumbnail', 'excerpt', 'comments', 'custom-fields', 'revisions', 'post-formats'),
+			'taxonomies' 		 => array('age', 'ville', 'divers', 'category'), //reuse the taxo declared in kidzou plugin
 			);
 
 		register_post_type( 'offres', $args );

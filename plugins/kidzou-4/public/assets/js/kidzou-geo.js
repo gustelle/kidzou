@@ -1,6 +1,6 @@
 var kidzouGeoContent = (function () {
 
-	jQuery(document).ready(function() {
+	document.addEventListener('DOMContentLoaded', function(event) {
 
 		/////////////// Selection de Metropole dans la topnav ////////////////
 		//////////////////////////////////////
@@ -15,7 +15,7 @@ var kidzouGeoContent = (function () {
 			}); 
 		} 
 
-	});
+	}, false);
 
 	function getMetropole(lat, lng, callback) {
 

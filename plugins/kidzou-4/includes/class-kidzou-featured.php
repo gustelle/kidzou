@@ -54,7 +54,8 @@ class Kidzou_Featured {
 	private function __construct() { 
 
 		//mise en avant de posts
-		add_filter( 'posts_results', array( $this, 'order_query_by_featured'), PHP_INT_MAX, 2  );		
+		if (!Kidzou_Utils::is_really_admin())
+			add_filter( 'posts_results', array( $this, 'order_query_by_featured'), PHP_INT_MAX, 2  );		
 	}
 
 	/**
@@ -100,8 +101,8 @@ class Kidzou_Featured {
 	 **/
 	public static function getFeaturedPosts(  )
 	{
+		Kidzou_Utils::log('Kidzou_Featured [getFeaturedPosts]', true);
 		
-
 		$list = get_posts(array(
 					'meta_key'         => self::$meta_featured,
 					'meta_value'       => 'A',
@@ -119,6 +120,8 @@ class Kidzou_Featured {
 	 *
 	 */ 
 	public function order_query_by_featured($posts, $query) {
+
+		Kidzou_Utils::log('Kidzou_Featured [order_query_by_featured]', true);
 
 		$post_type = $query->get('post_type');
 

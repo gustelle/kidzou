@@ -95,9 +95,9 @@ class Kidzou_Admin {
 		 * @see  http://wordpress.stackexchange.com/questions/50738/why-do-some-hooks-not-work-inside-class-context
 		 * 
 		 */ 
-		add_action('wp_loaded', array(&$this, 'init'));
+		add_action('wp_loaded', array($this, 'init'));
 
-		add_action( 'admin_notices', array(&$this, 'notify_admin') );
+		add_action( 'admin_notices', array($this, 'notify_admin') );
 
 
 	}
@@ -109,7 +109,8 @@ class Kidzou_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		//scripts partagés
-		add_action( 'admin_enqueue_scripts', array( Kidzou_Geo::get_instance() , 'enqueue_geo_scripts' ) );
+		//todo : clarifier pourquoi on a besoin de ca
+		// add_action( 'admin_enqueue_scripts', array( Kidzou_Geo::get_instance() , 'enqueue_geo_scripts' ) );
 
 		// Add the options page and menu item.
 		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
@@ -200,7 +201,7 @@ class Kidzou_Admin {
 	
 
 	/**
-	 * filtre la liste des evenements dans l'écran d'admin pour que les 'pro', contrib et auteurs
+	 * filtre la liste des evenements dans l'écran d'admin pour que les 'pro' et contrib 
 	 * ne voient que LEURS contenus, et pas ceux saisis par les autres dans l'admin
 	 *
 	 * @return void
@@ -208,11 +209,11 @@ class Kidzou_Admin {
 	 **/
 	public function contrib_contents_filter( $wp_query ) {
 
-	    if ( is_admin() && strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false && 
-	        ( !Kidzou_Utils::current_user_is('author') ) ) {
+	    if ( strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false  && ( !Kidzou_Utils::current_user_is('author') )) {
 		        global $current_user;
-		        $wp_query->set( 'author', $current_user->id );
-		        // print_r($wp_query);
+		        $wp_query->set( 'author', $current_user->ID );
+
+		        Kidzou_Utils::log("Kidzou_Admin [contrib_contents_filter]", true);
 		    }
 	}
 
@@ -232,7 +233,7 @@ class Kidzou_Admin {
 	        return;
 
 	    /* Get the terms of the 'profession' taxonomy. */
-	    $values = Kidzou_Geo::get_metropoles();
+	    $values = Kidzou_GeoHelper::get_metropoles();
 
 	    //valeur déjà enregistrée pour l'event ?
 	    $metros = wp_get_object_terms($user->ID, 'ville', array("fields" => "all"));
@@ -293,7 +294,7 @@ class Kidzou_Admin {
 	    //meta metropole
 	    $set = isset( $_POST['kz_user_metropole']) ;
 	    if ( !$set ) {
-	    	$metropole_slug = Kidzou_Geo::get_default_metropole();
+	    	$metropole_slug = Kidzou_GeoHelper::get_default_metropole();
 	    	$metropole = get_term_by( 'slug', $metropole_slug, 'ville' );
 	    } else {
 	    	$metropole = $_POST['kz_user_metropole'];
@@ -342,7 +343,7 @@ class Kidzou_Admin {
 	    if (!Kidzou_Utils::current_user_is('author')) {
 
 	    	//la metropole est la metropole de rattachement du user
-		    $metropoles = (array)self::get_user_metropoles();
+		    $metropoles = (array)self::get_user_metropoles(get_current_user_id());
 		    $ametro = $metropoles[0];
 		    $metro_id = $ametro->term_id;
 
@@ -498,7 +499,7 @@ class Kidzou_Admin {
 			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 
 			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), '1.0', true);
-			wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), '1.0', true);
+			// wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), '1.0', true);
 			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', __FILE__ ) ,array('jquery','ko-mapping'), '1.0', true);
 			
 			//gestion des events
@@ -602,6 +603,7 @@ class Kidzou_Admin {
 	 **/
 	public function customer_posts_metabox()
 	{
+		Kidzou_Utils::log( 'Kidzou_Admin [customer_posts_metabox]',true);
 
 		global $post;
 
@@ -663,7 +665,8 @@ class Kidzou_Admin {
 	 **/
 	public function customer_users_metabox()
 	{	
-
+		Kidzou_Utils::log('Kidzou_Admin [customer_users_metabox]',true);
+		
 		global $post;
 
 		$post_id = $post->ID; //echo $post_id;
@@ -724,7 +727,7 @@ class Kidzou_Admin {
 	 **/
 	public function customer_apis()
 	{
-
+		Kidzou_Utils::log('Kidzou_Admin [customer_apis]',true);
 		global $post;
 
 		// Noncename needed to verify where the data originated
@@ -781,6 +784,7 @@ class Kidzou_Admin {
 	 **/
 	public function client_metabox()
 	{ 
+		Kidzou_Utils::log('Kidzou_Admin [client_metabox]',true);
 		global $post; 
 
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
@@ -1023,11 +1027,12 @@ class Kidzou_Admin {
 	 **/
 	public function place_metabox()
 	{
+		Kidzou_Utils::log('Kidzou_Admin [place_metabox]', true);
 		global $post;
 		// Noncename needed to verify where the data originated
 		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
-		$location = Kidzou_Geo::get_post_location($post->ID); 
+		$location = Kidzou_GeoHelper::get_post_location($post->ID); 
 
 		// Get the location data if its already been entered
 		$location_name 		= $location['location_name'];
@@ -1060,7 +1065,7 @@ class Kidzou_Admin {
 					$id=0;
 			}
 
-			$location = Kidzou_Geo::get_post_location($id);
+			$location = Kidzou_GeoHelper::get_post_location($id);
 
 			if (isset($location['location_name']) && $location['location_name']!='') {
 
@@ -1229,6 +1234,9 @@ class Kidzou_Admin {
 	 **/
 	public function save_rewrite_meta($post_id) {
 
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
+
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['rewrite_metabox_nonce'] ) )
 			return $post_id;
@@ -1265,6 +1273,8 @@ class Kidzou_Admin {
 	public function save_event_meta($post_id)
 	{
 
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
 
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['event_metabox_nonce'] ) )
@@ -1320,7 +1330,9 @@ class Kidzou_Admin {
 	 * @author 
 	 **/
 	public function save_place_meta($post_id)
-	{
+	{	
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
 
 		if ( ! isset( $_POST['placemeta_noncename'] ) )
 			return $post_id;
@@ -1360,6 +1372,8 @@ class Kidzou_Admin {
 	 **/
 	public function save_client_meta ($post_id)
 	{
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
 
 		// Kidzou_Utils::log('save_client_meta');
 
@@ -1415,6 +1429,9 @@ class Kidzou_Admin {
 	 **/
 	function set_customer_users ($post_id)
 	{
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
+
 		$slug = 'customer';
 
 	    // If this isn't a 'book' post, don't update it.
@@ -1438,9 +1455,7 @@ class Kidzou_Admin {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		// $tmp_users = array();
 		$main = array();
-		// $second = array();
 		$meta = array();
 
 		$tmp_post = $_POST['main_users_input'];
@@ -1454,22 +1469,12 @@ class Kidzou_Admin {
 				$main[] = intval($pieces[0]);
 		}
 
-		// $tmp_post = $_POST['second_users_input'];
-		// $tmp_token = explode(",", $tmp_post );
-		// foreach ($tmp_token as $tok) {
-		// 	$pieces = explode(":", $tok );
-		// 	$second[] = intval($pieces[0]);
-		// }
-
-	
 		//sauvegarder également coté user pour donner les rôles
 		
 		//il faut faire un DIFF :
 		//recolter la liste des users existants sur ce client
 		//comparer à la liste des users passés dans le POST
 		//supprimer, ajouter selon les cas
-
-		// $allusers = array_merge($main, $second);
 
 
 		//boucle primaire
@@ -1508,7 +1513,7 @@ class Kidzou_Admin {
 			Kidzou_Utils::log(  'User ' . $a_user . ' : add_user_meta'   );
 
 		    // add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
-		    $prev_customers = get_user_meta($user_id, $key, false);   //plusieurs meta customer par user
+		    $prev_customers = get_user_meta($a_user, Kidzou_Customer::$meta_customer, false);   //plusieurs meta customer par user
 
 		    if ( empty($prev_customers) )
 		     	$prev_customers = array();
@@ -1584,6 +1589,9 @@ class Kidzou_Admin {
 	 **/
 	function set_customer_posts ($post_id)
 	{
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
+
 		$slug = 'customer';
 
 	    // If this isn't a 'book' post, don't update it.
@@ -1663,6 +1671,9 @@ class Kidzou_Admin {
 	 **/
 	function set_customer_apis ($post_id)
 	{
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
+
 		$slug = 'customer';
 
 	    // If this isn't a 'book' post, don't update it.
@@ -1733,7 +1744,8 @@ class Kidzou_Admin {
 	 **/
 	public function save_post_metropole($post_id)
 	{
-		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
 	    
 	    if ( Kidzou_Utils::current_user_is('author') ) {
 
@@ -1757,6 +1769,8 @@ class Kidzou_Admin {
 	{
 	    if (!$post_id) return;
 
+	    if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
 
 	    $user_id = get_current_user_id();
 

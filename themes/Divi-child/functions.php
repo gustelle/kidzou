@@ -146,6 +146,8 @@ function filter_archive_query($query)
 {
 	if (is_archive() && $query->is_main_query() && !is_admin()) {
 
+		Kidzou_Utils::log('functions.php [filter_archive_query]',true);
+
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set('nopaging', true);
 		$query->set('posts_per_page', '-1' ); 
@@ -214,13 +216,13 @@ function kz_mailchimp_key()
  **/
 function get_post_footer()
 {
-	
+	$locator = new Kidzou_Geolocator();
 	$lists = et_pb_get_mailchimp_lists();
 
 	if(!empty($lists) && is_array($lists)) {
 		$key = kz_mailchimp_key();
 
-		$posts_ids_objects = Kidzou_Geo::get_related_posts();
+		$posts_ids_objects = $locator->get_related_posts();
 		$ids = array();
 
 		foreach ($posts_ids_objects as $id_object) {
@@ -1370,6 +1372,8 @@ function kz_pb_user_favs( $atts ) {
  *
  */
 function kz_pb_proximite( $atts ) {
+
+	$locator = new Kidzou_Geolocator();
 	
 	extract( shortcode_atts( array(
 			'module_id' => '',
@@ -1395,14 +1399,14 @@ function kz_pb_proximite( $atts ) {
 		true 
 	);
 
-	$is_geolocalized = Kidzou_Geo::is_request_geolocalized();
+	$is_geolocalized = $locator->is_request_geolocalized();
 
 	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode=='with_map') 
 		wp_enqueue_script( 'google-maps-api' );
 
 	//initialement : récupérer les coords 
-	$coords = Kidzou_Geo::get_request_coords();
-	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
+	$coords = $locator->get_request_coords();
+	$ids = $locator->getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
 	$portfolio = kz_pb_render_proximite_portfolio(
 		$coords,
@@ -1507,6 +1511,8 @@ function kz_pb_proximite( $atts ) {
  */
 function kz_pb_proximite_content() {
 
+	$locator = new Kidzou_Geolocator();
+
 	if ( !wp_verify_nonce( $_REQUEST['nonce'], "kz_pb_proximite")) {
 		exit("...<i class='fa pull-left fa-exclamation-circle'></i> Nous ne pouvons rafraichir les r&eacute;sultats");
 	}   
@@ -1524,7 +1530,7 @@ function kz_pb_proximite_content() {
 
 	// Kidzou_Utils::log($_POST);
 
-	$ids = Kidzou_Geo::getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
+	$ids = $locator->getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
 
 	$portfolio = kz_pb_render_proximite_portfolio(
 		$coords,
@@ -1778,6 +1784,8 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  *
  */
 function get_portfolio_items( $args = array() ) {
+
+	Kidzou_Utils::log('functions.php [get_portfolio_items]',true);
 
 	// return Kidzou_Geo::WP_Query( $args ) ;
 	// $args['get_portfolio_items'] = true;
