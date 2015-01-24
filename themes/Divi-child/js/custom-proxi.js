@@ -163,9 +163,11 @@ var kidzouProximite = (function(){
 
 		function initialize( ) {
 
+			console.debug('Init map ' + kidzou_proxi.display_mode);
+
 			if (kidzou_proxi.display_mode == 'with_map')
 			{
-
+				console.debug('[center] ' + mapContainer.dataset.center_lat + '/' + mapContainer.dataset.center_lng);
 				map = new google.maps.Map( mapContainer, {
 						zoom: parseInt(kidzou_proxi.zoom),
 						center: new google.maps.LatLng( parseFloat( mapContainer.dataset.center_lat ) , parseFloat( mapContainer.dataset.center_lng )),

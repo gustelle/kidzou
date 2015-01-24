@@ -169,7 +169,7 @@ class Kidzou_Admin_Geo {
 		   		sc_GeoDataStore::after_post_meta( 
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
-		   			Kidzou_GeoHelper::$meta_coords, 
+		   			Kidzou_GeoHelper::META_COORDS, 
 		   			$location['location_latitude'].','.$location['location_longitude'] 
 		   		);
 
@@ -261,8 +261,8 @@ class Kidzou_Admin_Geo {
 		
 		global $wp_rewrite;
 
-		$wp_rewrite->set_category_base( Kidzou_GeoHelper::$rewrite_tag . '/rubrique/');
-		$wp_rewrite->set_tag_base( Kidzou_GeoHelper::$rewrite_tag . '/tag/');
+		$wp_rewrite->set_category_base( Kidzou_GeoHelper::REWRITE_TAG . '/rubrique/');
+		$wp_rewrite->set_tag_base( Kidzou_GeoHelper::REWRITE_TAG . '/tag/');
 
 		flush_rewrite_rules();
 		
