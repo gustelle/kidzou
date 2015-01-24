@@ -17,10 +17,10 @@ var kidzouPlaceModule = (function() { //havre de paix
 	       //Faire un MapQuest avec la ville et appeler 
 
 	       //1er webservice pour recuperer lat et lng
-	       kidzouGeoContent.getLatLng(newValue, function(pos) {
+	       kidzouAdminGeo.getLatLng(newValue, function(pos) {
 
 	       		//2eme webservice pour la metropole
-				kidzouGeoContent.getMetropole(pos.lat,pos.lng, function(metropole) {
+				kidzouAdminGeo.getMetropole(pos.lat,pos.lng, function(metropole) {
 					updateVilleTaxonomy(null, metropole);
 				});
 
@@ -142,7 +142,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 					)
 				); 
 
-				kidzouGeoContent.getMetropole(
+				kidzouAdminGeo.getMetropole(
 					result.geometry.location.lat(), 
 					result.geometry.location.lng(), function(metropole) {
 													updateVilleTaxonomy(jQuery("#post_ID").val(),metropole);

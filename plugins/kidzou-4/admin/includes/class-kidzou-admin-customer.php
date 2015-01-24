@@ -77,14 +77,12 @@ class Kidzou_Admin_Customer {
 	 **/
 	public function add_metaboxes()
 	{
-		if ( Kidzou_Utils::is_really_admin()  )
-		{
-			$screen = get_current_screen(); 
+		Kidzou_Utils::log('Kidzou_Admin_Customer [add_metaboxes]', true);
+		$screen = get_current_screen(); 
 
-			if ($screen->id =='customer' )
-				add_meta_box('kz_customer_analytics_metabox', 'Google Analytics', array($this, 'add_analytics_metabox'), $screen->id, 'normal', 'high'); 
+		if ($screen->id =='customer' )
+			add_meta_box('kz_customer_analytics_metabox', 'Google Analytics', array($this, 'add_analytics_metabox'), $screen->id, 'normal', 'high'); 
 
-		}
 	}
 
 	/**
@@ -134,6 +132,9 @@ class Kidzou_Admin_Customer {
 	 **/
 	public function save_analytics_metabox($post_id)
 	{
+		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
+
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['analytics_metabox_nonce'] ) )
 			return $post_id;
@@ -144,14 +145,9 @@ class Kidzou_Admin_Customer {
 		if ( ! wp_verify_nonce( $nonce, 'analytics_metabox' ) )
 			return $post_id;
 
-		// If this is an autosave, our form has not been submitted,
-        // so we don't want to do anything.
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) 
-			return $post_id;
-
 		$meta = array();
 
-		if ( !isset($_POST[self::$meta_customer_analytics]) )
+		if ( !isset($_POST[Kidzou_Customer::$meta_customer_analytics]) )
 			$meta[Kidzou_Customer::$meta_customer_analytics] = false;
 		else
 			$meta[Kidzou_Customer::$meta_customer_analytics] = ($_POST[Kidzou_Customer::$meta_customer_analytics]=='on');

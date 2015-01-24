@@ -1,6 +1,9 @@
 <div id="main-content" class="entry">
 <!--If no results are found-->
 
+
+	<?php $locator = new Kidzou_Geolocator(); ?>
+
 	<h1 class="centerme"><?php esc_html_e('Nous ne trouvons rien &agrave; proximit&eacute; imm&eacute;diate ...','Divi'); ?></h1>
 	<br/>
 
@@ -21,7 +24,7 @@
 	<script>
 	document.addEventListener('DOMContentLoaded', function() {
 		if (window.kidzouTracker)
-	  		kidzouTracker.trackEvent("Aucun Contenu", "A Proximite/Initial", <?php echo Kidzou_Geo::is_request_geolocalized(); ?> , 0);
+	  		kidzouTracker.trackEvent("Aucun Contenu", "A Proximite/Initial", <?php echo $locator->is_request_geolocalized(); ?> , 0);
 	});
 		
 	</script>

@@ -129,7 +129,7 @@
 						$active = Kidzou_Utils::get_option('geo_activate', false);
 						if ($active)
 						{
-							$metropoles = Kidzou_Geo::get_metropoles();
+							$metropoles = Kidzou_GeoHelper::get_metropoles();
 							$ttes_metros = '';
 
 							if (count($metropoles)>1) 

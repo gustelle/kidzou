@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0115-debug';
+	const VERSION = '0115-proximite';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Favoris Utilisateurs";
+	public static $version_description = "Correctifs sur la fonction 'a proximite'";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -557,39 +557,45 @@ class Kidzou {
 	 */
 	public function enqueue_scripts() {
 
-		global $kidzou_options;
-
 		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( 'kidzou-4/assets/js/kidzou-storage.js' ), array( 'jquery', 'ko', 'ko-mapping' ), self::VERSION, true);
-		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko', 'kidzou-storage'), self::VERSION, true );
 		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
 		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
+
+		if (!Kidzou_Utils::is_really_admin())
+		{
+			global $kidzou_options;
+
+			wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko', 'kidzou-storage'), self::VERSION, true );
+			
+			wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
+					'msg_wait'			 			 => 'Merci de patienter...',
+					'msg_loading'				 	 => 'Chargement en cours...',
+					'msg_auth_onprogress'			 => "Connexion en cours, merci de votre patience",
+					'msg_auth_success'				 => "Connexion r&eacute;ussie, la page va se recharger...",
+					'msg_auth_failed'				 => "Echec de connexion",
+					'votable_countText' 			 => "Cool",
+					'votable_countText_down'		 => "Pas cool",
+					'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
+					'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
+					'cfg_site_url'		 			 =>  site_url().'/',
+					'cfg_debug_mode' 	 			 =>  (bool)Kidzou_Utils::get_option('debug_mode'),
+					'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
+					'api_get_event'					 =>  site_url().'/api/events/get_event/',
+					'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 
+					'api_get_votes_user'			 =>  site_url().'/api/vote/get_votes_user/',
+					'api_vote_up'			 		 =>  site_url().'/api/vote/up/',
+					'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
+					'api_voted_by_user'				 => site_url().'/api/vote/voted_by_user/',
+					'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
+					'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
+					'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
+					// 'analytics_ua'					 => Kidzou_Utils::get_option('analytics_ua', 'UA-23017523-1'),
+					// 'analytics_activate'			 => (bool)Kidzou_Utils::get_option('analytics_activate'),
+				)
+			);
+		}
+
 		
-		wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
-				'msg_wait'			 			 => 'Merci de patienter...',
-				'msg_loading'				 	 => 'Chargement en cours...',
-				'msg_auth_onprogress'			 => "Connexion en cours, merci de votre patience",
-				'msg_auth_success'				 => "Connexion r&eacute;ussie, la page va se recharger...",
-				'msg_auth_failed'				 => "Echec de connexion",
-				'votable_countText' 			 => "Cool",
-				'votable_countText_down'		 => "Pas cool",
-				'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
-				'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
-				'cfg_site_url'		 			 =>  site_url().'/',
-				'cfg_debug_mode' 	 			 =>  (bool)Kidzou_Utils::get_option('debug_mode'),
-				'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
-				'api_get_event'					 =>  site_url().'/api/events/get_event/',
-				'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 
-				'api_get_votes_user'			 =>  site_url().'/api/vote/get_votes_user/',
-				'api_vote_up'			 		 =>  site_url().'/api/vote/up/',
-				'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
-				'api_voted_by_user'				 => site_url().'/api/vote/voted_by_user/',
-				'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
-				'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
-				'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
-				// 'analytics_ua'					 => Kidzou_Utils::get_option('analytics_ua', 'UA-23017523-1'),
-				// 'analytics_activate'			 => (bool)Kidzou_Utils::get_option('analytics_activate'),
-			)
-		);
 	}
 
 	
