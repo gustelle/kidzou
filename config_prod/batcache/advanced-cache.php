@@ -38,11 +38,6 @@ function vary_cache_on_function($function) {
 	$batcache->add_variant($function);
 }
 
-/* ========= Hack Kidzou ================== */
-vary_cache_on_function(
-        'return (bool) (isset( $_COOKIE["kz_metropole"] ) && $_COOKIE["kz_metropole"]=="valenciennes");'
-    );
-/* ========= Hack Kidzou ================== */
 
 class batcache {
 	// This is the base configuration. You can edit these variables or move them into your wp-config.php file.
@@ -329,14 +324,21 @@ if ( in_array(
 	return;
 
 /* ========= Hack Kidzou ================== */
-// Never batcache la page 'a-proximite'
+// Never batcache les pages ci-dessous
 $kidzou_pages = array(
-	'/a-proximite', //your cart uri
+	'/a-proximite', //geolocalisation, ne pas cacher
 );
  
 foreach( $kidzou_pages as $kidzou_uri )
 	if( strstr( $_SERVER['REQUEST_URI'], $kidzou_uri ) )
 	return;
+
+//vary cache par metropole
+vary_cache_on_function(
+        'return (bool) (isset( $_COOKIE["kz_metropole"] ) && $_COOKIE["kz_metropole"]=="valenciennes");'
+    );
+
+// echo 'vary_cache_on_function ? '.(isset( $_COOKIE["kz_metropole"] ) && $_COOKIE["kz_metropole"]=="valenciennes" ?'yes':'no');
 
 /* ========= Hack Kidzou ================== */
 
