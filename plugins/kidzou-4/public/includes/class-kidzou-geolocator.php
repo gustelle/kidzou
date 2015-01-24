@@ -24,9 +24,9 @@ class Kidzou_Geolocator {
 
 	const COOKIE_COORDS = 'kz_coords';
 
-	protected $request_metropole = null;
+	protected $request_metropole = '';
 
-	protected $request_coords = null;	
+	protected $request_coords = array();	
 
 	protected $is_request_geolocalized = false;
 
@@ -194,11 +194,12 @@ class Kidzou_Geolocator {
 
 		if ( isset($_COOKIE[self::COOKIE_COORDS]) ) {
 
-			$this->request_coords = json_decode(
-					$_COOKIE[self::COOKIE_COORDS], 
+			$cookie_val = json_decode(
+					stripslashes($_COOKIE[self::COOKIE_COORDS]), 
 					true
 				);
 
+			$this->request_coords = $cookie_val;
 			$this->is_request_geolocalized = true;
 
 		} else {
@@ -221,6 +222,8 @@ class Kidzou_Geolocator {
 	 **/
 	public function get_request_metropole()
 	{
+		Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole);
+
 		return $this->request_metropole;
 	}
 
@@ -232,6 +235,10 @@ class Kidzou_Geolocator {
 	 **/
 	public function get_request_coords()
 	{
+		$coords = $this->request_coords;
+
+		Kidzou_Utils::log('Kidzou_Geolocator [get_request_coords] '. $coords['latitude'].'/'. $coords['longitude']);
+
 		return $this->request_coords;
 	}
 
@@ -345,6 +352,7 @@ class Kidzou_Geolocator {
 	 **/
 	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
 	{
+		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] ' . $search_lat.'/' . $search_lng);
 		// $post_type = 'post';
 		$tablename = "geodatastore";
 		$orderby = "ASC";
