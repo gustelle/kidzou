@@ -37,6 +37,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 $directories = array(
             'public/', //obligé pour Kidzou.php
+            'public/includes/', //obligé pour le traitement des shortcodes dans l'admin
             'includes/',
             'includes/query/',
             'includes/TGM/',
@@ -57,7 +58,6 @@ foreach ($directories as $directory) {
 if (!is_admin()) {
 
     $public_directories = array(
-            'public/includes/',
             'public/views/',
     );
 
