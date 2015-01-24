@@ -95,28 +95,30 @@ class Kidzou_WebPerf {
 	 */
 	private function __construct() { 
 
+		if (!Kidzou_Utils::is_really_admin())
+		{
+			//important de le faire tourner en dernier pour récupérer une liste complete de JS
+			add_action( 'wp_print_scripts', array( $this, 'enqueue_scripts' ), PHP_INT_MAX);
+			add_action( 'wp_print_styles', array( $this, 'enqueue_styles' ), PHP_INT_MAX);
 
+			add_action( 'wp_print_footer_scrits',	array($this,'arrange_footer_scripts'),	PHP_INT_MAX);
 
-		//important de le faire tourner en dernier pour récupérer une liste complete de JS
-		add_action( 'wp_print_scripts', array( $this, 'enqueue_scripts' ), PHP_INT_MAX);
-		add_action( 'wp_print_styles', array( $this, 'enqueue_styles' ), PHP_INT_MAX);
+			//chargement des scripts du footer en async
+			//todo : utiliser add_filter(script_loader_tag)
+			//voir https://developer.wordpress.org/reference/classes/wp_scripts/do_item/
+			// add_filter( 'clean_url', array($this,'load_js_async'), 11, 1);
+			add_filter('script_loader_tag', array($this,'add_aync_attr'), 11, 2);
 
-		add_action( 'wp_print_footer_scrits',	array($this,'arrange_footer_scripts'),	PHP_INT_MAX);
+			//supprimer les id des css (https://blog.codecentric.de/en/2011/10/wordpress-and-mod_pagespeed-why-combine_css-does-not-work/)
+			add_filter('style_loader_tag', array($this,'remove_style_id'), 11, 2);
 
-		//chargement des scripts du footer en async
-		//todo : utiliser add_filter(script_loader_tag)
-		//voir https://developer.wordpress.org/reference/classes/wp_scripts/do_item/
-		// add_filter( 'clean_url', array($this,'load_js_async'), 11, 1);
-		add_filter('script_loader_tag', array($this,'add_aync_attr'), 11, 2);
+			self::$js_no_async = array_merge(self::$js_no_async, Kidzou_Utils::get_option('perf_js_no_async', array()));
 
-		//supprimer les id des css (https://blog.codecentric.de/en/2011/10/wordpress-and-mod_pagespeed-why-combine_css-does-not-work/)
-		add_filter('style_loader_tag', array($this,'remove_style_id'), 11, 2);
+			self::$css_no_combine = array_merge(self::$css_no_combine, Kidzou_Utils::get_option('perf_css_no_combine', array()));
 
-		self::$js_no_async = array_merge(self::$js_no_async, Kidzou_Utils::get_option('perf_js_no_async', array()));
-
-		self::$css_no_combine = array_merge(self::$css_no_combine, Kidzou_Utils::get_option('perf_css_no_combine', array()));
-
-		add_action( 'wp_footer', array($this, 'load_css_async'), PHP_INT_MAX);
+			add_action( 'wp_footer', array($this, 'load_css_async'), PHP_INT_MAX);
+		}
+	
 	}
 
 	/**

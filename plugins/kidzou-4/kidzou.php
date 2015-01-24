@@ -32,25 +32,16 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /*----------------------------------------------------------------------------*
- * Public-Facing Functionality
+ * Shared Functionality
  *----------------------------------------------------------------------------*/
 
-/*
- * @TODO:
- *
- * - replace `class-plugin-name.php` with the name of the plugin's class file
- *
- */
-
 $directories = array(
+            'public/', //obligé pour Kidzou.php
             'includes/',
             'includes/query/',
             'includes/TGM/',
             'includes/Carbon/',
             'includes/redux/',
-            'public/',
-            'public/includes/',
-            'public/views/',
         );
 
 foreach ($directories as $directory) {
@@ -59,6 +50,24 @@ foreach ($directories as $directory) {
     }
 }
 
+/*----------------------------------------------------------------------------*
+ * Public-Facing Functionality
+ *----------------------------------------------------------------------------*/
+
+if (!is_admin()) {
+
+    $public_directories = array(
+            'public/includes/',
+            'public/views/',
+    );
+
+    foreach ($public_directories as $public_dir) {
+        foreach(glob( plugin_dir_path( __FILE__ ) .$public_dir . "*.php") as $pub_class) {
+            include_once $pub_class;
+        }
+    }
+
+}
 
 /*
  * Register hooks that are fired when the plugin is activated or deactivated.
@@ -110,13 +119,12 @@ if ( is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
             'admin/views/'
     );
     foreach ($admin_directories as $admin_directory) {
-        foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $class) {
-            include_once $class;
+        foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $admin_class) {
+            include_once $admin_class;
         }
     }
 
 	add_action( 'plugins_loaded', array( 'Kidzou_Admin', 'get_instance' ) );
 
 }
-
-
+?>

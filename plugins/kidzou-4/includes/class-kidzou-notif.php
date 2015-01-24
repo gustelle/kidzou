@@ -48,7 +48,8 @@ class Kidzou_Notif {
 	private function __construct() { 
 
 		// Load public-facing style sheet and JavaScript.
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		if  (!Kidzou_Utils::is_really_admin())
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 	}
 
@@ -104,6 +105,7 @@ class Kidzou_Notif {
 	 **/
 	public static function get_messages()
 	{
+		Kidzou_Utils::log('Kidzou_Notif [get_messages]',true);
 		global $post;
 
 		$messages = array();

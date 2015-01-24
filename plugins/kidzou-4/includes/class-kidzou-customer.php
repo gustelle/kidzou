@@ -45,14 +45,29 @@ class Kidzou_Customer {
 	 */
 	protected static $meta = '';
 
+	/**
+	 * @todo : transformer en const
+	 */ 
 	public static $meta_customer = 'kz_customer';
 
+	/**
+	 * @todo : transformer en const
+	 */ 
 	public static $meta_api_key = 'kz_api_key';
 
+	/**
+	 * @todo : transformer en const
+	 */ 
 	public static $meta_api_quota = 'kz_api_quota';
 
+	/**
+	 * @todo : transformer en const
+	 */ 
 	public static $meta_api_usage = 'kz_api_usage';
 
+	/**
+	 * @todo : transformer en const
+	 */ 
 	public static $meta_customer_analytics = 'kz_customer_analytics';
 
 	/**
@@ -81,7 +96,7 @@ class Kidzou_Customer {
 		add_action('init', array($this, 'register_customer_type'));
 
 		//pour le F.O
-		if (class_exists('GADASH_Frontend'))
+		if (class_exists('GADASH_Frontend') && !Kidzou_Utils::is_really_admin() )
 		{
 			add_action('wp', array($this, 'check_customer_analytics'), 0);
 		}
@@ -116,7 +131,8 @@ class Kidzou_Customer {
 	 **/
 	public function check_customer_analytics()
 	{
-		if (is_user_logged_in() && !Kidzou_Utils::is_really_admin() && !Kidzou_Utils::current_user_is('author'))
+		Kidzou_Utils::log('Kidzou_Customer [check_customer_analytics]',true);
+		if (is_user_logged_in() && !Kidzou_Utils::current_user_is('author'))
 		{
 			$remove_analytics = false;
 			$activate = Kidzou_Utils::get_option('customer_analytics_activate', false);
@@ -175,6 +191,8 @@ class Kidzou_Customer {
 
 		//definir les custom post types
 		//ne pas faire a chaque appel de page 
+
+		Kidzou_Utils::log('Kidzou_Customer [register_customer_type]',true);
 
 		$labels = array(
 			'name'               => 'Clients &amp; Partenaires',

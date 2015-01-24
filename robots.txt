@@ -7,16 +7,16 @@ Disallow: /cgi-bin/
 Disallow: /wp-admin/
 Disallow: /wp-includes/
 Disallow: /wp-content/
-Disallow: /archives/
+#Disallow: /archives/
 Disallow: /*?*
 Disallow: *?replytocom
 Disallow: /wp-*
 Disallow: /comments/feed/
-Disallow: /tag/*
-Disallow: /author/*
-Disallow: /ville/*
-Disallow: /divers/*
-Disallow: /age/*
+#Disallow: /tag/*
+#Disallow: /author/*
+#Disallow: /ville/*
+#Disallow: /divers/*
+#Disallow: /age/*
 # indexer les fichiers mis en ligne dans vos articles et pages (images, vidéos, audio,...)
 Allow: /wp-content/uploads
 # On bloque les URL de ping et de trackback

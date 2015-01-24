@@ -8,6 +8,11 @@ Controller Author: Kidzou
 
 class JSON_API_Content_Controller {
 
+	/**
+	 * fournit la liste des extraits de tous les contenus produits depuis une date donnée 
+	 *
+	 * @todo : API 'my_content'
+	 */
 	public function excerpts() {
 
 		global $json_api;
@@ -64,7 +69,7 @@ class JSON_API_Content_Controller {
 
 			setup_postdata($post);
 			$dates = Kidzou_Events::getEventDates($post->ID);
-			$location = Kidzou_Geo::get_post_location($post->ID);
+			$location = Kidzou_GeoHelper::get_post_location($post->ID);
 			$author = get_the_author();
 			$publish_date = get_the_date('Y-m-d');
 			$excerpt = get_the_excerpt();
