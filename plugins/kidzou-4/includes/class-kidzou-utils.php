@@ -192,7 +192,7 @@ class Kidzou_Utils {
 				break;
 		}
 
-		Kidzou_Utils::log('Kidzou_Utils [current_user_is] '. $role . ' = ' . ($is_user ? 'yes' : 'no') , true );
+		// Kidzou_Utils::log('Kidzou_Utils [current_user_is] '. $role . ' = ' . ($is_user ? 'yes' : 'no') , true );
 
 		return $is_user;
 	}
