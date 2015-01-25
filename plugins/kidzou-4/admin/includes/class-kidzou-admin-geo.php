@@ -162,12 +162,15 @@ class Kidzou_Admin_Geo {
 		   		$mid = $wpdb->get_var( 
 		   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
 		   		);
-		   		// Kidzou_Utils::log($wpdb->last_query);
+
+		   		//Positionner la locale pour pb d'insertion en bas MySQL (conversio nde 3.12345 en 3.0000)
+		   		//voir ici http://stackoverflow.com/questions/14434762/php-float-double-stored-as-mysql-decimal
+		   		setlocale(LC_ALL, 'en_US');
 		   		sc_GeoDataStore::after_post_meta( 
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
 		   			Kidzou_GeoHelper::META_COORDS, 
-		   			floatval(str_replace(',','.',$location['location_latitude'])).','.floatval(str_replace(',','.',$location['location_longitude']))
+		   			$location['location_latitude'].','.$location['location_longitude']
 		   		);
 
 		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $location['location_latitude'].','.$location['location_longitude'] );
