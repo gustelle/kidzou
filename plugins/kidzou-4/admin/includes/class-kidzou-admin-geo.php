@@ -170,7 +170,7 @@ class Kidzou_Admin_Geo {
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
 		   			Kidzou_GeoHelper::META_COORDS, 
-		   			$location['location_latitude'].','.$location['location_longitude']
+		   			str_replace(',', '.', $location['location_latitude']).','.str_replace(',', '.', $location['location_longitude'])
 		   		);
 
 		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $location['location_latitude'].','.$location['location_longitude'] );
