@@ -498,12 +498,11 @@ class Kidzou_Admin {
 			
 			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 
-			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), '1.0', true);
-			// wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), '1.0', true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', __FILE__ ) ,array('jquery','ko-mapping'), '1.0', true);
+			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), Kidzou::VERSION, true);
+			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', __FILE__ ) ,array('jquery','ko-mapping'), Kidzou::VERSION, true);
 			
 			//gestion des events
-			wp_enqueue_script('kidzou-event', plugins_url( 'assets/js/kidzou-event.js', __FILE__ ) ,array('jquery','ko-mapping', 'moment'), '1.0', true);
+			wp_enqueue_script('kidzou-event', plugins_url( 'assets/js/kidzou-event.js', __FILE__ ) ,array('jquery','ko-mapping', 'moment'), Kidzou::VERSION, true);
 			wp_enqueue_script('moment',			"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
 			wp_enqueue_script('moment-locale',	"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
 			wp_enqueue_script('jquery-ui-core');
@@ -531,9 +530,8 @@ class Kidzou_Admin {
 			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', __FILE__ ),array('jquery-select2', 'google-maps'), '1.0', true);
 			
-			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), '1.0', true);
-			// wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), '1.0', true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', __FILE__ ) ,array('jquery','ko-mapping'), '1.0', true);
+			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ) ,array('jquery'), Kidzou::VERSION, true);
+			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', __FILE__ ) ,array('jquery','ko-mapping'), Kidzou::VERSION, true);
 
 
 		}
