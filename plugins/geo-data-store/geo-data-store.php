@@ -196,7 +196,7 @@ if ( ! class_exists( 'sc_GeoDataStore' ) )
                 $post_type = get_post_type( $post_id );
 
                 $coords = explode( ',', $meta_value );
-                $wpdb->query( "INSERT INTO `" . $wpdb->prefix . self::$tablename . "` (`post_id`, `meta_id`, `post_type`, `lat`, `lng`) VALUES (".(int) $post_id.", ".(int) $meta_ids.", '{$post_type}', ".(float) $coords[0].", ".(float) $coords[1].") ON DUPLICATE KEY UPDATE `lat` = ".(float) $coords[0].", `lng` = ".(float) $coords[1]."");
+                $wpdb->query( "INSERT INTO `" . $wpdb->prefix . self::$tablename . "` (`post_id`, `meta_id`, `post_type`, `lat`, `lng`) VALUES (".(int) $post_id.", ".(int) $meta_ids.", '{$post_type}', '".(float) $coords[0]."', '".(float) $coords[1]."') ON DUPLICATE KEY UPDATE `lat` = '".(float) $coords[0]."', `lng` = '".(float) $coords[1]."'");
                 return;
             }
 
