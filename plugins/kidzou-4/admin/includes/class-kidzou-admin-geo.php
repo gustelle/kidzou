@@ -141,7 +141,6 @@ class Kidzou_Admin_Geo {
 		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types() );
 
 		//ajouter des quotes autour des valeurs
-		//$post_types_list = array_map( 'mysql_real_escape_string', $post_types_list);
 
 		$result = $wpdb->get_results ( "
 		    SELECT ID
@@ -149,8 +148,6 @@ class Kidzou_Admin_Geo {
 		        WHERE $wpdb->posts.post_status = 'publish'
 		        AND $wpdb->posts.post_type in ('$post_types_list')
 		" );
-
-		Kidzou_Utils::log( "sync_geo_data -> " . $wpdb->last_query);
 
 		foreach ( $result as $row )
 		{
@@ -170,7 +167,7 @@ class Kidzou_Admin_Geo {
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
 		   			Kidzou_GeoHelper::META_COORDS, 
-		   			$location['location_latitude'].','.$location['location_longitude'] 
+		   			str_replace(',','.',$location['location_latitude']).','.str_replace(',','.',$location['location_longitude'])
 		   		);
 
 		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $location['location_latitude'].','.$location['location_longitude'] );
