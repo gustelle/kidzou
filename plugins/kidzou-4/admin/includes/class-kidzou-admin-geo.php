@@ -165,15 +165,17 @@ class Kidzou_Admin_Geo {
 
 		   		//Positionner la locale pour pb d'insertion en bas MySQL (conversio nde 3.12345 en 3.0000)
 		   		//voir ici http://stackoverflow.com/questions/14434762/php-float-double-stored-as-mysql-decimal
-		   		setlocale(LC_ALL, 'en_US');
+		   		// setlocale(LC_ALL, 'en_US');
+		   		$formatted_lat = number_format($location['location_latitude'], 6, '.', '');
+		   		$formatted_lng = number_format($location['location_longitude'], 6, '.', '');
 		   		sc_GeoDataStore::after_post_meta( 
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
 		   			Kidzou_GeoHelper::META_COORDS, 
-		   			$location['location_latitude'].','.$location['location_longitude']
+		   			$formatted_lat.','.$formatted_lng
 		   		);
 
-		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $location['location_latitude'].','.$location['location_longitude'] );
+		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $formatted_lat.','.$formatted_lng );
  
 		   }
 		}
