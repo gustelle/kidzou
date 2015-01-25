@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0115-debug-proximite';
+	const VERSION = '0115-geods';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.

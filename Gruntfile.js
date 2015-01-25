@@ -154,7 +154,7 @@ module.exports = function(grunt) {
 
 		  geods: {
 		    files: [
-		      {expand:true, cwd: '<%= cfg.plugins_root %>/geo-data-store/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/geo-data-store/'}, // includes files in path and its subdirs,
+		      {expand:true, cwd: '<%= cfg.plugins_root %>/geo-data-store/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/geo-data-store/'},
 		    ]
 		  },
 
