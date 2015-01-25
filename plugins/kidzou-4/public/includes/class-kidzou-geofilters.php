@@ -52,20 +52,23 @@ class Kidzou_GeoFilters {
 	 */
 	private function __construct() { 
 
-		self::$locator = new Kidzou_Geolocator();
+		if (!Kidzou_Utils::is_really_admin())
+		{
+			self::$locator = new Kidzou_Geolocator();
 
-		//ce hook est sensible
-		//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
-		add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
+			//ce hook est sensible
+			//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
+			add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
 
-		//Le filtrage n'est pas actif pour certaines requetes, typiquement les API
-		add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
-		add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
-		add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
+			//Le filtrage n'est pas actif pour certaines requetes, typiquement les API
+			add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
+			add_filter( 'page_link', array( $this, 'rewrite_page_link' ) , 10, 2 );
+			add_filter( 'term_link', array( $this, 'rewrite_term_link' ), 10, 3 );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 
-		add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
+			add_action( 'pre_get_posts', array( $this, 'geo_filter_query'), 999 );
+		}
 			
 	}
 
