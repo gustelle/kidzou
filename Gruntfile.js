@@ -53,78 +53,78 @@ module.exports = function(grunt) {
 		
 
 		//tache de déploiement en prod
-		'ftp-deploy': {
-			plugins: {
-				auth: {
-				  host: 'vps40390.ovh.net',
-				  port: 21,
-				  authKey: 'prod'
-				},
-				src: './plugins',
-				dest: '/wp-content/plugins',
-				exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'] //livré une fois, pas à chauqe fois pour perf du process
+		// 'ftp-deploy': {
+		// 	plugins: {
+		// 		auth: {
+		// 		  host: 'vps40390.ovh.net',
+		// 		  port: 21,
+		// 		  authKey: 'prod'
+		// 		},
+		// 		src: './plugins',
+		// 		dest: '/wp-content/plugins',
+		// 		exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'] //livré une fois, pas à chauqe fois pour perf du process
 				
-			},
+		// 	},
 			
-			themes: {
-				auth: {
-				  host: 'vps40390.ovh.net',
-				  port: 21,
-				  authKey: 'prod'
-				},
-				src: './themes',
-				dest: '/wp-content/themes',
-				exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images']
+		// 	themes: {
+		// 		auth: {
+		// 		  host: 'vps40390.ovh.net',
+		// 		  port: 21,
+		// 		  authKey: 'prod'
+		// 		},
+		// 		src: './themes',
+		// 		dest: '/wp-content/themes',
+		// 		exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images']
 
-			}
-		},
+		// 	}
+		// },
 
-		'sftp-deploy': {
-			  rec_plugins: {
-			    auth: {
-			      host: 'vps127696.ovh.net',
-			      port: 22,
-			      authKey: 'rec'
-			    },
-			    cache: 'sftpCache.json',
-			    src: './plugins',
-			    dest: '/var/www/wp-content/plugins',
-			    exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'],
-			    serverSep: '/',
-			    concurrency: 4,
-			    progress: true
-			  },
-			  rec_themes: {
-			    auth: {
-			      host: 'vps127696.ovh.net',
-			      port: 22,
-			      authKey: 'rec'
-			    },
-			    cache: 'sftpCache.json',
-			    src: './themes',
-			    dest: '/var/www/wp-content/themes',
-			    exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images'],
-			    serverSep: '/',
-			    concurrency: 4,
-			    progress: true
-			  }
-			},
+		// 'sftp-deploy': {
+		// 	  rec_plugins: {
+		// 	    auth: {
+		// 	      host: 'vps127696.ovh.net',
+		// 	      port: 22,
+		// 	      authKey: 'rec'
+		// 	    },
+		// 	    cache: 'sftpCache.json',
+		// 	    src: './plugins',
+		// 	    dest: '/var/www/wp-content/plugins',
+		// 	    exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'],
+		// 	    serverSep: '/',
+		// 	    concurrency: 4,
+		// 	    progress: true
+		// 	  },
+		// 	  rec_themes: {
+		// 	    auth: {
+		// 	      host: 'vps127696.ovh.net',
+		// 	      port: 22,
+		// 	      authKey: 'rec'
+		// 	    },
+		// 	    cache: 'sftpCache.json',
+		// 	    src: './themes',
+		// 	    dest: '/var/www/wp-content/themes',
+		// 	    exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images'],
+		// 	    serverSep: '/',
+		// 	    concurrency: 4,
+		// 	    progress: true
+		// 	  }
+		// 	},
 
-		http: {
-		    recette: {
-		      options: {
-		        url: 'http://kidzou.deployhq.com/projects/kidzou-web/deployments',
-		        method: 'POST',
-		        form: {
-		          parent_identifier: '96694384-f4a6-8acf-f9d2-f90f59893d0c',
-		          mode : "queue",
-		          username : "guillaume@kidzou.fr",
-		          key	: "0pxecoogd50yql675h3xv03l2kkdqgu0vjnqkpn4"
-		        },
-		      }
-		    },
+		// http: {
+		//     recette: {
+		//       options: {
+		//         url: 'http://kidzou.deployhq.com/projects/kidzou-web/deployments',
+		//         method: 'POST',
+		//         form: {
+		//           parent_identifier: '96694384-f4a6-8acf-f9d2-f90f59893d0c',
+		//           mode : "queue",
+		//           username : "guillaume@kidzou.fr",
+		//           key	: "0pxecoogd50yql675h3xv03l2kkdqgu0vjnqkpn4"
+		//         },
+		//       }
+		//     },
 		    
-		  },
+		//   },
 
 		//tache de déploiement en local
 		copy: {
@@ -152,6 +152,12 @@ module.exports = function(grunt) {
 		    ]
 		  },
 
+		  geods: {
+		    files: [
+		      {expand:true, cwd: '<%= cfg.plugins_root %>/geo-data-store/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/geo-data-store/'},
+		    ]
+		  },
+
 		},
 		
 
@@ -163,9 +169,9 @@ module.exports = function(grunt) {
 	//grunt.loadNpmTasks('grunt-contrib-cssmin'); //
 	// grunt.loadNpmTasks('grunt-contrib-csslint'); //
 
-	grunt.loadNpmTasks('grunt-ftp-deploy'); //
-	grunt.loadNpmTasks('grunt-sftp-deploy');
-	grunt.loadNpmTasks('grunt-http');
+	// grunt.loadNpmTasks('grunt-ftp-deploy'); //
+	// grunt.loadNpmTasks('grunt-sftp-deploy');
+	// grunt.loadNpmTasks('grunt-http');
 
 	grunt.loadNpmTasks('grunt-contrib-copy'); //
 	// grunt.loadNpmTasks('grunt-contrib-imagemin'); //
@@ -187,6 +193,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('prepjs', ['jshint','plato']);
 	grunt.registerTask('theme',  ['copy:divi']); //csslint
-	grunt.registerTask('plugins',['copy:deps', 'copy:k4']);
+	grunt.registerTask('plugins',['copy:deps', 'copy:k4', 'copy:geods']);
 
 };
