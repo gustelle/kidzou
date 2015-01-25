@@ -1,5 +1,55 @@
 var kidzouGeoContent = (function () {
 
+	//merci https://github.com/gwilson/getAccurateCurrentPosition
+	navigator.geolocation.getAccurateCurrentPosition = function (geolocationSuccess, geolocationError, geoprogress, options) {
+	    var lastCheckedPosition,
+	        locationEventCount = 0,
+	        watchID,
+	        timerID;
+
+	    options = options || {};
+
+	    var checkLocation = function (position) {
+	        lastCheckedPosition = position;
+	        locationEventCount = locationEventCount + 1;
+	        // We ignore the first event unless it's the only one received because some devices seem to send a cached
+	        // location even when maxaimumAge is set to zero
+	        if ((position.coords.accuracy <= options.desiredAccuracy) && (locationEventCount > 1)) {
+	            clearTimeout(timerID);
+	            navigator.geolocation.clearWatch(watchID);
+	            foundPosition(position);
+	        } else {
+	            geoprogress(position);
+	        }
+	    };
+
+	    var stopTrying = function () {
+	        navigator.geolocation.clearWatch(watchID);
+	        foundPosition(lastCheckedPosition);
+	    };
+
+	    var onError = function (error) {
+	        clearTimeout(timerID);
+	        navigator.geolocation.clearWatch(watchID);
+	        geolocationError(error);
+	    };
+
+	    var foundPosition = function (position) {
+	        geolocationSuccess(position);
+	    };
+
+	    if (!options.maxWait)            options.maxWait = 10000; // Default 10 seconds
+	    if (!options.desiredAccuracy)    options.desiredAccuracy = 20; // Default 20 meters
+	    if (!options.timeout)            options.timeout = options.maxWait; // Default to maxWait
+
+	    options.maximumAge = 0; // Force current locations only
+	    options.enableHighAccuracy = true; // Force high accuracy (otherwise, why are you using this function?)
+
+	    watchID = navigator.geolocation.watchPosition(checkLocation, onError, options);
+	    timerID = setTimeout(stopTrying, options.maxWait); // Set a timeout that will abandon the location loop
+	};
+
+
 	document.addEventListener('DOMContentLoaded', function(event) {
 
 		/////////////// Selection de Metropole dans la topnav ////////////////
@@ -32,12 +82,12 @@ var kidzouGeoContent = (function () {
 
 					if (kidzou_geo_jsvars.geo_possible_metropoles.hasOwnProperty(m)) {
 
-						// console.debug(kidzou_geo_jsvars.geo_possible_metropoles[m]);
+						// console.info(kidzou_geo_jsvars.geo_possible_metropoles[m]);
 
 					    var uneMetro = kidzou_geo_jsvars.geo_possible_metropoles[m].slug.toLowerCase();
 					    if (uneMetro === metropole.toLowerCase()) {
 					    	covered = true; 
-					    	// console.debug(covered);
+					    	// console.info(covered);
 					    	break;
 					    }
 					}
@@ -117,8 +167,8 @@ var kidzouGeoContent = (function () {
 
 		if (navigator.geolocation) {
 
-			navigator.geolocation.getCurrentPosition(
-
+			//utiliser watchPosition plutot que getCurrentPosition qui n'est pas fiable
+			navigator.geolocation.getAccurateCurrentPosition(
 					function(position) { 
 
 						//pour comparer la position précédente avec la nouvelle position
@@ -130,9 +180,12 @@ var kidzouGeoContent = (function () {
 						//l'utilisateur change de position
 						//on indique a la page qu'elle peut recharger son contenu "proximite"
 
+						console.info('Old Position ' + ko.toJSON(prec_coords));
+						console.info('New Position ' + ko.toJSON(short_position));
+
 						if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
 
-							// console.debug('Changement de position : ' + ko.toJSON(short_position) + ' / ' + ko.toJSON(prec_coords) );
+							// console.info('Changement de position : ' + ko.toJSON(short_position) + ' / ' + ko.toJSON(prec_coords) );
 
 							//stockage des résultats dans un cookie pour transmission en requete 
 							storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
@@ -146,7 +199,7 @@ var kidzouGeoContent = (function () {
 
 						} else {
 							
-							// console.debug('Pas de changement de geolocation');
+							// console.info('Pas de changement de geolocation');
 
 							var myEvent = new CustomEvent("geolocation", {
 								detail: {error: false, acceptGeolocation : true, refresh : false}
@@ -172,8 +225,23 @@ var kidzouGeoContent = (function () {
 
 						// Trigger it!
 						document.dispatchEvent(myEvent);
-					}
+					},
+					function() {
+						var myEvent = new CustomEvent("geolocation_progress", {
+							detail: {}
+						});
+
+						// Trigger it!
+						document.dispatchEvent(myEvent);
+					},
+					{desiredAccuracy:20, maxWait:15000}
+					//http://stackoverflow.com/questions/3397585/navigator-geolocation-getcurrentposition-sometimes-works-sometimes-doesnt
+					//definir un timeout pour eviter de partir dans les choix
+					//max age : 0 pour forcer le rafraichissement
+					// {timeout:10000, maximumAge:0, enableHighAccuracy:true} 
 				); 
+
+			// navigator.geolocation.clearWatch(watchID);
 
 		} else {
 			
