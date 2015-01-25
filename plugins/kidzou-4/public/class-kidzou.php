@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0115-proximite-logs';
+	const VERSION = '0115-authors-customers';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
