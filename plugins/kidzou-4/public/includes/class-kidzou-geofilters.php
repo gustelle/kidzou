@@ -1,5 +1,4 @@
 <?php
-
 add_action('kidzou_loaded', array('Kidzou_GeoFilters', 'get_instance'));
 
 /**
@@ -52,13 +51,13 @@ class Kidzou_GeoFilters {
 	 */
 	private function __construct() { 
 
+		//ce hook est sensible
+		//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
+		add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
+
 		if (!Kidzou_Utils::is_really_admin())
 		{
 			self::$locator = new Kidzou_Geolocator();
-
-			//ce hook est sensible
-			//mieux vaut qu'il reste en dehors de toute affaire et qu'il ait son propre if ()
-			add_action( 'init', array( $this, 'create_rewrite_rules' ),90 );
 
 			//Le filtrage n'est pas actif pour certaines requetes, typiquement les API
 			add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
@@ -131,6 +130,8 @@ class Kidzou_GeoFilters {
 			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
 			add_rewrite_tag( Kidzou_GeoHelper::REWRITE_TAG ,$regexp, 'kz_metropole=');
 
+			Kidzou_Utils::log('Kidzou_GeoFilters [create_rewrite_rules] ' .$regexp, true);
+
 			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
 		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
 		    add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
@@ -142,6 +143,8 @@ class Kidzou_GeoFilters {
 			//et navigue ensuite vers une rubrique ou autre:
 			add_rewrite_rule('/?rubrique/(.*)/?','index.php?category_name=$matches[1]','top');
 
+			// Kidzou_Utils::log($wp_rewrite);
+			flush_rewrite_rules();
 		}
 		
 	    
