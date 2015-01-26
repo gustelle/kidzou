@@ -306,25 +306,25 @@ class Kidzou_GeoFilters {
 	 */
 	public function rewrite_page_link( $link, $page ) {
 
-		// $locator = self::$locator;
+		$locator = self::$locator;
 
-		// if ($locator->is_request_metro_filter())
-		// {
-		// 	$m = urlencode($locator->get_request_metropole());
+		if ($locator->is_request_metro_filter())
+		{
+			$m = urlencode($locator->get_request_metropole());
 
-		// 	$rewrite = Kidzou_GeoHelper::is_page_rewrite($page);
+			$rewrite = Kidzou_GeoHelper::is_page_rewrite($page);
 
-		// 	$post = get_post($page);
+			$post = get_post($page);
 
-		// 	if ($rewrite) {
+			if ($rewrite) {
 
-		// 		Kidzou_Utils::log('Kidzou_GeoFilters : ré-ecriture pour '. $link, true);
+				Kidzou_Utils::log('Kidzou_GeoFilters : ré-ecriture pour '. $link, true);
 
-		// 		$pos = strpos( $link, '/'. $post->post_name );
-		// 		$new_link = substr_replace($link, "/".$m, $pos, 0);
-		// 		return $new_link;
-		// 	}
-		// }
+				$pos = strpos( $link, '/'. $post->post_name );
+				$new_link = substr_replace($link, "/".$m, $pos, 0);
+				return $new_link;
+			}
+		}
 
 		return $link;
 	    
