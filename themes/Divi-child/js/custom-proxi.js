@@ -17,12 +17,12 @@ var kidzouProximite = (function(){
 	}
 
 	function setMapDragged(bool) {
-		console.info('setMapDragged ? ' + bool);
+		// console.info('setMapDragged ? ' + bool);
 		isMapDragged = bool;
 	}
 
 	function getMapDragged() {
-		console.info('getMapDragged ? ' + isMapDragged);
+		// console.info('getMapDragged ? ' + isMapDragged);
 		return isMapDragged;
 	}
 
@@ -38,7 +38,7 @@ var kidzouProximite = (function(){
 		var position = getCurrentPosition() || kidzou_proxi.request_coords;
 		var radius = _radius || kidzou_proxi.radius;
 
-		console.info(position);
+		// console.info(position);
 
 		jQuery.ajax({
 
@@ -70,8 +70,6 @@ var kidzouProximite = (function(){
 				var sp1 = document.createElement("span");
 				sp1.classList.add('message');
 				sp1.innerHTML = kidzou_proxi.wait_refreshing;
-				// var textnode = document.createTextNode(kidzou_proxi.wait_refreshing);   // Create a text node
-				// sp1.appendChild(textnode);
 
 				var mapNode = document.querySelector('#proxi_content .et_pb_map');
 				document.querySelector('#proxi_content .et_pb_map_container').insertBefore(sp1, mapNode);
@@ -86,17 +84,22 @@ var kidzouProximite = (function(){
 					document.querySelector('#proxi_content .message')
 				);
 
+				// addRefreshMessage();
+
 				if (data.empty_results) {
 
 					//on n'est pas forcément dans le rayon a proximité du point de geoloc :
 					//si aucun résultat, et qu'on était parti sur une requete sans coords, on prend les coords par défaut
 					//et s'il n'y a pas de résultat...on est dans ce cas
-					document.querySelector('.distance_message').innerHTML = '';
+					// document.querySelector('.distance_message').innerHTML = '';
 
 				} else {
 
-					var distance_message = kidzou_proxi.distance_message.replace('{radius}', Math.round(radius));
-					document.querySelector('.distance_message').innerHTML = distance_message;
+					//bouton pour proposer de rafraichir la geoloc si les résultats ne sont pas pertinents 
+					// document.querySelector('.distance_message').innerHTML = kidzou_proxi.refresh_message;
+
+					// var distance_message = kidzou_proxi.distance_message.replace('{radius}', Math.round(radius));
+					// document.querySelector('.distance_message').innerHTML = distance_message;
 					document.querySelector('#proxi_content .et_pb_portfolio_results').innerHTML = data.portfolio;
 					document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results; 
 
@@ -139,37 +142,32 @@ var kidzouProximite = (function(){
 
 	};
 
+	//geolocation_progress est déclenché par kidzou-geo.js
+	//il indique que getCurrentPosition est en cours
 	document.addEventListener("geolocation_progress", function(e) {
-
-		// document.querySelector('#proxi_content').classList.add("progress");
-		document.querySelector('.distance_message').innerHTML = kidzou_proxi.wait_geoloc_progress;
-			
+		document.querySelector('.distance_message').innerHTML = kidzou_proxi.wait_geoloc_progress;			
 	}, false);
 
 
+	//les résultats de getCurrentPosition sont arrivés
 	document.addEventListener("geolocation", function(e) {
 
-		console.info('Received geolocation info ' );
-		// document.querySelector('#proxi_content').classList.remove("progress");
-		document.querySelector('.distance_message').innerHTML = '';
+		// document.querySelector('.distance_message').innerHTML = '';
+		addRefreshMessage();
 
 		if (!e.detail.error && e.detail.refresh) {
 
-			console.info('New coords '  + e.detail.coords.latitude + ',' + e.detail.coords.longitude);
+			// console.info('New coords '  + e.detail.coords.latitude + ',' + e.detail.coords.longitude);
 
 			//stockage pour reutilisation ultérieure
 			setCurrentPosition(e.detail.coords);
-
-			//ce sera les coordonnées reprises dans les req Ajax à l'avenir
-			// user_lat = e.detail.coords.latitude;
-			// user_lng = e.detail.coords.longitude;
 
 			//déclencher une requete Ajax pour afficher les activités autour de la position
 			getContent(kidzou_proxi.radius);
 		    
 		} else {
 
-			console.info(e);
+			// console.info(e);
 
 			if (e.detail.error)
 			{
@@ -192,13 +190,26 @@ var kidzouProximite = (function(){
 
 				}
 
-			} 
+			}  
 			
 			
 		}
 			
 	}, false);
 
+	function addRefreshMessage() {
+		console.info('addRefreshMessage');
+		document.querySelector('.distance_message').innerHTML = kidzou_proxi.refresh_message;
+		document.querySelector('.distance_message a').addEventListener('click', function(e){
+			// console.info('refresh_results');
+			getContent();
+		}, false);
+	}
+
+	function removeLoadingMessage() {
+		// document.querySelector('#map_loader').innerHTML = '';
+		// document.querySelector('#map_loader').classList.remove('map_over');
+	}
 
 	function loadMoreResults() {
 		getContent(
@@ -218,55 +229,73 @@ var kidzouProximite = (function(){
 
 	function initialize( ) {
 
-		console.info('Init map ' + kidzou_proxi.display_mode);
-
 		if (kidzou_proxi.display_mode == 'with_map')
 		{
-			console.info('[center] ' + mapContainer.dataset.center_lat + '/' + mapContainer.dataset.center_lng);
+			removeLoadingMessage();
 			setCurrentPosition({latitude : mapContainer.dataset.center_lat, longitude : mapContainer.dataset.center_lng});
-			
-			map = new google.maps.Map( mapContainer, {
+
+			//des soucis de tps en temps au niveau des tiles
+			//les tiles sont au milieu de l'ocean, peut être retarder légérement
+			//l'affichage ??
+			setTimeout(function() {
+
+				map = new google.maps.Map( mapContainer, {
 					zoom: parseInt(kidzou_proxi.zoom),
 					center: new google.maps.LatLng( parseFloat( mapContainer.dataset.center_lat ) , parseFloat( mapContainer.dataset.center_lng )),
 					mapTypeId: google.maps.MapTypeId.ROADMAP
 				});
 
-			var pins = kidzou_proxi.markers;
-			for (var i = 0; i < pins.length; i++) {
-				var pin = pins[i];
-				addMarker(map, pin.latitude, pin.longitude, pin.title, pin.content);
-			};
+				var pins = kidzou_proxi.markers;
+				for (var i = 0; i < pins.length; i++) {
+					var pin = pins[i];
+					addMarker(map, pin.latitude, pin.longitude, pin.title, pin.content);
+				};
 
-			mapCenter = map.getCenter();
+				mapCenter = map.getCenter();
 
-			//calculer la distance entre le centre de la carte et le Marker max requeté par kidzou
-			//autrement dit, le radius de kidzou
-			google.maps.event.addListener(map, 'bounds_changed', function() {
-	        	
-	        	//le radius courant de la carte
-	        	var distance = getDistanceToCenter();
+				//calculer la distance entre le centre de la carte et le Marker max requeté par kidzou
+				//autrement dit, le radius de kidzou
+				google.maps.event.addListener(map, 'bounds_changed', function() {
+		        	
+		        	//le radius courant de la carte
+		        	var distance = getDistanceToCenter();
 
-	        	//prefetcher les prochains resultats
-	        	//si la distance au radius kidzou est dépassée
-	        	if ( parseFloat( distance ) < parseFloat(kidzou_proxi.max_distance) ) {
+		        	//prefetcher les prochains resultats
+		        	//si la distance au radius kidzou est dépassée
+		        	if ( parseFloat( distance ) < parseFloat(kidzou_proxi.max_distance) ) {
 
-	        		if ( (parseFloat( distance ) > parseFloat( kidzou_proxi.radius ) )  ) {	
+		        		if ( (parseFloat( distance ) > parseFloat( kidzou_proxi.radius ) )  ) {	
 
-	        			mapCenter = map.getCenter();
+		        			mapCenter = map.getCenter();
 
-	        			setCurrentPosition({ latitude : mapCenter.lat(), longitude : mapCenter.lng() });
+		        			setCurrentPosition({ latitude : mapCenter.lat(), longitude : mapCenter.lng() });
 
-	        			//le user a bougé la carte, on ne le recentrera pas
-	        			setMapDragged(true);
+		        			//le user a bougé la carte, on ne le recentrera pas
+		        			setMapDragged(true);
 
-		        		//aller chercher du contenu
-		        		getContent(
-							distance*2 //*2 : bon je sais pas pourquoi, mais soit
-						);
+			        		//aller chercher du contenu
+			        		getContent(
+								distance*2 //*2 : bon je sais pas pourquoi, mais soit
+							);
 
-		        	} 
-	        	}
-	      	});
+			        	} 
+		        	}
+		      	});
+
+				//http://stackoverflow.com/questions/832692/how-can-i-check-whether-google-maps-is-fully-loaded
+				google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
+					console.info('tilesloaded');
+					google.maps.event.trigger(map, 'resize');
+				    //this part runs when the mapobject is created and rendered
+				    google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
+				        //this part runs when the mapobject shown for the first time
+				        // console.info('tilesloaded');
+				        
+						addRefreshMessage();
+				    });
+				});
+
+			},200);
 
 		}			
 
@@ -282,7 +311,8 @@ var kidzouProximite = (function(){
 			title: title,
 			icon: { url: et_custom.images_uri + '/marker.png', size: new google.maps.Size( 46, 43 ), anchor: new google.maps.Point( 16, 43 ) },
 			shape: { coord: [1, 1, 46, 43], type: 'rect' },
-			draggable : true
+			draggable : false,
+			animation: google.maps.Animation.DROP
 		});
 
 		var infowindow = new google.maps.InfoWindow({
@@ -322,6 +352,8 @@ var kidzouProximite = (function(){
 		return dis;
 	}
 
-	google.maps.event.addDomListener(window, 'load', initialize);
+	// setTimeout(function() {
+		google.maps.event.addDomListener(window, 'load', initialize);
+	// }, 500);
 
 })();

@@ -1433,10 +1433,12 @@ function kz_pb_proximite( $atts ) {
 		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous sommes entrain de d&eacute;terminer votre position...</h2>',
 		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
 		'wait_refreshing' 		=> '<h5><i class="fa fa-spinner fa-spin"></i>Actualisation de la carte</h5>',
-		'wait_geoloc_progress' 	=> '<h3><i class="fa fa-spinner fa-spin pull-left"></i>Actualisation de votre position</h3>',
+		'wait_geoloc_progress' 	=> '<h4><i class="fa fa-spinner fa-spin pull-left"></i>Actualisation de votre position</h4><br/>',
 		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
 		'more_results'			=> '<hr class="et_pb_space et_pb_divider" /><a title="Etendre la recherche" class="et_pb_more_button center load_more_results">Plus de r&eacute;sultats</a>',
 		'distance_message'		=> 'Dans un rayon de {radius} Kilom&egrave;tres',
+		'refresh_message'		=> 'Ces r&eacute;sultats ne vous paraissent pas pertinents&nbsp;?&nbsp;<a title="Rafraichir les r&eacute;sultats">Rafraichir les r&eacute;sultats</a><br/><br/>',
+		// 'wait_map_onprogress'	=> '<i class="fa fa-5x fa-map-marker  pull-left"></i><h1>Je suis la carte !</h1><br/><em>je me charge...</em>',
 		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
 		'action'				=> 'kz_pb_proximite',
 		'fullwidth'				=> $fullwidth,
@@ -1457,6 +1459,8 @@ function kz_pb_proximite( $atts ) {
 		'request_coords'		=> $coords
 
 	) );
+	
+	// <div id="map_loader" class="map_over"><i class="fa fa-5x fa-map-marker pull-left"></i><h1>Je suis la carte !</h1><em>je me charge...</em></div>
 
 	$out = sprintf(
 			'<div%5$s class="et_pb_map_container%6$s">
@@ -1494,13 +1498,13 @@ function kz_pb_proximite( $atts ) {
 	return sprintf(
 		'%1$s
 		<div id="proxi_content">
-
 			<div class="results">
 				%2$s
 			</div>
 			<div class="more_results"></div>
 		</div>',
-		($is_geolocalized ? '<h1 class="distance_message">Dans un rayon de '.$radius.' kilom&egrave;tres</h1>' : ''),
+		'<div class="distance_message"></div>',
+		// ($is_geolocalized ? '<h1 class="distance_message">Dans un rayon de '.$radius.' kilom&egrave;tres</h1>' : ''),
 		$out
 	);
 
