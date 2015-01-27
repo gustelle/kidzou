@@ -198,11 +198,16 @@ var kidzouProximite = (function(){
 	}, false);
 
 	function addRefreshMessage() {
-		console.info('addRefreshMessage');
+		// console.info('addRefreshMessage');
 		document.querySelector('.distance_message').innerHTML = kidzou_proxi.refresh_message;
 		document.querySelector('.distance_message a').addEventListener('click', function(e){
-			// console.info('refresh_results');
-			getContent();
+
+			//recharger une geoloc complete
+			//cette geoloc redéclenchera une mise à jour du contenu
+			//grace au EventListener "geolocation"
+			kidzouGeoContent.getUserLocation(function() {
+				console.debug('User location refreshed');
+			});
 		}, false);
 	}
 
