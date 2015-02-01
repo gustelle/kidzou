@@ -348,6 +348,12 @@ class Kidzou_Geolocator {
 	 * + remontée de la distance au post 
 	 * + remontée des lat/lng pour exploitation dans une carte
 	 *
+	 * NB : la précision sur lat/lng est limitée à 3 décimales 
+	 * et le rayon de recherche  est un int
+	 *
+	 * @param radius (int)
+	 * @param search_lat (float) 
+	 * @param search_lng (float) 
 	 * @author 
 	 **/
 	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
@@ -355,9 +361,10 @@ class Kidzou_Geolocator {
 
 		//s'assurer que les données sont au bon format, i.e. xx.xx 
 		//et non pas au format xx,xx ( peut arriver pour une raison de locale ??)
-		$search_lat = floatval(str_replace(",",".",$search_lat));
-		$search_lng = floatval(str_replace(",",".",$search_lng));
-		$radius 	= floatval(str_replace(",",".",$radius));
+		setlocale(LC_NUMERIC, 'en_US');
+		$search_lat = floatval(number_format($search_lat, 3, '.', ''));
+		$search_lng = floatval(number_format($search_lng, 3, '.', ''));
+		$radius 	= intval($radius);
 
 		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
 
