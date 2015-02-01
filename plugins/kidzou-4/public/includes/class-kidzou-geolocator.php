@@ -137,7 +137,7 @@ class Kidzou_Geolocator {
 	    	$this->request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
 
 	    $path = substr(Kidzou_Utils::get_request_path(), 0, 20) ;
-		Kidzou_Utils::log('Kidzou_Geolocator -> set_request_metropole [' . $path  .'] -> '. $this->request_metropole);
+		Kidzou_Utils::log('Kidzou_Geolocator -> set_request_metropole [' . $path  .'] -> '. $this->request_metropole, true);
 	}
 
 	/**
@@ -152,7 +152,7 @@ class Kidzou_Geolocator {
 		//mise à jour du param de filtrage de requete 
 		if ( Kidzou_Utils::is_really_admin() || Kidzou_Utils::is_api() ) {
 
-			Kidzou_Utils::log( '		Filtrage desactive pour admin / api ');
+			Kidzou_Utils::log( '		Filtrage desactive pour admin / api ', true);
 
 			$this->is_request_filter = false;
 
@@ -162,7 +162,7 @@ class Kidzou_Geolocator {
 			
 			if (!$filter_active) {
 
-				Kidzou_Utils::log('		Filtrage desactive dans les options');
+				Kidzou_Utils::log('		Filtrage desactive dans les options', true);
 			
 				$this->is_request_filter = false;
 			
@@ -172,7 +172,7 @@ class Kidzou_Geolocator {
 				//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 				if ($this->get_request_metropole()=='' ) {
 
-					Kidzou_Utils::log( '		Filtrage desactive / pas de metropole');
+					Kidzou_Utils::log( '		Filtrage desactive / pas de metropole', true);
 					
 					$this->is_request_filter = false;
 				}
@@ -222,7 +222,7 @@ class Kidzou_Geolocator {
 	 **/
 	public function get_request_metropole()
 	{
-		Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole);
+		Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole, true);
 
 		return $this->request_metropole;
 	}
@@ -237,7 +237,7 @@ class Kidzou_Geolocator {
 	{
 		$coords = $this->request_coords;
 
-		Kidzou_Utils::log('Kidzou_Geolocator [get_request_coords] '. $coords['latitude'].'/'. $coords['longitude']);
+		Kidzou_Utils::log('Kidzou_Geolocator [get_request_coords] '. $coords['latitude'].'/'. $coords['longitude'], true);
 
 		return $this->request_coords;
 	}
@@ -352,33 +352,14 @@ class Kidzou_Geolocator {
 	 **/
 	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
 	{
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] ' . $search_lat.'/' . $search_lng);
 
-		//s'asurer que les coordonnées qui arrivent sont des floats ou en tout cas au format "xx.xx"
-		//et pas des floats au format "xx,xx" 
-		if (!is_numeric($search_lat)) {
-			if (preg_match('/,/',$search_lat)) {
-				$search_lat = floatval(str_replace(",",".",$search_lat));
-			} else {
-				Kidzou_Utils::log("Warning, search_lat not numeric in getPostsNearToMeInRadius [" . $search_lat . "]", true);
-			}
-		}
+		//s'assurer que les données sont au bon format, i.e. xx.xx 
+		//et non pas au format xx,xx ( peut arriver pour une raison de locale ??)
+		$search_lat = floatval(str_replace(",",".",$search_lat));
+		$search_lng = floatval(str_replace(",",".",$search_lng));
+		$radius 	= floatval(str_replace(",",".",$radius));
 
-		if (!is_numeric($search_lng)) {
-			if (preg_match('/,/',$search_lng)) {
-				$search_lng = floatval(str_replace(",",".",$search_lng));
-			} else {
-				Kidzou_Utils::log("Warning, search_lng not numeric in getPostsNearToMeInRadius [" . $search_lng . "]", true);
-			}
-		}
-
-		if (!is_numeric($radius)) {
-			if (preg_match('/,/',$radius)) {
-				$radius = floatval(str_replace(",",".",$radius));
-			} else {
-				Kidzou_Utils::log("Warning, radius not numeric in getPostsNearToMeInRadius [" . $radius . "]", true);
-			}
-		}
+		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
 
 		// $post_type = 'post';
 		$tablename = "geodatastore";
