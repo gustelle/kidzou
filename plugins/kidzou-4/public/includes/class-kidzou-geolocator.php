@@ -348,7 +348,7 @@ class Kidzou_Geolocator {
 	 * + remontée de la distance au post 
 	 * + remontée des lat/lng pour exploitation dans une carte
 	 *
-	 * NB : la précision sur lat/lng est limitée à 3 décimales 
+	 * NB : la précision sur lat/lng est limitée à 6 décimales 
 	 * et le rayon de recherche  est un int
 	 *
 	 * @param radius (int)
@@ -361,8 +361,8 @@ class Kidzou_Geolocator {
 
 		//s'assurer que les données sont au bon format, i.e. xx.xx 
 		//et non pas au format xx,xx ( peut arriver pour une raison de locale ??)
-		$search_lat = number_format($search_lat, 3, '.', '');
-		$search_lng = number_format($search_lng, 3, '.', '');
+		$search_lat = number_format($search_lat, 6, '.', '');
+		$search_lng = number_format($search_lng, 6, '.', '');
 
 		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant conversion ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
 
@@ -388,6 +388,17 @@ class Kidzou_Geolocator {
 
 		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Apres operation (lat1) ' . $lat1);
 
+		//bug de conversion, je n'arrive pas à formatter correctement le float
+		//je force une reconversion en string pour assurer que lat/lng sont bient
+		//formattés avec des "points" et non des "virgules"
+		$search_lat = number_format($search_lat, 6, '.', '');
+		$search_lng = number_format($search_lng, 6, '.', '');
+
+		$lat1 = number_format($lat1, 6, '.', '');
+		$lat2 = number_format($lat2, 6, '.', '');
+		$lng1 = number_format($lng1, 6, '.', '');
+		$lng2 = number_format($lng2, 6, '.', '');
+
 		$sqlsquareradius = "
 		SELECT
 			`" . $wpdb->prefix . $tablename . "`.`post_id`,
@@ -403,11 +414,6 @@ class Kidzou_Geolocator {
 			`" . $wpdb->prefix . $tablename . "`.`lng` BETWEEN '{$lng1}' AND '{$lng2}'
 		"; // End $sqlsquareradius
 
-		//bug de conversion, je n'arrive pas à formatter correctement le float
-		//je force une reconversion en string pour assurer que lat/lng sont bient
-		//formattés avec des "points" et non des "virgules"
-		$search_lat = number_format($search_lat, 3, '.', '');
-		$search_lng = number_format($search_lng, 3, '.', '');
 
 		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant Requete ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
 		
@@ -443,7 +449,7 @@ class Kidzou_Geolocator {
 
 		$results = $wpdb->get_results($sqlcircleradius);
 
-		// Kidzou_Utils::log($wpdb->last_query);
+		Kidzou_Utils::log($wpdb->last_query, true);
 
 		$nonfeatured = array();
 
