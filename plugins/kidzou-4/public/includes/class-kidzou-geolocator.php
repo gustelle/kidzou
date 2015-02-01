@@ -353,6 +353,33 @@ class Kidzou_Geolocator {
 	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
 	{
 		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] ' . $search_lat.'/' . $search_lng);
+
+		//s'asurer que les coordonnées qui arrivent sont des floats ou en tout cas au format "xx.xx"
+		//et pas des floats au format "xx,xx" 
+		if (!is_numeric($search_lat)) {
+			if (preg_match('/,/',$search_lat)) {
+				$search_lat = floatval(str_replace(",",".",$search_lat));
+			} else {
+				Kidzou_Utils::log("Warning, search_lat not numeric in getPostsNearToMeInRadius [" . $search_lat . "]", true);
+			}
+		}
+
+		if (!is_numeric($search_lng)) {
+			if (preg_match('/,/',$search_lng)) {
+				$search_lng = floatval(str_replace(",",".",$search_lng));
+			} else {
+				Kidzou_Utils::log("Warning, search_lng not numeric in getPostsNearToMeInRadius [" . $search_lng . "]", true);
+			}
+		}
+
+		if (!is_numeric($radius)) {
+			if (preg_match('/,/',$radius)) {
+				$radius = floatval(str_replace(",",".",$radius));
+			} else {
+				Kidzou_Utils::log("Warning, radius not numeric in getPostsNearToMeInRadius [" . $radius . "]", true);
+			}
+		}
+
 		// $post_type = 'post';
 		$tablename = "geodatastore";
 		$orderby = "ASC";

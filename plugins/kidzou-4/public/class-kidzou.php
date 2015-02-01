@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0115-proxi-reload';
+	const VERSION = '0215-fix1';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.

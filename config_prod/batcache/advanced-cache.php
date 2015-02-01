@@ -327,6 +327,7 @@ if ( in_array(
 // Never batcache les pages ci-dessous
 $kidzou_pages = array(
 	'/a-proximite', //geolocalisation, ne pas cacher
+	'/api/' //pour l'instant on ne cache pas les API
 );
  
 foreach( $kidzou_pages as $kidzou_uri )
@@ -353,6 +354,13 @@ if ( ! empty( $GLOBALS['HTTP_RAW_POST_DATA'] ) || ! empty( $_POST ) )
 // Never batcache when cookies indicate a cache-exempt visitor.
 if ( is_array( $_COOKIE) && ! empty( $_COOKIE ) ) {
 	foreach ( array_keys( $_COOKIE ) as $batcache->cookie ) {
+
+		//fix kidzou !!
+		//ce cookie ne doit pas etre considéré mais il est de nom variable, il ne peut pas être prédéterminé
+		$is_settings_cookie = (preg_match('/wp-settings/', $batcache->cookie) > 0 ? true : false);
+		if ($is_settings_cookie)
+			continue;
+
 		if ( ! in_array( $batcache->cookie, $batcache->noskip_cookies ) && ( substr( $batcache->cookie, 0, 2 ) == 'wp' || substr( $batcache->cookie, 0, 9 ) == 'wordpress' || substr( $batcache->cookie, 0, 14 ) == 'comment_author' ) ) {
 			batcache_stats( 'batcache', 'cookie_skip' );
 			return;
