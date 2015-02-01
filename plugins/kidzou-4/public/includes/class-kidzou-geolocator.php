@@ -222,7 +222,7 @@ class Kidzou_Geolocator {
 	 **/
 	public function get_request_metropole()
 	{
-		Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole, true);
+		// Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole, true);
 
 		return $this->request_metropole;
 	}
