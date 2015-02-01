@@ -159,6 +159,18 @@ module.exports = function(grunt) {
 		  },
 
 		},
+
+		phpdocumentor: {
+
+	        // Grunt Target used to generate a first documentation
+	        plugin_kidzou : {
+	            options: {
+	                directory : 'plugins/kidzou-4',
+	                target : 'docs/'
+	            }
+	        },
+
+	    }
 		
 
 	});
@@ -185,6 +197,8 @@ module.exports = function(grunt) {
 	//nettoyage des fichiers
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
+	grunt.loadNpmTasks('grunt-phpdocumentor');
+
 	//lancement de grunt par defaut
 	grunt.registerTask('default', ['prepjs','theme', 'plugins']);
 
@@ -194,5 +208,6 @@ module.exports = function(grunt) {
 	grunt.registerTask('prepjs', ['jshint','plato']);
 	grunt.registerTask('theme',  ['copy:divi']); //csslint
 	grunt.registerTask('plugins',['copy:deps', 'copy:k4', 'copy:geods']);
+	grunt.registerTask('doc',['phpdocumentor:plugin_kidzou']);
 
 };

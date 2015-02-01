@@ -130,7 +130,7 @@ class Kidzou_GeoFilters {
 			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
 			add_rewrite_tag( Kidzou_GeoHelper::REWRITE_TAG ,$regexp, 'kz_metropole=');
 
-			Kidzou_Utils::log('Kidzou_GeoFilters [create_rewrite_rules] ' .$regexp, true);
+			Kidzou_Utils::log('Kidzou_GeoFilters [create_rewrite_rules] ' .$regexp);
 
 			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
 		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
@@ -200,7 +200,7 @@ class Kidzou_GeoFilters {
 	 */
 	public function geo_filter_query( $query ) {
 
-		Kidzou_Utils::log('Kidzou_GeoFilters [geo_filter_query]' , true);
+		Kidzou_Utils::log('Kidzou_GeoFilters [geo_filter_query]' );
 
 		$locator = self::$locator;
 
@@ -318,7 +318,7 @@ class Kidzou_GeoFilters {
 
 			if ($rewrite) {
 
-				Kidzou_Utils::log('Kidzou_GeoFilters : ré-ecriture pour '. $link, true);
+				Kidzou_Utils::log('Kidzou_GeoFilters : ré-ecriture pour '. $link);
 
 				$pos = strpos( $link, '/'. $post->post_name );
 				$new_link = substr_replace($link, "/".$m, $pos, 0);
