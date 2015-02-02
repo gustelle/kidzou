@@ -104,24 +104,17 @@ function custom_excerpt_length( $length ) {
 //et le body est doté d'une classe qui permet de contraindre le container
 function kz_add_class_habillage( $classes ){
 
-	// global $kidzou_options;
-	// $is_pub = ( Kidzou_Utils::get_option( 'pub_habillage', '') != '' );	
+	$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
 
-	// if (isset($kidzou_options['pub_habillage']) && trim($kidzou_options['pub_habillage'])<>'') {
+	if ($is_habillage) {
 
-		$is_habillage = ( trim( Kidzou_Utils::get_option('pub_habillage') )!='' );
-
-		if ($is_habillage) {
-
-			$classes[] = 'kz_habillage';
-			if (in_array('et_fixed_nav', $classes)) {
-				$key = array_search('et_fixed_nav', $classes);
-				unset($classes[$key]);
-			}
+		$classes[] = 'kz_habillage';
+		if (in_array('et_fixed_nav', $classes)) {
+			$key = array_search('et_fixed_nav', $classes);
+			unset($classes[$key]);
 		}
+	}
 		
-	// }
-	
 	return $classes;
 }
 
@@ -235,7 +228,7 @@ function get_post_footer()
 				[et_pb_row]
 				<h2>D&apos;autres sorties sympa :</h2>
 					[et_pb_column type="4_4"]
-						[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
+						[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" render_featured="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
 					[/et_pb_column]
 				[/et_pb_row]
 				[et_pb_row]
@@ -741,8 +734,12 @@ function kz_pb_blog( $atts ) {
 	return $output;
 }
 
-function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '') {
+/**
+ * @param render_featured : True si les posts featured doivent etre rendus différemment des autres
+ */
+function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '', $render_featured = true) {
 
+	// Kidzou_Utils::log('kz_render_post ' . $render_featured);
 	$category_classes = array();
 	$categories = get_the_terms( get_the_ID(), 'category' );
 	if ( $categories ) {
@@ -754,7 +751,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 	$category_classes = implode( ' ', $category_classes );
 
-	$featured = Kidzou_Featured::isFeatured();
+	$featured = (Kidzou_Featured::isFeatured() && $render_featured);
 	$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
 
 	$thumb = '';
@@ -910,9 +907,12 @@ function kz_pb_portfolio( $atts ) {
 			'show_ad' => 'on',
 			'show_filters' => 'off',
 			'filter' => 'none',
-			'orderby' => 'publish_date'
+			'orderby' => 'publish_date',
+			'render_featured' => 'on' //faut-il rendre les featured différemment des autres ?
 		), $atts
 	) );
+
+	// Kidzou_Utils::log($atts);
 
 	//inclure ces scripts pour ne pas corrompre custom.js qui fait référence 
 	//à ces librairies pour les et_pb_portfolio_filter
@@ -998,7 +998,6 @@ function kz_pb_portfolio( $atts ) {
 				$inserted = true;
 
 				//insertion de pub
-				// global $kidzou_options; isset($kidzou_options['pub_portfolio']) && trim($kidzou_options['pub_portfolio'])!=''
 				$is_pub = (trim(Kidzou_Utils::get_option('pub_portfolio')) != '');
 
 				if ($is_pub) {
@@ -1022,7 +1021,9 @@ function kz_pb_portfolio( $atts ) {
 
 				$query->the_post();
 
-				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout);
+				$featured = ($render_featured=='on' ? true : false);
+
+				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', $featured);
 
 			}
 
@@ -1296,7 +1297,7 @@ function kz_pb_user_favs( $atts ) {
 			$post = get_post( $value['id'] );
 			setup_postdata( $post ); 
 
-			echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout);
+			echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', true);
 
 			$cats = wp_get_post_terms( $post->ID, 'category', array('fields' => 'ids') );
 			foreach ($cats as $cat_key => $cat_value) {
@@ -1600,7 +1601,7 @@ function kz_pb_render_proximite_portfolio ($coords, $ids, $radius, $show_distanc
 
 			// Kidzou_Utils::log('show_distance ? ' .$show_distance);
 			$distance = ($show_distance ? $value->distance : '');
-			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance );
+			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance, true );
 		
 		}
 
