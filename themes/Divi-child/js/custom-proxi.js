@@ -234,8 +234,11 @@ var kidzouProximite = (function(){
 
 	function initialize( ) {
 
+		console.debug('initialize');
+
 		if (kidzou_proxi.display_mode == 'with_map')
 		{
+			console.debug('initialize map');
 			removeLoadingMessage();
 			setCurrentPosition({latitude : mapContainer.dataset.center_lat, longitude : mapContainer.dataset.center_lng});
 
@@ -357,8 +360,8 @@ var kidzouProximite = (function(){
 		return dis;
 	}
 
-	// setTimeout(function() {
+	if (kidzou_proxi.display_mode == 'with_map')
 		google.maps.event.addDomListener(window, 'load', initialize);
-	// }, 500);
+
 
 })();
