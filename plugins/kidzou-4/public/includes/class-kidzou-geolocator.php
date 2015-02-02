@@ -359,21 +359,21 @@ class Kidzou_Geolocator {
 	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
 	{
 
-		//s'assurer que les données sont au bon format, i.e. xx.xx 
-		//et non pas au format xx,xx ( peut arriver pour une raison de locale ??)
-		$search_lat = number_format($search_lat, 6, '.', '');
-		$search_lng = number_format($search_lng, 6, '.', '');
+		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
+		setlocale(LC_NUMERIC, 'C');
 
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant conversion ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
+		//s'assurer que les données arrivent au bon format, i.e. xx.xx 
+		//et non pas au format xx,xx ( ce qui arrive ne prod ??)
+		if (is_string($search_lat))
+			$search_lat = str_replace(",",".",$search_lat);
+		if (is_string($search_lng))
+			$search_lng = str_replace(",",".",$search_lng);
 
-		setlocale(LC_NUMERIC, 'en_US');
+		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $search_lat.'/' . $search_lng . ' (' . (int)$radius. ')', true);
+
 		$search_lat = floatval($search_lat);
 		$search_lng = floatval($search_lng);
-		$radius 	= intval($radius);
 
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Apres conversion ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
-
-		// $post_type = 'post';
 		$tablename = "geodatastore";
 		$orderby = "ASC";
 		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types());
@@ -386,18 +386,6 @@ class Kidzou_Geolocator {
 		$lng1 = (float) $search_lng - (int) $radius / abs( cos( deg2rad( (float) $search_lat ) ) * 69 );
 		$lng2 = (float) $search_lng + (int) $radius / abs( cos( deg2rad( (float) $search_lat ) ) * 69 );
 
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Apres operation (lat1) ' . $lat1);
-
-		//bug de conversion, je n'arrive pas à formatter correctement le float
-		//je force une reconversion en string pour assurer que lat/lng sont bient
-		//formattés avec des "points" et non des "virgules"
-		$search_lat = number_format($search_lat, 6, '.', '');
-		$search_lng = number_format($search_lng, 6, '.', '');
-
-		$lat1 = number_format($lat1, 6, '.', '');
-		$lat2 = number_format($lat2, 6, '.', '');
-		$lng1 = number_format($lng1, 6, '.', '');
-		$lng2 = number_format($lng2, 6, '.', '');
 
 		$sqlsquareradius = "
 		SELECT
@@ -415,7 +403,7 @@ class Kidzou_Geolocator {
 		"; // End $sqlsquareradius
 
 
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant Requete ' . $search_lat.'/' . $search_lng . ' (' . $radius. ')');
+		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant Requete ' . (float)$search_lat.'/' . (float)$search_lng . ' (' . (int)$radius. ')', true);
 		
 		// Create sql for circle radius check
 		$sqlcircleradius = "
@@ -425,7 +413,7 @@ class Kidzou_Geolocator {
 				SQRT(
 					POWER(
 						SIN(
-							( ". $search_lat." - `t`.`lat` ) * pi() / 180 / 2
+							( ". (float) $search_lat." - `t`.`lat` ) * pi() / 180 / 2
 						), 2
 					) + COS(
 						". $search_lat." * pi() / 180
@@ -433,7 +421,7 @@ class Kidzou_Geolocator {
 						`t`.`lat` * pi() / 180
 					) * POWER(
 						SIN(
-							( ". $search_lng." - `t`.`lng` ) * pi() / 180 / 2
+							( ". (float) $search_lng." - `t`.`lng` ) * pi() / 180 / 2
 						), 2
 					)
 				)

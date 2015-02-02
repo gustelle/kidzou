@@ -162,20 +162,33 @@ class Kidzou_Admin_Geo {
 		   		$mid = $wpdb->get_var( 
 		   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
 		   		);
+		   		
+		   		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
+				setlocale(LC_NUMERIC, 'C');
 
-		   		//Positionner la locale pour pb d'insertion en bas MySQL (conversio nde 3.12345 en 3.0000)
-		   		//voir ici http://stackoverflow.com/questions/14434762/php-float-double-stored-as-mysql-decimal
-		   		// setlocale(LC_ALL, 'en_US');
-		   		$formatted_lat = number_format($location['location_latitude'], 6, '.', '');
-		   		$formatted_lng = number_format($location['location_longitude'], 6, '.', '');
+				$lat = $location['location_latitude'];
+				$lng = $location['location_longitude'];
+
+				//s'assurer que les données arrivent au bon format, i.e. xx.xx 
+				//et non pas au format xx,xx ( ce qui arrive ne prod ??)
+				if (is_string($lat))
+					$lat = str_replace(",",".",$lat);
+				if (is_string($lng))
+					$lng = str_replace(",",".",$lng);
+
+				Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $lat.'/' . $lng, true);
+
+				$lat = floatval($lat);
+				$lng = floatval($lng);
+
 		   		sc_GeoDataStore::after_post_meta( 
 		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 		   			$id, 
 		   			Kidzou_GeoHelper::META_COORDS, 
-		   			$formatted_lat.','.$formatted_lng
+		   			$lat.','.$lng
 		   		);
-
-		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $formatted_lat.','.$formatted_lng );
+		   		
+		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $lat.','.$lng );
  
 		   }
 		}
@@ -231,21 +244,77 @@ class Kidzou_Admin_Geo {
     			break;
     	}
 
-    	if ( isset(self::$coords['latitude']) && isset(self::$coords['longitude']) ) {
+    	//quand tout est pret
+    	//on synchronise les meta de geoloc avec geo data store
+    	if (isset(self::$coords['latitude']) && isset(self::$coords['longitude']))
+    	{
+    		//le type est supporté ?
+	    	//sinon on ne synchronise pas...
+	    	$should_sync = in_array($type, Kidzou_GeoHelper::get_supported_post_types());
 
-    		//checker que les valeurs lat/lng sont non nulles
-    		if (Kidzou_GeoHelper::has_post_location($post_id))
-    		{
-    			Kidzou_Utils::log('Storing in Geo Data Store : ' . self::$coords['latitude'].','. self::$coords['longitude']);
+	    	//on continue les checks
+	    	//vérification que l'événement est actif s'il s'agit d'un event
+	    	if ($should_sync) {
+	    		
+	    		$should_sync = ( Kidzou_Events::isTypeEvent($post_id) ? Kidzou_Events::isEventActive($post_id) : true );
+
+	    		//le post est-il public ?
+		    	if ($should_sync) {
+		    		
+		    		$should_sync = (get_post_status ( $post_id ) == 'publish');
+
+		    		//le post est-il géolocalisé
+			    	if ($should_sync) {
+			    		
+			    		$should_sync = Kidzou_GeoHelper::has_post_location($post_id);
+			    		
+			    		if ($should_sync) {
+			    			//plus rien à checker
+			    		} else {
+			    			Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post non géolocalisé");
+			    		}
+
+			    	} else {
+			    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post non publié");
+			    	}
+		    	
+		    	} else {
+		    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Event non actif");
+		    	}
+
+	    	} else {
+	    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post Type non supporté");
+	    	}
+
+
+	    	if ( $should_sync ) {
+
+	    		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
+				setlocale(LC_NUMERIC, 'C');
+
+				$lat = self::$coords['latitude'];
+				$lng = self::$coords['longitude'];
+
+				//s'assurer que les données arrivent au bon format, i.e. xx.xx 
+				//et non pas au format xx,xx ( ce qui arrive ne prod ??)
+				if (is_string($lat))
+					$lat = str_replace(",",".",$lat);
+				if (is_string($lng))
+					$lng = str_replace(",",".",$lng);
+
+				$lat = floatval($lat);
+				$lng = floatval($lng);
+
+	    		//checker que les valeurs lat/lng sont non nulles
+				Kidzou_Utils::log('Storing in Geo Data Store : ' . self::$coords['latitude'].','. self::$coords['longitude']);
 	    		sc_GeoDataStore::after_post_meta( 
 					self::$coords['meta_id'], 
 					$post_id, 
 					Kidzou_GeoHelper::META_COORDS, 
-					self::$coords['latitude'].','. self::$coords['longitude']
+					$lat.','. $lng
 				);
-    		}
-
-    	} 
+	    	} 
+    	}
 
 	}
 
