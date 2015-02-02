@@ -908,6 +908,7 @@ function kz_pb_portfolio( $atts ) {
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
 			'show_ad' => 'on',
+			'show_filters' => 'off',
 			'filter' => 'none',
 			'orderby' => 'publish_date'
 		), $atts
@@ -1054,8 +1055,8 @@ function kz_pb_portfolio( $atts ) {
 
 	$filters_html = '';
 	$category_filters = '';
-	// echo $module_class." ".stristr($module_class,'nofilter');
-	if ($filter!='none' ) {
+
+	if ($filter!='none') {
 
 		$terms = get_terms( $filter ); //, $terms_args 
 
@@ -1070,16 +1071,22 @@ function kz_pb_portfolio( $atts ) {
 			);
 		}
 		$category_filters .= '</ul>';
-
-		$filters_html = '<div class="et_pb_portfolio_filters clearfix">%7$s</div><!-- .et_pb_portfolio_filters -->';
+ 
+		if ('off' !== $show_filters) {
+			$filters_html = sprintf(
+							'<div class="et_pb_filterable_portfolio ">
+								<div class="et_pb_portfolio_filters clearfix">
+									%1$s
+								</div><!-- .et_pb_portfolio_filters -->
+							</div>',
+							$category_filters);
+		}
 	}
 		
 
 	$output = sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">
-			<div class="et_pb_filterable_portfolio ">
-				'.$filters_html.'
-			</div>
+			%7$s
 			%2$s
 		%4$s',
 		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
@@ -1088,7 +1095,7 @@ function kz_pb_portfolio( $atts ) {
 		( ! $container_is_closed ? '</div> <!-- .et_pb_portfolio -->' : '' ),
 		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
 		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-		$category_filters
+		$filters_html
 	);
 
 	//hack pour pagination
@@ -1461,20 +1468,23 @@ function kz_pb_proximite( $atts ) {
 	) );
 	
 	// <div id="map_loader" class="map_over"><i class="fa fa-5x fa-map-marker pull-left"></i><h1>Je suis la carte !</h1><em>je me charge...</em></div>
-
-	$out = sprintf(
-			'<div%5$s class="et_pb_map_container%6$s">
-				<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
-				<!--div class="et_pb_pins">%4$s</div-->
-			</div><hr class="et_pb_space et_pb_divider" />',
-			esc_attr( $coords['latitude'] ),
-			esc_attr( $coords['longitude'] ),
-			$zoom, //zoom level
-			'',//$pins,
-			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-			'on' //mousewheel
-		);
+	if ($display_mode=='with_map') {
+		$out = sprintf(
+				'<div%5$s class="et_pb_map_container%6$s">
+					<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
+					<!--div class="et_pb_pins">%4$s</div-->
+				</div><hr class="et_pb_space et_pb_divider" />',
+				esc_attr( $coords['latitude'] ),
+				esc_attr( $coords['longitude'] ),
+				$zoom, //zoom level
+				'',//$pins,
+				( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+				( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+				'on' //mousewheel
+			);
+	} else {
+		$out = '<!-- simple portfolio -->';
+	}
 
 	$class = " et_pb_bg_layout_{$background_layout}";
 	$filters_html = '';
