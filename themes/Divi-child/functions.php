@@ -197,7 +197,7 @@ function kz_divi_load_scripts ()
 
 function kz_mailchimp_key()
 {
-	return '1b5be0ebf3';
+	return Kidzou_Utils::get_option('mailchimp_list', '');
 }
 
 

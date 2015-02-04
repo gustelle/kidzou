@@ -143,11 +143,11 @@
 										$ttes_metros .= '&nbsp;|&nbsp;';
 
 									$ttes_metros .= sprintf(
-										'<a class="metropole" data-metropole="%s" href="%s" alt="%s" title="%s">%s</a>',
+										'<a class="metropole" data-metropole="%s" href="%s">%s</a>',
 										$m->slug,
 										site_url().'/'.$m->slug,
-										$m->name,
-										__( 'Changer de ville', 'kidzou' ),
+										// $m->name,
+										// __( 'Changer de ville', 'kidzou' ),
 										$m->name
 									);
 

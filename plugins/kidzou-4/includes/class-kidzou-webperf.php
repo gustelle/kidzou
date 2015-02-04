@@ -226,7 +226,13 @@ class Kidzou_WebPerf {
 		}
 	}
 
-
+	/**
+	 * Utilisée par le Hook <code>script_loader_tag</code> , retravaille le bout de HTML généré par wordpress pour charger les JS (<script>)
+	 * afin d'y insérer les propriétés defer et async qui permettent un respectivement de déférer l'execution du JS apres chargement du DOM sans le bloquer et
+	 * de déférer le chargement du script en asynchrone sans bloquer le DOM
+	 *
+	 * @see script_loader_tag
+	 */
 	public static function add_aync_attr($html, $handle) {
 
 		$activate = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
@@ -242,6 +248,12 @@ class Kidzou_WebPerf {
 	}
 
 	//necessaire pour permettre une combinaison des CSS par mod_pagespeed
+	/**
+	 * Utilisée par le Hook <code>style_loader_tag</code> , retravaille le bout de HTML généré par wordpress pour charger les CSS (<style>)
+	 * afin de supprimer l'attribut 'id' qui bloque la concaténation CSS par Mod_PageSpeed
+	 *
+	 * @see style_loader_tag
+	 */
 	public static function remove_style_id($link, $handle) {
 
 		$activate = ((bool)Kidzou_Utils::get_option('perf_activate',false)) ;
@@ -257,7 +269,8 @@ class Kidzou_WebPerf {
 	}
 
 	/**
-	 * undocumented function
+	 * Si les éléments CSS sont chargés en Asynchrone par JS, cette fonction ajoute la liste des CSS à charger en <noscript>
+	 * pour les navigateurs qui n'acceptent pas le JS
 	 *
 	 * @return void
 	 * @author 
@@ -276,7 +289,7 @@ class Kidzou_WebPerf {
 				$src = $item['src'];
 				$media = $item['media'];
 				$ver = Kidzou::VERSION;
-				$out .= "<link rel='stylesheet'  href='$src?ver=$ver' type='text/css' media='$media' />";
+				$out .= "<link rel='stylesheet' property='stylesheet' href='$src?ver=$ver' type='text/css' media='$media' />";
 			}
 			$out .= '</noscript>';
 		}
