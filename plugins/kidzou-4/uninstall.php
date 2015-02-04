@@ -81,6 +81,8 @@ if ( is_multisite() ) {
     delete_transient( 'kz_covered_metropoles_all_fields' );
     delete_transient( 'kz_covered_metropoles' );
 
+    delete_transient( 'kz_mailchimp_lists' );
+
     //supprimer tous les transients des metropoles
     $your_transients = $wpdb->get_results(
              "SELECT option_name FROM wp_options WHERE option_name LIKE '%kz_post_metropole_%'");

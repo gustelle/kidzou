@@ -3104,8 +3104,9 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 
 .fa {padding-right: 0.3em; } /* icons de font awesome */
 .fa-stack br { display: none } /* https://github.com/FortAwesome/Font-Awesome/wiki/Troubleshooting */
-.vote { color:#ED0A71; }
+.vote, .notification_icon { color:#ED0A71; }
 .vote:hover { cursor: pointer; }
+/*.newsletter_form {color:#ED0A71;}*/
 .font-2x { font-size: 200%; }
 .font-bigger {font-size: 120%; font-weight: bold;}
 .overtext {vertical-align: text-top;} /* pour la fleche du content preview */
@@ -3113,6 +3114,55 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 	font-size: 90%;
 }
 .portfolio_meta:before {content: ' ';}
+
+.kz_notification_form {
+	margin: 20px 10px;
+	width: 80%;
+	background-color:#1EA4E8;
+	padding: 20px;
+}
+
+.kz_notification_form .form_wait_message {
+	color:#fff;
+	font-size: 1.3em;
+	font-weight: bold;
+}
+
+.kz_notification_input{
+	width: 90%;
+	padding: 8px 4px;
+	font-size: 1.1em;
+}
+
+.kz_notification_input{
+	border: 2px solid #fff;
+}
+
+.kz_notification_button {
+	border: none;
+	border: 1px solid #1EA4E8;
+	margin: 1px;
+	padding: 12px;
+	font-size: 1.3em;
+	color: #1EA4E8;
+	width: 100%;
+	background-color: #fff;
+	cursor: pointer;
+}
+.kz_notification_button:hover {
+	background-color: #9B9494;
+	font-weight: bold;
+	color: #fff;
+	-moz-transition: all 0.4s; 
+	-webkit-transition: all 0.4s; 
+	transition: all 0.4s;
+}
+
+@media only screen and ( max-width: 479px ) {
+	.kz_notification_form {
+		margin: 20px 0;
+	}
+}
 
 
 p.location {line-height: 1.3em; padding-bottom: 0.3em;}
@@ -3447,22 +3497,6 @@ a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-men
 	cursor: pointer;
 }
 
-/*.progress {
-	z-index: 10000;
-	background:rgba(255, 255, 255, 0.3);
-    opacity:0.3;    
-    width:100%;height:100%; 
-}
-
-.map_over {
-	z-index: 10000;
-	background:rgba(255, 255, 255, 0.5);
-	position: absolute;
-	top: 100px;
-	width:100%;height:100%; 
-	margin-left: auto;
-	margin-right: auto;
-}*/
 
 @media only screen and ( max-width: 479px ) {
 	.et_pb_map_container .message {

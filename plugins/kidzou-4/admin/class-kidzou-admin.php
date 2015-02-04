@@ -431,6 +431,9 @@ class Kidzou_Admin {
 
 		$screen = get_current_screen(); 
 
+		//on a besoin de font awesome dans le paneau d'admin
+		wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
+
 		if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
 
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Kidzou::VERSION );

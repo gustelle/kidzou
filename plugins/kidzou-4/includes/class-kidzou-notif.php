@@ -14,13 +14,8 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Notif', 'get_instance' ) );
  */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
+ * Classe mutualisée entre Front End et Admin (Back End)
  *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
  *
  * @package Kidzou_Notif
  * @author  Guillaume Patin <guillaume@kidzou.fr>
@@ -72,8 +67,8 @@ class Kidzou_Notif {
 
 	/**
 	 * Register and enqueues public-facing JavaScript files.
+	 * en effet, le Hook d'appel `wp_enqueue_scripts` n'est pas appelé dans l'Admin WP
 	 *
-	 * @since    1.0.0
 	 */
 	public function enqueue_scripts() {
 
@@ -85,27 +80,39 @@ class Kidzou_Notif {
 
 		wp_enqueue_script('endbox',	 plugins_url( 'kidzou-4/public/assets/js/jquery.endpage-box.min.js' ),array(), Kidzou::VERSION, true);
 		wp_enqueue_script( 'kidzou-notif', plugins_url( 'kidzou-4/public/assets/js/kidzou-notif.js' ), array('jquery', 'ko', 'endbox','kidzou-plugin-script', 'kidzou-storage'), Kidzou::VERSION, true);
-		// wp_enqueue_style( 'ns-other', plugins_url( 'kidzou-4/public/assets/css/ns-style-other.css' ), null, Kidzou::VERSION );
 
 		wp_localize_script('kidzou-notif', 'kidzou_notif', array(
 				'messages'				=> self::get_messages(),
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
+				'mailchimp_key'			=> Kidzou_Utils::get_option('mailchimp_key', ''),
+				'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
+				'form_wait_message'		=> __('<i class="fa fa-spinner fa-spin pull-left"></i>Merci de votre patience...','kidzou'),
+				'form_error_message'	=> __('<i class="fa fa-warning pull-left"></i>Une erreur est survenue, nous en sommes d&eacute;sol&eacute;s','kidzou'),
+				'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
+				'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/',
 			)
 		);
 
-		// echo 'kidzou_notif:'.wp_script_is('kidzou-notif', 'enqueued');
 	}
 
 	/**
-	 * undocumented function
+	 * La Liste des messages pour notification dans le front-end
+	 * 
+	 * <p>Fournit Un tableau associatif avec le contexte des messages (la fréquence) et le contenu des messages
+	 * les contenus sont cachés par des `transient` WP</p>
 	 *
-	 * @return void
-	 * @author 
+	 * <p>L'ordre des messages respecte les préférences sélectionnées dans les réglages Kidzou</p>
+	 *
+	 * <p>Les résultats sont cachés dans un <code>transient</code> pendant 1j</p>
+	 * 
+	 * @todo faire évoluer l'appel à la méthode interne get_vote_message() pour y injecter les classes et styles disponibles dans les réglages Kidzou
+	 * @return Array Context et Messages
+	 *
 	 **/
 	public static function get_messages()
 	{
-		Kidzou_Utils::log('Kidzou_Notif [get_messages]',true);
+		// Kidzou_Utils::log();
 		global $post;
 
 		$messages = array();
@@ -131,52 +138,93 @@ class Kidzou_Notif {
 				//seulement si les notifs sont activées pour le type de post courant
 				if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
 
-					$content = get_transient('kz_notifications_content_' .$post_type);
+					// $content = get_transient('kz_notifications_content_' .$post_type);
 
 					if ( false===$content || empty($content) ) {
+
+						$order = Kidzou_Utils::get_option('notifications_messages_order', array());
+
+						// Kidzou_Utils::log($order, true);
+
+						foreach ($order as $key => $value) {
+
+							// Kidzou_Utils::log('key / value : ' . $key . '/'.$value, true);
+
+							if ((bool)$value) {
+
+								switch ($key) {
+									case 'newsletter':
+										// Kidzou_Utils::log('Message newsletter', true);
+										$content[] = self::get_newsletter_message(
+												Kidzou_Utils::get_option('notifications_form_class', ''),
+												Kidzou_Utils::get_option('notifications_form_style', ''),
+												Kidzou_Utils::get_option('notifications_labels_class', ''),
+												Kidzou_Utils::get_option('notifications_labels_style', ''),
+												Kidzou_Utils::get_option('notifications_input_class', ''),
+												Kidzou_Utils::get_option('notifications_input_style', ''),
+												Kidzou_Utils::get_option('notifications_button_class', ''),
+												Kidzou_Utils::get_option('notifications_button_style', ''),
+												Kidzou_Utils::get_option('notifications_icon_class', ''),
+												Kidzou_Utils::get_option('notifications_icon_style', '')
+											);
+										break;
+
+									case 'vote':
+										$content[] = self::get_vote_message(
+												Kidzou_Utils::get_option('notifications_icon_class', ''),
+												Kidzou_Utils::get_option('notifications_icon_style', '')
+											);
+										
+										break;
+
+									case 'featured':
+										
+										$posts_list = Kidzou_Featured::getFeaturedPosts();
+
+										foreach ($posts_list as $post) {
+
+											setup_postdata( $post ); 
 						
-						$cats = Kidzou_Utils::get_option('notifications_include_categories');
+											$content[] = self::get_post_message();
 
-						$first_message  = Kidzou_Utils::get_option('notifications_first_message');
+										}
+										wp_reset_postdata();
 
-						if ('vote'==$first_message) 
-						{
-							//pour les single, on pousse les reco dans la liste des messages
-							if (is_single()) $content[] = self::get_vote_message();
-						}
+										// Kidzou_Utils::log('Message featured', true);
+										
+										break;
 
-						$featured = Kidzou_Featured::getFeaturedPosts();
-						$include_posts = array();
+									case 'cats':
 
-						//inclure des catégories supplémentaires
-						if ($cats!=null && count($cats)>0) {
-							$cats_list = implode(",", $cats);
-							$include_posts = get_posts(array('category' => $cats_list));
-						}
+										$cats = Kidzou_Utils::get_option('notifications_include_categories');
+										//inclure des catégories supplémentaires
+										if ($cats!=null && count($cats)>0) {
+											$cats_list = implode(",", $cats);
+											$include_posts = get_posts(array('category' => $cats_list));
+											foreach ($include_posts as $post) {
 
-						$posts_list = array_merge($featured, $include_posts);
+												setup_postdata( $post ); 
+							
+												$content[] = array(
+														'id'		=> get_the_ID(),
+														'title' 	=> get_the_title(),
+														'body' 		=> get_the_excerpt(),
+														'target' 	=> get_permalink(),
+														'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
+													);
 
-
-						foreach ($posts_list as $post) {
-
-							setup_postdata( $post ); 
+											}
+											wp_reset_postdata();
+										}
+										// Kidzou_Utils::log('Message cats', true);
+										break;
 		
-							$content[] = array(
-									'id'		=> get_the_ID(),
-									'title' 	=> get_the_title(),
-									'body' 		=> get_the_excerpt(),
-									'target' 	=> get_permalink(),
-									'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
-								);
-
-						}
-						
-						wp_reset_postdata();
-
-						if ('vote'!=$first_message) 
-						{
-							//pour les single, on pousse les reco dans la liste des messages
-							if (is_single()) $content[] = self::get_vote_message();
+									default:
+										# code...
+										break;
+								}
+							}
+							
 						}
 
 						if (!empty($content) && count($content)>0)
@@ -188,29 +236,119 @@ class Kidzou_Notif {
 			
 			} //si actif
 		}
-		
 
 		$messages['content'] = $content;
+
+		Kidzou_Utils::log($messages, true);
 
 		return $messages;
 	}
 
-	public static function get_vote_message() {
+	/**
+	 *
+	 * @internal
+	 */
+	private static function get_vote_message($icon_class='', $icon_style='') {
+
+		$icon = sprintf('<i class="fa fa-heart-o fa-3x vote %1$s" style="%2$s"></i>',
+			$icon_class,
+			$icon_style);
 
 		return array(
 				'id'		=> 'vote',
 				'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
 				'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Cliquez sur le coeur en haut de page ! ', 'kidzou' ),
 				'target' 	=> '#',
-				'icon' 		=> '<i class="fa fa-heart-o fa-3x vote"></i>',
+				'icon' 		=> $icon,
 			);
 
 	}
+
+	/**
+	 *
+	 * @internal
+	 */
+	private static function get_newsletter_message($form_class='', $form_style='',
+		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='') {
+
+		$body = sprintf('
+					%1$s
+					<form id="notification_newsletter" class="%13$s" style="%14$s">
+						<p>
+							<label for="firstname" class="%7$s" style="%8$s">%2$s</label>
+							<input type="text" name="firstname" class="%9$s" style="%10$s" placeholder="%2$s" title="%2$s">
+						</p>
+						<p>
+							<label for="lastname" class="%7$s" style="%8$s">%3$s</label>
+							<input type="text" name="lastname" class="%9$s" style="%10$s" placeholder="%3$s" title="%3$s">
+						</p>
+						<p>
+							<label for="email" class="%7$s" style="%8$s">%4$s</label>
+							<input type="email" name="email" class="%9$s" style="%10$s" placeholder="%4$s" title="%15$s">
+						</p>
+						<p>
+							<label for="zipcode" class="%7$s" style="%8$s">%4$s</label>
+							<input type="text" name="zipcode" class="%9$s" style="%10$s" placeholder="%5$s" title="%4$s" pattern="[0-9]*" maxlength="5">
+						</p>
+						<p>
+							<button type="submit" class="%11$s" style="%12$s">%6$s</button>
+						</p>
+					</form>',
+					__( 'Inscrivez-vous &agrave; notre newsletter pour recevoir les bons plans du moment !', 'kidzou' ),
+					__( 'Pr&eacute;nom', 'kidzou' ),
+					__( 'Nom', 'kidzou' ),
+					__( 'E-mail', 'kidzou' ),
+					__( 'Code Postal', 'kidzou' ),
+					__( 'Inscrivez-moi', 'kidzou' ),
+					$label_class,
+					$label_style,
+					$input_class,
+					$input_style,
+					$button_class,
+					$button_style, 
+					$form_class,
+					$form_style,
+					__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' )
+				);
+
+		$icon = sprintf('<i class="fa fa-newspaper-o fa-3x %1$s" style="%2$s"></i>',
+			$icon_class,
+			$icon_style);
+
+		return array(
+				'id'		=> 'newsletter',
+				'title' 	=> __( 'Tenez-vous inform&eacute;(e) !', 'kidzou' ),
+				'body' 		=> $body,
+				'target' 	=> '#',
+				'icon' 		=> $icon,
+			);
+
+	}
+
+	/**
+	 *
+	 * @internal
+	 */
+	private static function get_post_message() {
+
+		global $post;
+
+		return array(
+					'id'		=> get_the_ID(),
+					'title' 	=> get_the_title(),
+					'body' 		=> get_the_excerpt(),
+					'target' 	=> get_permalink(),
+					'icon' 		=> get_the_post_thumbnail( $post->ID, 'thumbnail' ),
+				);
+
+	}
+	
 
 	public static function cleanup_transients() {
 		delete_transient('kz_notifications_content_offres');
         delete_transient('kz_notifications_content_page');
         delete_transient('kz_notifications_content_post');
+
 	}
 
 

@@ -43,6 +43,7 @@ $directories = array(
             'includes/TGM/',
             'includes/Carbon/',
             'includes/redux/',
+            'includes/MailChimp/'
         );
 
 foreach ($directories as $directory) {

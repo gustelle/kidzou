@@ -138,6 +138,8 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
             $permalink_href = admin_url('options-permalink.php');
 
+            $mailchimp_lists = (array)get_transient( 'kz_mailchimp_lists' );
+
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
                 'desc'      => __('Page de login, etc..', 'kidzou'),
@@ -181,6 +183,21 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'title'     => __('UA de Google Analytics', 'kidzou'),
                         ),
 
+                        array(
+                            'id'        => 'mailchimp_key',
+                            'type'      => 'text',
+                            'title'     => __('Cl&eacute; d&apos;API pour int&eacute;gration Mailchimp', 'kidzou'),
+                            'validate_callback' => 'get_mailchimp_lists'
+                        ),
+                        array(
+                            'id'       => 'mailchimp_list',
+                            'type'     => 'select',
+                            'title'    => __('Liste Mailchimp pour la souscription Newsletter', 'kidzou'), 
+                            'subtitle' => __('Cette liste est utlis&eacute;e dans les notifications par exemple', 'kidzou'),
+                            'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
+                            // Must provide key => value pairs for select options
+                            'options'  => $mailchimp_lists
+                        )
                         
                     )
                 );
@@ -460,15 +477,22 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     ),
 
                     array(
-                        'id'       => 'notifications_first_message',
-                        'type'     => 'radio',
-                        'title'    => __('Ordre des messages', 'kidzou'), 
-                        'subtitle' => __('si plusieurs messages sont dans la queue, lequel afficher en premier ?', 'kidzou'),
+                        'id'       => 'notifications_messages_order',
+                        'type'     => 'sortable',
+                        'mode'      => 'checkbox',
+                        'title'    => __('Contenu des messages', 'kidzou'), 
+                        'subtitle' => __('si plusieurs messages sont dans la queue, trier les messages par ordre d&apos;apparition', 'kidzou'),
                         'options'  => array(
-                            'vote' => 'Inciter l&apos;utilisateur a clicker sur le coeur de recommandation', 
-                            'featured' => 'Les post featured d&apos;abord !', 
+                            'newsletter'    => '<i class="fa fa-newspaper-o"></i>&nbsp;&nbsp;Inscription &agrave; la newsletter',
+                            'vote'          => '<i class="fa fa-heart-o"></i>&nbsp;&nbsp;Recommandation d&apos;article', 
+                            'featured'      => '<i class="fa fa-star"></i>&nbsp;&nbsp;Promotion d&apos;article', 
+                            'cats'          => '<i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Articles issues des cat&eacute;gories ci-dessous', 
                         ),
-                        'default' => 'vote'
+                        'default' => array(
+                           'newsletter' => true,
+                            'vote'      => true,
+                            'featured'  => false
+                        )
                     ),
 
                     array(
@@ -531,6 +555,67 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     ),
                 )
             );
+            
+            /**
+             * Sous section de mise en forme des messages de notification
+             */
+            $this->sections[] = array(
+                    'icon'       => 'el-icon-website',
+                    'title'      => __( 'Mise en forme', 'kidzou' ),
+                    'subsection' => true,
+                    'fields'     => array(
+                        array(
+                            'id'       => 'notifications_form_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
+                        ),
+                        array(
+                            'id'       => 'notifications_form_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
+                        ),
+                        array(
+                            'id'       => 'notifications_labels_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS des <code>&lt;label&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'notifications_labels_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style des <code>&lt;label&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'notifications_input_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS des champs <code>&lt;input&gt;</code> du formulaire'),
+                        ),
+                        array(
+                            'id'       => 'notifications_input_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style des champs <code>&lt;input&gt;</code> du formulaire'),
+                        ),
+                        array(
+                            'id'       => 'notifications_button_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS du <code>&lt;button&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'notifications_button_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style du <code>&lt;button&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'notifications_icon_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
+                        ),
+                        array(
+                            'id'       => 'notifications_icon_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
+                        ),
+                    )
+                );
 
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
@@ -704,6 +789,43 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 }
 
 /**
+ * A la validation d'une Clé Mailchimp, récupère les listes
+ **/
+if (!function_exists('get_mailchimp_lists')):
+ 
+    function get_mailchimp_lists($field, $value, $existing_value) {
+
+        $return['value'] = $value;
+
+        //si la valeur change ,on récupère les listes
+        if ($value!=$existing_value) 
+        {
+            try {
+
+                $mailchimp = new MailChimp( $value );
+                $retval = $mailchimp->call('lists/list');
+                foreach ( $retval['data'] as $list ) {
+                    $lists[$list['id']] = $list['name'];
+                }
+
+                delete_transient('kz_mailchimp_lists');
+                set_transient( 'kz_mailchimp_lists', $lists, 0 ); //never expires ! 
+
+            } catch ( Exception $exc ) {
+                
+                Kidzou_Utils::log($exc);
+                $return['error'] = $field;
+                $value = $existing_value;
+                $field['msg'] = __('Les listes Mailchimp n&apos;ont pas pu &ecirc;tre r&eacute;cup&eacute;r&eacute;es avec cette cl&eacute;','kidzou');
+            }
+        }
+        
+        return $return;
+    }
+ 
+endif;
+
+/**
   Custom function for the callback referenced above
  */
 if (!function_exists('admin_folder_my_custom_field')):
@@ -741,3 +863,32 @@ if (!function_exists('admin_folder_validate_callback_function')):
         return $return;
     }
 endif;
+
+
+// Replace {$redux_opt_name} with your opt_name.
+// Also be sure to change this function name!
+// if(!function_exists('redux_register_custom_extension_loader')) :
+//     function redux_register_custom_extension_loader($ReduxFramework) {
+//         $path    = dirname( __FILE__ ) . '/extensions/';
+//             $folders = scandir( $path, 1 );
+//             foreach ( $folders as $folder ) {
+//                 if ( $folder === '.' or $folder === '..' or ! is_dir( $path . $folder ) ) {
+//                     continue;
+//                 }
+//                 $extension_class = 'ReduxFramework_Extension_' . $folder;
+//                 if ( ! class_exists( $extension_class ) ) {
+//                     // In case you wanted override your override, hah.
+//                     $class_file = $path . $folder . '/extension_' . $folder . '.php';
+//                     $class_file = apply_filters( 'redux/extension/' . $ReduxFramework->args['opt_name'] . '/' . $folder, $class_file );
+//                     if ( $class_file ) {
+//                         require_once( $class_file );
+//                     }
+//                 }
+//                 if ( ! isset( $ReduxFramework->extensions[ $folder ] ) ) {
+//                     $ReduxFramework->extensions[ $folder ] = new $extension_class( $ReduxFramework );
+//                 }
+//             }
+//     }
+//     // Modify {$redux_opt_name} to match your opt_name
+//     add_action("redux/extensions/kidzou_options/before", 'redux_register_custom_extension_loader', 0);
+// endif;
