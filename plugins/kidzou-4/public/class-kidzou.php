@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix8';
+	const VERSION = '0215-fix9';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Correctifs sur les CRP/Featured";
+	public static $version_description = "Correctifs sur erreurs de validation W3C";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -104,6 +104,7 @@ class Kidzou {
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
+		add_filter('json_api_mailchimp_controller_path',  array( $this, 'set_mailchimp_controller_path') );
 
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
 
@@ -649,6 +650,7 @@ class Kidzou {
 	  $controllers[] = 'Clients';
 	  $controllers[] = 'Search';
 	  $controllers[] = 'Content';
+	  $controllers[] = 'Mailchimp';
 
 	  return $controllers;
 	}
@@ -671,6 +673,9 @@ class Kidzou {
 	}
 	public function set_content_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/content.php";
+	}
+	public function set_mailchimp_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/mailchimp.php";
 	}
 
 	/**

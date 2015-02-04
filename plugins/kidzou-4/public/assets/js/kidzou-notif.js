@@ -143,15 +143,20 @@ var kidzouNotifier = (function(){
 
 		//le contenu de la boite de notif dépend si c'est un vote ou non
 		var is_vote = (m.id=='vote');
+		var is_newsletter = (m.id=='newsletter');
 
 		var href = (is_vote ? "" : 'href="' + m.target + '"');
 		var classes = (is_vote ? "votable_notification" : "notification" );
 
-		if (!is_vote)
+		if (!is_vote && !is_newsletter) {
 			boxcontent += '<h3>' + kidzou_notif.message_title + '</h3>';
+		}
 
-		boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
-		
+		if (!is_newsletter)
+			boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
+		else
+			boxcontent += '<i class="fa fa-close close"></i>' + m.icon + '<h3>' + m.title + '</h3>' + m.body ;
+
 		if (jQuery.fn.endpage_box) {
 			jQuery("#endpage-box").endpage_box({
 			    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
@@ -161,15 +166,18 @@ var kidzouNotifier = (function(){
 			  });
 		}
 
+		//suivi des clicks sur les suivis de lien
 		jQuery('.notification').click(function() {
 			kidzouTracker.trackEvent("Notification", "Suivi de suggestion", m.target , 0);
 		});
 
+		//gestion de la fermeture de la boite de notif
 		jQuery('.close').click(function() {
 			jQuery("#endpage-box").css('display', 'none');
 			jQuery(document).unbind('scroll');
 		});
 
+		//gestion du vote
 		jQuery('.votable_notification').click(function() {
 			
 			kidzouTracker.trackEvent("Notification", "Vote", current_page_id , 0);
@@ -188,6 +196,75 @@ var kidzouNotifier = (function(){
 			}, 700);
 			
 
+		});
+
+		//gestion de la validation du form newsletter
+		var form = document.querySelector('#notification_newsletter');
+		form.addEventListener("submit", function(evt){
+			evt.preventDefault();
+			
+			jQuery.ajax({
+
+				type: "POST",
+				url: kidzou_notif.api_newsletter_url,
+				data:
+				{
+					nonce 		: kidzou_notif.api_newsletter_nonce,
+					firstname 	: form.querySelector('[name="firstname"]').value,
+					lastname 	: form.querySelector('[name="lastname"]').value,
+					email 		: form.querySelector('[name="email"]').value,
+					zipcode 	: form.querySelector('[name="zipcode"]').value,
+					key 		: kidzou_notif.mailchimp_key,
+					list_id 	: kidzou_notif.mailchimp_list
+				},
+				beforeSend : function() {
+
+					//afficher un message de patience
+					var button = document.querySelector('#notification_newsletter button');
+					button.style.display = 'none';
+
+					var sp1 = document.createElement("span");
+					sp1.classList.add('form_wait_message');
+					sp1.innerHTML = kidzou_notif.form_wait_message;
+
+					document.querySelector('#notification_newsletter p:last-child').insertBefore(sp1, button);
+
+				},
+				success: function( data ){
+
+					//pas d'erreur dans l'API
+					if (data.status=='ok') {
+
+						document.querySelector('#notification_newsletter p:last-child span').innerHTML = data.message;
+
+						if (data.result == 'error') {
+
+							//re-afficher le bouton de soumission du formulaire
+							document.querySelector('#notification_newsletter button').style.display = 'block';
+						
+						} else {
+
+							//Attendre un peu avant de supprimer le message...g
+							//histoire que le user voit les effets de son click
+							setTimeout(function(){
+								jQuery( "#endpage-box" ).fadeOut( "slow", function() { });
+								jQuery(document).unbind('scroll');
+							}, 700);
+						}
+						
+					
+					} else {
+
+						document.querySelector('#notification_newsletter p:last-child span').innerHTML = kidzou_notif.form_error_message ;
+
+					}
+
+				}
+
+			} );
+
+			return false;
+			
 		});
 
 		setMessageRead(m);
