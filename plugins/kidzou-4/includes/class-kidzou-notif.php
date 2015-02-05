@@ -165,7 +165,9 @@ class Kidzou_Notif {
 												Kidzou_Utils::get_option('notifications_button_class', ''),
 												Kidzou_Utils::get_option('notifications_button_style', ''),
 												Kidzou_Utils::get_option('notifications_icon_class', ''),
-												Kidzou_Utils::get_option('notifications_icon_style', '')
+												Kidzou_Utils::get_option('notifications_icon_style', ''),
+												Kidzou_Utils::get_option('notifications_error_class', ''),
+												Kidzou_Utils::get_option('notifications_error_style', '')
 											);
 										break;
 
@@ -269,11 +271,12 @@ class Kidzou_Notif {
 	 * @internal
 	 */
 	private static function get_newsletter_message($form_class='', $form_style='',
-		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='') {
+		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='', $error_class='', $error_style='') {
 
 		$body = sprintf('
 					%1$s
 					<form id="notification_newsletter" class="%13$s" style="%14$s">
+						<span id="notification_error_message" class="%16$s" style="%17$s"></span>
 						<p>
 							<label for="firstname" class="%7$s" style="%8$s">%2$s</label>
 							<input type="text" name="firstname" class="%9$s" style="%10$s" placeholder="%2$s" title="%2$s">
@@ -308,7 +311,9 @@ class Kidzou_Notif {
 					$button_style, 
 					$form_class,
 					$form_style,
-					__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' )
+					__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' ),
+					$error_class,
+					$error_style
 				);
 
 		$icon = sprintf('<i class="fa fa-newspaper-o fa-3x %1$s" style="%2$s"></i>',
