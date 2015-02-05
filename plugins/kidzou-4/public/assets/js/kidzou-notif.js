@@ -1,3 +1,24 @@
+//merci http://www.abeautifulsite.net/detecting-mobile-devices-with-javascript/
+var isMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i);
+    },
+    any: function() {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
 var kidzouNotifier = (function(){
 
 	//le système de notification est-il actif ?
@@ -125,8 +146,26 @@ var kidzouNotifier = (function(){
             return !m.readFlag;
         });
 
-      	//ke premier de la liste
-      	return unread[0];
+		//
+      	// le premier de la liste si on n'est pas sur mobile
+      	// si on est sur mobile, on prend le premier qui n'est pas une newsletter
+      	// car il y a un souci d'affichage du formulaire sur iPhone : 
+      	//	1- quand on se met dans un champ input, on se retrouve tt en bas de la page, hors du form !!
+      	//	2- dans un mode paysage, le formualire est tronqué sans possibilité de fermer la popup
+      	//
+      	// exclusion également du form newsletter si l'option'newsletter_once' est passée
+      	//
+      	var newsletter_already_seen = storageSupport.getLocal('newsletter_form');
+      	// console.info('newsletter_already_seen ' + newsletter_already_seen);
+      	if (!isMobile.any() && !(kidzou_notif.newsletter_once && newsletter_already_seen) )
+      		return unread[0];
+      	else {
+      		// console.info('exclusion du formulaire newsletter');
+      		return ko.utils.arrayFirst(unread, function(item) {
+      			// console.info(item.id);
+	            return item.id!='newsletter';
+	        });
+      	}
 
 	}
 
@@ -161,7 +200,7 @@ var kidzouNotifier = (function(){
 			jQuery("#endpage-box").endpage_box({
 			    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
 			    from: "5%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
-			    to: "50%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
+			    to: "80%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
 			    content: boxcontent  // The plugin will automatically create a container if it doesn't exist. This option will allow you to define the content of the container. This field also supports HTML.
 			  });
 		}
@@ -173,8 +212,7 @@ var kidzouNotifier = (function(){
 
 		//gestion de la fermeture de la boite de notif
 		jQuery('.close').click(function() {
-			jQuery("#endpage-box").css('display', 'none');
-			jQuery(document).unbind('scroll');
+			closeFlyIn();
 		});
 
 		//gestion du vote
@@ -191,8 +229,7 @@ var kidzouNotifier = (function(){
 			//Attendre un peu avant de supprimer le message...g
 			//histoire que le user voit les effets de son click
 			setTimeout(function(){
-				jQuery( "#endpage-box" ).fadeOut( "slow", function() { });
-				jQuery(document).unbind('scroll');
+				closeFlyIn();
 			}, 700);
 			
 
@@ -200,86 +237,100 @@ var kidzouNotifier = (function(){
 
 		//gestion de la validation du form newsletter
 		var form = document.querySelector('#notification_newsletter');
-		form.addEventListener("submit", function(evt){
-			evt.preventDefault();
-			
-			jQuery.ajax({
+		if (form!==null) {
+			form.addEventListener("submit", function(evt){
+				evt.preventDefault();
+				
+				jQuery.ajax({
 
-				type: "POST",
-				url: kidzou_notif.api_newsletter_url,
-				data:
-				{
-					nonce 		: kidzou_notif.api_newsletter_nonce,
-					firstname 	: form.querySelector('[name="firstname"]').value,
-					lastname 	: form.querySelector('[name="lastname"]').value,
-					email 		: form.querySelector('[name="email"]').value,
-					zipcode 	: form.querySelector('[name="zipcode"]').value,
-					key 		: kidzou_notif.mailchimp_key,
-					list_id 	: kidzou_notif.mailchimp_list
-				},
-				beforeSend : function() {
+					type: "POST",
+					url: kidzou_notif.api_newsletter_url,
+					data:
+					{
+						nonce 		: kidzou_notif.api_newsletter_nonce,
+						firstname 	: form.querySelector('[name="firstname"]').value,
+						lastname 	: form.querySelector('[name="lastname"]').value,
+						email 		: form.querySelector('[name="email"]').value,
+						zipcode 	: form.querySelector('[name="zipcode"]').value,
+						key 		: kidzou_notif.mailchimp_key,
+						list_id 	: kidzou_notif.mailchimp_list
+					},
+					beforeSend : function() {
 
-					//afficher un message de patience
-					document.querySelector('#notification_newsletter button').disabled = true;
-					document.querySelector('#notification_error_message').innerHTML = '';
+						//afficher un message de patience
+						document.querySelector('#notification_newsletter button').disabled = true;
+						document.querySelector('#notification_error_message').innerHTML = '';
 
-					// var sp1 = document.createElement("span");
-					// // sp1.classList.add('form_wait_message');
-					// sp1.innerHTML = ;
+						// var sp1 = document.createElement("span");
+						// // sp1.classList.add('form_wait_message');
+						// sp1.innerHTML = ;
 
-					document.querySelector('#notification_error_message').innerHTML = kidzou_notif.form_wait_message;
+						document.querySelector('#notification_error_message').innerHTML = kidzou_notif.form_wait_message;
 
-				},
-				success: function( data ){
+					},
+					success: function( data ){
 
-					document.querySelector('#notification_error_message').innerHTML = '';
-					document.querySelector('#notification_newsletter input').classList.remove('error');
+						document.querySelector('#notification_error_message').innerHTML = '';
+						document.querySelector('#notification_newsletter input').classList.remove('error');
 
-					//pas d'erreur dans l'API
-					if (data.status=='ok') {
+						//pas d'erreur dans l'API
+						if (data.status=='ok') {
 
-						//erreur fonctionnelle de valdation
-						if (data.result == 'error') {
+							//erreur fonctionnelle de valdation
+							if (data.result == 'error') {
 
-							//re-afficher le bouton de soumission du formulaire
-							document.querySelector('#notification_newsletter button').disabled = false;
-							var fields = data.fields ;
-							for (x in fields) {
-								// console.debug(x);
-								var field = fields[x];
-							    document.querySelector('#notification_error_message').innerHTML += field.message;
-							    document.querySelector('#notification_newsletter input[name="' + x + '"]').classList.toggle('error');
+								//re-afficher le bouton de soumission du formulaire
+								document.querySelector('#notification_newsletter button').disabled = false;
+								var fields = data.fields ;
+								for (x in fields) {
+									// console.debug(x);
+									var field = fields[x];
+								    document.querySelector('#notification_error_message').innerHTML += field.message;
+								    document.querySelector('#notification_newsletter input[name="' + x + '"]').classList.toggle('error');
+								}
+							
+							} else {
+
+								document.querySelector('#notification_error_message').innerHTML = data.message;
+
+								//positionner un cookie pour ne pas re-solliciter le user sur une inscription newsletter alors qu'il s'est déjà inscrit
+
+								//Attendre un peu avant de supprimer le message...g
+								//histoire que le user voit les effets de son click
+								setTimeout(function(){
+									closeFlyIn();
+								}, 700);
 							}
-						
+							
+						//erreur technique dans l'API
 						} else {
+							document.querySelector('#notification_newsletter button').disabled = false;
+							document.querySelector('#notification_error_message').innerHTML = kidzou_notif.form_error_message ;
 
-							document.querySelector('#notification_error_message').innerHTML = data.message;
-
-							//Attendre un peu avant de supprimer le message...g
-							//histoire que le user voit les effets de son click
-							setTimeout(function(){
-								jQuery( "#endpage-box" ).fadeOut( "slow", function() { });
-								jQuery(document).unbind('scroll');
-							}, 700);
 						}
-						
-					//erreur technique dans l'API
-					} else {
-						document.querySelector('#notification_newsletter button').disabled = false;
-						document.querySelector('#notification_error_message').innerHTML = kidzou_notif.form_error_message ;
 
 					}
 
-				}
+				} );
 
-			} );
-
-			return false;
-			
-		});
+				return false;
+				
+			});
+		}
 
 		setMessageRead(m);
 
+	}
+
+	function closeFlyIn() {
+		jQuery( "#endpage-box" ).fadeOut( "slow", function() { });
+		jQuery(document).unbind('scroll');
+
+		//si le message était le formulaire de newsletter, on ne le ré-affiche pas 
+		console.info('newsletter_once ' + kidzou_notif.newsletter_once);
+		if (kidzou_notif.newsletter_once) {
+			storageSupport.setLocal("newsletter_form", true);
+		}
 	}
 
 	// jQuery(document).ready(function() {

@@ -542,6 +542,13 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'compiler'  => true
                     ),
 
+                    array(
+                        'id'       => 'notifications_newsletter_once',
+                        'type'     => 'checkbox',
+                        'default'  => '0',
+                        'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
+                    ),
+
                      array(
                         'id'       => 'notifications_include_categories',
                         'type'     => 'select',
