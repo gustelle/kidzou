@@ -24,10 +24,10 @@ class JSON_API_Mailchimp_Controller {
 		$list_id 	= $json_api->query->list_id;
 		$nonce 		= $json_api->query->nonce;
 
-		if ( '' === $key ) 
+		if ( '' == $key ) 
 			$json_api->error("Une clé doit être fournie pour accéder a ce service");
 
-		if ( '' === $list_id ) 
+		if ( '' == $list_id ) 
 			$json_api->error("Un ID de Liste doit être fourni pour accéder a ce service");
 
 	    if (!wp_verify_nonce($nonce, 'newsletter_subscribe_nonce')) {
@@ -42,7 +42,7 @@ class JSON_API_Mailchimp_Controller {
 		if ($email['email']==='') {
 			return array(
 				'result' => 'error', 
-				'message'	=> 'Veuillez renseigner l&apos;adresse e-mail !'
+				'fields'	=> array('email' => array('message' => __('Veuillez renseigner l&apos;adresse e-mail !','kidzou' ) ))
 			);
 		}
 

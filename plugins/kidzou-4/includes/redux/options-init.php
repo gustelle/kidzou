@@ -614,6 +614,16 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'type'     => 'text',
                             'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
                         ),
+                        array(
+                            'id'       => 'notifications_error_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS du message d&apos;erreur'),
+                        ),
+                        array(
+                            'id'       => 'notifications_error_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style du message d&apos;erreur'),
+                        ),
                     )
                 );
 

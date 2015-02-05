@@ -4,6 +4,34 @@ window.console = typeof window.console === 'undefined'
     ? {log:function(str){alert(str)}}
     : window.console;
 
+//thanks http://www.chrisbuttery.com/articles/fade-in-fade-out-with-javascript/
+// fade out
+function fadeOut(el){
+  el.style.opacity = 1;
+
+  (function fade() {
+    if ((el.style.opacity -= .1) < 0) {
+      el.style.display = "none";
+    } else {
+      requestAnimationFrame(fade);
+    }
+  })();
+}
+
+// fade in
+function fadeIn(el, display){
+  el.style.opacity = 0;
+  el.style.display = display || "block";
+
+  (function fade() {
+    var val = parseFloat(el.style.opacity);
+    if (!((val += .1) > 1)) {
+      el.style.opacity = val;
+      requestAnimationFrame(fade);
+    }
+  })();
+}
+
 var kidzouModule = (function() { //havre de paix
 
 	var kidzou;
@@ -12,7 +40,6 @@ var kidzouModule = (function() { //havre de paix
 	// jQuery(document).ready(function() {
 	document.addEventListener('DOMContentLoaded', function(event) {
 
-		// console.debug('DOMContentLoaded in kidzou');
 
 		//assurer que les dépendances sont là...
 		if (window.jQuery && window.ko && window.storageSupport) {
@@ -41,17 +68,13 @@ var kidzouModule = (function() { //havre de paix
 
 			kidzou = function() {
 
-				// console.debug('Init kidzou');
-
-				// var message			= new kidzouMessage.message();
 				var votesModel 		= new VotesModel(); 
 
 				//initialement (permettre le vote même si le user n'accepte pas la geoloc)
 				feedViewModel();
 
 				function mapVotedToVotables(_voted) {
-					// logger.debug("mapVotedToVotables " + ko.toJSON(_voted));
-					// debug("votesModel.votableItems " + ko.toJSON(votesModel.votableItems));
+
 					ko.utils.arrayForEach(_voted, function(item) {
 						ko.utils.arrayFirst(votesModel.votableItems, function(i) {
 				            if ( i.id == item.id) i.voted(true);    
@@ -78,9 +101,16 @@ var kidzouModule = (function() { //havre de paix
 						var matchedItem = ko.utils.arrayFirst(votesModel.votableItems, function(i) {
 				            if (i.id == item.id) return i;
 				        });
-				        if (matchedItem!==null)
+				        if (matchedItem!==null) 
 				        	matchedItem.votes( item.votes );
 					});
+
+
+					var els = document.querySelectorAll('.votable');
+					[].forEach.call(els, function(el) {
+					  fadeIn(el);
+					});
+					
 				}
 
 				/**
