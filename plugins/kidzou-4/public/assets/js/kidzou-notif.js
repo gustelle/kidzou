@@ -220,29 +220,40 @@ var kidzouNotifier = (function(){
 				beforeSend : function() {
 
 					//afficher un message de patience
-					var button = document.querySelector('#notification_newsletter button');
-					button.style.display = 'none';
+					document.querySelector('#notification_newsletter button').disabled = true;
+					document.querySelector('#notification_error_message').innerHTML = '';
 
-					var sp1 = document.createElement("span");
-					sp1.classList.add('form_wait_message');
-					sp1.innerHTML = kidzou_notif.form_wait_message;
+					// var sp1 = document.createElement("span");
+					// // sp1.classList.add('form_wait_message');
+					// sp1.innerHTML = ;
 
-					document.querySelector('#notification_newsletter p:last-child').insertBefore(sp1, button);
+					document.querySelector('#notification_error_message').innerHTML = kidzou_notif.form_wait_message;
 
 				},
 				success: function( data ){
 
+					document.querySelector('#notification_error_message').innerHTML = '';
+					document.querySelector('#notification_newsletter input').classList.remove('error');
+
 					//pas d'erreur dans l'API
 					if (data.status=='ok') {
 
-						document.querySelector('#notification_newsletter p:last-child span').innerHTML = data.message;
-
+						//erreur fonctionnelle de valdation
 						if (data.result == 'error') {
 
 							//re-afficher le bouton de soumission du formulaire
-							document.querySelector('#notification_newsletter button').style.display = 'block';
+							document.querySelector('#notification_newsletter button').disabled = false;
+							var fields = data.fields ;
+							for (x in fields) {
+								// console.debug(x);
+								var field = fields[x];
+							    document.querySelector('#notification_error_message').innerHTML += field.message;
+							    document.querySelector('#notification_newsletter input[name="' + x + '"]').classList.toggle('error');
+							}
 						
 						} else {
+
+							document.querySelector('#notification_error_message').innerHTML = data.message;
 
 							//Attendre un peu avant de supprimer le message...g
 							//histoire que le user voit les effets de son click
@@ -252,10 +263,10 @@ var kidzouNotifier = (function(){
 							}, 700);
 						}
 						
-					
+					//erreur technique dans l'API
 					} else {
-
-						document.querySelector('#notification_newsletter p:last-child span').innerHTML = kidzou_notif.form_error_message ;
+						document.querySelector('#notification_newsletter button').disabled = false;
+						document.querySelector('#notification_error_message').innerHTML = kidzou_notif.form_error_message ;
 
 					}
 

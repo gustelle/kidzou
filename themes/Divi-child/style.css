@@ -3106,7 +3106,8 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 .fa-stack br { display: none } /* https://github.com/FortAwesome/Font-Awesome/wiki/Troubleshooting */
 .vote, .notification_icon { color:#ED0A71; }
 .vote:hover { cursor: pointer; }
-/*.newsletter_form {color:#ED0A71;}*/
+.votable {display: none;} /* initialement, les coeurs ne sont pas affichés, il seront affichés quand tout sera prêt pour éviter les mochetés... */
+
 .font-2x { font-size: 200%; }
 .font-bigger {font-size: 120%; font-weight: bold;}
 .overtext {vertical-align: text-top;} /* pour la fleche du content preview */
@@ -3115,55 +3116,77 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 }
 .portfolio_meta:before {content: ' ';}
 
+/*-------------------[notification newsletter]------------------*/
 .kz_notification_form {
 	margin: 20px 10px;
-	width: 80%;
+	width: 80% !important;
 	background-color:#1EA4E8;
 	padding: 20px;
 }
 
-.kz_notification_form .form_wait_message {
+#notification_error_message {
 	color:#fff;
 	font-size: 1.3em;
 	font-weight: bold;
+	margin-bottom: 10px;
+	display: inline-block;
 }
 
-.kz_notification_input{
+.kz_notification_form .kz_notification_input{
 	width: 90%;
-	padding: 8px 4px;
-	font-size: 1.1em;
+	font-size: 1.1em !important;
+	border: 2px solid #fff !important;
+	padding-top: 10px !important;
+	padding-bottom: 10px !important;
 }
 
-.kz_notification_input{
+.kz_notification_form .kz_notification_input.error {
+	border-color: orange !important;
+	color:orange !important;
+	background-color: rgb(247, 232, 192);
+}
+
+.kz_notification_form .kz_notification_button {
 	border: 2px solid #fff;
-}
-
-.kz_notification_button {
-	border: none;
-	border: 1px solid #1EA4E8;
+	-webkit-border-radius:3px;
+	-moz-border-radius:3px;
+	border-radius:3px;
 	margin: 1px;
 	padding: 12px;
 	font-size: 1.3em;
-	color: #1EA4E8;
-	width: 100%;
-	background-color: #fff;
-	cursor: pointer;
-}
-.kz_notification_button:hover {
-	background-color: #9B9494;
-	font-weight: bold;
 	color: #fff;
+	width: 100%;
+	background-color: transparent;
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.kz_notification_form .kz_notification_button:hover {
 	-moz-transition: all 0.4s; 
 	-webkit-transition: all 0.4s; 
 	transition: all 0.4s;
+	background: rgba( 255, 255, 255, 0.2 ); border: 2px solid transparent; 
 }
 
 @media only screen and ( max-width: 479px ) {
 	.kz_notification_form {
-		margin: 20px 0;
+		margin: 10px 0;
+		width: 180px!important;
+		padding-top: 10px;
+		padding-left: 20px !important;
 	}
-}
+	.kz_notification_form .kz_notification_input{
+		padding-top: 6px !important;
+		padding-bottom: 6px !important;
+		font-size: 1em !important;
+	}
+	.kz_notification_form .kz_notification_button {
+		padding: 8px;
+		font-size: 1.1em;
+	}
 
+}
+/*-------------------[/notification newsletter]------------------*/
 
 p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
