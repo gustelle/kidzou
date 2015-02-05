@@ -91,6 +91,7 @@ class Kidzou_Notif {
 				'form_error_message'	=> __('<i class="fa fa-warning pull-left"></i>Une erreur est survenue, nous en sommes d&eacute;sol&eacute;s','kidzou'),
 				'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
 				'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/',
+				'newsletter_once'		=> Kidzou_Utils::get_option('notifications_newsletter_once', true),
 			)
 		);
 
