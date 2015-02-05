@@ -32,6 +32,7 @@ function fadeIn(el, display){
   })();
 }
 
+
 var kidzouModule = (function() { //havre de paix
 
 	var kidzou;

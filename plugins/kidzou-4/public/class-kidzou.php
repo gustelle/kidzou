@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix10';
+	const VERSION = '0215-fix11';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
