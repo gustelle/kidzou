@@ -3124,7 +3124,7 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 	padding: 20px;
 }
 
-#notification_error_message {
+#newsletter_form_error_message {
 	color:#fff;
 	font-size: 1.3em;
 	font-weight: bold;

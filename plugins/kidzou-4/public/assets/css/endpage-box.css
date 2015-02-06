@@ -8,18 +8,18 @@ Class Definitions
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #ffffff;
+  background-color: #F9F5F5; /*léger gris pour contraster avec le fond du main_content */
   /*opacity: 0.85;*/
   width: 70%;
   font-size: 90%;
   max-width: 350px;
   height: auto;
   /*max-height: 110px;*/
-  overflow: hidden;
+  /*overflow: hidden;*/
   padding: 25px;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.5);
-  -moz-box-shadow: 0 2px 3px rgba(0,0,0,0.5);
-  -webkit-box-shadow: 0 2px 3px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  -moz-box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+  -webkit-box-shadow: 0 2px 20px rgba(0,0,0,0.3);
 }
 
 

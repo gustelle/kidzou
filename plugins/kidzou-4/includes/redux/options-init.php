@@ -182,22 +182,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'type'      => 'text',
                             'title'     => __('UA de Google Analytics', 'kidzou'),
                         ),
-
-                        array(
-                            'id'        => 'mailchimp_key',
-                            'type'      => 'text',
-                            'title'     => __('Cl&eacute; d&apos;API pour int&eacute;gration Mailchimp', 'kidzou'),
-                            'validate_callback' => 'get_mailchimp_lists'
-                        ),
-                        array(
-                            'id'       => 'mailchimp_list',
-                            'type'     => 'select',
-                            'title'    => __('Liste Mailchimp pour la souscription Newsletter', 'kidzou'), 
-                            'subtitle' => __('Cette liste est utlis&eacute;e dans les notifications par exemple', 'kidzou'),
-                            'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
-                            // Must provide key => value pairs for select options
-                            'options'  => $mailchimp_lists
-                        )
                         
                     )
                 );
@@ -206,7 +190,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             $this->sections[] = array(
                 'title'     => __('G&eacute;olocalisation', 'kidzou'),
                 'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, Les contenus ne sont pas filtr&eacute;s. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
-                'icon'      => 'el-icon-compass',
+                'icon'      => 'fa fa-map-marker',
                 'fields'    => array(
 
 
@@ -465,7 +449,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             $this->sections[] = array(
                 'title'     => __('Notifications', 'kidzou'),
                 'desc'      => __('Les notifications apparaissent en bas &agrave; droite des pages, elles sugg&egrave;rent des contenus ou des actions (call-to-action). <br/>L&apos;ensemble des messages &agrave; afficher sont dans une queue d&eacute;pil&eacute;e au fur et &agrave; mesure. <br/>Lorsqu&apos;un message est affich&eacute; un cookie est stock&eacute; sur le poste de l&apos;utilisateur pendant 30 jours de sorte qu&apos;il ne reverra plus cette notification pendant ce laps de temps. Le message suivant peut &ecirc;tre lu.<br/>Un utilisateur ne recoit que 1 seul message par page', 'kidzou'),
-                'icon'      => 'el-icon-envelope',
+                'icon'      => 'fa fa-bell-o',
                 'fields'    => array(
 
                     array(
@@ -547,6 +531,8 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'type'     => 'checkbox',
                         'default'  => '0',
                         'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
+                        'subtitle' => __('Si vous choisissez cette option, un cookie sera positionn&eacute; lorsque l&apos;utilisateur aura vu la notification newsletter, afin de ne pas lui reproposer ce message pendant 30j', 'kidzou'),
+                        // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
                     ),
 
                      array(
@@ -562,82 +548,107 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     ),
                 )
             );
+
+            $this->sections[] = array(
+                'title'     => __('Newsletter', 'kidzou'),
+                'icon'      => 'fa fa-envelope-o',
+                'fields'    => array(
+
+                    array(
+                        'id'        => 'mailchimp_key',
+                        'type'      => 'text',
+                        'title'     => __('Cl&eacute; d&apos;API pour int&eacute;gration Mailchimp', 'kidzou'),
+                        'validate_callback' => 'get_mailchimp_lists'
+                    ),
+                    array(
+                        'id'       => 'mailchimp_list',
+                        'type'     => 'select',
+                        'title'    => __('Liste Mailchimp pour la souscription Newsletter', 'kidzou'), 
+                        'subtitle' => __('Cette liste est utlis&eacute;e dans les notifications par exemple', 'kidzou'),
+                        'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
+                        // Must provide key => value pairs for select options
+                        'options'  => $mailchimp_lists
+                    )
+                    
+                )
+            );
+            
             
             /**
              * Sous section de mise en forme des messages de notification
              */
             $this->sections[] = array(
-                    'icon'       => 'el-icon-website',
-                    'title'      => __( 'Mise en forme', 'kidzou' ),
-                    'subsection' => true,
-                    'fields'     => array(
-                        array(
-                            'id'       => 'notifications_form_class',
-                            'type'     => 'text',
-                            'title'    => __('Classe CSS de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
-                        ),
-                        array(
-                            'id'       => 'notifications_form_style',
-                            'type'     => 'text',
-                            'title'    => __('Inline Style de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
-                        ),
-                        array(
-                            'id'       => 'notifications_labels_class',
-                            'type'     => 'text',
-                            'title'    => __('Classe CSS des <code>&lt;label&gt;</code> de formulaire'),
-                        ),
-                        array(
-                            'id'       => 'notifications_labels_style',
-                            'type'     => 'text',
-                            'title'    => __('Inline Style des <code>&lt;label&gt;</code> de formulaire'),
-                        ),
-                        array(
-                            'id'       => 'notifications_input_class',
-                            'type'     => 'text',
-                            'title'    => __('Classe CSS des champs <code>&lt;input&gt;</code> du formulaire'),
-                        ),
-                        array(
-                            'id'       => 'notifications_input_style',
-                            'type'     => 'text',
-                            'title'    => __('Inline Style des champs <code>&lt;input&gt;</code> du formulaire'),
-                        ),
-                        array(
-                            'id'       => 'notifications_button_class',
-                            'type'     => 'text',
-                            'title'    => __('Classe CSS du <code>&lt;button&gt;</code> de formulaire'),
-                        ),
-                        array(
-                            'id'       => 'notifications_button_style',
-                            'type'     => 'text',
-                            'title'    => __('Inline Style du <code>&lt;button&gt;</code> de formulaire'),
-                        ),
-                        array(
-                            'id'       => 'notifications_icon_class',
-                            'type'     => 'text',
-                            'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
-                        ),
-                        array(
-                            'id'       => 'notifications_icon_style',
-                            'type'     => 'text',
-                            'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
-                        ),
-                        array(
-                            'id'       => 'notifications_error_class',
-                            'type'     => 'text',
-                            'title'    => __('Classe CSS du message d&apos;erreur'),
-                        ),
-                        array(
-                            'id'       => 'notifications_error_style',
-                            'type'     => 'text',
-                            'title'    => __('Inline Style du message d&apos;erreur'),
-                        ),
-                    )
-                );
+                'icon'       => 'el-icon-website',
+                'title'      => __( 'Mise en forme', 'kidzou' ),
+                'subsection' => true,
+                'fields'     => array(
+                    array(
+                        'id'       => 'notifications_form_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
+                    ),
+                    array(
+                        'id'       => 'notifications_form_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
+                    ),
+                    array(
+                        'id'       => 'notifications_labels_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS des <code>&lt;label&gt;</code> de formulaire'),
+                    ),
+                    array(
+                        'id'       => 'notifications_labels_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style des <code>&lt;label&gt;</code> de formulaire'),
+                    ),
+                    array(
+                        'id'       => 'notifications_input_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS des champs <code>&lt;input&gt;</code> du formulaire'),
+                    ),
+                    array(
+                        'id'       => 'notifications_input_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style des champs <code>&lt;input&gt;</code> du formulaire'),
+                    ),
+                    array(
+                        'id'       => 'notifications_button_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS du <code>&lt;button&gt;</code> de formulaire'),
+                    ),
+                    array(
+                        'id'       => 'notifications_button_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style du <code>&lt;button&gt;</code> de formulaire'),
+                    ),
+                    array(
+                        'id'       => 'notifications_icon_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
+                    ),
+                    array(
+                        'id'       => 'notifications_icon_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
+                    ),
+                    array(
+                        'id'       => 'notifications_error_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS du message d&apos;erreur'),
+                    ),
+                    array(
+                        'id'       => 'notifications_error_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style du message d&apos;erreur'),
+                    ),
+                )
+            );
 
             // ACTUAL DECLARATION OF SECTIONS
             $this->sections[] = array(
                 'title'     => __('Performances', 'kidzou'),
-                'icon'      => 'el-icon-wrench',
+                'icon'      => 'fa fa-bolt',
                 'fields'    => array(
 
                         array(
@@ -691,6 +702,22 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         
                     )
                 );
+
+                $this->sections[] = array(
+                    'title'     => __('Notes de Livraisons', 'kidzou'),
+                    'icon'      => 'fa fa-file-text-o',
+                    'fields'    => array(
+
+                        array( 
+                            'id'       => 'release_notes',
+                            'type'     => 'raw',
+                            'title'    => __('Quoi de neuf ?', 'kidzou'),
+                            'content'  => file_get_contents(dirname(__FILE__) . '../../../README.txt')
+                        ),
+                        
+                    )
+                );
+                
             
         }
 

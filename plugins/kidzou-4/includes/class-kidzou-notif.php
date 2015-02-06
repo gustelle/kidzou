@@ -85,12 +85,6 @@ class Kidzou_Notif {
 				'messages'				=> self::get_messages(),
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
-				'mailchimp_key'			=> Kidzou_Utils::get_option('mailchimp_key', ''),
-				'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
-				'form_wait_message'		=> __('<i class="fa fa-spinner fa-spin pull-left"></i>Merci de votre patience...','kidzou'),
-				'form_error_message'	=> __('<i class="fa fa-warning pull-left"></i>Une erreur est survenue, nous en sommes d&eacute;sol&eacute;s','kidzou'),
-				'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
-				'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/',
 				'newsletter_once'		=> Kidzou_Utils::get_option('notifications_newsletter_once', true),
 			)
 		);
@@ -274,48 +268,20 @@ class Kidzou_Notif {
 	private static function get_newsletter_message($form_class='', $form_style='',
 		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='', $error_class='', $error_style='') {
 
-		$body = sprintf('
-					%1$s
-					<form id="notification_newsletter" class="%13$s" style="%14$s">
-						<span id="notification_error_message" class="%16$s" style="%17$s"></span>
-						<p>
-							<label for="firstname" class="%7$s" style="%8$s">%2$s</label>
-							<input type="text" name="firstname" class="%9$s" style="%10$s" placeholder="%2$s" title="%2$s">
-						</p>
-						<p>
-							<label for="lastname" class="%7$s" style="%8$s">%3$s</label>
-							<input type="text" name="lastname" class="%9$s" style="%10$s" placeholder="%3$s" title="%3$s">
-						</p>
-						<p>
-							<label for="email" class="%7$s" style="%8$s">%4$s</label>
-							<input type="email" name="email" class="%9$s" style="%10$s" placeholder="%4$s" title="%15$s">
-						</p>
-						<p>
-							<label for="zipcode" class="%7$s" style="%8$s">%4$s</label>
-							<input type="text" name="zipcode" class="%9$s" style="%10$s" placeholder="%5$s" title="%4$s" pattern="[0-9]*" maxlength="5">
-						</p>
-						<p>
-							<button type="submit" class="%11$s" style="%12$s">%6$s</button>
-						</p>
-					</form>',
-					__( 'Inscrivez-vous &agrave; notre newsletter pour recevoir les bons plans du moment !', 'kidzou' ),
-					__( 'Pr&eacute;nom', 'kidzou' ),
-					__( 'Nom', 'kidzou' ),
-					__( 'E-mail', 'kidzou' ),
-					__( 'Code Postal', 'kidzou' ),
-					__( 'Inscrivez-moi', 'kidzou' ),
-					$label_class,
-					$label_style,
-					$input_class,
-					$input_style,
-					$button_class,
-					$button_style, 
-					$form_class,
-					$form_style,
-					__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' ),
-					$error_class,
-					$error_style
-				);
+		$body = Kidzou::get_newsletter_form(
+						$form_class, 
+						$form_style,
+						$label_class, 
+						$label_style,
+						$input_class, 
+						$input_style, 
+						$button_class, 
+						$button_style, 
+						$icon_class, 
+						$icon_style, 
+						$error_class, 
+						$error_style
+					);
 
 		$icon = sprintf('<i class="fa fa-newspaper-o fa-3x %1$s" style="%2$s"></i>',
 			$icon_class,
