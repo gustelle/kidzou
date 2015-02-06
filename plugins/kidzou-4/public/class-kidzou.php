@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix11';
+	const VERSION = '0215-fix12';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -590,8 +590,12 @@ class Kidzou {
 					'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
 					'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
 					'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
-					// 'analytics_ua'					 => Kidzou_Utils::get_option('analytics_ua', 'UA-23017523-1'),
-					// 'analytics_activate'			 => (bool)Kidzou_Utils::get_option('analytics_activate'),
+					'form_wait_message'		=> __('<i class="fa fa-spinner fa-spin pull-left"></i>Merci de votre patience...','kidzou'),
+					'form_error_message'	=> __('<i class="fa fa-warning pull-left"></i>Une erreur est survenue, nous en sommes d&eacute;sol&eacute;s','kidzou'),
+					'mailchimp_key'			=> Kidzou_Utils::get_option('mailchimp_key', ''),
+					'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
+					'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
+					'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/'
 				)
 			);
 		}
@@ -723,6 +727,61 @@ class Kidzou {
 	public static function insert_pub_header()
 	{
 		echo Kidzou_Utils::get_option('pub_header','');
+	}
+
+	/**
+	 * undocumented function
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function get_newsletter_form($form_class='', $form_style='',
+		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='', $error_class='', $error_style='')
+	{
+		$form = sprintf('
+				%1$s
+				<form id="newsletter_form" class="%13$s" style="%14$s">
+					<span id="newsletter_form_error_message" class="%16$s" style="%17$s"></span>
+					<p>
+						<label for="firstname" class="%7$s" style="%8$s">%2$s</label>
+						<input type="text" name="firstname" class="%9$s" style="%10$s" placeholder="%2$s" title="%2$s">
+					</p>
+					<p>
+						<label for="lastname" class="%7$s" style="%8$s">%3$s</label>
+						<input type="text" name="lastname" class="%9$s" style="%10$s" placeholder="%3$s" title="%3$s">
+					</p>
+					<p>
+						<label for="email" class="%7$s" style="%8$s">%4$s</label>
+						<input type="email" name="email" class="%9$s" style="%10$s" placeholder="%4$s" title="%15$s">
+					</p>
+					<p>
+						<label for="zipcode" class="%7$s" style="%8$s">%4$s</label>
+						<input type="text" name="zipcode" class="%9$s" style="%10$s" placeholder="%5$s" title="%4$s" pattern="[0-9]*" maxlength="5">
+					</p>
+					<p>
+						<button type="submit" class="%11$s" style="%12$s">%6$s</button>
+					</p>
+				</form>',
+				__( 'Inscrivez-vous &agrave; notre newsletter pour recevoir les bons plans du moment !', 'kidzou' ),
+				__( 'Pr&eacute;nom', 'kidzou' ),
+				__( 'Nom', 'kidzou' ),
+				__( 'E-mail', 'kidzou' ),
+				__( 'Code Postal', 'kidzou' ),
+				__( 'Inscrivez-moi', 'kidzou' ),
+				$label_class,
+				$label_style,
+				$input_class,
+				$input_style,
+				$button_class,
+				$button_style, 
+				$form_class,
+				$form_style,
+				__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' ),
+				$error_class,
+				$error_style
+			);
+
+		return $form;
 	}
 
 }
