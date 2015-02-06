@@ -437,6 +437,84 @@ var kidzouTracker = (function() {
 
 }());
 
+var kidzouNewsletter = (function() {
+
+	function subscribe(form, _callback) 
+	{
+		// console.info('kidzouNewsletter.subscribe');
+		jQuery.ajax({
+
+			type: "POST",
+			url: kidzou_commons_jsvars.api_newsletter_url,
+			data:
+			{
+				nonce 		: kidzou_commons_jsvars.api_newsletter_nonce,
+				firstname 	: form.querySelector('[name="firstname"]').value,
+				lastname 	: form.querySelector('[name="lastname"]').value,
+				email 		: form.querySelector('[name="email"]').value,
+				zipcode 	: form.querySelector('[name="zipcode"]').value,
+				key 		: kidzou_commons_jsvars.mailchimp_key,
+				list_id 	: kidzou_commons_jsvars.mailchimp_list
+			},
+			beforeSend : function() {
+
+				//afficher un message de patience
+				document.querySelector('#newsletter_form button').disabled = true;
+				document.querySelector('#newsletter_form_error_message').innerHTML = '';
+
+				document.querySelector('#newsletter_form_error_message').innerHTML = kidzou_commons_jsvars.form_wait_message;
+
+			},
+			success: function( data ){
+
+				document.querySelector('#newsletter_form_error_message').innerHTML = '';
+				document.querySelector('#newsletter_form input').classList.remove('error');
+
+				//pas d'erreur dans l'API
+				if (data.status=='ok') {
+
+					//erreur fonctionnelle de valdation
+					if (data.result == 'error') {
+
+						//re-afficher le bouton de soumission du formulaire
+						document.querySelector('#newsletter_form button').disabled = false;
+						var fields = data.fields ;
+						for (x in fields) {
+							// console.debug(x);
+							var field = fields[x];
+						    document.querySelector('#newsletter_form_error_message').innerHTML += field.message;
+						    document.querySelector('#newsletter_form input[name="' + x + '"]').classList.toggle('error');
+						}
+					
+					} else {
+
+						document.querySelector('#newsletter_form_error_message').innerHTML = data.message;
+
+						kidzouTracker.trackEvent("Newsletter", 'subscribe', '', 0);
+
+						if (_callback)
+							_callback();
+						
+					}
+					
+				//erreur technique dans l'API
+				} else {
+					document.querySelector('#newsletter_form button').disabled = false;
+					document.querySelector('#newsletter_form_error_message').innerHTML = kidzou_commons_jsvars.form_error_message ;
+
+				}
+
+			}
+
+		} );
+
+	}
+
+	return {
+  		subscribe : subscribe
+  	};
+	
+}());
 
 
 

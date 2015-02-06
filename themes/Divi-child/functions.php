@@ -210,10 +210,12 @@ function kz_mailchimp_key()
 function get_post_footer()
 {
 	$locator = new Kidzou_Geolocator();
-	$lists = et_pb_get_mailchimp_lists();
+	// $lists = et_pb_get_mailchimp_lists();
+	$key = kz_mailchimp_key();
 
-	if(!empty($lists) && is_array($lists)) {
-		$key = kz_mailchimp_key();
+	// if(!empty($lists) && is_array($lists)) {
+	if ($key!='') {
+		// $key = kz_mailchimp_key();
 
 		$posts_ids_objects = $locator->get_related_posts();
 		$ids = array();
@@ -430,7 +432,8 @@ function kz_pb_submit_subscribe_form() {
 			if ( ! class_exists( 'MailChimp' ) )
 				require_once( get_template_directory() . '/includes/subscription/mailchimp/mailchimp.php' );
 
-			$mailchimp_api_key = et_get_option( 'divi_mailchimp_api_key' );
+			// $mailchimp_api_key = et_get_option( 'divi_mailchimp_api_key' );
+			$mailchimp_api_key = Kidzou_Utils::get_option('mailchimp_key', '');
 
 			if ( '' === $mailchimp_api_key ) die( json_encode( array( 'error' => __( 'Configuration error: api key is not defined', 'Divi' ) ) ) );
 
