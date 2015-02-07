@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix12';
+	const VERSION = '0215-fix13';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Correctifs sur erreurs de notification";
+	public static $version_description = "";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -735,12 +735,13 @@ class Kidzou {
 	 * @return void
 	 * @author 
 	 **/
-	public static function get_newsletter_form($form_class='', $form_style='',
-		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='', $error_class='', $error_style='')
+	public static function get_newsletter_form()
 	{
+		
+
 		$form = sprintf('
 				%1$s
-				<form id="newsletter_form" class="%13$s" style="%14$s">
+				<form id="newsletter_form" action="" class="%13$s" style="%14$s" onsubmit="event.preventDefault() ; return kidzouNewsletter.subscribe(this);">
 					<span id="newsletter_form_error_message" class="%16$s" style="%17$s"></span>
 					<p>
 						<label for="firstname" class="%7$s" style="%8$s">%2$s</label>
@@ -768,17 +769,17 @@ class Kidzou {
 				__( 'E-mail', 'kidzou' ),
 				__( 'Code Postal', 'kidzou' ),
 				__( 'Inscrivez-moi', 'kidzou' ),
-				$label_class,
-				$label_style,
-				$input_class,
-				$input_style,
-				$button_class,
-				$button_style, 
-				$form_class,
-				$form_style,
+				Kidzou_Utils::get_option('newsletter_labels_class', ''),
+				Kidzou_Utils::get_option('newsletter_labels_style', ''),
+				Kidzou_Utils::get_option('newsletter_input_class', ''),
+				Kidzou_Utils::get_option('newsletter_input_style', ''),
+				Kidzou_Utils::get_option('newsletter_button_class', ''),
+				Kidzou_Utils::get_option('newsletter_button_style', ''), 
+				Kidzou_Utils::get_option('newsletter_form_class', ''),
+				Kidzou_Utils::get_option('newsletter_form_style', ''),
 				__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' ),
-				$error_class,
-				$error_style
+				Kidzou_Utils::get_option('newsletter_error_class', ''),
+				Kidzou_Utils::get_option('newsletter_error_style', '')
 			);
 
 		return $form;
