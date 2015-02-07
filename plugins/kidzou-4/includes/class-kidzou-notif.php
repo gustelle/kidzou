@@ -86,6 +86,7 @@ class Kidzou_Notif {
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
 				'newsletter_once'		=> Kidzou_Utils::get_option('notifications_newsletter_once', true),
+				'newsletter_nomobile'	=> Kidzou_Utils::get_option('notifications_newsletter_nomobile', true),
 			)
 		);
 
@@ -133,17 +134,13 @@ class Kidzou_Notif {
 				//seulement si les notifs sont activées pour le type de post courant
 				if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
 
-					// $content = get_transient('kz_notifications_content_' .$post_type);
+					$content = get_transient('kz_notifications_content_' .$post_type);
 
 					if ( false===$content || empty($content) ) {
 
 						$order = Kidzou_Utils::get_option('notifications_messages_order', array());
 
-						// Kidzou_Utils::log($order, true);
-
 						foreach ($order as $key => $value) {
-
-							// Kidzou_Utils::log('key / value : ' . $key . '/'.$value, true);
 
 							if ((bool)$value) {
 
@@ -151,18 +148,8 @@ class Kidzou_Notif {
 									case 'newsletter':
 										// Kidzou_Utils::log('Message newsletter', true);
 										$content[] = self::get_newsletter_message(
-												Kidzou_Utils::get_option('notifications_form_class', ''),
-												Kidzou_Utils::get_option('notifications_form_style', ''),
-												Kidzou_Utils::get_option('notifications_labels_class', ''),
-												Kidzou_Utils::get_option('notifications_labels_style', ''),
-												Kidzou_Utils::get_option('notifications_input_class', ''),
-												Kidzou_Utils::get_option('notifications_input_style', ''),
-												Kidzou_Utils::get_option('notifications_button_class', ''),
-												Kidzou_Utils::get_option('notifications_button_style', ''),
 												Kidzou_Utils::get_option('notifications_icon_class', ''),
-												Kidzou_Utils::get_option('notifications_icon_style', ''),
-												Kidzou_Utils::get_option('notifications_error_class', ''),
-												Kidzou_Utils::get_option('notifications_error_style', '')
+												Kidzou_Utils::get_option('notifications_icon_style', '')
 											);
 										break;
 
@@ -265,23 +252,9 @@ class Kidzou_Notif {
 	 *
 	 * @internal
 	 */
-	private static function get_newsletter_message($form_class='', $form_style='',
-		$label_class='', $label_style='',$input_class='', $input_style='', $button_class='', $button_style='', $icon_class='', $icon_style='', $error_class='', $error_style='') {
+	private static function get_newsletter_message($icon_class='', $icon_style='') {
 
-		$body = Kidzou::get_newsletter_form(
-						$form_class, 
-						$form_style,
-						$label_class, 
-						$label_style,
-						$input_class, 
-						$input_style, 
-						$button_class, 
-						$button_style, 
-						$icon_class, 
-						$icon_style, 
-						$error_class, 
-						$error_style
-					);
+		$body = Kidzou::get_newsletter_form();
 
 		$icon = sprintf('<i class="fa fa-newspaper-o fa-3x %1$s" style="%2$s"></i>',
 			$icon_class,

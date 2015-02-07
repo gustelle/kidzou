@@ -439,9 +439,9 @@ var kidzouTracker = (function() {
 
 var kidzouNewsletter = (function() {
 
-	function subscribe(form, _callback) 
-	{
-		// console.info('kidzouNewsletter.subscribe');
+
+	function subscribe(form) {
+
 		jQuery.ajax({
 
 			type: "POST",
@@ -463,6 +463,13 @@ var kidzouNewsletter = (function() {
 				document.querySelector('#newsletter_form_error_message').innerHTML = '';
 
 				document.querySelector('#newsletter_form_error_message').innerHTML = kidzou_commons_jsvars.form_wait_message;
+
+				var myEvent = new CustomEvent("newsletter_subscribing", {
+					detail: {}
+				});
+
+				// Trigger it!
+				document.dispatchEvent(myEvent);
 
 			},
 			success: function( data ){
@@ -492,8 +499,8 @@ var kidzouNewsletter = (function() {
 
 						kidzouTracker.trackEvent("Newsletter", 'subscribe', '', 0);
 
-						if (_callback)
-							_callback();
+						// if (_callback)
+						// 	_callback();
 						
 					}
 					
@@ -504,15 +511,25 @@ var kidzouNewsletter = (function() {
 
 				}
 
+				var myEvent = new CustomEvent("newsletter_subscribed", {
+					detail: {status: data.status, result:data.result}
+				});
+
+				// Trigger it!
+				document.dispatchEvent(myEvent);
+
 			}
 
 		} );
-
+	
+		//soumission ajax, on reste sur la page
+		return false;
 	}
 
 	return {
-  		subscribe : subscribe
-  	};
+		subscribe : subscribe
+	}
+				
 	
 }());
 
