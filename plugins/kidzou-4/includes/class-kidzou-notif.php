@@ -223,7 +223,7 @@ class Kidzou_Notif {
 
 		$messages['content'] = $content;
 
-		Kidzou_Utils::log($messages, true);
+		// Kidzou_Utils::log($messages, true);
 
 		return $messages;
 	}

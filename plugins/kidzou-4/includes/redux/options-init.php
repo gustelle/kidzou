@@ -863,6 +863,8 @@ if (!function_exists('get_mailchimp_lists')):
 
         $return['value'] = $value;
 
+        Kidzou_Utils::log('get_mailchimp_lists '. $value . '/' . $existing_value);
+
         //si la valeur change ,on récupère les listes
         if ($value!=$existing_value) 
         {
@@ -870,9 +872,13 @@ if (!function_exists('get_mailchimp_lists')):
 
                 $mailchimp = new MailChimp( $value );
                 $retval = $mailchimp->call('lists/list');
+                Kidzou_Utils::log($retval);
                 foreach ( $retval['data'] as $list ) {
                     $lists[$list['id']] = $list['name'];
                 }
+
+                Kidzou_Utils::log('MailChimp Lists : ');
+                Kidzou_Utils::log($lists);
 
                 delete_transient('kz_mailchimp_lists');
                 set_transient( 'kz_mailchimp_lists', $lists, 0 ); //never expires ! 

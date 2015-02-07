@@ -17,3 +17,9 @@
 	<li>- Modularisation du composant Newsletter - pas de dépendance avec les notifications pour réutilisation ailleurs</li>
 	<li>- Séparation des options de mise en forme Newslette / Notification</li>
 </ul>
+
+<h2>0215-fix14</h2>
+<h4>Le Samedi 07 février 2015 - </h4>
+<ul>
+	<li>- Mise en place de logs pour débugger le fetch des list mailchimp dans les réglages kidzou
+</ul>
