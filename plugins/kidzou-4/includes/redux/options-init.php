@@ -535,6 +535,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
                     ),
 
+                    array(
+                        'id'       => 'notifications_newsletter_nomobile',
+                        'type'     => 'checkbox',
+                        'default'  => '1',
+                        'title'    => __('Ne pas afficher le formulaire Newsletter sur mobile', 'kidzou'),
+                        'subtitle' => __('L&apos;experience utilisateur peut-&ecirc;tre mauvaise avec le formulaire newsletter dans la boite de Notification sur mobile', 'kidzou'),
+                        // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                    ),
+
                      array(
                         'id'       => 'notifications_include_categories',
                         'type'     => 'select',
@@ -546,6 +555,29 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'data'      => 'categories',
                         'compiler'  => true
                     ),
+                )
+            );
+
+            /**
+             * Sous section de mise en forme des messages de notification
+             */
+            $this->sections[] = array(
+                'icon'       => 'el-icon-website',
+                'title'      => __( 'Mise en forme', 'kidzou' ),
+                'subsection' => true,
+                'fields'     => array(
+                    
+                    array(
+                        'id'       => 'notifications_icon_class',
+                        'type'     => 'text',
+                        'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
+                    ),
+                    array(
+                        'id'       => 'notifications_icon_style',
+                        'type'     => 'text',
+                        'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
+                    ),
+                    
                 )
             );
 
@@ -583,62 +615,52 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'subsection' => true,
                 'fields'     => array(
                     array(
-                        'id'       => 'notifications_form_class',
+                        'id'       => 'newsletter_form_class',
                         'type'     => 'text',
                         'title'    => __('Classe CSS de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
                     ),
                     array(
-                        'id'       => 'notifications_form_style',
+                        'id'       => 'newsletter_form_style',
                         'type'     => 'text',
                         'title'    => __('Inline Style de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
                     ),
                     array(
-                        'id'       => 'notifications_labels_class',
+                        'id'       => 'newsletter_labels_class',
                         'type'     => 'text',
                         'title'    => __('Classe CSS des <code>&lt;label&gt;</code> de formulaire'),
                     ),
                     array(
-                        'id'       => 'notifications_labels_style',
+                        'id'       => 'newsletter_labels_style',
                         'type'     => 'text',
                         'title'    => __('Inline Style des <code>&lt;label&gt;</code> de formulaire'),
                     ),
                     array(
-                        'id'       => 'notifications_input_class',
+                        'id'       => 'newsletter_input_class',
                         'type'     => 'text',
                         'title'    => __('Classe CSS des champs <code>&lt;input&gt;</code> du formulaire'),
                     ),
                     array(
-                        'id'       => 'notifications_input_style',
+                        'id'       => 'newsletter_input_style',
                         'type'     => 'text',
                         'title'    => __('Inline Style des champs <code>&lt;input&gt;</code> du formulaire'),
                     ),
                     array(
-                        'id'       => 'notifications_button_class',
+                        'id'       => 'newsletter_button_class',
                         'type'     => 'text',
                         'title'    => __('Classe CSS du <code>&lt;button&gt;</code> de formulaire'),
                     ),
                     array(
-                        'id'       => 'notifications_button_style',
+                        'id'       => 'newsletter_button_style',
                         'type'     => 'text',
                         'title'    => __('Inline Style du <code>&lt;button&gt;</code> de formulaire'),
                     ),
                     array(
-                        'id'       => 'notifications_icon_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
-                    ),
-                    array(
-                        'id'       => 'notifications_icon_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
-                    ),
-                    array(
-                        'id'       => 'notifications_error_class',
+                        'id'       => 'newsletter_error_class',
                         'type'     => 'text',
                         'title'    => __('Classe CSS du message d&apos;erreur'),
                     ),
                     array(
-                        'id'       => 'notifications_error_style',
+                        'id'       => 'newsletter_error_style',
                         'type'     => 'text',
                         'title'    => __('Inline Style du message d&apos;erreur'),
                     ),

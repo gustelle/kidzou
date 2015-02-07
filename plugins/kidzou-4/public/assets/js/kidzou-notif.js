@@ -145,26 +145,26 @@ var kidzouNotifier = (function(){
 		var unread = ko.utils.arrayFilter(messages, function(m) {
             return !m.readFlag;
         });
-
-		//
-      	// le premier de la liste si on n'est pas sur mobile
-      	// si on est sur mobile, on prend le premier qui n'est pas une newsletter
-      	// car il y a un souci d'affichage du formulaire sur iPhone : 
-      	//	1- quand on se met dans un champ input, on se retrouve tt en bas de la page, hors du form !!
-      	//	2- dans un mode paysage, le formualire est tronqué sans possibilité de fermer la popup
-      	//
-      	// exclusion également du form newsletter si l'option'newsletter_once' est passée
+      	
+  
+      	// exclusion du form newsletter si l'option'newsletter_once' est passée et que le user a déjà vu le formulaure
       	//
       	var newsletter_already_seen = storageSupport.getLocal('newsletter_form');
-      	var newsletter_once = kidzou_notif.newsletter_once;
+      	var newsletter_once = (kidzou_notif.newsletter_once && newsletter_already_seen);
 
       	// si le user a souscri a la newsletter, un cookie a été positionné
       	// cela éviter de resolliciter le user si l'option 'newsletter_once' n'a pas été selectionnée
       	// ou si le cookie 'newsletter_form' a expiré
       	var newsletter_subscribe = storageSupport.getLocal('newsletter_subscribe');
 
+      	//pas d'affiche du formulaire newsletter sur mobile
+      	//la UX n'est pas bonne sur ces terminaux
+      	//	1- quand on se met dans un champ input, on se retrouve tt en bas de la page, hors du form !!
+      	//	2- dans un mode paysage, le formualire est tronqué sans possibilité de fermer la popup
+      	var exclude_mobile = ( kidzou_notif.newsletter_nomobile && isMobile.any() );
+
       	//on affiche le formulaire newsletter si ce n'est pas un mobile, si le form newsletter n'a pas déjà été vu, et si le user n'a pas souscit a la newsletter
-      	if (!isMobile.any() && !(kidzou_notif.newsletter_once && newsletter_already_seen) && !newsletter_subscribe)
+      	if (!exclude_mobile && !newsletter_once && !newsletter_subscribe)
       		return unread[0];
       	else {
       		// console.info('exclusion du formulaire newsletter');
@@ -250,30 +250,31 @@ var kidzouNotifier = (function(){
 			if (kidzou_notif.newsletter_once) {
 				storageSupport.setLocal("newsletter_form", true);
 			}
-
-			form.addEventListener("submit", function(evt){
-
-				evt.preventDefault();
-
-				kidzouNewsletter.subscribe(
-						form,
-						function() {
-							
-							//positionner un cookie pour ne pas re-solliciter le user sur une inscription newsletter alors qu'il s'est déjà inscrit
-							storageSupport.setLocal("newsletter_subscribe", true);
-
-							//Attendre un peu avant de supprimer le message...
-							//histoire que le user ait le temps de lire le messaye de confirmation de souscription
-							setTimeout(function(){
-								closeFlyIn();
-							}, 1500);
-						}
-					);
-
-				return false;
-
-			});
 		}
+
+		document.addEventListener("newsletter_subscribing", function(e) {
+
+			// console.info('newsletter_subscribing');
+
+		}, false);
+
+		document.addEventListener("newsletter_subscribed", function(e) {
+
+			// console.info(e.detail);
+
+			if (e.detail.status=='ok' && e.detail.result!='error') {
+
+				//positionner un cookie pour ne pas re-solliciter le user sur une inscription newsletter alors qu'il s'est déjà inscrit
+				storageSupport.setLocal("newsletter_subscribe", true);
+
+				//Attendre un peu avant de supprimer le message...
+				//histoire que le user ait le temps de lire le messaye de confirmation de souscription
+				setTimeout(function(){
+					closeFlyIn();
+				}, 1500);
+			}
+
+		}, false);
 
 		setMessageRead(m);
 
