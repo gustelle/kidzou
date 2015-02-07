@@ -51,7 +51,7 @@ function getExpiration(key) {
 }
 
 // ex: localStorage.setCacheItem("favColor", "blue", { days: 1 })
-Storage.prototype.setCacheItem = function (key, value, exp) { console.debug('setCacheItem ' + key );
+Storage.prototype.setCacheItem = function (key, value, exp) { //console.debug('setCacheItem ' + key );
     var val = null;
     if (typeof value == 'object') {
         // assume json
@@ -215,8 +215,6 @@ var storageSupport = (function () {
 
 		function removeLocalData(key) {
 
-			// logger.debug("removeLocalData " + key);
-
 			if ( supports_html5_storage()  ) {
 				//pour IE8 qui considère supporter le localStorage 
 				//mais ne comprend pas les commandes ci-dessous
@@ -238,27 +236,45 @@ var storageSupport = (function () {
 			if(typeof(Storage)!=="undefined") 
 				return true;
 
-			// logger.debug("localStorage not supported " );
 			return false;
 			
 		}
 
-		function setLocal(key, value) {
-			if (supports_html5_storage() )
-				localStorage.setItem(key, value);
-			else
-				setCookie(key, value);
+		//Stockage local 
+		//fallback en cookie si le stockage local n'est pas supporté
+		//pour stocker un object utiliser toLocalData 
+		function setLocal(key, value, expiration) {
+
+			var exp = expiration || 30; //days
+
+			if (supports_html5_storage() ) {
+				console.debug('setLocal ' + key );
+				localStorage.setCacheItem(
+						key, 
+						value, 
+						{ days: exp });
+			}
+			else {
+				console.debug('setLocal ' + key + ' / fallback vers les cookies');
+				setCookie(key, value, exp);
+			}
+				
 		}
 
+		//Recup à partir du Stockage local 
+		//fallback en cookie si le stockage local n'est pas supporté
 		function getLocal(key) {
-			if (supports_html5_storage() )
-				return localStorage.getItem(key);
+			if (supports_html5_storage() ) {
+				return localStorage.getCacheItem(key);
+			}
 			else
 				getCookie(key);
 		}
 
-		function setCookie(key, value) {
-			cookie(key , value, { path: '/', expires:180});
+		function setCookie(key, value, expiration) {
+
+			var exp = expiration || 180; //days
+			cookie(key , value, { path: '/', expires:exp } );
 		}
 
 		function getCookie(key) {
