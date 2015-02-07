@@ -29,3 +29,9 @@
 <ul>
 	<li>- Stockage local : gestion d'expiration dans le stockage local pour que les notifs puissent expirer</li>
 </ul>
+
+<h2>0215-fix15</h2>
+<h4>Le Samedi 07 février 2015 </h4>
+<ul>
+	<li>- Fix sur le CRON <code>kidzou_events_scheduler</code> (synchro avec Geo Data Store)</li>
+</ul>

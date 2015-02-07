@@ -264,18 +264,12 @@ class Kidzou_Events {
 					//dans la semaaine de la start_date, y a-t-il un jour ou l'événement se répété ?
 					if ($nextDay>0) 
 					{
-						// foreach ($days as $day) {
 
-							// if (intval($day)>intval($start_day)) {
+						//positionner le jour de répétition
+						$diff = intval($nextDay) - intval($start_day);
+						$start_time->add(new DateInterval( "P".$diff."D" ));
+						$end_time->add(new DateInterval( "P".$diff."D" ));
 
-								//positionner le jour de répétition
-								$diff = intval($nextDay) - intval($start_day);
-								$start_time->add(new DateInterval( "P".$diff."D" ));
-								$end_time->add(new DateInterval( "P".$diff."D" ));
-
-								// break;
-							// }
-						// }
 					}
 					
 					//sinon, on voit s'il y a des répétitions à faire les semaines suivantes
@@ -496,6 +490,7 @@ class Kidzou_Events {
 					//simulation de la suppression de meta pou supprimer la ligne Geo Data Store
 		   			$type = $event->post_type;
 			   		$meta_key = 'kz_'.$type.'_location_latitude';
+			   		$id = $event->ID;
 
 			   		$mid = $wpdb->get_var( 
 			   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
