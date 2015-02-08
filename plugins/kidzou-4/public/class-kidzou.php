@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix17';
+	const VERSION = '0215-fix18';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -762,8 +762,10 @@ class Kidzou {
 					<p>
 						<button type="submit" class="%11$s" style="%12$s">%6$s</button>
 					</p>
-				</form>',
-				__( 'Inscrivez-vous &agrave; notre newsletter pour recevoir les bons plans du moment !', 'kidzou' ),
+				</form>
+				%18$s',
+				// __( 'Inscrivez-vous &agrave; notre newsletter pour recevoir les bons plans du moment !', 'kidzou' ),
+				Kidzou_Utils::get_option('newsletter_header', ''),
 				__( 'Pr&eacute;nom', 'kidzou' ),
 				__( 'Nom', 'kidzou' ),
 				__( 'E-mail', 'kidzou' ),
@@ -779,8 +781,16 @@ class Kidzou {
 				Kidzou_Utils::get_option('newsletter_form_style', ''),
 				__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' ),
 				Kidzou_Utils::get_option('newsletter_error_class', ''),
-				Kidzou_Utils::get_option('newsletter_error_style', '')
+				Kidzou_Utils::get_option('newsletter_error_style', ''),
+				Kidzou_Utils::get_option('newsletter_footer', '')
+				// __( 'Ne plus me proposer de m&apos;inscrire &agrave; la newsletter', 'kidzou' ),
 			);
+	
+			//cette partie est spécifique à la facon dont on affiche le formulaire
+		
+			// <p>
+			// 	<a href="#" onclick="event.preventDefault() ; return kidzouNewsletter.refuseSubscription();">%18$s</a>
+			// </p>
 
 		return $form;
 	}
