@@ -377,7 +377,6 @@ var kidzouModule = (function() { //havre de paix
 	function afterVoteUpdate(callback) {
 
 		var current_page_id = jQuery('.votable').first().data('post');
-		// console.debug('current_page_id ' + current_page_id);
 
 		jQuery.getJSON(kidzou_commons_jsvars.api_voted_by_user, {
 				post_id: current_page_id
@@ -525,6 +524,7 @@ var kidzouNewsletter = (function() {
 		//soumission ajax, on reste sur la page
 		return false;
 	}
+
 
 	return {
 		subscribe : subscribe
