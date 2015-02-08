@@ -85,7 +85,7 @@ class Kidzou_Notif {
 				'messages'				=> self::get_messages(),
 				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
-				'newsletter_once'		=> Kidzou_Utils::get_option('notifications_newsletter_once', true),
+				'newsletter_context'	=> Kidzou_Utils::get_option('notifications_newsletter_context', 1),
 				'newsletter_nomobile'	=> Kidzou_Utils::get_option('notifications_newsletter_nomobile', true),
 			)
 		);

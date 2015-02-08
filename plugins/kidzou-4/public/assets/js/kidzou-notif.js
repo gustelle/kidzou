@@ -64,7 +64,11 @@ var kidzouNotifier = (function(){
 			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) amess.readMe();
 			
 			ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
-			    if ( alreadyRead == m.id  )  amess.readMe();
+
+				//gestion du legacy 
+				//les messages newsletter n'entrent pas dans la logique "lu/pas lu"
+				//leur fréquence d'affichage est gérée séparément, cependant auparavant ce n'était pas le cas
+				if ( m.id!='newsletter' && (alreadyRead == m.id ) ) amess.readMe();
 			});
 
 			if (!amess.isRead()) messages.push(amess);
@@ -106,34 +110,39 @@ var kidzouNotifier = (function(){
 	 * lorsqu'un message est lu, il est flaggué pour ne plus le représenter au user
 	 **/
 	function setMessageRead(m) {
-	
-		m.readMe();
 
-		// thisContextMessages.;
-		thisContextNotifications.messages.push(m.id);
+		//les newsletter n'entrent pas dans cette logique
+		//leur fréquence d'affichage est gérée séparémment
+		if (m.id != 'newsletter')
+		{
+			m.readMe();
 
-		var exist = false;
+			// thisContextMessages.;
+			thisContextNotifications.messages.push(m.id);
 
-		ko.utils.arrayForEach(notificationsRead, function(n) {
-			if (n.context == pageId) {
-				//remplacer l'existant
-				n = thisContextNotifications;
-				exist = true;
-			}
-		});
+			var exist = false;
 
-		if (!exist)
-			notificationsRead.push(thisContextNotifications);
+			ko.utils.arrayForEach(notificationsRead, function(n) {
+				if (n.context == pageId) {
+					//remplacer l'existant
+					n = thisContextNotifications;
+					exist = true;
+				}
+			});
 
-		//sur chaque page ou tous les mois
-		var expiration = 30;
-		
-		if (pageId=='daily')
-			expiration = 1;
-		else if (pageId=='weekly')
-			expiration = 7;
+			if (!exist)
+				notificationsRead.push(thisContextNotifications);
 
-		storageSupport.toLocalData('messages', notificationsRead, expiration );
+			//sur chaque page ou tous les mois
+			var expiration = 30;
+			
+			if (pageId=='daily')
+				expiration = 1;
+			else if (pageId=='weekly')
+				expiration = 7;
+
+			storageSupport.toLocalData('messages', notificationsRead, expiration );
+		}
 
 	}
 
@@ -145,17 +154,31 @@ var kidzouNotifier = (function(){
 		var unread = ko.utils.arrayFilter(messages, function(m) {
             return !m.readFlag;
         });
-      	
   
       	// exclusion du form newsletter si l'option'newsletter_once' est passée et que le user a déjà vu le formulaure
       	//
-      	var newsletter_already_seen = storageSupport.getLocal('newsletter_form');
-      	var newsletter_once = (kidzou_notif.newsletter_once && newsletter_already_seen);
+      	// var newsletter_already_seen = storageSupport.getLocal('newsletter_form');
+      	// var newsletter_once = (kidzou_notif.newsletter_once && newsletter_already_seen);
+      	var newsletter_context = parseInt(kidzou_notif.newsletter_context) + 1; //les pages viewed commencent à 1
+      	var pages_viewed = (parseInt(storageSupport.getLocal('pages_viewed')) || 1); 
+
+      	//le formulaire newsletter est-il potentiellement affichable ?
+      	//si le cookie n'existe pas encore ou positionné à 0 ou égal a la fréquence spécifiée dnas les reglages
+      	var newsletter_candidate = ( pages_viewed==1 || (pages_viewed>=newsletter_context));
 
       	// si le user a souscri a la newsletter, un cookie a été positionné
       	// cela éviter de resolliciter le user si l'option 'newsletter_once' n'a pas été selectionnée
       	// ou si le cookie 'newsletter_form' a expiré
       	var newsletter_subscribe = storageSupport.getLocal('newsletter_subscribe');
+
+      	// si le user a déjà vu le formulaire et a demandé à ne plus le voir
+      	var newsletter_refuse = storageSupport.getLocal('newsletter_refuse');
+
+      	//ce n'est pas un bug, mais pour être clean, on supprime le compteur de pages vues si le user refuse les newsletter
+      	if (newsletter_refuse)
+      	{
+      		storageSupport.removeLocal('pages_viewed');
+      	}
 
       	//pas d'affiche du formulaire newsletter sur mobile
       	//la UX n'est pas bonne sur ces terminaux
@@ -163,10 +186,20 @@ var kidzouNotifier = (function(){
       	//	2- dans un mode paysage, le formualire est tronqué sans possibilité de fermer la popup
       	var exclude_mobile = ( kidzou_notif.newsletter_nomobile && isMobile.any() );
 
-      	//on affiche le formulaire newsletter si ce n'est pas un mobile, si le form newsletter n'a pas déjà été vu, et si le user n'a pas souscit a la newsletter
-      	if (!exclude_mobile && !newsletter_once && !newsletter_subscribe)
-      		return unread[0];
-      	else {
+      	//on affiche le formulaire newsletter si ce n'est pas un mobile, si le form newsletter est candidate en termes de fréquence d'affichage, et si le user n'a pas souscit a la newsletter
+      	if (!exclude_mobile && newsletter_candidate && !newsletter_subscribe && !newsletter_refuse) {
+      		
+      		var chosen = unread[0];
+
+      		//si le formulaire newsletter est choisi, remettre à 0 les pages viewed
+      		// console.info(chosen);
+      		if ( chosen.id=='newsletter' && pages_viewed==newsletter_context ) {
+      			storageSupport.setLocal('pages_viewed', 1);
+      		}
+
+      		return chosen;
+
+      	} else {
       		// console.info('exclusion du formulaire newsletter');
       		return ko.utils.arrayFirst(unread, function(item) {
       			// console.info(item.id);
@@ -190,6 +223,7 @@ var kidzouNotifier = (function(){
 		//le contenu de la boite de notif dépend si c'est un vote ou non
 		var is_vote = (m.id=='vote');
 		var is_newsletter = (m.id=='newsletter');
+
 
 		var href = (is_vote ? "" : 'href="' + m.target + '"');
 		var classes = (is_vote ? "votable_notification" : "notification" );
@@ -242,14 +276,20 @@ var kidzouNotifier = (function(){
 
 		});
 
-		var form = document.querySelector('#newsletter_form');
-		if (form!==null) {
+		var link = document.querySelector('#newsletter_refuse');
+		if (link!=null)
+		{
+			link.addEventListener("click", function(e){
 
-			//positionnement d'un cookie si le user le demande
-			//pour ne pas réafficher le formulaire
-			if (kidzou_notif.newsletter_once) {
-				storageSupport.setLocal("newsletter_form", true);
-			}
+				kidzouTracker.trackEvent("Notification", "Newsletter", 'Refus' , 0);
+
+				storageSupport.setLocal("newsletter_refuse", true);
+
+				setTimeout(function(){
+					closeFlyIn();
+				}, 700);
+
+			}, false); 
 		}
 
 		document.addEventListener("newsletter_subscribing", function(e) {
@@ -285,13 +325,19 @@ var kidzouNotifier = (function(){
 		jQuery(document).unbind('scroll');
 	}
 
-	// jQuery(document).ready(function() {
 	document.addEventListener('DOMContentLoaded', function() {
-
-		// console.debug('kidzou_notif ' + kidzou_notif.activate);
 
 		if (kidzou_notif.activate && kidzou_notif.messages.content.length) {
 
+			//mettre a jour le cookie  qui trace le nombre de pages vues, 
+			//utilisé dans les regles d'affichage du formulaire newsletter
+			var pages_viewed = (parseInt(storageSupport.getLocal('pages_viewed')) || 0);
+			pages_viewed += 1;
+	      	storageSupport.setLocal('pages_viewed', pages_viewed );
+
+			//besoin de faire un update des votes
+			//pour savoir si le user a déjà recommandé la page ou non
+			//s'il a déjà recommandé la sortie, on ne lui affiche pas la notif de vote
 			jQuery(window).load( function() {
 
 				kidzouModule.afterVoteUpdate(function(result) {
