@@ -114,7 +114,6 @@ if ( (is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX )) || defined( '
     );
     foreach ($admin_directories as $admin_directory) {
         foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $admin_class) {
-            error_log('loading '. $admin_class);
             include_once $admin_class;
         }
     }

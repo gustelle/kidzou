@@ -337,13 +337,54 @@ class Kidzou_Events {
 
 						$diffInDays = $startCarbon->diffInDays( $endCarbon, false );
 
+						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Nombre de jours entre les dates de début et de fin : '.$diffInDays,true);
+
 						$week_number = intval($startCarbon->weekOfMonth)-1; //car on se recalera déjà sur le 1er par next() 
+
+						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Numéro de semaine : '.$week_number,true);
 
 						$start_day = $startCarbon->dayOfWeek; 
 						$end_day = $endCarbon->dayOfWeek;
+
+						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Day Of Week: '.$startCarbon->dayOfWeek,true);
+						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", startOfMonth: '.$startCarbon->startOfMonth(),true);
 						
-						$new_start_date = $startCarbon->startOfMonth()->addMonths(intval($jumpMonths))->next($start_day)->addWeeks(intval($week_number))->toDateTimeString();
-						$new_end_date = $endCarbon->startOfMonth()->addMonths(intval($jumpMonths))->next($end_day)->addWeeks(intval($week_number))->toDateTimeString();
+						//cas particulier du 1er jour du mois:
+						// - $start_day = 0
+						// - $week_number = 0
+
+						if ($start_day==0 && $week_number==0) {
+
+							Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Cas particulier du 1er jour du mois ',true);
+
+							$new_start_date = $startCarbon
+											->startOfMonth()
+											->addMonths(intval($jumpMonths))
+											//->next($start_day)
+											->addWeeks(intval($week_number))
+											->toDateTimeString();
+							$new_end_date = $endCarbon
+											->startOfMonth()
+											->addMonths(intval($jumpMonths))
+											//->next($end_day)
+											->addWeeks(intval($week_number))
+											->toDateTimeString();
+
+						} else {
+
+							$new_start_date = $startCarbon
+											->startOfMonth()
+											->addMonths(intval($jumpMonths))
+											->next($start_day)
+											->addWeeks(intval($week_number))
+											->toDateTimeString();
+							$new_end_date = $endCarbon
+											->startOfMonth()
+											->addMonths(intval($jumpMonths))
+											->next($end_day)
+											->addWeeks(intval($week_number))
+											->toDateTimeString();
+						}
 						
 					}
 
