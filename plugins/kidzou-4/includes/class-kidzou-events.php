@@ -181,6 +181,8 @@ class Kidzou_Events {
 
 		global $wpdb;
 
+		// Kidzou_Utils::log(get_declared_classes());
+
 		Kidzou_Utils::log('------ unpublish_obsolete_posts -------', true);
 
 		$args = $args = array(
@@ -401,6 +403,8 @@ class Kidzou_Events {
 				array_push($past_dates[0], $old_dates);
 
 				$events_meta['past_dates'] = $past_dates[0];
+
+				// Kidzou_Utils::log(get_declared_classes(),true);
 
 				Kidzou_Admin::save_meta($event->ID, $events_meta, "kz_event_");	
 
