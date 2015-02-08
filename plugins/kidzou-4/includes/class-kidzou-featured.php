@@ -121,7 +121,7 @@ class Kidzou_Featured {
 	 */ 
 	public function order_query_by_featured($posts, $query) {
 
-		Kidzou_Utils::log('Kidzou_Featured [order_query_by_featured]', true);
+		// Kidzou_Utils::log('Kidzou_Featured [order_query_by_featured]', true);
 
 		$post_type = $query->get('post_type');
 
