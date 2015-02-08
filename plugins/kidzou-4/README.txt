@@ -1,5 +1,12 @@
+
+<h2>0215-fix17</h2>
+<h4>Le Dimanche 08 février 2015 </h4>
+<ul>
+	<li>- Correction sur un décalage de date pour les récurrences mensuelles dans le cas d'une récurrence sur le 1er jour du mois</li>
+</ul>
+
 <h2>0215-fix16</h2>
-<h4>Le Dimanche 08 février 2015 - 14h45</h4>
+<h4>Le Dimanche 08 février 2015 </h4>
 <ul>
 	<li>- Inclusion des classes d'admin dans le PATH pour les CRON (nécessité pour <code>kidzou_events_scheduler</code> qui appelle Kidzou_Admin::save_meta)</li>
 </ul>
@@ -39,9 +46,6 @@
 	<li>- Amélioration du rendu des coeurs de vote : apparition progressive apres rafraichissement des données</li>
 	<li>- Améliorations de mise en forme de la boite de notification (apparition plus tot, disparition plus tard, fond coloré)</li>
 </ul>
-
-
-
 
 
 
