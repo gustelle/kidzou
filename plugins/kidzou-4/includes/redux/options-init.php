@@ -601,7 +601,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'id'        => 'mailchimp_key',
                         'type'      => 'text',
                         'title'     => __('Cl&eacute; d&apos;API pour int&eacute;gration Mailchimp', 'kidzou'),
-                        'validate_callback' => 'get_mailchimp_lists'
+                        'validate_callback' => 'set_mailchimp_lists'
                     ),
                     array(
                         'id'       => 'mailchimp_list',
@@ -893,7 +893,31 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
  **/
 if (!function_exists('get_mailchimp_lists')):
  
-    function get_mailchimp_lists($field, $value, $existing_value) {
+    function get_mailchimp_lists($key) {
+
+        $lists = array();
+
+        $mailchimp = new MailChimp( $key );
+        $retval = $mailchimp->call('lists/list');
+        Kidzou_Utils::log($retval);
+        foreach ( $retval['data'] as $list ) {
+            $lists[$list['id']] = $list['name'];
+        }
+
+        Kidzou_Utils::log('MailChimp Lists : ');
+        Kidzou_Utils::log($lists);
+        
+        return $lists;
+    }
+ 
+endif;
+
+/**
+ * A la validation d'une Clé Mailchimp, récupère les listes
+ **/
+if (!function_exists('set_mailchimp_lists')):
+ 
+    function set_mailchimp_lists($field, $value, $existing_value) {
 
         $return['value'] = $value;
 
@@ -904,15 +928,7 @@ if (!function_exists('get_mailchimp_lists')):
         {
             try {
 
-                $mailchimp = new MailChimp( $value );
-                $retval = $mailchimp->call('lists/list');
-                Kidzou_Utils::log($retval);
-                foreach ( $retval['data'] as $list ) {
-                    $lists[$list['id']] = $list['name'];
-                }
-
-                Kidzou_Utils::log('MailChimp Lists : ');
-                Kidzou_Utils::log($lists);
+                $lists = get_mailchimp_lists($value);
 
                 delete_transient('kz_mailchimp_lists');
                 set_transient( 'kz_mailchimp_lists', $lists, 0 ); //never expires ! 
@@ -971,30 +987,4 @@ if (!function_exists('admin_folder_validate_callback_function')):
 endif;
 
 
-// Replace {$redux_opt_name} with your opt_name.
-// Also be sure to change this function name!
-// if(!function_exists('redux_register_custom_extension_loader')) :
-//     function redux_register_custom_extension_loader($ReduxFramework) {
-//         $path    = dirname( __FILE__ ) . '/extensions/';
-//             $folders = scandir( $path, 1 );
-//             foreach ( $folders as $folder ) {
-//                 if ( $folder === '.' or $folder === '..' or ! is_dir( $path . $folder ) ) {
-//                     continue;
-//                 }
-//                 $extension_class = 'ReduxFramework_Extension_' . $folder;
-//                 if ( ! class_exists( $extension_class ) ) {
-//                     // In case you wanted override your override, hah.
-//                     $class_file = $path . $folder . '/extension_' . $folder . '.php';
-//                     $class_file = apply_filters( 'redux/extension/' . $ReduxFramework->args['opt_name'] . '/' . $folder, $class_file );
-//                     if ( $class_file ) {
-//                         require_once( $class_file );
-//                     }
-//                 }
-//                 if ( ! isset( $ReduxFramework->extensions[ $folder ] ) ) {
-//                     $ReduxFramework->extensions[ $folder ] = new $extension_class( $ReduxFramework );
-//                 }
-//             }
-//     }
-//     // Modify {$redux_opt_name} to match your opt_name
-//     add_action("redux/extensions/kidzou_options/before", 'redux_register_custom_extension_loader', 0);
-// endif;
+
