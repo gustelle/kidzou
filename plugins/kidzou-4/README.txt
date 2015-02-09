@@ -1,4 +1,14 @@
 
+
+<h2>0215-fix19</h2>
+<h4>Le Lundi O9 février 2015 </h4>
+<ul>
+	<li>- Correction d'un bug sur les options mailchimp : les listes se perdent lors d'une livraison </li>
+	<li>- Correction du bug de tracking des evenements JS dans Google Analytics  </li>
+	<li>- Découpage de <code>get_mailchimp_lists</code> dans les réglages pour réutilisation éventuelle de code </li>
+	<li>- Envoi des evenements trackés sur le tracker AlloFamille</li>
+</ul>
+
 <h2>0215-fix18</h2>
 <h4>Le Dimanche 08 février 2015 </h4>
 <ul>

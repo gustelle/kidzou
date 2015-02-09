@@ -424,10 +424,12 @@ var kidzouTracker = (function() {
 		var _do_track = kidzou_commons_jsvars.analytics_activate;
 
 		function trackEvent(context, action, title, loadtime) {
-			if (_do_track)
+			if (_do_track) {
 				ga('send', 'event', context, action, title, loadtime);
-	        else
+			}
+	        else {
 	        	console.debug("trackEvent(" + context + ", " + action + ", " + title + ", " + loadtime + ")");
+	        }
 	  	}
 
 	  	return {
@@ -520,6 +522,11 @@ var kidzouNewsletter = (function() {
 			}
 
 		} );
+
+		//ne pas oublier d'envoyer l'event à Google Analytics
+		if (typeof kidzouTracker !== 'undefined') {
+			kidzouTracker.trackEvent("Notification", "Newsletter", 'Subscribe' , 0);
+		}
 	
 		//soumission ajax, on reste sur la page
 		return false;
