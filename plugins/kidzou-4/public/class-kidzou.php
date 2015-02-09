@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix18';
+	const VERSION = '0215-fix19';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -595,7 +595,8 @@ class Kidzou {
 					'mailchimp_key'			=> Kidzou_Utils::get_option('mailchimp_key', ''),
 					'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
 					'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
-					'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/'
+					'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/',
+					'analytics_activate'	=> (bool)Kidzou_Utils::get_option('analytics_activate',false)
 				)
 			);
 		}
