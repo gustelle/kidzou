@@ -46,6 +46,13 @@ class JSON_API_Mailchimp_Controller {
 			);
 		}
 
+		if ( !preg_match("/^[0-9]{5}$/", $zipcode) ) {
+			return array(
+				'result' => 'error', 
+				'fields'	=> array('zipcode' => array('message' => __('Le code postal est incorrect !','kidzou' ) ))
+			);
+		}
+
 		$mailchimp = new MailChimp( $key );
 
 		$merge_vars = array(
