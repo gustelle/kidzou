@@ -509,16 +509,16 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'desc'     => __('ce texte est entour&eacute; d&apos;un &lt;h3&gt; dans la boite de notification. <b>Il n&apos;apparait pas lorsque la notification concerne une suggestion de vote</b>', 'kidzou'),
                     ),
 
-                     array(
+                    array(
                         'id'       => 'notifications_context',
                         'type'     => 'radio',
                         'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
-                        'subtitle' => __('Un m&ecirc;me message apprait a quelle frequence ?', 'kidzou'),
-                        // 'desc'     => __('todo.', 'kidzou'),
+                        'subtitle' => __('Les messages appraissent a quelle frequence  ?', 'kidzou'),
+                        'desc'     => __('La fr&eacute;quence de notification des newsletter est r&eacute;glable ci-dessous', 'kidzou'),
                         //Must provide key => value pairs for radio options
                         'options'  => array(
                             'daily' => '1 fois par jour', 
-                            'page' => 'Sur chaque page consult&eacute;e', 
+                            'page'  => 'Sur chaque page consult&eacute;e', 
                             'monthly' => '1 fois par mois',
                             'weekly' => '1 fois par semaine',
                         ),
@@ -527,13 +527,24 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     ),
 
                     array(
-                        'id'       => 'notifications_newsletter_once',
-                        'type'     => 'checkbox',
-                        'default'  => '0',
-                        'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
-                        'subtitle' => __('Si vous choisissez cette option, un cookie sera positionn&eacute; lorsque l&apos;utilisateur aura vu la notification newsletter, afin de ne pas lui reproposer ce message pendant 30j', 'kidzou'),
-                        // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                        'id'       => 'notifications_newsletter_context',
+                        'type'     => 'spinner',
+                        'title'    => __('Afficher le formulaire d&apos;inscription &agrave; la newsletter a quelle fr&eacute;quence ?', 'kidzou'), 
+                        'subtitle' => __('En nombre de pages vues :', 'kidzou'),
+                        'default'  => '3',
+                        'min'      => '1',
+                        'step'     => '1',
+                        'max'      => '100',
                     ),
+
+                    // array(
+                    //     'id'       => 'notifications_newsletter_once',
+                    //     'type'     => 'checkbox',
+                    //     'default'  => '0',
+                    //     'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
+                    //     'subtitle' => __('Si vous choisissez cette option, un cookie sera positionn&eacute; lorsque l&apos;utilisateur aura vu la notification newsletter, afin de ne pas lui reproposer ce message pendant 30j', 'kidzou'),
+                    //     // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                    // ),
 
                     array(
                         'id'       => 'notifications_newsletter_nomobile',
@@ -614,6 +625,18 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'title'      => __( 'Mise en forme', 'kidzou' ),
                 'subsection' => true,
                 'fields'     => array(
+
+                    array(
+                        'id'        => 'newsletter_header',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Header du formulaire de Newsletter', 'kidzou'),
+                        'subtitle'  => __('Code HTML', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        // 'desc'      => 'Un javascript est attendu',
+                        'default'   => ''
+                    ),
+
                     array(
                         'id'       => 'newsletter_form_class',
                         'type'     => 'text',
@@ -663,6 +686,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'id'       => 'newsletter_error_style',
                         'type'     => 'text',
                         'title'    => __('Inline Style du message d&apos;erreur'),
+                    ),
+
+                    array(
+                        'id'        => 'newsletter_footer',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Footer du formulaire de Newsletter', 'kidzou'),
+                        'subtitle'  => __('Code HTML', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        // 'desc'      => 'Un javascript est attendu',
+                        'default'   => ''
                     ),
                 )
             );

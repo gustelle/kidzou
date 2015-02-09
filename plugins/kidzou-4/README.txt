@@ -1,4 +1,12 @@
 
+
+<h2>0215-fix18</h2>
+<h4>Le Dimanche 08 février 2015 </h4>
+<ul>
+	<li>- Réglages de la newsletter : Ajout de Header/footer </li>
+	<li>- Réglages de la newsletter : Gestion de la fréquence d'affichage du formulaire de newsletter </li>
+</ul>
+
 <h2>0215-fix17</h2>
 <h4>Le Dimanche 08 février 2015 </h4>
 <ul>
