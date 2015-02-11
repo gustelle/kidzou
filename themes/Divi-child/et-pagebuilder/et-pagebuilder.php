@@ -1967,7 +1967,8 @@ echo <<<END
 						<option value="none"<%= typeof( et_pb_mailchimp_list ) !== 'undefined' && 'none' === et_pb_mailchimp_list ?  ' selected="selected"' : '' %>>Select the list</option>
 END;
 
-						$et_pb_mailchimp_lists = et_pb_get_mailchimp_lists();
+						// $et_pb_mailchimp_lists = et_pb_get_mailchimp_lists();
+						$et_pb_mailchimp_lists = (array)get_transient( 'kz_mailchimp_lists' );
 
 						if ( $et_pb_mailchimp_lists ) {
 							foreach ( $et_pb_mailchimp_lists as $et_pb_mailchimp_list_key => $et_pb_mailchimp_list_name ) {

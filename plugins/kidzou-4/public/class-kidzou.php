@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix19';
+	const VERSION = 'frontend-posting';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -787,11 +787,6 @@ class Kidzou {
 				// __( 'Ne plus me proposer de m&apos;inscrire &agrave; la newsletter', 'kidzou' ),
 			);
 	
-			//cette partie est spécifique à la facon dont on affiche le formulaire
-		
-			// <p>
-			// 	<a href="#" onclick="event.preventDefault() ; return kidzouNewsletter.refuseSubscription();">%18$s</a>
-			// </p>
 
 		return $form;
 	}
