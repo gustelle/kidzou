@@ -1,5 +1,6 @@
 
 
+
 <h2>0215-fix19</h2>
 <h4>Le Lundi O9 février 2015 </h4>
 <ul>
@@ -12,12 +13,6 @@
 <ul>
 	<li>- Réglages de la newsletter : Ajout de Header/footer </li>
 	<li>- Réglages de la newsletter : Gestion de la fréquence d'affichage du formulaire de newsletter </li>
-</ul>
-
-<h2>0215-fix17</h2>
-<h4>Le Dimanche 08 février 2015 </h4>
-<ul>
-	<li>- Ajout de règles d'affichage de la newsletter dans les notificiations </li>
 </ul>
 
 <h2>0215-fix17</h2>
@@ -67,11 +62,6 @@
 	<li>- Amélioration du rendu des coeurs de vote : apparition progressive apres rafraichissement des données</li>
 	<li>- Améliorations de mise en forme de la boite de notification (apparition plus tot, disparition plus tard, fond coloré)</li>
 </ul>
-
-
-
-
-
 
 
 

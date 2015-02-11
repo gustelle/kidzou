@@ -3473,7 +3473,7 @@ ul{background-color:#1ea4e8}.woocommerce a.button.alt, .woocommerce-page a.butto
 a{color:#1ea4e8 !important}.et-search-form, .nav li ul, .et_mobile_menu, .footer-widget li:before, .et_pb_pricing li:before,blockquote{border-color:#1ea4e8}#main-footer{background-color:#114949}#top-menu
 a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-menu-item > a, .bottom-nav li.current-menu-item>a{color:#1ea4e8}h1,h2,h3,h4,h5,h6{font-family:'Bree Serif',Georgia,"Times New Roman",serif}body,input,textarea,select{font-family:'Roboto',Helvetica,Arial,Lucida,sans-serif}
 
-/*-------------------[Fix pour les InfoWindow de Google Maps]------------------*/
+/*-------------------[Maps / A proximité]------------------*/
 
 /*https://katz.co/resizing-infowindow/*/
 .gm-style-iw {
@@ -3535,3 +3535,73 @@ a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-men
 .load_more_results:hover {
 	cursor: pointer;
 }
+/*-------------------[Maps / A proximité]------------------*/
+
+/*-------------------[Gravity forms]------------------*/
+
+body .gform_wrapper .gform_body .gform_fields .gfield {
+	margin: 1em 0;
+}
+
+body .gform_wrapper .gform_body .gform_fields .gfield .gfield_label {
+	display: block;
+	font-family: 'Bree Serif',Georgia,"Times New Roman",serif;
+	font-size: 1.1em;
+	padding: 0.4em 0;
+}
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input, 
+body .form_saved_message_emailform input {
+	-moz-transition: all 0.4s; -webkit-transition: all 0.4s; transition: all 0.4s; 
+}
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='text'], 
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='email'],
+body .form_saved_message_emailform input[type='email'] {
+	font-size: 1.2em;
+	padding: 0.5em 0;
+	border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; 
+	width: 50%;
+	background: rgba(255,250,250,0.6);
+	-webkit-box-shadow: 
+      inset 0 0 4px  rgba(0,0,0,0.1),
+            0 0 8px rgba(0,0,0,0.1); 
+    -moz-box-shadow: 
+      inset 0 0 4px  rgba(0,0,0,0.1),
+            0 0 8px rgba(0,0,0,0.1); 
+    box-shadow: 
+      inset 0 0 4px  rgba(0,0,0,0.1),
+            0 0 8px rgba(0,0,0,0.1); 
+    
+}
+body .form_saved_message_emailform input[type='email'] {width: 40%; margin-right: 1em;}
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='text']:focus , 
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='email']:focus , 
+body .form_saved_message_emailform input[type='email']:focus{
+	border: 2px solid #1EA4E8;
+
+}
+
+body .gform_wrapper .gform_footer input[type='submit'], 
+body .form_saved_message_emailform input[type='submit'] {
+	background: rgba(255,250,250,0.6);
+	border: 2px solid #1EA4E8;
+	color: #1EA4E8;
+	border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; 
+	font-size: 1.3em;
+	padding: 0.4em 1.5em;
+	-moz-transition: all 0.4s; -webkit-transition: all 0.4s; transition: all 0.4s; 
+}
+body .form_saved_message_emailform input[type='submit']{padding: 0 1.5em;}
+
+body .gform_wrapper .gform_footer input[type='submit']:hover, 
+body .form_saved_message_emailform input[type='submit']:hover {
+	cursor: pointer;
+	color:#fff;
+	background-color: #1EA4E8;
+}
+
+body .form_saved_message {
+	border:none;
+	background-color: #fff;
+}
+
+/*-------------------[Gravity forms]------------------*/
