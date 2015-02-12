@@ -1,5 +1,9 @@
 
-
+h2>Frontend-Posting-Fix1</h2>
+<h4>Le Mercredi 11 Février février 2015 </h4>
+<ul>
+	<li>- Mise en forme des formulaires Gravity Forms</li>
+</ul>
 
 <h2>0215-fix19</h2>
 <h4>Le Lundi O9 février 2015 </h4>
