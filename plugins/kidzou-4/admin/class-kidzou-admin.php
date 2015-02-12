@@ -159,6 +159,13 @@ class Kidzou_Admin {
 		 **/
 		add_filter('parse_query', array($this, 'contrib_contents_filter' ));
 
+		/**
+		 *
+		 * Ajout d'un filtre par "ville" sur les listes de post
+		 * @link http://wordpress.stackexchange.com/questions/578/adding-a-taxonomy-filter-to-admin-list-for-a-custom-post-type
+		 */
+		add_action('restrict_manage_posts',array($this, 'filter_posts_list'));
+
 	}
 
 	/**
@@ -1845,6 +1852,40 @@ class Kidzou_Admin {
 			$links
 		);
 
+	}
+
+	/**
+	 *
+	 * <p>
+	 * Filtrage des listes de post par Taxonomie
+	 * appelé par le hook <code>restrict_manage_posts</code>
+	 * </p>
+	 *
+	 * @link http://wordpress.stackexchange.com/questions/578/adding-a-taxonomy-filter-to-admin-list-for-a-custom-post-type
+	 */
+	public function filter_posts_list() {
+		global $typenow;
+ 
+		// an array of all the taxonomyies you want to display. Use the taxonomy name or slug
+		$taxonomies = array('ville');
+	 
+		// must set this to the post type you want the filter(s) displayed on
+		if( $typenow == 'post' ){
+	 
+			foreach ($taxonomies as $tax_slug) {
+				$tax_obj = get_taxonomy($tax_slug);
+				$tax_name = $tax_obj->labels->name;
+				$terms = get_terms($tax_slug);
+				if(count($terms) > 0) {
+					echo "<select name='$tax_slug' id='$tax_slug' class='postform'>";
+					echo "<option value=''>Voir toutes les $tax_name</option>";
+					foreach ($terms as $term) { 
+						echo '<option value='. $term->slug, $_GET[$tax_slug] == $term->slug ? ' selected="selected"' : '','>' . $term->name .' (' . $term->count .')</option>'; 
+					}
+					echo "</select>";
+				}
+			}
+		}
 	}
 
 	/**
