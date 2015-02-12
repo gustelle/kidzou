@@ -611,11 +611,29 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
                         // Must provide key => value pairs for select options
                         'options'  => $mailchimp_lists
-                    )
+                    ),
+                    array(
+                        'id'       => 'newsletter_fields',
+                        'type'     => 'checkbox',
+                        'title'    => __('Champs du formulaire Newsletter', 'kidzou'), 
+                     
+                        //Must provide key => value pairs for multi checkbox options
+                        'options'  => array(
+                            'firstname' => 'Pr&eacute;nom',
+                            'lastname' => 'Nom',
+                            'zipcode' => 'Code Postal',
+                        ),
+                     
+                        //See how default has changed? you also don't need to specify opts that are 0.
+                        'default' => array(
+                            'firstname' => '0', 
+                            'lastname' => '0', 
+                            'zipcode' => '1'
+                        )
                     
+                    )
                 )
             );
-            
             
             /**
              * Sous section de mise en forme des messages de notification
