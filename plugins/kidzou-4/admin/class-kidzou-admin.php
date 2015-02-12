@@ -1885,6 +1885,7 @@ class Kidzou_Admin {
 					echo "</select>";
 				}
 			}
+
 		}
 	}
 
