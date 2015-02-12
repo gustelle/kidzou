@@ -1,3 +1,8 @@
+<h3>0215-fix21</h3>
+<h4>Le Jeudi 12 février 2015 </h4>
+<ul>
+	<li>- Ajout d'un filtre par "ville" sur les listes de post dans l'admin  </li>
+</ul>
 
 <h3>0215-fix20</h3>
 <h4>Le Jeudi 12 février 2015 </h4>
