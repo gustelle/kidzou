@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'frontend-posting';
+	const VERSION = 'frontend-posting-fix1';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.

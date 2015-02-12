@@ -3555,6 +3555,7 @@ body .form_saved_message_emailform input {
 }
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='text'], 
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='email'],
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container textarea,
 body .form_saved_message_emailform input[type='email'] {
 	font-size: 1.2em;
 	padding: 0.5em 0;
@@ -3572,9 +3573,14 @@ body .form_saved_message_emailform input[type='email'] {
             0 0 8px rgba(0,0,0,0.1); 
     
 }
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container textarea {
+	width: 90%;
+	padding: 1em;
+}
 body .form_saved_message_emailform input[type='email'] {width: 40%; margin-right: 1em;}
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='text']:focus , 
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='email']:focus , 
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container textarea:focus , 
 body .form_saved_message_emailform input[type='email']:focus{
 	border: 2px solid #1EA4E8;
 
