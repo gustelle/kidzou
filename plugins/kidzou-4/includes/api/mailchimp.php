@@ -34,6 +34,11 @@ class JSON_API_Mailchimp_Controller {
 	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
 	    }
 
+	    $fields = Kidzou_Utils::get_option('newsletter_fields', array());
+		$is_firstname 	= $fields['firstname'];
+		$is_lastname 	= $fields['lastname'];
+		$is_zipcode 	= $fields['zipcode'];
+
 		$lastname 	= sanitize_text_field( $json_api->query->lastname );
 		$email  	= array( 'email' => sanitize_email( $json_api->query->email ) );
 		$firstname 	= sanitize_text_field( $json_api->query->firstname );
@@ -46,7 +51,7 @@ class JSON_API_Mailchimp_Controller {
 			);
 		}
 
-		if ( !preg_match("/^[0-9]{5}$/", $zipcode) ) {
+		if ( $is_zipcode && !preg_match("/^[0-9]{5}$/", $zipcode) ) {
 			return array(
 				'result' => 'error', 
 				'fields'	=> array('zipcode' => array('message' => __('Le code postal est incorrect !','kidzou' ) ))
@@ -55,11 +60,14 @@ class JSON_API_Mailchimp_Controller {
 
 		$mailchimp = new MailChimp( $key );
 
-		$merge_vars = array(
-			'PRENOM' => $firstname,
-			'NOM' => $lastname,
-			'CODEPOSTAL' => $zipcode
-		);
+		$merge_vars = array();
+
+		if ($is_firstname) 
+			$merge_vars['PRENOM'] = $firstname;
+		if ($is_lastname) 
+			$merge_vars['NOM'] = $lastname;
+		if ($is_zipcode) 
+			$merge_vars['CODEPOSTAL'] = $zipcode;
 
 		$retval =  $mailchimp->call('lists/subscribe', array(
 			'id'         => $list_id,
@@ -81,7 +89,8 @@ class JSON_API_Mailchimp_Controller {
 
 		return array(
 			'result' => $result, 
-			'message'	=> $message
+			'message'	=> $message,
+			'fields' => $merge_vars
 		);
 	}
 

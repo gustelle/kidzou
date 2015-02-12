@@ -450,10 +450,10 @@ var kidzouNewsletter = (function() {
 			data:
 			{
 				nonce 		: kidzou_commons_jsvars.api_newsletter_nonce,
-				firstname 	: form.querySelector('[name="firstname"]').value,
-				lastname 	: form.querySelector('[name="lastname"]').value,
+				firstname 	: (kidzou_commons_jsvars.newsletter_fields.firstname=='1' ? form.querySelector('[name="firstname"]').value : ''),
+				lastname 	: (kidzou_commons_jsvars.newsletter_fields.lastname=='1' ? form.querySelector('[name="lastname"]').value: ''),
 				email 		: form.querySelector('[name="email"]').value,
-				zipcode 	: form.querySelector('[name="zipcode"]').value,
+				zipcode 	: (kidzou_commons_jsvars.newsletter_fields.zipcode=='1' ? form.querySelector('[name="zipcode"]').value : ''),
 				key 		: kidzou_commons_jsvars.mailchimp_key,
 				list_id 	: kidzou_commons_jsvars.mailchimp_list
 			},

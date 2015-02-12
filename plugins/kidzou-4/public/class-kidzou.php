@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'frontend-posting-fix1';
+	const VERSION = '0215-fix20';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -596,6 +596,7 @@ class Kidzou {
 					'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
 					'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
 					'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/',
+					'newsletter_fields'		=> Kidzou_Utils::get_option('newsletter_fields',array()),
 					'analytics_activate'	=> (bool)Kidzou_Utils::get_option('analytics_activate',false)
 				)
 			);
@@ -739,50 +740,83 @@ class Kidzou {
 	public static function get_newsletter_form()
 	{
 		
+		$fields = Kidzou_Utils::get_option('newsletter_fields', array());
+		$is_firstname 	= $fields['firstname'];
+		$is_lastname 	= $fields['lastname'];
+		$is_zipcode 	= $fields['zipcode'];
+
+		$firstname_output = ($is_firstname ? sprintf(
+						'<p>
+							<label for="firstname" class="%1$s" style="%2$s">%3$s</label>
+							<input type="text" name="firstname" class="%4$s" style="%5$s" placeholder="%3$s" title="%3$s">
+						</p>',
+						Kidzou_Utils::get_option('newsletter_labels_class', ''),
+						Kidzou_Utils::get_option('newsletter_labels_style', ''),
+						__( 'Pr&eacute;nom', 'kidzou' ),
+						Kidzou_Utils::get_option('newsletter_input_class', ''),
+						Kidzou_Utils::get_option('newsletter_input_style', '')
+					) : ''
+	 	);
+
+	 	$lastname_output = ($is_lastname ? sprintf(
+						'<p>
+							<label for="lastname" class="%1$s" style="%2$s">%3$s</label>
+							<input type="text" name="lastname" class="%4$s" style="%5$s" placeholder="%3$s" title="%3$s">
+						</p>',
+						Kidzou_Utils::get_option('newsletter_labels_class', ''),
+						Kidzou_Utils::get_option('newsletter_labels_style', ''),
+						__( 'Nom', 'kidzou' ),
+						Kidzou_Utils::get_option('newsletter_input_class', ''),
+						Kidzou_Utils::get_option('newsletter_input_style', '')
+					) : ''
+	 	);
+
+	 	$zipcode_output = ($is_zipcode ? sprintf(
+						'<p>
+							<label for="zipcode" class="%1$s" style="%2$s">%3$s</label>
+							<input type="text" name="zipcode" class="%4$s" style="%5$s" placeholder="%3$s" title="%3$s">
+						</p>',
+						Kidzou_Utils::get_option('newsletter_labels_class', ''),
+						Kidzou_Utils::get_option('newsletter_labels_style', ''),
+						__( 'Code Postal', 'kidzou' ),
+						Kidzou_Utils::get_option('newsletter_input_class', ''),
+						Kidzou_Utils::get_option('newsletter_input_style', '')
+					) : ''
+	 	);
 
 		$form = sprintf('
 				%1$s
-				<form id="newsletter_form" action="" class="%13$s" style="%14$s" onsubmit="event.preventDefault() ; return kidzouNewsletter.subscribe(this);">
-					<span id="newsletter_form_error_message" class="%16$s" style="%17$s"></span>
+				<form id="newsletter_form" action="" class="%2$s" style="%3$s" onsubmit="event.preventDefault() ; return kidzouNewsletter.subscribe(this);">
+					<span id="newsletter_form_error_message" class="%4$s" style="%5$s"></span>
+					%6$s
+					%7$s
 					<p>
-						<label for="firstname" class="%7$s" style="%8$s">%2$s</label>
-						<input type="text" name="firstname" class="%9$s" style="%10$s" placeholder="%2$s" title="%2$s">
+						<label for="email" class="%8$s" style="%9$s">%10$s</label>
+						<input type="email" name="email" class="%11$s" style="%12$s" placeholder="%10$s" title="%10$s">
 					</p>
+					%13$s
 					<p>
-						<label for="lastname" class="%7$s" style="%8$s">%3$s</label>
-						<input type="text" name="lastname" class="%9$s" style="%10$s" placeholder="%3$s" title="%3$s">
-					</p>
-					<p>
-						<label for="email" class="%7$s" style="%8$s">%4$s</label>
-						<input type="email" name="email" class="%9$s" style="%10$s" placeholder="%4$s" title="%15$s">
-					</p>
-					<p>
-						<label for="zipcode" class="%7$s" style="%8$s">%4$s</label>
-						<input type="text" name="zipcode" class="%9$s" style="%10$s" placeholder="%5$s" title="%4$s" pattern="[0-9]*" maxlength="5">
-					</p>
-					<p>
-						<button type="submit" class="%11$s" style="%12$s">%6$s</button>
+						<button type="submit" class="%14$s" style="%15$s">%16$s</button>
 					</p>
 				</form>
-				%18$s',
-				// __( 'Inscrivez-vous &agrave; notre newsletter pour recevoir les bons plans du moment !', 'kidzou' ),
+				%17$s',
 				Kidzou_Utils::get_option('newsletter_header', ''),
-				__( 'Pr&eacute;nom', 'kidzou' ),
-				__( 'Nom', 'kidzou' ),
-				__( 'E-mail', 'kidzou' ),
-				__( 'Code Postal', 'kidzou' ),
-				__( 'Inscrivez-moi', 'kidzou' ),
-				Kidzou_Utils::get_option('newsletter_labels_class', ''),
-				Kidzou_Utils::get_option('newsletter_labels_style', ''),
-				Kidzou_Utils::get_option('newsletter_input_class', ''),
-				Kidzou_Utils::get_option('newsletter_input_style', ''),
-				Kidzou_Utils::get_option('newsletter_button_class', ''),
-				Kidzou_Utils::get_option('newsletter_button_style', ''), 
 				Kidzou_Utils::get_option('newsletter_form_class', ''),
 				Kidzou_Utils::get_option('newsletter_form_style', ''),
-				__( 'Votre adresse e-mail doit &ecirc;tre valide', 'kidzou' ),
 				Kidzou_Utils::get_option('newsletter_error_class', ''),
 				Kidzou_Utils::get_option('newsletter_error_style', ''),
+				$firstname_output,
+				$lastname_output,
+				Kidzou_Utils::get_option('newsletter_labels_class', ''),
+				Kidzou_Utils::get_option('newsletter_labels_style', ''),
+				__( 'E-mail', 'kidzou' ),
+				Kidzou_Utils::get_option('newsletter_input_class', ''),
+				Kidzou_Utils::get_option('newsletter_input_style', ''),
+				$zipcode_output,
+				Kidzou_Utils::get_option('newsletter_button_class', ''),
+				Kidzou_Utils::get_option('newsletter_button_style', ''), 
+				__( 'Inscrivez-moi', 'kidzou' ),
+				// __( 'Les champs surlign&eacute;s sont invalides', 'kidzou' ),
 				Kidzou_Utils::get_option('newsletter_footer', '')
 				// __( 'Ne plus me proposer de m&apos;inscrire &agrave; la newsletter', 'kidzou' ),
 			);
