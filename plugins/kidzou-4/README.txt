@@ -1,3 +1,9 @@
+<h3>0215-fix23</h3>
+<h4>Le Vendredi 13 février 2015 </h4>
+<ul>
+	<li>- erreur de Copier/coller à la recuperation des listes mailchimp dans les réglages Kidzou</li>
+</ul>
+
 <h3>0215-fix22</h3>
 <h4>Le Vendredi 13 février 2015 </h4>
 <ul>
