@@ -871,7 +871,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'show_import_export' => true,
                 'transient_time' => 3600,
                 'network_sites' => true,
-                // 'dev_mode' => true
+                'dev_mode' => false,
                 // 'database' => 'network'
               );
 
