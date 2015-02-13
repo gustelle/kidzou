@@ -939,12 +939,21 @@ if (!function_exists('set_mailchimp_lists')):
 
         $return['value'] = $value;
 
-        Kidzou_Utils::log('get_mailchimp_lists '. $value . '/' . $existing_value);
+        // Kidzou_Utils::log('get_mailchimp_lists '. $value . '/' . $existing_value);
+
+        Kidzou_Utils::log('get_mailchimp_lists / Key value vide : ' . ($value==''));
+        Kidzou_Utils::log('get_mailchimp_lists / changement de valeur : ' . ($value!=$existing_value));
+
+        $transient = get_transient( 'special_query_results' ) ;
+
+        Kidzou_Utils::log('get_mailchimp_lists / is_transient_empty : ' . $is_transient_empty);
 
         //si la valeur change ,on récupère les listes
-        if ($value!=$existing_value) 
+        if ( $value!=$existing_value || (false === $transient ) ) 
         {
             try {
+
+                Kidzou_Utils::log('get_mailchimp_lists, mise à jour des listes');
 
                 $lists = get_mailchimp_lists($value);
 

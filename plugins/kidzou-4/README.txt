@@ -1,3 +1,10 @@
+<h3>0215-fix22</h3>
+<h4>Le Vendredi 13 février 2015 </h4>
+<ul>
+	<li>- Correctif sur la sync Geo Data Store au changement de statut des posts</li>
+	<li>- Tentative de debug de la recuperation des listes mailchimp dans les réglages Kidzou</li>
+</ul>
+
 <h3>0215-fix21</h3>
 <h4>Le Jeudi 12 février 2015 </h4>
 <ul>

@@ -103,7 +103,7 @@ class Kidzou_GeoHelper {
 			array_push(self::$supported_post_types, $value);
 		}
 
-		Kidzou_Utils::log('Kidzou_GeoHelper [add_supported_post_types]', true);
+		// Kidzou_Utils::log('Kidzou_GeoHelper [add_supported_post_types]', true);
 
 	}
 
@@ -298,14 +298,14 @@ class Kidzou_GeoHelper {
 
 	            } else {
 	                $result[$key] = $value;
-	                Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
+	                // Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
 	            }
 	        }   
 
 	        if (!empty($result) && count($result)>0)
 	       		set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
 
-	        Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
+	        // Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
 	    }
 
 	    return $result;
