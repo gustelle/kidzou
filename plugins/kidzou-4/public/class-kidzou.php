@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = '0215-fix24';
+	const VERSION = '0215-fix25';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -709,8 +709,8 @@ class Kidzou {
 						ga('send', 'pageview');
 
 						//tracker allofamille
-						ga('create', 'UA-58574680-1', 'auto', {'name': 'af'});
-						ga('af.send', 'pageview');
+						// ga('create', 'UA-58574680-1', 'auto', {'name': 'af'});
+						// ga('af.send', 'pageview');
 
 					</script>",
 					Kidzou_Utils::get_option('analytics_ua','')

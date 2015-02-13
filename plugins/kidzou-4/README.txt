@@ -1,3 +1,9 @@
+<h3>0215-fix25</h3>
+<h4>Le Vendredi 13 février 2015 </h4>
+<ul>
+	<li>- Désactivation de Google Analytics pour Allo Famille</li>
+</ul>
+
 <h3>0215-fix24</h3>
 <h4>Le Vendredi 13 février 2015 </h4>
 <ul>
