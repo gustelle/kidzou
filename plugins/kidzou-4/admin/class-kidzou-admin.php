@@ -160,11 +160,13 @@ class Kidzou_Admin {
 		add_filter('parse_query', array($this, 'contrib_contents_filter' ));
 
 		/**
-		 *
 		 * Ajout d'un filtre par "ville" sur les listes de post
+		 *
 		 * @link http://wordpress.stackexchange.com/questions/578/adding-a-taxonomy-filter-to-admin-list-for-a-custom-post-type
 		 */
 		add_action('restrict_manage_posts',array($this, 'filter_posts_list'));
+
+		
 
 	}
 

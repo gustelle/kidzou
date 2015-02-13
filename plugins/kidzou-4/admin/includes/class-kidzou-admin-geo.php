@@ -73,6 +73,14 @@ class Kidzou_Admin_Geo {
 			//intégration 'standard' du plugin
 			add_filter( 'sc_geodatastore_meta_keys', array( $this, 'store_geo_data') );
 
+			/**
+			 * Au changement de statut d'un post on resynchronise le Geo Data Store
+			 *
+			 * @see Geo Data Store
+			 * @link http://codex.wordpress.org/Post_Status_Transitions
+			 */
+			add_action(  'transition_post_status',  array($this,'on_all_status_transitions'), 10, 3 );
+
 		}
 
 	}
@@ -126,6 +134,94 @@ class Kidzou_Admin_Geo {
 	}
 
 	/**
+	 * Ajout d'une entrée dans le Geo Data Store
+	 *
+	 * @return void
+	 * @internal 
+	 **/
+	private static function add_post_to_geo_ds($id=0)
+	{
+		if ($id==0)
+			return;
+
+		global $wpdb;
+
+		Kidzou_Utils::log('add_post_to_geo_ds');
+
+		//on ne synchronise pas les events qui ne sont plus actifs
+		$syncable = (Kidzou_Events::isTypeEvent($id) ? Kidzou_Events::isEventActive($id) : true);
+
+		if ( Kidzou_GeoHelper::has_post_location($id) && $syncable )
+	   	{	
+	   		Kidzou_Utils::log('add_post_to_geo_ds, suite');
+	   		$post = get_post($id); 
+   			$type = $post->post_type;
+	   		$location = Kidzou_GeoHelper::get_post_location($id);
+	   		$meta_key = 'kz_'.$type.'_location_latitude';
+
+	   		$mid = $wpdb->get_var( 
+	   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
+	   		);
+	   		
+	   		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
+			setlocale(LC_NUMERIC, 'C');
+
+			$lat = $location['location_latitude'];
+			$lng = $location['location_longitude'];
+
+			//s'assurer que les données arrivent au bon format, i.e. xx.xx 
+			//et non pas au format xx,xx ( ce qui arrive ne prod ??)
+			if (is_string($lat))
+				$lat = str_replace(",",".",$lat);
+			if (is_string($lng))
+				$lng = str_replace(",",".",$lng);
+
+			Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $lat.'/' . $lng, true);
+
+			$lat = floatval($lat);
+			$lng = floatval($lng);
+
+	   		sc_GeoDataStore::after_post_meta( 
+	   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
+	   			$id, 
+	   			Kidzou_GeoHelper::META_COORDS, 
+	   			$lat.','.$lng
+	   		);
+	   		
+	   		Kidzou_Utils::log('sync_geo_data - Added Post['.$id.']['.$mid.'] / ' . $lat.','.$lng );
+
+	   }
+	}
+
+	/**
+	 * suppression d'une entrée dans le Geo Data Store
+	 * 
+	 * lat/lng sont stockés dans le Geo Data Store sous la référence de meta <code>kz_post_location_latitude</code>
+	 *
+	 * @internal
+	 **/
+	private static function delete_post_from_geo_ds($id=0)
+	{
+		if ($id==0)
+			return;
+
+		global $wpdb;
+
+		Kidzou_Utils::log('delete_post_from_geo_ds');
+
+   		$post = get_post($id); 
+		$type = $post->post_type;
+ 
+   		$meta_key_lat = 'kz_'.$type.'_location_latitude';
+
+   		$deleted_meta_id = $wpdb->get_var( 
+   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key_lat'"
+   		);
+   		$wpdb->query( "DELETE FROM `" . $wpdb->prefix . 'geodatastore' . "` WHERE `meta_id` = $deleted_meta_id" );
+
+	}
+
+	/**
 	 * Décleanchée a la demande, cette fonction synchronise les meta lat/lng de Kidzou avec le Geo Data Store
 	 *
 	 * @since proximite
@@ -152,45 +248,7 @@ class Kidzou_Admin_Geo {
 		foreach ( $result as $row )
 		{
 			$id = $row->ID;
-		   if ( Kidzou_GeoHelper::has_post_location($id) && Kidzou_Events::isEventActive() )
-		   {	
-		   		$post = get_post($id); 
-	   			$type = $post->post_type;
-		   		$location = Kidzou_GeoHelper::get_post_location($id);
-		   		$meta_key = 'kz_'.$type.'_location_latitude';
-
-		   		$mid = $wpdb->get_var( 
-		   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
-		   		);
-		   		
-		   		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
-				setlocale(LC_NUMERIC, 'C');
-
-				$lat = $location['location_latitude'];
-				$lng = $location['location_longitude'];
-
-				//s'assurer que les données arrivent au bon format, i.e. xx.xx 
-				//et non pas au format xx,xx ( ce qui arrive ne prod ??)
-				if (is_string($lat))
-					$lat = str_replace(",",".",$lat);
-				if (is_string($lng))
-					$lng = str_replace(",",".",$lng);
-
-				Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $lat.'/' . $lng, true);
-
-				$lat = floatval($lat);
-				$lng = floatval($lng);
-
-		   		sc_GeoDataStore::after_post_meta( 
-		   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
-		   			$id, 
-		   			Kidzou_GeoHelper::META_COORDS, 
-		   			$lat.','.$lng
-		   		);
-		   		
-		   		Kidzou_Utils::log('sync_geo_data - Synchronized Post['.$id.']['.$mid.'] / ' . $lat.','.$lng );
- 
-		   }
+		   	self::add_post_to_geo_ds($id);
 		}
 	}
 
@@ -207,6 +265,7 @@ class Kidzou_Admin_Geo {
 		global $post;
 
 		$keys[] = Kidzou_GeoHelper::META_COORDS;
+		// $keys[] = ""; //necessaire pour la suppression de meta 
     	return $keys;
 	}
 
@@ -385,6 +444,30 @@ class Kidzou_Admin_Geo {
         flush_rewrite_rules();
 		Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
 
+	}
+
+	/**
+	 * <p>
+	 * Synchronisation avec le Geo Data Store au changement de statut d'un post : 
+	 * <ul>
+	 * <li>Suppression du post à la dépublication</li>
+	 * <li>Ajout d'une entrée lors du passage au statut publié</li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @see http://codex.wordpress.org/Post_Status_Transitions
+	 */
+	public function on_all_status_transitions($new_status, $old_status, $post) {
+
+		if ( $old_status != 'publish'  &&  $new_status == 'publish' ) {
+	        Kidzou_Utils::log('Passage au statut publié, synchro avec le Geo DataStore pour le post ' .$post->ID);
+	        self::add_post_to_geo_ds($post->ID);
+	    }
+	    if ( $old_status == 'publish'  &&  $new_status != 'publish' ) {
+	        Kidzou_Utils::log('Dépublication , suppression du Geo DataStore pour le post ' .$post->ID);
+	        self::delete_post_from_geo_ds($post->ID);
+
+	    }
 	}
 
 }
