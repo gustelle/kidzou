@@ -944,7 +944,7 @@ if (!function_exists('set_mailchimp_lists')):
         Kidzou_Utils::log('get_mailchimp_lists / Key value vide : ' . ($value==''));
         Kidzou_Utils::log('get_mailchimp_lists / changement de valeur : ' . ($value!=$existing_value));
 
-        $transient = get_transient( 'special_query_results' ) ;
+        $transient = get_transient( 'kz_mailchimp_lists' ) ;
 
         Kidzou_Utils::log('get_mailchimp_lists / is_transient_empty : ' . $is_transient_empty);
 
