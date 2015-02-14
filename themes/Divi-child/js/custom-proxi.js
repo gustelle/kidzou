@@ -125,7 +125,7 @@ var kidzouProximite = (function(){
 
 					if (kidzou_proxi.display_mode == 'with_map')
 					{	
-						console.info(map);
+						// console.info(map);
 						//panTo new Position if user has not dragged the map
 						if (!getMapDragged()) {
 							console.info('Centrage sur la nouvelle position détectée');
