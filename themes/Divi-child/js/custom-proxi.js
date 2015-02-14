@@ -26,8 +26,22 @@ var kidzouProximite = (function(){
 		return isMapDragged;
 	}
 
-	// document.addEventListener('DOMContentLoaded', function() {
+	
+	var mapContainer = document.querySelector('#proxi_content .et_pb_map');
+	
+	/**
+	 * l'objet map de Google Maps
+	 */
+	var map;
 
+	/**
+	 * L'objet coordonnées LatLng du centre de la map
+	 */
+	var mapCenter;
+
+	/**
+	 * Marqueur pour éviter les doubles requetes
+	 */
 	var doing_ajax = false;
 
 	var getContent = function getContentF( _radius ) {
@@ -225,12 +239,6 @@ var kidzouProximite = (function(){
 	if (document.querySelector('.load_more_results')) {
 		document.querySelector('.load_more_results').addEventListener("click", loadMoreResults);
 	}
-
-	// }); //document.addEventListener('DOMContentLoaded', ..
-
-	var mapContainer = document.querySelector('#proxi_content .et_pb_map');
-	var map;
-	var mapCenter;
 
 	function initialize( ) {
 

@@ -1,3 +1,9 @@
+<h3>0215-fix26</h3>
+<h4>Le Samedi 14 février 2015 </h4>
+<ul>
+	<li>- Correction d'une erreur JS sur la fonction A proximité (<a href="https://bitbucket.org/kidzou_guillaume/kidzou/issue/19/a-proximit-erreur-javascript">Bug #19</a>)</li>
+</ul>
+
 <h3>0215-fix25</h3>
 <h4>Le Vendredi 13 février 2015 </h4>
 <ul>
