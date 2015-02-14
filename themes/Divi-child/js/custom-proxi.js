@@ -125,7 +125,7 @@ var kidzouProximite = (function(){
 
 					if (kidzou_proxi.display_mode == 'with_map')
 					{	
-						console.info(map);
+						// console.info(map);
 						//panTo new Position if user has not dragged the map
 						if (!getMapDragged()) {
 							console.info('Centrage sur la nouvelle position détectée');
@@ -167,7 +167,7 @@ var kidzouProximite = (function(){
 	document.addEventListener("geolocation", function(e) {
 
 		// console.info('geolocation done');
-		console.info(e.detail);
+		// console.info(e.detail);
 
 		addRefreshMessage();
 
@@ -217,8 +217,9 @@ var kidzouProximite = (function(){
 			//recharger une geoloc complete
 			//cette geoloc redéclenchera une mise à jour du contenu
 			//grace au EventListener "geolocation"
+
 			kidzouGeoContent.getUserLocation(function(position) {
-				// console.info(position);
+
 			});
 		}, false);
 	}
