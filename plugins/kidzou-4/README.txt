@@ -1,3 +1,9 @@
+<h3>0215-fix27</h3>
+<h4>Le Samedi 14 février 2015 </h4>
+<ul>
+	<li>- Correction d'une erreur JS sur la Carte Google Maps  de la page A proximité sur Safari</li>
+</ul>
+
 <h3>0215-fix26</h3>
 <h4>Le Samedi 14 février 2015 </h4>
 <ul>

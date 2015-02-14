@@ -52,8 +52,6 @@ var kidzouProximite = (function(){
 		var position = getCurrentPosition() || kidzou_proxi.request_coords;
 		var radius = _radius || kidzou_proxi.radius;
 
-		// console.info(position);
-
 		jQuery.ajax({
 
 			type: "POST",
@@ -127,6 +125,7 @@ var kidzouProximite = (function(){
 
 					if (kidzou_proxi.display_mode == 'with_map')
 					{	
+						console.info(map);
 						//panTo new Position if user has not dragged the map
 						if (!getMapDragged()) {
 							console.info('Centrage sur la nouvelle position détectée');
@@ -171,8 +170,6 @@ var kidzouProximite = (function(){
 
 		if (!e.detail.error && e.detail.refresh) {
 
-			// console.info('New coords '  + e.detail.coords.latitude + ',' + e.detail.coords.longitude);
-
 			//stockage pour reutilisation ultérieure
 			setCurrentPosition(e.detail.coords);
 
@@ -182,6 +179,9 @@ var kidzouProximite = (function(){
 		} else {
 
 			// console.info(e);
+			//debug
+			//déclencher une requete Ajax pour afficher les activités autour de la position
+			// getContent(kidzou_proxi.radius);
 
 			if (e.detail.error)
 			{
@@ -242,11 +242,11 @@ var kidzouProximite = (function(){
 
 	function initialize( ) {
 
-		console.debug('initialize');
+		// console.debug('initialize');
 
 		if (kidzou_proxi.display_mode == 'with_map')
 		{
-			console.debug('initialize map');
+			// console.debug('initialize map');
 			removeLoadingMessage();
 			setCurrentPosition({latitude : mapContainer.dataset.center_lat, longitude : mapContainer.dataset.center_lng});
 
@@ -254,6 +254,8 @@ var kidzouProximite = (function(){
 			//les tiles sont au milieu de l'ocean, peut être retarder légérement
 			//l'affichage ??
 			setTimeout(function() {
+
+				console.info('map initialize')
 
 				map = new google.maps.Map( mapContainer, {
 					zoom: parseInt(kidzou_proxi.zoom),
