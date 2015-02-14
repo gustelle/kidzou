@@ -568,6 +568,10 @@ class Kidzou {
 
 			wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko', 'kidzou-storage'), self::VERSION, true );
 			
+			//utilisation d'un polyfill pour compatibilité avec les vieux navigateurs
+			//Car on utilise les DOMContentLoaded, les CustomEvent...
+			wp_enqueue_script('dom4',	"http://cdnjs.cloudflare.com/ajax/libs/dom4/1.3.1/dom4.js",array(), '1.3.1', true);
+
 			wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
 					'msg_wait'			 			 => 'Merci de patienter...',
 					'msg_loading'				 	 => 'Chargement en cours...',
