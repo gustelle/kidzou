@@ -178,10 +178,6 @@ var kidzouProximite = (function(){
 		    
 		} else {
 
-			// console.info(e);
-			//debug
-			//déclencher une requete Ajax pour afficher les activités autour de la position
-			// getContent(kidzou_proxi.radius);
 
 			if (e.detail.error)
 			{
@@ -219,8 +215,8 @@ var kidzouProximite = (function(){
 			//recharger une geoloc complete
 			//cette geoloc redéclenchera une mise à jour du contenu
 			//grace au EventListener "geolocation"
-			kidzouGeoContent.getUserLocation(function() {
-				console.debug('User location refreshed');
+			kidzouGeoContent.getUserLocation(function(pos) {
+				console.info(pos);
 			});
 		}, false);
 	}
