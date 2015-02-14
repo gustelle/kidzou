@@ -1,3 +1,10 @@
+<h3>0215-fix28</h3>
+<h4>Le Samedi 14 février 2015 </h4>
+<ul>
+	<li>- Ajout d'un JS polyfill pour supporter les apports DOM Level 4 (dom4.js)</li>
+	<li>- Modification du rendu dans le header pour surligner la metropole courante de l'utilisateur</li>
+</ul>
+
 <h3>0215-fix27</h3>
 <h4>Le Samedi 14 février 2015 </h4>
 <ul>
