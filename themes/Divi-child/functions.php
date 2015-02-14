@@ -1492,12 +1492,21 @@ function kz_pb_proximite( $atts ) {
 
 	$class = " et_pb_bg_layout_{$background_layout}";
 	$filters_html = '';
+	$filter_out = '';
+
+	//prévision d'évolutions pour filtrer
+	if ($filters_html!='') {
+		$filter_out = sprintf(
+				'<div class="et_pb_filterable_portfolio ">
+					%1$s
+				</div>',
+				$filters_html
+			);
+	}
 
 	$out .= sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">
-			<div class="et_pb_filterable_portfolio ">
-				'.$filters_html.'
-			</div>
+			%7$s
 			<div class="et_pb_portfolio_results">%2$s</div>
 		%4$s',
 		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
@@ -1506,7 +1515,8 @@ function kz_pb_proximite( $atts ) {
 		'',
 		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
 		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-		''
+		'',
+		$filter_out
 	);
 
 	return sprintf(
@@ -1518,7 +1528,6 @@ function kz_pb_proximite( $atts ) {
 			<div class="more_results"></div>
 		</div>',
 		'<div class="distance_message"></div>',
-		// ($is_geolocalized ? '<h1 class="distance_message">Dans un rayon de '.$radius.' kilom&egrave;tres</h1>' : ''),
 		$out
 	);
 
