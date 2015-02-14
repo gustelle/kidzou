@@ -166,7 +166,11 @@ var kidzouGeoContent = (function () {
 		var cook = storageSupport.getCookie(kidzou_geo_jsvars.geo_coords);
 		var prec_coords = (typeof cook!='undefined' ? JSON.parse(cook) : {});
 
+		console.info('Request for user location');
+
 		if (navigator.geolocation) {
+
+			// console.info('Getting position');
 
 			//utiliser watchPosition plutot que getCurrentPosition qui n'est pas fiable
 			navigator.geolocation.getAccurateCurrentPosition(
@@ -181,47 +185,57 @@ var kidzouGeoContent = (function () {
 						//l'utilisateur change de position
 						//on indique a la page qu'elle peut recharger son contenu "proximite"
 
-						console.info('Old Position ' + ko.toJSON(prec_coords));
-						console.info('New Position ' + ko.toJSON(short_position));
+						// console.info('Old Position ' + ko.toJSON(prec_coords));
+						// console.info('New Position ' + ko.toJSON(short_position));
 
 						if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
 
-							// console.info('Changement de position : ' + ko.toJSON(short_position) + ' / ' + ko.toJSON(prec_coords) );
+							console.info('New position detected ' );
 
 							//stockage des résultats dans un cookie pour transmission en requete 
 							storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
 
 							var myEvent = new CustomEvent("geolocation", {
-								detail: {error: false, acceptGeolocation : true, refresh : true, coords : short_position}
+								detail: {error: false, acceptGeolocation : true, refresh : true, coords : short_position},
+								bubble : true
 							});
 
+							// console.info(myEvent);
 							// Trigger it!
 							document.dispatchEvent(myEvent);
 
 						} else {
 							
-							// console.info('Pas de changement de geolocation');
+							console.info('Old position still OK');
 
 							var myEvent = new CustomEvent("geolocation", {
-								detail: {error: false, acceptGeolocation : true, refresh : false}
+								detail: {error: false, acceptGeolocation : true, refresh : false},
+								bubble : true
 							});
+
+							// console.info(myEvent);
 
 							// Trigger it!
 							document.dispatchEvent(myEvent);
 						}
 
-						if (callback)
+						if (callback) {
 							callback({
 								latitude: position.coords.latitude,
 								longitude : position.coords.longitude,
 								altitude : position.coords.altitude 
 							}); 
 
+							// console.info("Callback called");
+						}
+							
+
 					}, 
 					function(err) { 
 						
 						var myEvent = new CustomEvent("geolocation", {
-							detail: {error: true, acceptGeolocation : true}
+							detail: {error: true, acceptGeolocation : true},
+							bubble : true
 						});
 
 						// Trigger it!
@@ -229,7 +243,8 @@ var kidzouGeoContent = (function () {
 					},
 					function() {
 						var myEvent = new CustomEvent("geolocation_progress", {
-							detail: {}
+							detail: {},
+							bubble : true
 						});
 
 						// Trigger it!
@@ -245,9 +260,12 @@ var kidzouGeoContent = (function () {
 			// navigator.geolocation.clearWatch(watchID);
 
 		} else {
+
+			console.info('Error, navigator does not accept geolocation');
 			
 			var myEvent = new CustomEvent("geolocation", {
-				detail: {error: true, acceptGeolocation : false}
+				detail: {error: true, acceptGeolocation : false},
+				bubble : true
 			});
 
 			// Trigger it!

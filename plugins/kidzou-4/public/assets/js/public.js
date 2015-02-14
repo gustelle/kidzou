@@ -4,11 +4,27 @@ window.console = typeof window.console === 'undefined'
     ? {log:function(str){alert(str)}}
     : window.console;
 
+//polyfill for CustomEvent Object for old browsers
+//@see https://developer.mozilla.org/fr/docs/Web/API/CustomEvent
+(function () {
+	// console.info(window.CustomEvent)
+	if (!window.CustomEvent) 
+	{
+		function CustomEvent ( event, params ) {
+		    params = params || { bubbles: false, cancelable: false, detail: undefined };
+		    var evt = document.createEvent( 'CustomEvent' );
+		    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+		    return evt;
+		   };
+		  CustomEvent.prototype = window.Event.prototype;
+		  window.CustomEvent = CustomEvent;
+	}
+})();
+
 //thanks http://www.chrisbuttery.com/articles/fade-in-fade-out-with-javascript/
 // fade out
 function fadeOut(el){
   el.style.opacity = 1;
-
   (function fade() {
     if ((el.style.opacity -= .1) < 0) {
       el.style.display = "none";
@@ -22,7 +38,6 @@ function fadeOut(el){
 function fadeIn(el, display){
   el.style.opacity = 0;
   el.style.display = display || "block";
-
   (function fade() {
     var val = parseFloat(el.style.opacity);
     if (!((val += .1) > 1)) {
@@ -41,11 +56,8 @@ var kidzouModule = (function() { //havre de paix
 	// jQuery(document).ready(function() {
 	document.addEventListener('DOMContentLoaded', function(event) {
 
-
 		//assurer que les dépendances sont là...
 		if (window.jQuery && window.ko && window.storageSupport) {
-
-			// console.debug('window ready in kidzou');
 
 			String.prototype.toBoolean = function()
 			{switch(this.toLowerCase()){case "true": case "yes": case "1": return true;case "false": case "no": case "0": case null: return false;default: return Boolean(this);}};
