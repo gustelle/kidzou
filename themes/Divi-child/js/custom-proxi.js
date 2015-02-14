@@ -158,6 +158,7 @@ var kidzouProximite = (function(){
 	//geolocation_progress est déclenché par kidzou-geo.js
 	//il indique que getCurrentPosition est en cours
 	document.addEventListener("geolocation_progress", function(e) {
+		// console.info('geolocation in progress');
 		document.querySelector('.distance_message').innerHTML = kidzou_proxi.wait_geoloc_progress;			
 	}, false);
 
@@ -165,7 +166,9 @@ var kidzouProximite = (function(){
 	//les résultats de getCurrentPosition sont arrivés
 	document.addEventListener("geolocation", function(e) {
 
-		// document.querySelector('.distance_message').innerHTML = '';
+		// console.info('geolocation done');
+		// console.info(e.detail);
+
 		addRefreshMessage();
 
 		if (!e.detail.error && e.detail.refresh) {
@@ -177,7 +180,6 @@ var kidzouProximite = (function(){
 			getContent(kidzou_proxi.radius);
 		    
 		} else {
-
 
 			if (e.detail.error)
 			{
@@ -215,8 +217,9 @@ var kidzouProximite = (function(){
 			//recharger une geoloc complete
 			//cette geoloc redéclenchera une mise à jour du contenu
 			//grace au EventListener "geolocation"
-			kidzouGeoContent.getUserLocation(function(pos) {
-				console.info(pos);
+
+			kidzouGeoContent.getUserLocation(function(position) {
+
 			});
 		}, false);
 	}
@@ -298,14 +301,16 @@ var kidzouProximite = (function(){
 
 				//http://stackoverflow.com/questions/832692/how-can-i-check-whether-google-maps-is-fully-loaded
 				google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
-					console.info('tilesloaded');
+					// console.info('tilesloaded');
+					addRefreshMessage();
+
 					google.maps.event.trigger(map, 'resize');
 				    //this part runs when the mapobject is created and rendered
 				    google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
 				        //this part runs when the mapobject shown for the first time
-				        // console.info('tilesloaded');
+				        console.info('tilesloaded fully loaded');
 				        
-						addRefreshMessage();
+						// addRefreshMessage();
 				    });
 				});
 
