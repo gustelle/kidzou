@@ -134,7 +134,10 @@
 
 							if (count($metropoles)>1) 
 							{
-								$ttes_metros .= '<i class="fa fa-map-marker"></i>';
+								$locator = new Kidzou_Geolocator();
+								$current_metropole = $locator->get_request_metropole();
+
+								$ttes_metros .= '';
 
 								$i=0;
 								foreach ($metropoles as $m) {
@@ -142,13 +145,14 @@
 									if ($i>0)
 										$ttes_metros .= '&nbsp;|&nbsp;';
 
+									$selected = ($m->slug == $current_metropole);
+
 									$ttes_metros .= sprintf(
-										'<a class="metropole" data-metropole="%s" href="%s">%s</a>',
+										'<span class="%1$s"><a class="metropole" data-metropole="%2$s" href="%3$s">%4$s</a></span>',
+										($selected ? 'current_metropole' : ''),
 										$m->slug,
 										site_url().'/'.$m->slug,
-										// $m->name,
-										// __( 'Changer de ville', 'kidzou' ),
-										$m->name
+										($selected ? '<i class="fa fa-map-marker"></i>'.$m->name : $m->name)
 									);
 
 									$i++;
