@@ -175,16 +175,24 @@ var storageSupport = (function () {
 		//voir https://code.google.com/p/local-cache/
 
 		function fromLocalData (key, model) {
-			
-			if (!supports_html5_storage()  )
-				return null;
 
-			var localData = localStorage.getCacheItem(key);
+			try {
 
-			if (localData===null)
-				return null;
+				if (!supports_html5_storage()  )
+					return null;
 
-			return JSON.parse(localData);
+				var localData = localStorage.getCacheItem(key);
+
+				if (localData===null)
+					return null;
+
+				return JSON.parse(localData);
+
+			} catch (e) {
+				console.warn('Votre navigateur refuse le stockage des données de navigation, votre expérience sur notre site ne sera pas optimale');
+				return {};
+			}
+		
 		}
 
 
@@ -202,14 +210,20 @@ var storageSupport = (function () {
 			if (obj===null || key===null || key==="")
 				return;
 
-			var exp = expiration || 30; //days
+			try {
 
-			localStorage.setCacheItem(key, 
-							ko.toJSON(
-								ko.mapping.toJS(obj)
-							), 
-							{ days: exp }
-						);
+				var exp = expiration || 30; //days
+
+				localStorage.setCacheItem(key, 
+								ko.toJSON(
+									ko.mapping.toJS(obj)
+								), 
+								{ days: exp }
+							);
+
+			} catch (e) {
+				console.warn('Votre navigateur refuse le stockage des données de navigation, votre expérience sur notre site ne sera pas optimale');
+			}
 
 		}
 
@@ -245,18 +259,24 @@ var storageSupport = (function () {
 		//pour stocker un object utiliser toLocalData 
 		function setLocal(key, value, expiration) {
 
-			var exp = expiration || 30; //days
+			try {
 
-			if (supports_html5_storage() ) {
-				console.debug('setLocal ' + key );
-				localStorage.setCacheItem(
-						key, 
-						value, 
-						{ days: exp });
-			}
-			else {
-				console.debug('setLocal ' + key + ' / fallback vers les cookies');
-				setCookie(key, value, exp);
+				var exp = expiration || 30; //days
+
+				if (supports_html5_storage() ) {
+					// console.debug('setLocal ' + key );
+					localStorage.setCacheItem(
+							key, 
+							value, 
+							{ days: exp });
+				}
+				else {
+					// console.debug('setLocal ' + key + ' / fallback vers les cookies');
+					setCookie(key, value, exp);
+				}
+
+			} catch(e) {
+				console.warn('Votre navigateur refuse le stockage des données de navigation, votre expérience sur notre site ne sera pas optimale');
 			}
 				
 		}
@@ -264,11 +284,20 @@ var storageSupport = (function () {
 		//Recup à partir du Stockage local 
 		//fallback en cookie si le stockage local n'est pas supporté
 		function getLocal(key) {
-			if (supports_html5_storage() ) {
-				return localStorage.getCacheItem(key);
+			
+			try {
+
+				if (supports_html5_storage() ) {
+					return localStorage.getCacheItem(key);
+				}
+				else
+					return getCookie(key);
+
+			} catch(e) {
+				console.warn('Votre navigateur refuse le stockage des données de navigation, votre expérience sur notre site ne sera pas optimale');
+				return '';
 			}
-			else
-				getCookie(key);
+			
 		}
 
 		function setCookie(key, value, expiration) {
