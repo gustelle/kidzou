@@ -392,9 +392,9 @@
 				$form = $this_el.siblings( '.et-search-form' );
 
 			if ( $form.hasClass( 'et-hidden' ) ) {
-				$form.css( { 'display' : 'block', 'opacity' : 0 } ).animate( { opacity : 1 }, 500 );
+				$form.css( { 'display' : 'block', 'opacity' : 0, 'z-index' : 1000 } ).animate( { opacity : 1 }, 500 );
 			} else {
-				$form.animate( { opacity : 0 }, 500 );
+				$form.css( { 'display' : 'none', 'opacity' : 0, 'z-index' : 0 } ).animate( { opacity : 0 }, 500 );
 			}
 
 			$form.toggleClass( 'et-hidden' );
