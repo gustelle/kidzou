@@ -240,7 +240,10 @@ class Kidzou_WebPerf {
 
 		if (!is_admin() && $activate && $add_async_attr && !in_array($handle, self::$js_no_async) )
 		{
-			// Kidzou_Utils::log('Optimisation du chargement JS de ...' . $handle);
+			//pas d'att async defer si la source n'est pas sépcifiée, cela cause une erreur de validation W3C
+			if (!preg_match("/src=/", $html))
+				return $html;
+
 			return preg_replace("/<script/", "<script async defer", $html);
 		}
 		return $html;

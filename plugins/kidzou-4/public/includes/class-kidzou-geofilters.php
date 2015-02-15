@@ -352,9 +352,13 @@ class Kidzou_GeoFilters {
 
 		}
 
-		//recuperer la trace complete d'appel pour les cas ou l'URL n'est pas convertie (il reste des %kz_metropole%)
+		//supprimer le TAG si pas de metropole en requete
 		if (preg_match('/'.Kidzou_GeoHelper::REWRITE_TAG.'/', $url))
-		 	Kidzou_Utils::printStackTrace();
+			$url = str_replace( Kidzou_GeoHelper::REWRITE_TAG, '' , $url );
+
+		//recuperer la trace complete d'appel pour les cas ou l'URL n'est pas convertie (il reste des %kz_metropole%)
+		// if (preg_match('/'.Kidzou_GeoHelper::REWRITE_TAG.'/', $url))
+		//  	Kidzou_Utils::printStackTrace();
 	 
 	    return $url; 
 	}
