@@ -3462,8 +3462,9 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 /*-------------------[Metropoles / Header]------------------*/
 #kz-villes {float: left; padding-left: 30px; font-size: 1.2em;}
-.current_metropole {background-color: #ffffff; padding: 3px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;  }
-.current_metropole a {color:#1EA4E8 !important;}
+#top-header .selected_item {background-color: #ffffff; padding: 3px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;  }
+#top-header .selected_item a {color:#1EA4E8 !important;}
+#top-header .selected_item a:hover {color:#1EA4E8 !important;}
 @media only screen and ( max-width: 767px ) {
 	#kz-villes {display: none;}
 }
