@@ -149,7 +149,7 @@
 
 									$ttes_metros .= sprintf(
 										'<span class="%1$s"><a class="metropole" data-metropole="%2$s" href="%3$s">%4$s</a></span>',
-										($selected ? 'current_metropole' : ''),
+										($selected ? 'selected_item' : ''),
 										$m->slug,
 										site_url().'/'.$m->slug,
 										($selected ? '<i class="fa fa-map-marker"></i>'.$m->name : $m->name)

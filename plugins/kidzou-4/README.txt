@@ -1,3 +1,11 @@
+<h3>0215-fix29</h3>
+<h4>Le Samedi 14 février 2015 </h4>
+<ul>
+	<li>- correction CSS dans le header pour la sélection d'une metropole</li>
+	<li>- correction de ré-ecriture d'URL pour les liens de page à la premiere visite</li>
+	<li>- Correction d'erreur de validation W3C  : pas d'attribut "async defer" sur les chargements JS lorsque l'attrbut src n'est pas spécifiée</li>
+</ul>
+
 <h3>0215-fix28</h3>
 <h4>Le Samedi 14 février 2015 </h4>
 <ul>
