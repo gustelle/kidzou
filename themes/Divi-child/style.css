@@ -3630,7 +3630,7 @@ body .form_saved_message {
 .mobile_secondary_nav .selected_item a:hover {color:#ffffff ;}
 
 @media only screen and ( max-width: 980px ) { 
-	.mobile_secondary_nav{display: block;}
+	.mobile_secondary_nav{display: block;z-index: 1000;}
 }
 
 /*-------------------[Navigation mobile]------------------*/

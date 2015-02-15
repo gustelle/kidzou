@@ -1,4 +1,5 @@
 
+<h4>Navigation par métropole sur mobile</h4>
 <h5>Dimanche 15 février 2015 </h5>
 <ul>
 	<li>- Possibilité de changer de métropole sur mobile</li>
@@ -32,7 +33,7 @@
 	<li>- Changement sur le formulaire newsletter dans les notifs : réglage possible des champs de formulaire </li>
 </ul>
 
-<h4>Frontend-Posting-Fix1</h4>
+<h4>Mise en forme Gravity forms</h4>
 <h5>Le Mercredi 11 Février février 2015 </h5>
 <ul>
 	<li>- Mise en forme des formulaires Gravity Forms</li>
