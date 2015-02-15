@@ -123,47 +123,7 @@
 				</div> <!-- #et-info -->
 
 				<div id="kz-villes">
-					<?php
-
-						//les différentes métropoles dispo
-						$active = Kidzou_Utils::get_option('geo_activate', false);
-						if ($active)
-						{
-							$metropoles = Kidzou_GeoHelper::get_metropoles();
-							$ttes_metros = '';
-
-							if (count($metropoles)>1) 
-							{
-								$locator = new Kidzou_Geolocator();
-								$current_metropole = $locator->get_request_metropole();
-
-								$ttes_metros .= '';
-
-								$i=0;
-								foreach ($metropoles as $m) {
-
-									if ($i>0)
-										$ttes_metros .= '&nbsp;|&nbsp;';
-
-									$selected = ($m->slug == $current_metropole);
-
-									$ttes_metros .= sprintf(
-										'<span class="%1$s"><a class="metropole" data-metropole="%2$s" href="%3$s">%4$s</a></span>',
-										($selected ? 'selected_item' : ''),
-										$m->slug,
-										site_url().'/'.$m->slug,
-										($selected ? '<i class="fa fa-map-marker"></i>'.$m->name : $m->name)
-									);
-
-									$i++;
-
-								}
-							}
-
-							echo $ttes_metros;	
-						}
-						
-					?>
+					<?php do_action('kz_metropole_nav'); ?>
 				</div>
 
 
@@ -222,11 +182,7 @@
 						);
 					}
 
-					
-
 					et_show_cart_total();
-
-					
 
 				?>
 				</div> <!-- #et-secondary-menu -->
@@ -296,7 +252,12 @@
 					<?php endif; // true === et_get_option( 'show_search_icon', false ) ?>
 
 					<?php do_action( 'et_header_top' ); ?>
+
 				</div> <!-- #et-top-navigation -->
+
+				<div id="kz_mobile_metro_nav" class="mobile_secondary_nav">
+					<?php do_action('kz_metropole_nav'); ?>
+				</div>
 			</div> <!-- .container -->
 		</header> <!-- #main-header -->
 

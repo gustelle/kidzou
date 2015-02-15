@@ -1,5 +1,13 @@
+<h3>mobile-nav</h3>
+<h4>Dimanche 15 février 2015 </h4>
+<ul>
+	<li>- Possibilité de changer de métropole sur mobile</li>
+	<li>- Correction du positionnement du menu mobile de l'élément <code>#et_top_search</code></li>
+	<li>- Amélioration de la gestion des cookies et du local storage afin de ne pas causer d'erreur lorsque les utilisateurs bloquent les cookies</li>
+</ul>
+
 <h3>0215-fix29</h3>
-<h4>Le Samedi 14 février 2015 </h4>
+<h4>Le Dimanche 15 février 2015 </h4>
 <ul>
 	<li>- correction CSS dans le header pour la sélection d'une metropole</li>
 	<li>- correction de ré-ecriture d'URL pour les liens de page à la premiere visite</li>
