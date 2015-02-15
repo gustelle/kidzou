@@ -2628,7 +2628,7 @@ img.mfp-img { width: auto; max-width: 100%; height: auto; display: block; line-h
 	#top-menu { display: none; }
 	#main-header { padding-bottom: 18px; }
 	#logo { margin-bottom: 0; max-height: 43px; }
-	#et_top_search { margin-right: 35px; float: left; }
+	#et_top_search { /*margin-right: 35px;*/ margin-right: 10px; float: left; }
 	.et_header_style_centered #et_top_search, .et_vertical_nav.et_header_style_centered #main-header #et_top_search { display: none !important; }
 	#et-top-navigation { margin-right: 0; }
 	.et_fixed_nav #main-header, .et_fixed_nav #top-header { position: absolute; }
@@ -3614,3 +3614,23 @@ body .form_saved_message {
 }
 
 /*-------------------[Gravity forms]------------------*/
+
+/*-------------------[Navigation mobile]------------------*/
+
+.mobile_secondary_nav {
+	clear: both;
+	height: 10px;
+	padding: 1em;
+	margin: 0.5em 0;
+	display: none;
+}
+
+.mobile_secondary_nav .selected_item {background-color: #1EA4E8; padding: 3px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px;  }
+.mobile_secondary_nav .selected_item a {color:#ffffff ;}
+.mobile_secondary_nav .selected_item a:hover {color:#ffffff ;}
+
+@media only screen and ( max-width: 980px ) { 
+	.mobile_secondary_nav{display: block;}
+}
+
+/*-------------------[Navigation mobile]------------------*/

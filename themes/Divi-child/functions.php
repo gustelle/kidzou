@@ -91,7 +91,8 @@ function override_divi_parent_functions()
 	//pas besoin de passer par cette fonction, les css sont dans style.css
 	remove_action( 'wp_head', 'et_divi_add_customizer_css' );
 
-
+	//ajout d'un menu pour switcher de metropole
+	add_action('kz_metropole_nav', 'kz_metropole_nav');
 
 }
 
@@ -128,6 +129,53 @@ function kz_habillage() {
 
 }
 
+
+/**
+ * undocumented function
+ *
+ * @return void
+ * @author 
+ **/
+function  kz_metropole_nav()
+{
+	//les différentes métropoles dispo
+	$active = Kidzou_Utils::get_option('geo_activate', false);
+	if ($active)
+	{
+		$metropoles = Kidzou_GeoHelper::get_metropoles();
+		$ttes_metros = '';
+
+		if (count($metropoles)>1) 
+		{
+			$locator = new Kidzou_Geolocator();
+			$current_metropole = $locator->get_request_metropole();
+
+			$ttes_metros .= '';
+
+			$i=0;
+			foreach ($metropoles as $m) {
+
+				if ($i>0)
+					$ttes_metros .= '&nbsp;|&nbsp;';
+
+				$selected = ($m->slug == $current_metropole);
+
+				$ttes_metros .= sprintf(
+					'<span class="%1$s"><a class="metropole" data-metropole="%2$s" href="%3$s">%4$s</a></span>',
+					($selected ? 'selected_item' : ''),
+					$m->slug,
+					site_url().'/'.$m->slug,
+					($selected ? '<i class="fa fa-map-marker"></i>'.$m->name : $m->name)
+				);
+
+				$i++;
+
+			}
+		}
+
+		echo $ttes_metros;	
+	}
+}
 
 /**
  * undocumented function
