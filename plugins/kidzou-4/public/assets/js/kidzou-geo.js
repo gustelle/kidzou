@@ -166,7 +166,7 @@ var kidzouGeoContent = (function () {
 		var cook = storageSupport.getCookie(kidzou_geo_jsvars.geo_coords);
 		var prec_coords = (typeof cook!='undefined' ? JSON.parse(cook) : {});
 
-		console.info('Request for user location');
+		// console.info('Request for user location');
 
 		if (navigator.geolocation) {
 
@@ -176,57 +176,54 @@ var kidzouGeoContent = (function () {
 			navigator.geolocation.getAccurateCurrentPosition(
 					function(position) { 
 
-						//pour comparer la position précédente avec la nouvelle position
-						//on ne compare que latitude et longitude et on arrondit à la 3e décimale
-						//Car finalement la précision varie tout le temps et ce n'est pas intéressant de rafrichir 
-						//le contenu uniquement si la position a varié faiblement
-						var short_position = { latitude : Math.round(position.coords.latitude*1000)/1000, longitude : Math.round(position.coords.longitude*1000)/1000 };
+						//parfois position est "undefined"...why ? je ne sais pas
+						if (typeof position!='undefined') {
 
-						//l'utilisateur change de position
-						//on indique a la page qu'elle peut recharger son contenu "proximite"
+							//pour comparer la position précédente avec la nouvelle position
+							//on ne compare que latitude et longitude et on arrondit à la 3e décimale
+							//Car finalement la précision varie tout le temps et ce n'est pas intéressant de rafrichir 
+							//le contenu uniquement si la position a varié faiblement
+							var short_position = { latitude : Math.round(position.coords.latitude*1000)/1000, longitude : Math.round(position.coords.longitude*1000)/1000 };
 
-						// console.info('Old Position ' + ko.toJSON(prec_coords));
-						// console.info('New Position ' + ko.toJSON(short_position));
+							//l'utilisateur change de position
+							//on indique a la page qu'elle peut recharger son contenu "proximite"
 
-						if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
+							if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
 
-							console.info('New position detected ' );
+								console.info('New position detected ' );
 
-							//stockage des résultats dans un cookie pour transmission en requete 
-							storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
+								//stockage des résultats dans un cookie pour transmission en requete 
+								storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
 
-							var myEvent = new CustomEvent("geolocation", {
-								detail: {error: false, acceptGeolocation : true, refresh : true, coords : short_position},
-								bubble : true
-							});
+								var myEvent = new CustomEvent("geolocation", {
+									detail: {error: false, acceptGeolocation : true, refresh : true, coords : short_position},
+									bubble : true
+								});
 
-							// console.info(myEvent);
-							// Trigger it!
-							document.dispatchEvent(myEvent);
+								// Trigger it!
+								document.dispatchEvent(myEvent);
 
-						} else {
-							
-							console.info('Old position still OK');
+							} else {
+								
+								console.info('Old position still OK');
 
-							var myEvent = new CustomEvent("geolocation", {
-								detail: {error: false, acceptGeolocation : true, refresh : false},
-								bubble : true
-							});
+								var myEvent = new CustomEvent("geolocation", {
+									detail: {error: false, acceptGeolocation : true, refresh : false},
+									bubble : true
+								});
 
-							// console.info(myEvent);
+								// Trigger it!
+								document.dispatchEvent(myEvent);
+							}
 
-							// Trigger it!
-							document.dispatchEvent(myEvent);
-						}
+							if (callback) {
+								callback({
+									latitude: position.coords.latitude,
+									longitude : position.coords.longitude,
+									altitude : position.coords.altitude 
+								}); 
 
-						if (callback) {
-							callback({
-								latitude: position.coords.latitude,
-								longitude : position.coords.longitude,
-								altitude : position.coords.altitude 
-							}); 
-
-							// console.info("Callback called");
+							}
 						}
 							
 

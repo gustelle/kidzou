@@ -1,4 +1,4 @@
-<div id="main-content" class="entry">
+ <div> 
 <!--If no results are found-->
 
 	
@@ -32,4 +32,4 @@
 	</script>
 
 </div>
-<!--End if no results are found-->
+<!--End if no results are found -->

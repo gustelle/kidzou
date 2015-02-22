@@ -71,6 +71,12 @@ class Kidzou_Events {
 	 */
 	public static $meta_end_date = 'kz_event_end_date';
 
+	/**
+	 * les événements archivés
+	 *
+	 */
+	public static $meta_archive = 'kz_event_archive';
+
 
 	/**
 	 * les types de posts qui supportent les meta event
@@ -87,7 +93,7 @@ class Kidzou_Events {
 	 */
 	private function __construct() { 
 
-		
+		// add_action('wp', array($this, 'init_crons'));
 	}
 
 	/**
@@ -181,21 +187,19 @@ class Kidzou_Events {
 
 		global $wpdb;
 
-		// Kidzou_Utils::log(get_declared_classes());
-
 		Kidzou_Utils::log('------ unpublish_obsolete_posts -------', true);
 
 		$args = $args = array(
 	      'posts_per_page' => -1, 
 	      'post_status' => 'publish',
-	      'is_active'	=> false
+	      'is_active'	=> false,
+	      'is_archive'	=> false //Exclure les events déjà traités
 	    );
 		
-		// $obsoletes = self::getObsoletePosts();
 		$query = new Event_Query($args);
 		$obsoletes = $query->get_posts(); 
 
-		// Kidzou_Utils::log(count($obsoletes) . ' evenements concernes ', true);
+		// Kidzou_Utils::log('Events Query ' . $query->request, true);
 
 		foreach ($obsoletes as $event) {
 
@@ -470,25 +474,40 @@ class Kidzou_Events {
 					$remove_ids = array_map( 'intval', $remove_cats );
 					$remove_ids = array_unique( $remove_ids );
 
-					$list_remove = implode(',', $remove_ids);
+					// $list_remove = implode(',', $remove_ids);
+
+					// Kidzou_Utils::log('Catégories à supprimer : ' . $list_remove, true);
 
 					$add_ids = array_map( 'intval', $add_cats );
 					$add_ids = array_unique( $add_ids );
 
-					$list_add = implode(',', $add_ids);
+					// $list_add = implode(',', $add_ids);
+
+					// Kidzou_Utils::log('Catégories à ajouter : ' . $list_add, true);
 
 					$all_terms_ids = array_merge($term_list, $add_ids) ;
 					$all_terms_ids = array_unique( $all_terms_ids );
 
+					//execution en 2 temps pour parer un bug (?) de wordpress
+					//un objet ne peut pas avoir aucune categorie affectée, ainsi si on supprime
+					//une categorie alors qu'on n'a pas encore ajouté une autre, un objet peut se retrouver temporairement sans categorie
+					//et du coup wp_set_object_terms() ne fonctionne pas 
+
+					//on ajoute d'abord les nouvelles cats
+					$term_taxonomy_ids = wp_set_object_terms( $event->ID , $all_terms_ids, 'category', false ); //replace all cats by new list
+
+					//suppression des categories à supprimer dans le tableau des terms du post
 					foreach ($remove_ids as $key => $value) {
 						$index = array_search($value, $all_terms_ids, false);
 						if ($index) {
+							Kidzou_Utils::log('Suppression du term : ' . $value, true);
 							unset($all_terms_ids[$index]);
 						}
 							
 					}
 
-					$term_taxonomy_ids = wp_set_post_terms( $event->ID , $all_terms_ids, 'category', false ); //replace all cats by new list
+					//on peut ensuite supprimer les anciennes cats
+					$term_taxonomy_ids = wp_set_object_terms( $event->ID , $all_terms_ids, 'category', false ); //replace all cats by new list
 
 					$list = implode(',', $all_terms_ids);
 
@@ -527,23 +546,34 @@ class Kidzou_Events {
 					wp_transition_post_status( 'draft', $old_status, $event );
 
 					Kidzou_Utils::log( 'Unpublished ['. $event->post_name .']' , true);
-				}
+				
+				} else {
+
+					//archivage de l'événement pour ne pas qu'il soit repris dans un traitement ultérieur
+					//vu qu'il n'est pas dépublié..
+					$new_meta = array();
+					$new_meta[self::$meta_archive] = true;
+
+					Kidzou_Admin::save_meta($event->ID, $new_meta);	
+
+					Kidzou_Utils::log('Archivage de ['. $event->post_name . '] ', true );
+
+				} 
 
 				//dans tous les cas on supprime l'event de la table Geo Data Store
 				if (class_exists( 'sc_GeoDataStore' ))
 				{	
-					//simulation de la suppression de meta pou supprimer la ligne Geo Data Store
-		   			$type = $event->post_type;
-			   		$meta_key = 'kz_'.$type.'_location_latitude';
-			   		$id = $event->ID;
+					// la suppression via sc_GeodataStore ne fonctionne pas
+					// suppression manuelle
+					if (Kidzou_GeoHelper::has_post_location($event->ID)) {
 
-			   		$mid = $wpdb->get_var( 
-			   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
-			   		);
-
-					sc_GeoDataStore::delete_postmeta($mid);
-
-					Kidzou_Utils::log( 'Remove Entry from Geo Data Store ['. $event->post_name .']' , true);
+						Kidzou_Admin_Geo::delete_post_from_geo_ds($event->ID);
+						Kidzou_Utils::log( 'Remove Entry from Geo Data Store ['. $event->post_name .']' , true);
+					
+					} else {
+						Kidzou_Utils::log( 'Event non localisé, pas de suppression du Geo Data Store' , true);
+					}
+				
 				}
 					
 			}

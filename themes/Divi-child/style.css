@@ -3556,6 +3556,9 @@ body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input,
 body .form_saved_message_emailform input {
 	-moz-transition: all 0.4s; -webkit-transition: all 0.4s; transition: all 0.4s; 
 }
+body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='checkbox'] {
+	margin-top: 2px !important;
+} 
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='text'], 
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container input[type='email'],
 body .gform_wrapper .gform_body .gform_fields .gfield .ginput_container textarea,
@@ -3634,3 +3637,11 @@ body .form_saved_message {
 }
 
 /*-------------------[Navigation mobile]------------------*/
+
+.box_margin_bottom {margin-bottom: 5em;}
+.box_centered {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 80%;
+}

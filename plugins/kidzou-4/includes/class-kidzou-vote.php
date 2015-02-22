@@ -105,16 +105,18 @@ class Kidzou_Vote {
 
 		$query = new Vote_Query( $args );
 
+		// Kidzou_Utils::log("Query set_vote_meta : {$query->request}", true);
+
 		$posts = $query->get_posts();
 
-		Kidzou_Utils::log('set_vote_meta : ' . $query->found_posts . ' meta a creer');
+		Kidzou_Utils::log('set_vote_meta : ' . $query->found_posts . ' meta a creer', true);
 
 		foreach ($posts as $post) {
 
 			$message = "set_vote_meta {" . $post->ID . "} " ;
-			add_post_meta($post->ID, $meta_vote_count, 0, TRUE);
+			add_post_meta($post->ID, self::$meta_vote_count, 0, TRUE);
 
-			Kidzou_Utils::log( $message );
+			Kidzou_Utils::log( $message, true );
 			
 		}
 

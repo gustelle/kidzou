@@ -195,14 +195,13 @@ class Kidzou_GeoFilters {
 	 * Les Query en Base sont filtrées en tenant compte de la métropole courante
 	 * Celle-ci est soit la metropole passée dans la requete (en provenance du cookie utilisateur), soit la metropole par défaut
 	 * les contenus à portée "nationale" sont également remontés
-	 *
-	 * @version proximite    
+	 * 
+	 * @since 0215-fix31 : filtrage des recherches par métropole
 	 */
 	public function geo_filter_query( $query ) {
 
-		// Kidzou_Utils::log('Kidzou_GeoFilters [geo_filter_query]' );
-
 		$locator = self::$locator;
+
 
 		if ( $locator->is_request_metro_filter() )
 		{
@@ -231,7 +230,14 @@ class Kidzou_GeoFilters {
 				$supported_query = true;
 			}
 
-		    if( !is_admin() && !is_search() && $supported_query ) {
+			//cas du search, le post type n'est pas spécifié mais on filtre par métropole qd même
+			if ($query->is_search)
+			{
+				Kidzou_Utils::log('Search queries DO support pre_get_posts');
+				$supported_query = true;
+			}
+
+		    if( !is_admin() && $supported_query ) { //&& !is_search()
 
 				//reprise des arguments qui auraient pu être passés précédemment par d'autres requetes
 		        //d'ou l'importance d'executer celle-ci en dernier

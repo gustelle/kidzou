@@ -1,3 +1,20 @@
+<h4>Corrections et évolutions</h4>
+<h5>Vacances de février 2015</h5>
+<ul>
+	<li>Corrections sur le traitement des événements à archiver et événements recurrents</li>
+	<li>Corrections sur le traitement qui initialise les votes</li>
+	<li>Corrections de problèmes de mise en forme sur la page de recherche</li>
+	<li>Suppression du message "aucun contenu" lorsqu'aucun post contextuel (CRP) n'est trouvé</li>
+	<li>Correction du bug des Markers en double sur la carte "A proximité"</li>
+	<li>Tenir compte des métropoles dans les Notifications</li>
+	<li>Résultats de recherche filtrés par Métropole</li>
+	<li>Possibilité de bypasser le filtre de contenu par métropole (paramètre de réglage)</li>
+	<li>Amélioration du formulaire de login : le formulaire ne s'affiche pas si le user est logué</li>
+	<li>La page "proposer une sortie" est désormais clickable sur mobile</li>
+	<li>Résolution d'une erreur Javascript au rafraichissement des votes lorsque le use bloque les cookies</li>
+	<li>Tentative de résolution du bug de récupération des listes Mailchimp dans les réglages Kidzou</li>
+</ul>
+
 
 <h4>Navigation par métropole sur mobile</h4>
 <h5>Dimanche 15 février 2015 </h5>

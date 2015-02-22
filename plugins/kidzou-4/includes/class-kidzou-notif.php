@@ -134,7 +134,11 @@ class Kidzou_Notif {
 				//seulement si les notifs sont activées pour le type de post courant
 				if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
 
-					$content = get_transient('kz_notifications_content_' .$post_type);
+					$locator = new Kidzou_Geolocator();
+					$current_metropole = $locator->get_request_metropole();
+					$transient_name = 'kz_notifications_content_' .$post_type. '_' . $current_metropole;
+
+					$content = get_transient($transient_name);
 
 					if ( false===$content || empty($content) ) {
 
@@ -212,7 +216,7 @@ class Kidzou_Notif {
 						}
 
 						if (!empty($content) && count($content)>0)
-							set_transient( 'kz_notifications_content_' . $post_type, (array)$content, 60 * 60 * 24 ); //1 jour de cache
+							set_transient( $transient_name, (array)$content, 60 * 60 * 24 ); //1 jour de cache
 
 					}
 
