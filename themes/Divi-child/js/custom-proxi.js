@@ -8,6 +8,10 @@ var kidzouProximite = (function(){
 	//si oui , on ne le recentre pas lorsqu'on on recoit ses coords
 	var isMapDragged = false;
 
+	//les markers sur la carte, nécessaire d'en déclarer un tableau pour pouvoir les supprimer
+	// http://stackoverflow.com/questions/12526717/google-maps-v3-remove-all-markers
+	var markers= []; 
+
 	function setCurrentPosition(position) {
 		currentPosition = position;
 	}
@@ -96,22 +100,11 @@ var kidzouProximite = (function(){
 					document.querySelector('#proxi_content .message')
 				);
 
-				// addRefreshMessage();
-
 				if (data.empty_results) {
-
-					//on n'est pas forcément dans le rayon a proximité du point de geoloc :
-					//si aucun résultat, et qu'on était parti sur une requete sans coords, on prend les coords par défaut
-					//et s'il n'y a pas de résultat...on est dans ce cas
-					// document.querySelector('.distance_message').innerHTML = '';
 
 				} else {
 
-					//bouton pour proposer de rafraichir la geoloc si les résultats ne sont pas pertinents 
-					// document.querySelector('.distance_message').innerHTML = kidzou_proxi.refresh_message;
-
-					// var distance_message = kidzou_proxi.distance_message.replace('{radius}', Math.round(radius));
-					// document.querySelector('.distance_message').innerHTML = distance_message;
+					
 					document.querySelector('#proxi_content .et_pb_portfolio_results').innerHTML = data.portfolio;
 					document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results; 
 
@@ -125,7 +118,6 @@ var kidzouProximite = (function(){
 
 					if (kidzou_proxi.display_mode == 'with_map')
 					{	
-						// console.info(map);
 						//panTo new Position if user has not dragged the map
 						if (!getMapDragged()) {
 							console.info('Centrage sur la nouvelle position détectée');
@@ -133,6 +125,9 @@ var kidzouProximite = (function(){
 							map.panTo(latLng);
 						}
 
+						//suppression des anciens markers avant d'enrajouter des nouveaux
+						hideMarkers();
+						
 						var pins = data.markers;
 						for (var i = 0; i < pins.length; i++) {
 							var pin = pins[i];
@@ -334,6 +329,8 @@ var kidzouProximite = (function(){
 			animation: google.maps.Animation.DROP
 		});
 
+		markers.push(marker);
+
 		var infowindow = new google.maps.InfoWindow({
 			content: content
 		});
@@ -370,6 +367,19 @@ var kidzouProximite = (function(){
 
 		return dis;
 	}
+
+	/**
+	 *
+	 * Suppression des markers de la carte
+	 */
+	function hideMarkers() {
+        /* Remove All Markers */
+        while(markers.length){
+            markers.pop().setMap(null);
+        }
+
+        console.log("Remove All Markers");
+    }
 
 	if (kidzou_proxi.display_mode == 'with_map')
 		google.maps.event.addDomListener(window, 'load', initialize);

@@ -138,7 +138,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
             $permalink_href = admin_url('options-permalink.php');
 
-            $mailchimp_lists = (array)get_transient( 'kz_mailchimp_lists' );
+            $mailchimp_lists = get_transient( 'kz_mailchimp_lists' );
+
+            if (false==$mailchimp_lists) {
+                global $kidzou_options;
+                $key = $kidzou_options['mailchimp_key'];
+                $lists = get_mailchimp_lists($key);
+                set_transient( 'kz_mailchimp_lists', $lists, 0 ); //never expires ! 
+            }
 
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
@@ -266,6 +273,16 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'subtitle'  => __('Faites cela si vous avez install&eacute; le plugin Geo Data Store apr&egrave,s avoir associ&eacute; des posts avec des lieux. Une fois cette synchro effectu&eacute;e, le plugin sera synchronis&eacute; automatiquement ', 'kidzou'),
                             'desc'      => __('Ce r&eacute;glage sera remis &agrave; 0 une fois la page valid&eacute;e. Toutefois, la synchro sera bien d&eacute;clench&eacute;e','kidzou'),
                             'default'  => '0',// 1 = on | 0 = off
+                        ),
+
+                        array(
+                            'id'        => 'geo_bypass_param',
+                            'type'      => 'text',
+                            'title'     => __('Param&egrave;tre de d&eacute;sactivation ?', 'kidzou'),
+                            'subtitle'  => __('Lorsque ce param&egrave;tre est rep&eacute;r&eacute; en requ&ecirc;te, la geolocalisation ne filtre pas les contenus', 'kidzou'),     
+                            'default'   => 'region',  
+                             // 'desc'      => __('Si vous ne savez pas quoi mettre, mettez la longitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
+ 
                         ),
 
 
@@ -913,6 +930,9 @@ if (!function_exists('get_mailchimp_lists')):
  
     function get_mailchimp_lists($key) {
 
+        if ($key=='' || $key==null)
+            return array();
+
         $lists = array();
 
         $mailchimp = new MailChimp( $key );
@@ -941,19 +961,19 @@ if (!function_exists('set_mailchimp_lists')):
 
         // Kidzou_Utils::log('get_mailchimp_lists '. $value . '/' . $existing_value);
 
-        Kidzou_Utils::log('get_mailchimp_lists / Key value vide : ' . ($value==''));
-        Kidzou_Utils::log('get_mailchimp_lists / changement de valeur : ' . ($value!=$existing_value));
+        // Kidzou_Utils::log('get_mailchimp_lists / Key value vide : ' . ($value==''));
+        // Kidzou_Utils::log('get_mailchimp_lists / changement de valeur : ' . ($value!=$existing_value));
 
         $transient = get_transient( 'kz_mailchimp_lists' ) ;
 
-        Kidzou_Utils::log('get_mailchimp_lists / is_transient_empty : ' . $is_transient_empty);
+        // Kidzou_Utils::log('get_mailchimp_lists / is_transient_empty : ' . $is_transient_empty);
 
         //si la valeur change ,on récupère les listes
         if ( $value!=$existing_value || (false === $transient ) ) 
         {
             try {
 
-                Kidzou_Utils::log('get_mailchimp_lists, mise à jour des listes');
+                // Kidzou_Utils::log('get_mailchimp_lists, mise à jour des listes');
 
                 $lists = get_mailchimp_lists($value);
 

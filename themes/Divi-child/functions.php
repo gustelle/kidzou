@@ -12,6 +12,8 @@ require_once( get_stylesheet_directory() . '/et-pagebuilder/et-pagebuilder.php' 
  */
 require_once( get_stylesheet_directory() . '/widget-customer-posts.php' );
 
+ // print_r( debug_backtrace() );
+
 /**
  * shortcodes spécifiques Kidzou
  *
@@ -93,6 +95,10 @@ function override_divi_parent_functions()
 
 	//ajout d'un menu pour switcher de metropole
 	add_action('kz_metropole_nav', 'kz_metropole_nav');
+
+	//ne pas afficher le formulaire de login lorsque le user est déjà logué
+	remove_shortcode('et_pb_login');
+	add_shortcode( 'et_pb_login', 'kz_pb_login' );
 
 }
 
@@ -271,24 +277,136 @@ function get_post_footer()
 		foreach ($posts_ids_objects as $id_object) {
 		    $ids[]   = $id_object->ID;
 		}
-		$ids_list = implode(',', $ids);	
+		
+		$crp = '';
 
-		echo do_shortcode('
-			[et_pb_section fullwidth="off" specialty="off"]
-				[et_pb_row]
+		if (count($ids)>0)
+		{
+			$ids_list = implode(',', $ids);	
+			$crp = '[et_pb_row]
 				<h2>D&apos;autres sorties sympa :</h2>
 					[et_pb_column type="4_4"]
 						[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" render_featured="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
 					[/et_pb_column]
-				[/et_pb_row]
+				[/et_pb_row]';
+		}
+
+		$out = sprintf('
+			[et_pb_section fullwidth="off" specialty="off"]
+				%s
 				[et_pb_row]
 					[et_pb_column type="4_4"]
 						[et_pb_signup admin_label="Subscribe" provider="mailchimp" mailchimp_list="'.$key.'" aweber_list="none" title="'.__('Inscrivez-vous à notre Newsletter','Divi').'" button_text="'.__('Inscrivez-vous ','Divi').'" use_background_color="on" background_color="#ed0a71" background_layout="dark" text_orientation="left"]'.__('<p>Nous distribuons la newsletter 1 à 2 fois par mois, elle contient les meilleures recommandations de la communaut&eacute; des parents Kidzou, ainsi que des jeux concours de temps en temps ! </p>','Divi').'[/et_pb_signup]
 					[/et_pb_column]
 				[/et_pb_row]
-			[/et_pb_section]');
+			[/et_pb_section]',
+			$crp
+			);
+
+		echo do_shortcode($out);
 	}
 	
+}
+
+/**
+ * Le formulaire de login n'est pas affiché qd le user est logué
+ */
+function kz_pb_login( $atts, $content = null ) {
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'title' => '',
+			'background_color' => et_get_option( 'accent_color', '#7EBEC5' ),
+			'background_layout' => 'dark',
+			'text_orientation' => 'left',
+			'use_background_color' => 'on',
+			'current_page_redirect' => 'off',
+		), $atts
+	) );
+
+	$output = '';
+
+	if (!is_user_logged_in()) {
+
+		$redirect_url = 'on' === $current_page_redirect
+			? ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
+			: '';
+
+
+		// if ( is_user_logged_in() ) {
+		// 	global $current_user;
+		// 	get_currentuserinfo();
+
+		// 	$content .= sprintf( '<br/>%1$s <a href="%2$s">%3$s</a>',
+		// 		sprintf( __( 'Logged in as %1$s', 'Divi' ), esc_html( $current_user->display_name ) ),
+		// 		esc_url( wp_logout_url( $redirect_url ) ),
+		// 		esc_html__( 'Log out', 'Divi' )
+		// 	);
+		// }
+
+		$class = " et_pb_bg_layout_{$background_layout} et_pb_text_align_{$text_orientation}";
+
+		$form = '';
+
+		// if ( !is_user_logged_in() ) {
+			$username = __( 'Username', 'Divi' );
+			$password = __( 'Password', 'Divi' );
+
+			$form = sprintf( '
+				<div class="et_pb_newsletter_form et_pb_login_form">
+					<form action="%7$s" method="post">
+						<p>
+							<label class="et_pb_contact_form_label" for="user_login" style="display: none;">%3$s</label>
+							<input id="user_login" placeholder="%4$s" class="input" type="text" value="" name="log" />
+						</p>
+						<p>
+							<label class="et_pb_contact_form_label" for="user_pass" style="display: none;">%5$s</label>
+							<input id="user_pass" placeholder="%6$s" class="input" type="password" value="" name="pwd" />
+						</p>
+						<p class="et_pb_forgot_password"><a href="%2$s">%1$s</a></p>
+						<p>
+							<button type="submit" class="et_pb_newsletter_button">%8$s</button>
+							%9$s
+						</p>
+					</form>
+				</div>',
+				__( 'Forgot your password?', 'Divi' ),
+				esc_url( wp_lostpassword_url() ),
+				esc_html( $username ),
+				esc_attr( $username ),
+				esc_html( $password ),
+				esc_attr( $password ),
+				esc_url( site_url( 'wp-login.php' ) ),
+				__( 'Login', 'Divi' ),
+				( 'on' === $current_page_redirect
+					? sprintf( '<input type="hidden" name="redirect_to" value="%1$s" />',  $redirect_url )
+					: ''
+				)
+			);
+		// }
+
+		$output = sprintf(
+			'<div%6$s class="et_pb_newsletter et_pb_login clearfix%4$s%7$s"%5$s>
+				<div class="et_pb_newsletter_description">
+					%1$s
+					%2$s
+				</div>
+				%3$s
+			</div>',
+			( '' !== $title ? '<h2>' . esc_html( $title ) . '</h2>' : '' ),
+			do_shortcode( et_pb_fix_shortcodes( $content ) ),
+			$form,
+			esc_attr( $class ),
+			( 'on' === $use_background_color
+				? sprintf( ' style="background-color: %1$s;"', esc_attr( $background_color ) )
+				: ''
+			),
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' )
+		);
+	}
+
+	return $output;
 }
 
 /**
@@ -1337,11 +1455,12 @@ function kz_pb_user_favs( $atts ) {
 
 	global $post;
 
-	ob_start();
-
 	$categories_included = array();
+	
 
-	if ( count($voted)>0 ) {
+	if ( count($voted)>0 )
+	{
+		ob_start();
 
 		foreach ($voted as $key => $value) {
 			
@@ -1357,16 +1476,12 @@ function kz_pb_user_favs( $atts ) {
 
 		}
 		//fin de boucle foreach
-	} 
+		wp_reset_postdata();
 
-	wp_reset_postdata();
+		$posts = ob_get_contents();
 
-	$posts = ob_get_contents();
+		ob_end_clean();
 
-	ob_end_clean();
-
-	if ( count($voted)>0 )
-	{
 		// Kidzou_Utils::log($categories_included);
 		$categories_included = array_unique( $categories_included );
 		// Kidzou_Utils::log($categories_included);
@@ -1420,7 +1535,15 @@ function kz_pb_user_favs( $atts ) {
 	}
 	else
 	{
+		ob_start();
+		
 		get_template_part( 'includes/no-results', 'user-favs' );
+
+		ob_get_contents();
+
+		ob_end_clean();
+		
+		return $out;
 	}
 
 	

@@ -4,23 +4,6 @@ window.console = typeof window.console === 'undefined'
     ? {log:function(str){alert(str)}}
     : window.console;
 
-//polyfill for CustomEvent Object for old browsers
-//@see https://developer.mozilla.org/fr/docs/Web/API/CustomEvent
-// (function () {
-// 	// console.info(window.CustomEvent)
-// 	if (!window.CustomEvent) 
-// 	{
-// 		function CustomEvent ( event, params ) {
-// 		    params = params || { bubbles: false, cancelable: false, detail: undefined };
-// 		    var evt = document.createEvent( 'CustomEvent' );
-// 		    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
-// 		    return evt;
-// 		   };
-// 		  CustomEvent.prototype = window.Event.prototype;
-// 		  window.CustomEvent = CustomEvent;
-// 	}
-// })();
-
 //thanks http://www.chrisbuttery.com/articles/fade-in-fade-out-with-javascript/
 // fade out
 function fadeOut(el){
@@ -48,6 +31,7 @@ function fadeIn(el, display){
 }
 
 
+
 var kidzouModule = (function() { //havre de paix
 
 	var kidzou;
@@ -70,11 +54,15 @@ var kidzouModule = (function() { //havre de paix
 				function setLogging(_bool) {var bool;if(typeof _bool=='undefined' || !_bool || _bool==''){bool="false";}else{bool=_bool; console.debug("Logging actif");}; logLevel = bool.toBoolean();}
 				function debug(msg) {if (logLevel) console.debug(msg);}
 				function info(msg) {if (logLevel) console.log(msg);}
+				function warn(msg) {if (logLevel) console.warn(msg);}
+				function error(msg) {if (logLevel) console.error(msg);}
 
 				return {
 					setLogging : setLogging,
 					debug : debug,
-					info : info
+					info : info,
+					warn : warn,
+					error : error
 				};
 			}();
 
@@ -135,12 +123,17 @@ var kidzouModule = (function() { //havre de paix
 				*/
 				function refreshUserVotes() {
 
-			        var localVotes 			 = JSON.parse(storageSupport.getLocal("voted"));
-			        var user_hash 			 = getUserHash();
+					var votedPosts 	= storageSupport.getLocal("voted");
+					var localVotes 	= {};
+					var user_hash 	= getUserHash();
+
+					if (votedPosts!=='') {
+						localVotes 	= JSON.parse(storageSupport.getLocal("voted"));
+					}
 
 			        if (localVotes===null || localVotes.length===0) 
 					{
-						logger.debug("localVotes null pour user_hash " + user_hash);
+						logger.warn("Rafraichissement des votes, aucun vote local trouvé pour " + user_hash);
 
 						//assurer de ne pas passer la valeur "null" dans la requete
 						//renvoyer dans ce cas une chaine vide

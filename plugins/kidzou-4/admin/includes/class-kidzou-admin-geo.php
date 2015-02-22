@@ -146,14 +146,14 @@ class Kidzou_Admin_Geo {
 
 		global $wpdb;
 
-		Kidzou_Utils::log('add_post_to_geo_ds');
+		// Kidzou_Utils::log('add_post_to_geo_ds', true);
 
 		//on ne synchronise pas les events qui ne sont plus actifs
 		$syncable = (Kidzou_Events::isTypeEvent($id) ? Kidzou_Events::isEventActive($id) : true);
 
 		if ( Kidzou_GeoHelper::has_post_location($id) && $syncable )
 	   	{	
-	   		Kidzou_Utils::log('add_post_to_geo_ds, suite');
+	   		// Kidzou_Utils::log('add_post_to_geo_ds, suite');
 	   		$post = get_post($id); 
    			$type = $post->post_type;
 	   		$location = Kidzou_GeoHelper::get_post_location($id);
@@ -200,14 +200,14 @@ class Kidzou_Admin_Geo {
 	 *
 	 * @internal
 	 **/
-	private static function delete_post_from_geo_ds($id=0)
+	public static function delete_post_from_geo_ds($id=0)
 	{
 		if ($id==0)
 			return;
 
 		global $wpdb;
 
-		Kidzou_Utils::log('delete_post_from_geo_ds');
+		Kidzou_Utils::log('delete_post_from_geo_ds : post ' . $id, true);
 
    		$post = get_post($id); 
 		$type = $post->post_type;

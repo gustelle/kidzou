@@ -241,6 +241,7 @@ class Kidzou_WebPerf {
 		if (!is_admin() && $activate && $add_async_attr && !in_array($handle, self::$js_no_async) )
 		{
 			//pas d'att async defer si la source n'est pas sépcifiée, cela cause une erreur de validation W3C
+			Kidzou_Utils::log($html . preg_match("/src=/", $html));
 			if (!preg_match("/src=/", $html))
 				return $html;
 

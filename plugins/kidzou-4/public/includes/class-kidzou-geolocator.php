@@ -150,9 +150,12 @@ class Kidzou_Geolocator {
 	private function set_request_filter()
 	{
 		//mise à jour du param de filtrage de requete 
-		if ( Kidzou_Utils::is_really_admin() || Kidzou_Utils::is_api() ) {
+		$bypass_param = Kidzou_Utils::get_option('geo_bypass_param', 'region');
+		$is_bypass = isset($_GET[$bypass_param]);
 
-			Kidzou_Utils::log( '		Filtrage desactive pour admin / api ', true);
+		if ( Kidzou_Utils::is_really_admin() || Kidzou_Utils::is_api() || $is_bypass ) {
+
+			Kidzou_Utils::log( '		Filtrage desactive pour admin / api / bypass ', true);
 
 			$this->is_request_filter = false;
 

@@ -1329,6 +1329,7 @@ class Kidzou_Admin {
 				
 		}
 
+
 		self::save_meta($post_id, $events_meta, "kz_event_");
 
 	}
