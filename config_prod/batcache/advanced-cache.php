@@ -343,6 +343,10 @@ vary_cache_on_function(
 
 /* ========= Hack Kidzou ================== */
 
+// Never batcache les CRON déclenchés manuellement 
+if ( defined('DOING_CRON') )
+	return;
+
 // Never batcache WP javascript generators
 if ( strstr( $_SERVER['SCRIPT_FILENAME'], 'wp-includes/js' ) )
 	return;

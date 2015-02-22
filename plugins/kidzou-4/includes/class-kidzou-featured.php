@@ -101,7 +101,7 @@ class Kidzou_Featured {
 	 **/
 	public static function getFeaturedPosts(  )
 	{
-		Kidzou_Utils::log('Kidzou_Featured [getFeaturedPosts]', true);
+		// Kidzou_Utils::log('Kidzou_Featured [getFeaturedPosts]', true);
 		
 		$list = get_posts(array(
 					'meta_key'         => self::$meta_featured,

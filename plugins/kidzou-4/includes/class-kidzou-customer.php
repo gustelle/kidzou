@@ -95,6 +95,8 @@ class Kidzou_Customer {
 
 		add_action('init', array($this, 'register_customer_type'));
 
+		// Kidzou_Utils::log(get_declared_classes(), true);
+
 		//pour le F.O
 		if (class_exists('GADASH_Frontend') && !Kidzou_Utils::is_really_admin() )
 		{
@@ -192,7 +194,7 @@ class Kidzou_Customer {
 		//definir les custom post types
 		//ne pas faire a chaque appel de page 
 
-		Kidzou_Utils::log('Kidzou_Customer [register_customer_type]',true);
+		// Kidzou_Utils::log('Kidzou_Customer [register_customer_type]',true);
 
 		$labels = array(
 			'name'               => 'Clients &amp; Partenaires',
