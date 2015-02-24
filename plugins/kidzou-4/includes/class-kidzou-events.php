@@ -470,20 +470,15 @@ class Kidzou_Events {
 
 					//recuperer les id pre-affectés et faire un diff
 					$term_list = wp_get_post_terms($event->ID, 'category', array("fields" => "ids"));
+
+					//y a-t-il un bug ? les ids retournés sont-ils des strings? ce qui peut causer des soucis d'uapdate ?
+					$term_list = array_map( 'intval', $term_list );
 					
 					$remove_ids = array_map( 'intval', $remove_cats );
 					$remove_ids = array_unique( $remove_ids );
 
-					// $list_remove = implode(',', $remove_ids);
-
-					// Kidzou_Utils::log('Catégories à supprimer : ' . $list_remove, true);
-
 					$add_ids = array_map( 'intval', $add_cats );
 					$add_ids = array_unique( $add_ids );
-
-					// $list_add = implode(',', $add_ids);
-
-					// Kidzou_Utils::log('Catégories à ajouter : ' . $list_add, true);
 
 					$all_terms_ids = array_merge($term_list, $add_ids) ;
 					$all_terms_ids = array_unique( $all_terms_ids );
@@ -498,9 +493,10 @@ class Kidzou_Events {
 
 					//suppression des categories à supprimer dans le tableau des terms du post
 					foreach ($remove_ids as $key => $value) {
-						$index = array_search($value, $all_terms_ids, false);
+						$index = array_search(intval($value), $all_terms_ids, false);
+						Kidzou_Utils::log( '['.$event->post_name . '] : recherche de categorie : ' . $value . ' -> '. $index, true);
 						if ($index) {
-							Kidzou_Utils::log('Suppression du term : ' . $value, true);
+							Kidzou_Utils::log( '['.$event->post_name . '] : Suppression du term : ' . $value, true);
 							unset($all_terms_ids[$index]);
 						}
 							
