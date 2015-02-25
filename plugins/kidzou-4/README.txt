@@ -1,4 +1,4 @@
-<h4>Corrections et évolutions</h4>
+<h4>St Cyprien</h4>
 <h5>Vacances de février 2015</h5>
 <ul>
 	<li>Corrections sur le traitement des événements à archiver et événements recurrents</li>
