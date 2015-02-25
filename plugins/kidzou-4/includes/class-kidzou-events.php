@@ -494,8 +494,8 @@ class Kidzou_Events {
 					//suppression des categories à supprimer dans le tableau des terms du post
 					foreach ($remove_ids as $key => $value) {
 						$index = array_search(intval($value), $all_terms_ids, false);
-						Kidzou_Utils::log( '['.$event->post_name . '] : recherche de categorie : ' . $value . ' -> '. $index, true);
-						if ($index) {
+						Kidzou_Utils::log( '['.$event->post_name . '] : recherche de categorie à supprimer : ' . $value . ' -> '. $index, true);
+						if ($index!==false) {
 							Kidzou_Utils::log( '['.$event->post_name . '] : Suppression du term : ' . $value, true);
 							unset($all_terms_ids[$index]);
 						}
