@@ -2211,29 +2211,33 @@ function et_postinfo_meta( $postinfo, $date_format, $comment_zero, $comment_one,
 
 	if ( in_array( 'categories', $postinfo ) ){
 		if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) ) $postinfo_meta .= ' | ';
-		$postinfo_meta .= get_the_category_list(', ');
+
 		global $post;
-		$terms_d = wp_get_post_terms( $post->ID, 'divers' );
-		$terms_a = wp_get_post_terms( $post->ID, 'age' );
-		$terms = array_merge($terms_d, $terms_a);
+		$terms = wp_get_post_terms( $post->ID, array('category','age', 'divers') );
+		$index = 0;
 		foreach ($terms as $term) {
+
 			$term_link = get_term_link( $term );
    
 		    // If there was an error, continue to the next term.
 		    if ( is_wp_error( $term_link ) ) {
 		        continue;
 		    }
-			$postinfo_meta .= ', <a href="' . esc_url( $term_link ) . '">'.$term->name.'</a>';
+		    if ($index>0) $postinfo_meta .= ', ';
+
+			$postinfo_meta .= '<a href="' . esc_url( $term_link ) . '">'.$term->name.'</a> ';
+
+			$index++;
 		}
 	}
 
 	if ( in_array( 'comments', $postinfo ) ){
-		if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) || in_array( 'categories', $postinfo ) ) 
-			$postinfo_meta .= ' <br/><i class="fa fa-comments-o"></i> ';
-		$postinfo_meta .= et_get_comments_popup_link( $comment_zero, $comment_one, $comment_more );
-	}
+        if ( in_array( 'author', $postinfo ) || in_array( 'date', $postinfo ) || in_array( 'categories', $postinfo ) )
+                 $postinfo_meta .= ' <br/><i class="fa fa-comments-o"></i> ';
+         $postinfo_meta .= et_get_comments_popup_link( $comment_zero, $comment_one, $comment_more );
+     }
 
-	echo $postinfo_meta;
+     echo $postinfo_meta;
 }
 
 function kz_postinfo_meta( $postinfo, $date_format, $comment_zero, $comment_one, $comment_more ){
