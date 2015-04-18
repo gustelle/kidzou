@@ -3463,12 +3463,15 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 	.kz_habillage .et_pb_newsletter {width: 100%;}
 	.kz_habillage .et_pb_newsletter_description {width: 50%;}
-	.kz_habillage .et_pb_post .entry-content, .project .entry-content {padding-top: 0 !important;}
+	.kz_habillage .et_pb_post .entry-content {padding-top: 0 !important;}
+
 }
 
 @media only screen and (max-width: 1000px) {
 	/* ne pas afficher le <div> généré par le script d'habillage */
 	body.kz_habillage>div:first-of-type {height: 0 !important;}
+	
+	.kz_habillage .et_pb_post .entry-content {padding-top: 0 !important;}
 }
 
 /*-------------------[Metropoles / Header]------------------*/
