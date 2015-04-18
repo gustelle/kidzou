@@ -959,21 +959,15 @@ if (!function_exists('set_mailchimp_lists')):
 
         $return['value'] = $value;
 
-        // Kidzou_Utils::log('get_mailchimp_lists '. $value . '/' . $existing_value);
-
-        // Kidzou_Utils::log('get_mailchimp_lists / Key value vide : ' . ($value==''));
-        // Kidzou_Utils::log('get_mailchimp_lists / changement de valeur : ' . ($value!=$existing_value));
 
         $transient = get_transient( 'kz_mailchimp_lists' ) ;
 
-        // Kidzou_Utils::log('get_mailchimp_lists / is_transient_empty : ' . $is_transient_empty);
 
         //si la valeur change ,on récupère les listes
         if ( $value!=$existing_value || (false === $transient ) ) 
         {
             try {
 
-                // Kidzou_Utils::log('get_mailchimp_lists, mise à jour des listes');
 
                 $lists = get_mailchimp_lists($value);
 
@@ -1013,18 +1007,6 @@ if (!function_exists('admin_folder_validate_callback_function')):
         $error = false;
         $value = 'just testing';
 
-        /*
-          do your validation
-
-          if(something) {
-            $value = $value;
-          } elseif(something else) {
-            $error = true;
-            $value = $existing_value;
-            $field['msg'] = 'your custom error message';
-          }
-         */
-
         $return['value'] = $value;
         if ($error == true) {
             $return['error'] = $field;
@@ -1032,6 +1014,16 @@ if (!function_exists('admin_folder_validate_callback_function')):
         return $return;
     }
 endif;
+
+if ( ! function_exists( 'redux_disable_dev_mode_plugin' ) ) {
+    function redux_disable_dev_mode_plugin( $redux ) {
+        if ( $redux->args['opt_name'] != 'redux_demo' ) {
+            $redux->args['dev_mode'] = false;
+        }
+    }
+
+    add_action( 'redux/construct', 'redux_disable_dev_mode_plugin' );
+}
 
 
 
