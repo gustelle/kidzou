@@ -3458,12 +3458,15 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		.kz_habillage .et_pb_column_1_4 {width: 200px;}
 		.kz_habillage .et_pb_column_3_4 { width: 650px; }
 		.kz_habillage .et_pb_column_3_8 { width: 280px; }
+		.kz_habillage .et_pb_column_4_4 .et_pb_map { width: 920px; }
+
 		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {width: 255px;}
 		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item_featured {width: 580px;}
 
 	.kz_habillage .et_pb_newsletter {width: 100%;}
 	.kz_habillage .et_pb_newsletter_description {width: 50%;}
 	.kz_habillage .et_pb_post .entry-content {padding-top: 0 !important;}
+
 
 }
 
