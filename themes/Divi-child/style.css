@@ -3467,7 +3467,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	.kz_habillage .et_pb_newsletter_description {width: 50%;}
 	.kz_habillage .et_pb_post .entry-content {padding-top: 0 !important;}
 
-	.kz_habillage .et_right_sidebar #sidebar {padding-left: 20px;}
+	.kz_habillage .et_right_sidebar #sidebar {padding-left: 20px !important;}
 
 
 }
