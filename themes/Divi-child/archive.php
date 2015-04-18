@@ -180,6 +180,8 @@
 															$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
 															$formatter->setPattern('EEEE dd MMMM');
 
+															$formatted = '';
+
 															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
 																$formatted = __( 'Le ', 'Divi'). $formatter->format($start) ;
 															else
