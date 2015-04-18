@@ -888,7 +888,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'show_import_export' => true,
                 'transient_time' => 3600,
                 'network_sites' => true,
-                'dev_mode' => false,
+                'dev_mode' => false
                 // 'database' => 'network'
               );
 
@@ -1017,11 +1017,8 @@ endif;
 
 if ( ! function_exists( 'redux_disable_dev_mode_plugin' ) ) {
     function redux_disable_dev_mode_plugin( $redux ) {
-        if ( $redux->args['opt_name'] != 'redux_demo' ) {
-            $redux->args['dev_mode'] = false;
-        }
+        $redux->args['dev_mode'] = false;
     }
-
     add_action( 'redux/construct', 'redux_disable_dev_mode_plugin' );
 }
 
