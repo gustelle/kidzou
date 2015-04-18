@@ -72,9 +72,10 @@
 
 								//bon OK c'est un hack pour régler un pb d'affichage
 								//la date de fin s'affiche au lendemain de la date souhaitée
-								$end->sub(new DateInterval('P1H'));
+								if ($end>$start)
+									$end->sub(new DateInterval('PT12H'));
 
-								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::NONE, IntlDateFormatter::NONE);
+								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
 								$formatter->setPattern('EEEE dd MMMM');
 
 								$formatted = '';
