@@ -3445,7 +3445,7 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 		.kz_habillage .et_pb_blog_grid .et_pb_post { margin: 0 40px 50px 0; width: 240px; }
 
 		.kz_habillage .et_pb_column_1_2 .et_pb_newsletter_description, .et_pb_column_1_2 .et_pb_newsletter_form {width: 348px;}
-		.kz_habillage .et_pb_column_3_4 .et_pb_map { width: 580px; }
+		.kz_habillage .et_pb_column_3_4 .et_pb_map { width: 580px !important; }
 		
 		.kz_habillage.et_right_sidebar #left-area {width: 710px; margin-right: 40px;}
 
@@ -3466,6 +3466,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	.kz_habillage .et_pb_newsletter {width: 100%;}
 	.kz_habillage .et_pb_newsletter_description {width: 50%;}
 	.kz_habillage .et_pb_post .entry-content {padding-top: 0 !important;}
+
+	.kz_habillage .et_right_sidebar #sidebar {padding-left: 20px;}
 
 
 }
