@@ -1,3 +1,10 @@
+<h4>Paques 2015</h4>
+<h5>Vacances de Pâques 2015</h5>
+<ul>
+	<li>Ouverture de nouvelles API pour l'appli mobile</li>
+	<li>Corrections sur l'habillage publicitaire</li>
+</ul>
+
 <h4>St Cyprien</h4>
 <h5>Vacances de février 2015</h5>
 <ul>

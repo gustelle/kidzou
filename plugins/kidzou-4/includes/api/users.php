@@ -7,6 +7,7 @@ Controller Author: Kidzou
 
 class JSON_API_Users_Controller {
 
+
 	public function get_userinfo() {
 
 		global $json_api;

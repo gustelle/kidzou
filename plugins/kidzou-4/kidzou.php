@@ -104,7 +104,7 @@ add_action( 'plugins_loaded', array( 'Kidzou', 			'get_instance' ) );
  * </ul>
  * 
  */
-if ( (is_admin() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX )) || defined( 'DOING_CRON' ) ) {
+if ( is_admin() || defined( 'DOING_CRON' ) ) {
 
 	// require_once( plugin_dir_path( __FILE__ ) . 'admin/class-kidzou-admin.php' );
     $admin_directories = array(

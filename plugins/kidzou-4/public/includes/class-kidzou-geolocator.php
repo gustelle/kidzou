@@ -477,6 +477,106 @@ class Kidzou_Geolocator {
 	    return $posts;
 	}
 
+	/**
+	 * Ré-eacriture de Geo Data Store pour prévoir le fait que le plugin ne puisse pas être installé
+	 * et convertir les miles en KM
+	 * + remontée de la distance au post 
+	 * + remontée des lat/lng pour exploitation dans une carte
+	 *
+	 * NB : la précision sur lat/lng est limitée à 6 décimales 
+	 * et le rayon de recherche  est un int
+	 *
+	 * @param radius (int)
+	 * @param search_lat (float) 
+	 * @param search_lng (float) 
+	 * @author 
+	 **/
+	public function getPostDistanceInKmById($search_lat = 51.499882, $search_lng = -0.126178, $id=0)
+	{
+
+		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
+		setlocale(LC_NUMERIC, 'C');
+
+		//s'assurer que les données arrivent au bon format, i.e. xx.xx 
+		//et non pas au format xx,xx ( ce qui arrive ne prod ??)
+		if (is_string($search_lat))
+			$search_lat = str_replace(",",".",$search_lat);
+		if (is_string($search_lng))
+			$search_lng = str_replace(",",".",$search_lng);
+
+		$search_lat = floatval($search_lat);
+		$search_lng = floatval($search_lng);
+
+		$tablename = "geodatastore";
+
+		global $wpdb;// Dont forget to include wordpress DB class
+			
+		
+		// Create sql for circle radius check
+		$sqlcircleradius = "
+		SELECT
+			3956 * 2 * ASIN(
+				SQRT(
+					POWER(
+						SIN(
+							( ". (float) $search_lat." - `t`.`lat` ) * pi() / 180 / 2
+						), 2
+					) + COS(
+						". $search_lat." * pi() / 180
+					) * COS(
+						`t`.`lat` * pi() / 180
+					) * POWER(
+						SIN(
+							( ". (float) $search_lng." - `t`.`lng` ) * pi() / 180 / 2
+						), 2
+					)
+				)
+			) / 0.621371192 AS `distance`
+		FROM
+			`" . $wpdb->prefix . $tablename . "` AS `t`
+		WHERE 
+			`t`.`post_id`=" . $id ; // End $sqlcircleradius
+
+		$result = $wpdb->get_var($sqlcircleradius);
+
+		Kidzou_Utils::log($wpdb->last_query, true);
+
+		// $nonfeatured = array();
+
+	    // $featured =  Kidzou_Featured::getFeaturedPosts( );
+	    
+	    // $featured_in_list = array();
+	    // $nonfeatured = array();
+
+	    // //les featured qui sont dans la liste
+	    // foreach ($results as $rk => $rv) {
+
+	    // 	$is_featured = false;
+
+	    // 	//safety check
+	    // 	//les events obsolete sont sortis
+	    // 	if (Kidzou_Events::isTypeEvent($rv->post_id) && !Kidzou_Events::isEventActive($rv->post_id))
+	    // 		continue;
+
+	    // 	foreach ($featured as $fk => $fv) {
+	    		
+	    // 		if ( intval($fv->ID) == intval($rv->post_id) ) {
+	    // 			array_push($featured_in_list, $rv);
+	    // 			$is_featured = true;
+	    // 		}
+	    // 	}
+
+	    // 	if (!$is_featured) {
+	    // 		array_push($nonfeatured, $rv);
+	    // 	}
+	    // }
+	    
+	    // $posts = array_merge( $featured_in_list, $nonfeatured );
+
+	    return $result;
+	}
+
+
 
 } //fin de classe
 
