@@ -164,7 +164,7 @@ if ( 'on' !== $fullwidth )
 		<div id="content-area" class="clearfix">
 			<div id="left-area"> -->
 
-				<?php echo do_shortcode('[searchbox]'); ?>
+				
 
 
 				<div class="et_pb_section et_section_regular">
@@ -174,6 +174,8 @@ if ( 'on' !== $fullwidth )
 						<div class="et_pb_column et_pb_column_4_4">
 
 							<div class="et_pb_blog_grid_wrapper" id='et_pb_blog_grid_wrapper'>
+
+								<?php echo do_shortcode('[searchbox]'); ?>
 
 								<?php if ($output!='') { ?>
 

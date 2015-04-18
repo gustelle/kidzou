@@ -174,7 +174,7 @@
 
 															//bon OK c'est un hack pour régler un pb d'affichage
 															//la date de fin s'affiche au lendemain de la date souhaitée
-															$end->sub(new DateInterval('PT1H'));
+															$end->sub(new DateInterval('PT12H'));
 
 															$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
 															$formatter->setPattern('EEEE dd MMMM');

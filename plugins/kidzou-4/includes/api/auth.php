@@ -8,6 +8,14 @@ Controller Author Twitter: @mattberg
 
 class JSON_API_Auth_Controller {
 
+	public function is_user_logged_in() {
+		// global $json_api;
+
+		return array(
+			"status" => is_user_logged_in()
+		);
+	}
+
 	public function validate_auth_cookie() {
 		global $json_api;
 

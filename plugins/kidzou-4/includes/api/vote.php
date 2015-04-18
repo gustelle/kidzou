@@ -15,6 +15,8 @@ class JSON_API_Vote_Controller {
 		$nonce 		= $json_api->query->nonce;
 		$user_hash 	= $json_api->query->user_hash;
 
+		Kidzou_Utils::log('Vote Up for ' . $id);
+
 		if (!$json_api->query->nonce) {
 	      $json_api->error("You must include a 'nonce' value to vote.");
 	    }
@@ -25,12 +27,12 @@ class JSON_API_Vote_Controller {
 	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
 	    }
 
-	  	
+	  	// Kidzou_Utils::log('Vote Up for ' . $id);
 		$result = Kidzou_Vote::plusOne($id, $user_hash);
+		Kidzou_Utils::log($result);
 
 		return array(
-			// "message" 		=> '',
-			"user" 			=> $user_id,
+			// "user" 			=> $user_id,
 			"post_id" 		=> $id,
 			"user_hash"		=> $result['user_hash']
 		);
@@ -66,7 +68,7 @@ class JSON_API_Vote_Controller {
 	  	
 		return array(
 			// "message" 		=> $message,
-			"user" 			=> $user_id,
+			// "user" 			=> $user_id,
 			"post_id" 		=> $id,
 			"user_hash"		=> $result['user_hash']
 		);

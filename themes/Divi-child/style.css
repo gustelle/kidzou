@@ -3440,24 +3440,35 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 	.kz_habillage #top-header {position: relative;} /* Bug ou pas ? sans ca le background-color ne s'applique pas */
 	.kz_habillage #main-header {max-width: 1000px; width:100%; }
 
-		.kz_habillage .et_pb_blog_grid .et_pb_post { margin: 0 50px 50px 0; width: 250px; }
+	.kz_habillage .et_pb_section {margin-top: 0px;}
+
+		.kz_habillage .et_pb_blog_grid .et_pb_post { margin: 0 40px 50px 0; width: 240px; }
 
 		.kz_habillage .et_pb_column_1_2 .et_pb_newsletter_description, .et_pb_column_1_2 .et_pb_newsletter_form {width: 348px;}
-		.kz_habillage .et_pb_column_3_4 .et_pb_map { width: 678px; }
+		.kz_habillage .et_pb_column_3_4 .et_pb_map { width: 580px; }
 		
 		.kz_habillage.et_right_sidebar #left-area {width: 710px; margin-right: 40px;}
 
 		.kz_habillage .footer-widget {width: 200px;}
 
-		.kz_habillage .et_pb_row {width: 980px;}
-		.kz_habillage .et_pb_column { margin-right: 40px;}
+		.kz_habillage .et_pb_row {width: 950px; margin-left: 20px}
+		.kz_habillage .et_pb_column { margin-right: 20px; margin-left: 20px;}
 		.kz_habillage .et_pb_column_1_2 { width: 460px; }
 		.kz_habillage .et_pb_column_1_3 {width: 300px;}
 		.kz_habillage .et_pb_column_1_4 {width: 200px;}
-		.kz_habillage .et_pb_column_3_4 { width: 740px; }
-		.kz_habillage .et_pb_column_3_8 { width: 340px; }
-		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {width: 270px;}
+		.kz_habillage .et_pb_column_3_4 { width: 650px; }
+		.kz_habillage .et_pb_column_3_8 { width: 280px; }
+		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item {width: 255px;}
 		.kz_habillage .et_section_regular .et_pb_column_4_4 .et_pb_portfolio_grid .kz_portfolio_item_featured {width: 580px;}
+
+	.kz_habillage .et_pb_newsletter {width: 920px;}
+	.kz_habillage .et_pb_newsletter_description {width: 480px !important;}
+	.kz_habillage .et_pb_post .entry-content, .project .entry-content {padding-top: 0 !important;}
+}
+
+@media only screen and (max-width: 1000px) {
+	/* ne pas afficher le <div> généré par le script d'habillage */
+	body.kz_habillage>div:first-of-type {height: 0 !important;}
 }
 
 /*-------------------[Metropoles / Header]------------------*/
