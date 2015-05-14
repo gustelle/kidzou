@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'stcyp';
+	const VERSION = 'Paques 2015';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -105,6 +105,8 @@ class Kidzou {
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
 		add_filter('json_api_mailchimp_controller_path',  array( $this, 'set_mailchimp_controller_path') );
+		add_filter('json_api_config_controller_path',  array( $this, 'set_config_controller_path') );
+		add_filter('json_api_social_controller_path',  array( $this, 'set_social_controller_path') );
 
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
 
@@ -591,7 +593,7 @@ class Kidzou {
 					'api_vote_up'			 		 =>  site_url().'/api/vote/up/',
 					'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
 					'api_voted_by_user'				 => site_url().'/api/vote/voted_by_user/',
-					'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
+					// 'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
 					'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
 					'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
 					'form_wait_message'		=> __('<i class="fa fa-spinner fa-spin pull-left"></i>Merci de votre patience...','kidzou'),
@@ -654,26 +656,20 @@ class Kidzou {
 	/*JSON API*/
 	public function add_Kidzou_controller($controllers) {
 
-	  $controllers[] = 'Vote';
-	  $controllers[] = 'Auth';
-	  $controllers[] = 'Users';
-	  $controllers[] = 'Clients';
-	  $controllers[] = 'Search';
-	  $controllers[] = 'Content';
-	  $controllers[] = 'Mailchimp';
+		$controllers[] = 'Vote';
+		$controllers[] = 'Clients';
+		$controllers[] = 'Search';
+		$controllers[] = 'Content';
+		$controllers[] = 'Mailchimp';
+		$controllers[] = 'Config';
+		$controllers[] = 'Social';
 
-	  return $controllers;
+		return $controllers;
 	}
 
 
 	public function set_vote_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/vote.php";
-	}
-	public function set_auth_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/../includes/api/auth.php";
-	}
-	public function set_users_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/../includes/api/users.php";
 	}
 	public function set_clients_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/clients.php";
@@ -686,6 +682,12 @@ class Kidzou {
 	}
 	public function set_mailchimp_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/mailchimp.php";
+	}
+	public function set_config_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/config.php";
+	}
+	public function set_social_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/social.php";
 	}
 
 	/**

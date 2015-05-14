@@ -164,6 +164,8 @@ function  kz_metropole_nav()
 				if ($i>0)
 					$ttes_metros .= '&nbsp;|&nbsp;';
 
+				// error_log(print_r($m), true);
+
 				$selected = ($m->slug == $current_metropole);
 
 				$ttes_metros .= sprintf(

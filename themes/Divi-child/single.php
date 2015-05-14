@@ -65,18 +65,25 @@
 
 							if (Kidzou_Events::isTypeEvent()) {
 
+								ini_set('date.timezone', 'Europe/Paris');
+
 								$location = Kidzou_Events::getEventDates();
 
 								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+
+								//fix pour les serveurs de prod 
+								//seule méthode trouvée pour que les dates de fin ne soient pas décalées (fin à 23:59:59 décalées à 00:59:59)
 								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+								//$end->setTimeZone(new DateTimeZone('Europe/London'));
 
 								//bon OK c'est un hack pour régler un pb d'affichage
 								//la date de fin s'affiche au lendemain de la date souhaitée
-								if ($end>$start)
-									$end->sub(new DateInterval('PT12H'));
+								// if ($end>$start)
+								// 	$end->sub(new DateInterval('PT1H'));
 
 								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
-								$formatter->setPattern('EEEE dd MMMM');
+								$formatter->setPattern('cccc dd LLLL');
+
 
 								$formatted = '';
 
@@ -89,6 +96,8 @@
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php echo '<p class="location font-2x"><i class="fa fa-calendar"></i>'.$formatted.'</p>'; ?>
 								</div> <!-- .et_pb_text -->
+
+					
 							
 							<?php } ?>
 

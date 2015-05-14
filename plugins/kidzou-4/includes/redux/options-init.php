@@ -48,7 +48,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             }
 
             // If Redux is running as a plugin, this will remove the demo notice and links
-            add_action( 'redux/loaded', array( $this, 'remove_demo' ) );
+            // add_action( 'redux/loaded', array( $this, 'remove_demo' ) );
             
             // Function to test the compiler hook and demo CSS output.
             // Above 10 is a priority, but 2 in necessary to include the dynamically generated CSS to be sent to the function.
@@ -61,7 +61,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             add_filter('redux/options/'.$this->args['opt_name'].'/defaults', array( $this,'change_defaults' ) );
             
             // Dynamically add a section. Can be also used to modify sections/fields
-            //add_filter('redux/options/' . $this->args['opt_name'] . '/sections', array($this, 'dynamic_section'));
+            // add_filter('redux/options/' . $this->args['opt_name'] . '/sections', array($this, 'dynamic_section'));
 
             $this->ReduxFramework = new ReduxFramework($this->sections, $this->args);
 
@@ -123,28 +123,60 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
         }
 
         // Remove the demo link and the notice of integrated demo from the redux-framework plugin
-        function remove_demo() {
+        // function remove_demo() {
 
-            // Used to hide the demo mode link from the plugin page. Only used when Redux is a plugin.
-            if (class_exists('ReduxFrameworkPlugin')) {
-                remove_filter('plugin_row_meta', array(ReduxFrameworkPlugin::instance(), 'plugin_metalinks'), null, 2);
+        //     // Used to hide the demo mode link from the plugin page. Only used when Redux is a plugin.
+        //     if (class_exists('ReduxFrameworkPlugin')) {
+        //         remove_filter('plugin_row_meta', array(ReduxFrameworkPlugin::instance(), 'plugin_metalinks'), null, 2);
 
-                // Used to hide the activation notice informing users of the demo panel. Only used when Redux is a plugin.
-                remove_action('admin_notices', array(ReduxFrameworkPlugin::instance(), 'admin_notices'));
-            }
-        }
+        //         // Used to hide the activation notice informing users of the demo panel. Only used when Redux is a plugin.
+        //         remove_action('admin_notices', array(ReduxFrameworkPlugin::instance(), 'admin_notices'));
+        //     }
+        // }
 
         public function setSections() {
 
-            $permalink_href = admin_url('options-permalink.php');
+            //recuperer les options precedentes pour populer les champs
+            //@see https://github.com/ReduxFramework/redux-framework/issues/1042
+            $previous_options = get_option('kidzou_options');
 
+            // Kidzou_Utils::log($previous_options, true);
+            
+            $permalink_href = admin_url('options-permalink.php');
             $mailchimp_lists = get_transient( 'kz_mailchimp_lists' );
 
             if (false==$mailchimp_lists) {
-                global $kidzou_options;
-                $key = $kidzou_options['mailchimp_key'];
+                
+                $key = $previous_options['mailchimp_key'];
                 $lists = get_mailchimp_lists($key);
                 set_transient( 'kz_mailchimp_lists', $lists, 0 ); //never expires ! 
+            }
+
+            //intégration Gravity Forms
+            $gf = false;
+            if (class_exists('GFAPI')) {
+
+                $gf = true;
+
+                $forms = GFAPI::get_forms();
+                $form_options = array();
+                
+                //choix du formulaire 
+                foreach ($forms as $form) {
+                    $form_options[$form['id']] = $form['title']; 
+                }
+                
+                //une fois le formulaire selectionné, on va chercher les champs
+                $selected_form = $previous_options['gf_form_id'];
+                $fields_options = array();
+                if (intval($selected_form)>0) {
+                    $fields = GFAPI::get_form( $selected_form );
+                    $fields = $fields['fields'];
+                    foreach ($fields as $field) {
+                        // eécho $field->id;
+                        $fields_options[$field->id] = $field->label; 
+                    }
+                }
             }
 
             $this->sections[] = array(
@@ -188,6 +220,12 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'id'        => 'analytics_ua',
                             'type'      => 'text',
                             'title'     => __('UA de Google Analytics', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'fb_app_id',
+                            'type'      => 'text',
+                            'title'     => __('App ID pour la connexion Facebook', 'kidzou'),
                         ),
                         
                     )
@@ -285,6 +323,28 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
  
                         ),
 
+                        array(
+                            'id'        => 'geo_bypass_regexp',
+                            'type'      => 'text',
+                            'title'     => __('Ne pas geolocaliser les contenus pour les URLs qui matchent cette Expression R&eacute;guli&egrave;re :', 'kidzou'),
+                            'subtitle'  => __('Indiquer une regexp', 'kidzou'),     
+                            'default'   => '\/api\/',  
+    
+                        ),
+
+                        array(
+                            'id'        => 'geo_search_radius',
+                            'type'      => 'spinner',
+                            'title'     => __('Rayon de recherche des lieux autour de l&apos;utilisateur', 'kidzou'),
+                            'subtitle'  => __('Cela peut impacter la performance', 'kidzou'),
+                            // 'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
+                            'default'  => '15',
+                            'min'      => '5',
+                            'step'     => '1',
+                            'max'      => '50'
+                        ),
+
+
 
                     )
                 );
@@ -356,7 +416,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             $this->sections[] = array(
                 'title'     => __('API Kidzou', 'kidzou'),
                 'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
-                'icon'      => 'el-icon-rss',
+                'icon'      => 'el el-puzzle',
                 'fields'    => array(
 
                     array(
@@ -385,6 +445,82 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
                 )
             );
+            
+            //intégration Gravity Forms
+            if ($gf) {
+
+                $this->sections[] = array(
+                    'title'     => __('Gravity Forms', 'kidzou'),
+                    'desc'      => __('Int&eacute;gration avec le plugin Gravity Forms pour exposition dans la config Kidzou', 'kidzou'),
+                    'icon'      => 'el el-check',
+                    'fields'    => array(
+
+                        array(
+                            'id'        => 'gf_form_id',
+                            'type'      => 'select',
+                            'title'     => __('Formulaire d&apos;envoi de photo ?', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $form_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_field_photo',
+                            'type'      => 'select',
+                            'title'     => __('Quel est le champ qui recevra la photo au format Base64 dans Gravity Forms WebAPI ?', 'kidzou'),
+                            // 'desc'     => __('', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_field_user_id',
+                            'type'      => 'select',
+                            'title'     => __('Quel est le champ qui recevra le login de l&apos;utilisateur courant ?', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_field_user_email',
+                            'type'      => 'select',
+                            'title'     => __('Le champ qui contient le mail du user', 'kidzou'),
+                            'subtitle'  => __('Ce champ sera rempli automatiquement en fonction du ID du user, il servira pour notifier le user', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_field_post_id',
+                            'type'      => 'select',
+                            'title'     => __('Quel est le champ qui recevra le ID de l&apos;article courant ?', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_field_comment',
+                            'type'      => 'select',
+                            'title'     => __('Quel est le champ qui recevra le commentaire de la photo ?', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_webapi_public_key',
+                            'type'      => 'text',
+                            'title'     => __('Public Key pour utilisation de WebAPI', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'gf_webapi_private_key',
+                            'type'      => 'text',
+                            'title'     => __('Private Key pour utilisation de WebAPI', 'kidzou'),
+                        ),
+
+
+                    )
+                );
+            }
 
             $this->sections[] = array(
                 'title'     => __('Ev&eacute;nements', 'kidzou'),
@@ -1015,12 +1151,7 @@ if (!function_exists('admin_folder_validate_callback_function')):
     }
 endif;
 
-if ( ! function_exists( 'redux_disable_dev_mode_plugin' ) ) {
-    function redux_disable_dev_mode_plugin( $redux ) {
-        $redux->args['dev_mode'] = false;
-    }
-    add_action( 'redux/construct', 'redux_disable_dev_mode_plugin' );
-}
+
 
 
 

@@ -8,8 +8,13 @@ Controller Author: Kidzou
 
 class JSON_API_Content_Controller {
 
+
 	/**
 	 * Une liste de lieux référencés autour de coordonnées, dans un rayon donné
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @param radius : rayon de recherche
 	 *
 	 */
 	public function places() {
@@ -62,13 +67,100 @@ class JSON_API_Content_Controller {
 			wp_reset_postdata();
 		}
 
+		//finalement on incrémente
+		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
+
 		return array(
 			'places' => $pins	
 		);
 	}
 
 	/**
+	 * La liste des événements programmés 
+	 * 
+	 *
+	 */
+	public function events() {
+
+		global $json_api;
+
+		$args = array(
+			'posts_per_page' => -1,
+			'post_type'      => Kidzou::post_types(),
+		);
+
+
+		$query = new Event_Query($args);
+		$posts = $query->get_posts();
+		$list = array();
+
+		//attacher les meta
+		foreach ($posts as $post) {
+			$o = array('post'=>$post);
+			$o['post_meta'] = Kidzou_Events::getEventDates($post->ID);
+			array_push($list, $o);
+		}
+
+		//finalement on incrémente
+		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
+
+		return array(
+			'events' => $list
+		);
+	}
+
+	/**
+	 * La liste des contenus triés par recommandation 
+	 * 
+	 *
+	 */
+	public function recos() {
+
+		global $json_api;
+
+		$page 	= $json_api->query->page;
+		$offset = $json_api->query->offset;
+
+		if (!$json_api->query->page)
+			$page = 0;
+
+		if (!$json_api->query->offset)
+			$offset = 0;
+
+		if ( !is_numeric($page) || !is_numeric($offset)) 
+			$json_api->error("Paramètres incorrects, offset et page doivent etre numériques");
+
+		$args = array(
+			'posts_per_page' => 20, 
+			'post_type'      => Kidzou::post_types(),
+			'page'	=> $page,
+			'offset' => $offset
+		);
+
+		$query = new Vote_Query($args);
+
+		$posts = $query->get_posts();
+		$list = array();
+
+		//attacher les meta
+		foreach ($posts as $post) {
+			$o = array('post'=>$post);
+			$o['post_meta'] = array('reco_count' => Kidzou_Vote::getVoteCount($post->ID));
+			array_push($list, $o);
+		}
+
+		//finalement on incrémente
+		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
+
+		return array(
+			'votes' => $list	
+		);
+	}
+
+	/**
 	 * La galerie de photos d'un post
+	 *
+	 * @param id 
 	 *
 	 */
 	public function get_content_without_gallery() {
@@ -77,13 +169,16 @@ class JSON_API_Content_Controller {
 		
 		$id = $json_api->query->id;
 
-		$gallery = get_post_gallery($id, false);
+		// $gallery = get_post_gallery($id, false);
 
 		$content = get_post_field('post_content', $id);
 
        	$content = Kidzou_Utils::strip_shortcode_gallery($content);
 
        	$content = str_replace( ']]>', ']]&gt;',   apply_filters('the_content', $content)); 
+
+       	//finalement on incrémente
+		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
 
        	return array(
 			'content' => $content	
@@ -105,18 +200,22 @@ class JSON_API_Content_Controller {
 
 		$ids = explode( ",", $gallery['ids'] );
 
-		$links = [];
+		$images = [];
 
 		foreach( $ids as $id ) {
 
-		   $links[] = wp_get_attachment_url( $id );
-
-		   // $image_list . = '<li>' . $link . '</li>';
+			$images[] = array(
+				'url' => wp_get_attachment_url( $id ),
+				'comments' => get_comments(array('post_id'=>$id, 'status'=>'approve'))
+			);
 
 		} 
 
+		//finalement on incrémente
+		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
+
 		return array(
-			'gallery' => $links
+			'gallery' => $images
 		);
 	}
 
@@ -141,6 +240,9 @@ class JSON_API_Content_Controller {
 		$locator = new Kidzou_Geolocator();
 
 		$distance = $locator->getPostDistanceInKmById($latitude, $longitude, $id);
+
+		//finalement on incrémente
+		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
 
 		return array(
 			'distance' => $distance	
