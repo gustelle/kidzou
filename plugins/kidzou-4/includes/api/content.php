@@ -45,6 +45,8 @@ class JSON_API_Content_Controller {
 				$post = get_post($value->post_id);
 				setup_postdata($post);
 
+				// Kidzou_Utils::log($post, true);
+
 				$thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
 				
 				// $thumb = $thumbnail["thumb"];
@@ -58,8 +60,8 @@ class JSON_API_Content_Controller {
 						'thumbnail' => $thumbnail['thumb'],
 						'id'		=> $value->post_id,
 						'location'	=> Kidzou_GeoHelper::get_post_location($value->post_id),
-						'distance'	=> $value->distance
-						// 'content'	=> $content
+						'distance'	=> $value->distance,
+						'votes'		=> Kidzou_Vote::getVoteCount($value->post_id)
 					));
 				
 			}
@@ -247,6 +249,37 @@ class JSON_API_Content_Controller {
 		return array(
 			'distance' => $distance	
 		);
+	}
+
+	/**
+	 * Retourne l'URL de l'avatar d'un commentaire
+	 *
+	 * @param comment_id 
+	 *
+	 */
+	public function get_avatar() {
+
+		global $json_api;
+		
+		$id = $json_api->query->comment_id;
+
+		if ( !is_numeric($id) ) 
+			$json_api->error("ID de commentaire invalide");
+
+		$comment = get_comment( $id ); 
+
+		//@see http://wordpress.stackexchange.com/questions/59442/how-do-i-get-the-avatar-url-instead-of-an-html-img-tag-when-using-get-avatar
+		if (function_exists('get_avatar_url'))  //since WP 4.2
+			$url = get_avatar_url($comment->comment_author_email);
+		else {
+			preg_match("/src=['\"](.*?)['\"]/i", $get_avatar, $matches);
+			$url = $matches[1];
+		}
+
+       	return array(
+			'avatar' => $url	
+		);
+
 	}
 
 	/**

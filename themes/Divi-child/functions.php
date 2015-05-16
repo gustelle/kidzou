@@ -945,20 +945,25 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
 		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
 		$formatted = '';
-		
-		//bon OK c'est un hack pour régler un pb d'affichage
-		//la date de fin s'affiche au lendemain de la date souhaitée
-		$end->sub(new DateInterval('PT1H'));
-		
-		$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
-		$formatter->setPattern('EEEE dd MMMM');
 
-		if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-			$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
-		else
-			$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
-	
-	 	$event_meta = '<div class="portfolio_meta"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+		//mieux vaut prévenir les erreurs que les guérir
+		//c'est arrivé pour je ne sais quelle raison que les dates soient en erreur
+		if ($start!==false && $end!==false) {
+
+			//bon OK c'est un hack pour régler un pb d'affichage
+			//la date de fin s'affiche au lendemain de la date souhaitée
+			$end->sub(new DateInterval('PT1H'));
+			
+			$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+			$formatter->setPattern('EEEE dd MMMM');
+
+			if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+				$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
+			else
+				$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
+		
+		 	$event_meta = '<div class="portfolio_meta"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+		}
 	
 	} 
 
