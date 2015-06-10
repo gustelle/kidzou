@@ -32,7 +32,7 @@ class JSON_API_Content_Controller {
 		
 		$locator = new Kidzou_Geolocator();
 
-		$ids = $locator->getPostsNearToMeInRadius($latitude, $longitude, $radius);
+		$ids = $locator->getPostsNearToMeInRadius($latitude, $longitude, $radius, array('post'));
 
 		$pins = array();
 
@@ -207,14 +207,13 @@ class JSON_API_Content_Controller {
 		foreach( $ids as $id ) {
 
 			$images[] = array(
-				'url' => wp_get_attachment_url( $id ),
+				'image_base' => wp_upload_dir()['baseurl'],
+				'post' => get_post( $id ),
+				'meta' => wp_get_attachment_metadata( $id ),
 				'comments' => get_comments(array('post_id'=>$id, 'status'=>'approve'))
 			);
 
 		} 
-
-		//finalement on incrémente
-		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
 
 		return array(
 			'gallery' => $images

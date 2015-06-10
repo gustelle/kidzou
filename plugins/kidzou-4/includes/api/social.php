@@ -111,7 +111,7 @@ class JSON_API_Social_Controller {
 
 	/**
 	 *
-	 * Recupere les data de google et les injecte dans Kidzou pour transformer le suer FB en user WP
+	 * Recupere les data de google et les injecte dans Kidzou pour transformer le user Google en user WP
 	 * 
 	 * @param token
 	 * @return WP_User 
@@ -139,7 +139,7 @@ class JSON_API_Social_Controller {
 			
 			$url='https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token='.$json_api->query->access_token;
 				
-				//  Initiate curl
+			//  Initiate curl
 			$ch = curl_init();
 			// Enable SSL verification
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $enable_ssl);
@@ -154,7 +154,6 @@ class JSON_API_Social_Controller {
 
 			$result = json_decode($result, true);
 
-			// Kidzou_Utils::log('googleapis', true);
 			Kidzou_Utils::log($result, true);
 			
 		   if(isset($result["email"])){

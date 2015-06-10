@@ -947,12 +947,13 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		$formatted = '';
 
 		//mieux vaut prévenir les erreurs que les guérir
-		//c'est arrivé pour je ne sais quelle raison que les dates soient en erreur
+		//c'est arrivé pour je ne sais quelle raison que les dates soient en erreur auquel cas 
+		//DateTime::createFromFormat() retourne "false"
 		if ($start!==false && $end!==false) {
 
 			//bon OK c'est un hack pour régler un pb d'affichage
 			//la date de fin s'affiche au lendemain de la date souhaitée
-			$end->sub(new DateInterval('PT1H'));
+			$end->sub(new DateInterval('PT12H'));
 			
 			$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
 			$formatter->setPattern('EEEE dd MMMM');

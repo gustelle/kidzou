@@ -506,6 +506,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
+                            'id'        => 'gf_field_title',
+                            'type'      => 'select',
+                            'title'     => __('Quel est le champ qui recevra le titre de la photo ?', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
                             'id'        => 'gf_webapi_public_key',
                             'type'      => 'text',
                             'title'     => __('Public Key pour utilisation de WebAPI', 'kidzou'),

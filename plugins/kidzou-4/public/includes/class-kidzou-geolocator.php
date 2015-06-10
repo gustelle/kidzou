@@ -361,9 +361,10 @@ class Kidzou_Geolocator {
 	 * @param radius (int)
 	 * @param search_lat (float) 
 	 * @param search_lng (float) 
+	 * @param post_types (array)
 	 * @author 
 	 **/
-	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
+	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5, $post_types = array() )
 	{
 
 		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
@@ -383,7 +384,12 @@ class Kidzou_Geolocator {
 
 		$tablename = "geodatastore";
 		$orderby = "ASC";
-		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types());
+
+		//par defaut
+		if (count($post_types)==0)
+			$post_types = Kidzou_GeoHelper::get_supported_post_types();
+
+		$post_types_list = implode('\',\'', $post_types);
 
 		global $wpdb;// Dont forget to include wordpress DB class
 			

@@ -9,12 +9,14 @@ class JSON_API_Config_Controller {
 
 	/**
 	 * undocumented function
+	 * @param m [cookie|token] la methode d'authentification utilisée pour récupérer la config
 	 *
 	 * @return Array 
 	 **/
 	public function all()
 	{
 		global $json_api;
+
 
 		if (!$json_api->query->cookie) {
 			$json_api->error("You must include a 'cookie' authentication cookie.");
@@ -27,6 +29,7 @@ class JSON_API_Config_Controller {
 		}	
 
 		return array("config" => Kidzou_Utils::get_options());
+		
 	}
 
 	
