@@ -15,7 +15,7 @@ class JSON_API_Vote_Controller {
 		$nonce 		= $json_api->query->nonce;
 		$user_hash 	= $json_api->query->user_hash;
 
-		Kidzou_Utils::log('Vote Up for ' . $id);
+		// Kidzou_Utils::log('Vote Up for ' . $id);
 
 		if (!$json_api->query->nonce) {
 	      $json_api->error("You must include a 'nonce' value to vote.");

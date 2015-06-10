@@ -217,43 +217,7 @@ class Kidzou_Vote {
 
 	}
 
-	/**
-	 * renvoie l'adresse IP de l'utilisateur
-	 * pour securiser les vote des users 
-	 *
-	 * @return IP Address (String)
-	 * @author http://www.media-camp.fr/blog/developpement/recuperer-adresse-ip-visiteur-php
-	 **/
-	public static function get_ip()
-	{
-	    if ( isset ( $_SERVER['HTTP_X_FORWARDED_FOR'] ) )
-	    {
-	        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-	    }
-	    elseif ( isset ( $_SERVER['HTTP_CLIENT_IP'] ) )
-	    {
-	        $ip  = $_SERVER['HTTP_CLIENT_IP'];
-	    }
-	    else
-	    {
-	        $ip = $_SERVER['REMOTE_ADDR'];
-	    }
-	    return $ip;
-	}
-
-	/**
-	 * hash pour identifier un user anonyme entre 2 votes
-	 *
-	 * @return a hash string to identify "uniquely" an anonymous user
-	 * @author Kidzou
-	 **/
-	public static function hash_anonymous()
-	{
-	  $ip = self::get_ip(); 
-	  $ua = $_SERVER['HTTP_USER_AGENT'];
-
-	  return md5( $ip . $ua );
-	}
+	
 
 	public static function plusOne($id=0, $user_hash='') {
 
@@ -273,7 +237,7 @@ class Kidzou_Vote {
 		//on ne recalcule pas systématiquement le hash du user, 
 		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
-			$user_hash = self::hash_anonymous();
+			$user_hash = Kidzou_Utils::hash_anonymous();
 
 		// Use has already voted ?
 		if(!self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
@@ -345,7 +309,7 @@ class Kidzou_Vote {
 		//on ne recalcule pas systématiquement le hash du user, 
 		//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 		if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
-			$user_hash = self::hash_anonymous();
+			$user_hash = Kidzou_Utils::hash_anonymous();
 
 		// Use has already voted ?
 		if(self::hasAlreadyVoted($id, $loggedIn, $user_id, $user_hash))
@@ -543,7 +507,7 @@ class Kidzou_Vote {
 			//on ne recalcule pas systématiquement le hash du user, 
 			//de sorte que si le user anonyme a changé d'adresse IP mais a gardé son hash, il reprend son historique de vote
 			if ($user_hash==null || $user_hash=="" || $user_hash=="undefined")
-				$user_hash=Kidzou_Vote::hash_anonymous();
+				$user_hash=Kidzou_Utils::hash_anonymous();
 
 			//$hash = hash_anonymous();
 			// AND key1.post_id in $list LIMIT $limit
@@ -605,7 +569,7 @@ class Kidzou_Vote {
 		else {
 			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' );
 			if ($user_hash=='') {
-				$user_hash = self::hash_anonymous();
+				$user_hash = Kidzou_Utils::hash_anonymous();
 			}
 			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' .$user_hash);
 			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
