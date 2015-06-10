@@ -48,7 +48,7 @@ class Kidzou_Admin {
 	 *
 	 * @var      string
 	 */
-	protected $screen_with_meta_event = array('post', 'offres');
+	public $screen_with_meta_event = array('post', 'offres');
 
 	/**
 	 * les ecrans qui meritent qu'on y ajoute des meta  client
@@ -57,7 +57,7 @@ class Kidzou_Admin {
 	 *
 	 * @var      string
 	 */
-	protected $screen_with_meta_client = array('post', 'offres', 'product');
+	public $screen_with_meta_client = array('post', 'offres', 'product');
 
 	/**
 	 * les ecrans customer, ils sont particuliers et ne bénéficient pas des 
@@ -68,7 +68,7 @@ class Kidzou_Admin {
 	 *
 	 * @var      string
 	 */
-	protected $customer_screen = array('customer');
+	public $customer_screen = array('customer');
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a

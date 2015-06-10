@@ -121,6 +121,14 @@ class Kidzou_API {
 
 	}
 	
+	/**
+	 *
+	 * Fournit le quota d'un client identifié par sa <em>key</em> pour une API donnée
+	 *
+	 * @param key 
+	 * @param api_name
+	 *
+	 */
 	public static function getQuota($key='', $api_name='') {
 
 		$customer = self::getCustomerByKey($key);
@@ -129,6 +137,9 @@ class Kidzou_API {
 			return 0;
 
 		$quota_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
+
+		//initialisation pour éviter les warnings php
+		$quota = -1;
 
 		if(isset($quota_array[$api_name])) 
 			$quota = intval($quota_array[$api_name]); 
