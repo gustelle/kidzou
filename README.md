@@ -7,5 +7,10 @@
 
 ### Admin UI ###
 
-* Masquer "Forms Pending My Approval"
-* Masquer "Formulaires"
+* Dans le dashboard, masquer tout sauf le "Bienvenue sur Kidzou"
+
+### JSON API ###
+
+* Activer l'API social
+* Activer l'API config
+
