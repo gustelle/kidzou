@@ -105,31 +105,37 @@ class Kidzou_Admin_Geo {
 	}
 
 	/**
-	 * undocumented function
+	 * Ajout des librairies JS nécessaires sur les écrans d'admin 
 	 *
 	 * @return void
 	 * @author 
 	 **/
 	public function enqueue_geo_scripts()
 	{
-		// $locator = self::$locator;
-		wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
 
-		$villes = Kidzou_GeoHelper::get_metropoles();
+		$screen = get_current_screen(); 
+		$admin = Kidzou_Admin::get_instance();
 
-		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
-  
-		$args = array(
-					// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
-					'geo_mapquest_key'			=> $key, 
-					'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
-					'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
-					// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
-					'geo_possible_metropoles'	=> $villes ,
-					// 'geo_coords'				=> $locator::COOKIE_COORDS,
-				);
+		if (in_array($screen->id , $admin->screen_with_meta_event) || in_array($screen->id, $admin->customer_screen)) {
 
-	    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+			wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
+
+			$villes = Kidzou_GeoHelper::get_metropoles();
+
+			$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+	  
+			$args = array(
+						// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+						'geo_mapquest_key'			=> $key, 
+						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
+						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
+						// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
+						'geo_possible_metropoles'	=> $villes ,
+						// 'geo_coords'				=> $locator::COOKIE_COORDS,
+					);
+
+		    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+		}
 		
 	}
 
