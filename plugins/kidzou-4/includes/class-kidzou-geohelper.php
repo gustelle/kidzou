@@ -288,6 +288,9 @@ class Kidzou_GeoHelper {
 	            "fields" => "all"
 	        ) );
 
+	        Kidzou_Utils::log('get_terms("ville") ', true);
+	        Kidzou_Utils::log($villes, true);
+
 	        $result  = array();
 
 	        //sortir les villes à couverture nationale
@@ -298,14 +301,14 @@ class Kidzou_GeoHelper {
 
 	            } else {
 	                $result[$key] = $value;
-	                // Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
+	                Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
 	            }
 	        }   
 
 	        if (!empty($result) && count($result)>0)
 	       		set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
 
-	        // Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
+	        Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
 	    }
 
 	    return $result;
@@ -346,6 +349,7 @@ class Kidzou_GeoHelper {
 	public static function is_metropole($m)
 	{
 
+		// Kidzou_Utils::log('is_metropole : '. $m);
 	    if ($m==null || $m=="") return false;
 
 	    //la ville du user est-elle couverte par Kidzou
@@ -353,6 +357,7 @@ class Kidzou_GeoHelper {
 
 	    $isCovered = false;
 	    foreach ($villes as $v) {
+	    	// error_log(print_r($v), true);
 	        if ($v->slug == $m)
 	            $isCovered = true;
 	    }

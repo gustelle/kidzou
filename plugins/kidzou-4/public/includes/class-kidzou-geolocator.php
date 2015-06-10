@@ -137,7 +137,7 @@ class Kidzou_Geolocator {
 	    	$this->request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
 
 	    $path = substr(Kidzou_Utils::get_request_path(), 0, 20) ;
-		Kidzou_Utils::log('Kidzou_Geolocator -> set_request_metropole [' . $path  .'] -> '. $this->request_metropole, true);
+		// Kidzou_Utils::log('Kidzou_Geolocator -> set_request_metropole [' . $path  .'] -> '. $this->request_metropole, true);
 	}
 
 	/**
@@ -151,11 +151,15 @@ class Kidzou_Geolocator {
 	{
 		//mise à jour du param de filtrage de requete 
 		$bypass_param = Kidzou_Utils::get_option('geo_bypass_param', 'region');
-		$is_bypass = isset($_GET[$bypass_param]);
+		$is_bypass_param = isset($_GET[$bypass_param]);
 
-		if ( Kidzou_Utils::is_really_admin() || Kidzou_Utils::is_api() || $is_bypass ) {
+		//possibilité de bypasser les filtrages de contenus pour des URL qui matchent certaines Regexp
+		$bypass_url = Kidzou_Utils::get_option('geo_bypass_regexp', '\/api\/');
+		$is_bypass_url = preg_match( '#'.  $bypass_url .'#', $_SERVER['REQUEST_URI'] );
 
-			Kidzou_Utils::log( '		Filtrage desactive pour admin / api / bypass ', true);
+		if ( Kidzou_Utils::is_really_admin() || $is_bypass_url || $is_bypass_param ) {
+
+			// Kidzou_Utils::log( '		Filtrage desactive pour admin / api / bypass ', true);
 
 			$this->is_request_filter = false;
 
@@ -165,7 +169,7 @@ class Kidzou_Geolocator {
 			
 			if (!$filter_active) {
 
-				Kidzou_Utils::log('		Filtrage desactive dans les options', true);
+				// Kidzou_Utils::log('		Filtrage desactive dans les options', true);
 			
 				$this->is_request_filter = false;
 			
@@ -175,7 +179,7 @@ class Kidzou_Geolocator {
 				//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 				if ($this->get_request_metropole()=='' ) {
 
-					Kidzou_Utils::log( '		Filtrage desactive / pas de metropole', true);
+					// Kidzou_Utils::log( '		Filtrage desactive / pas de metropole', true);
 					
 					$this->is_request_filter = false;
 				}
@@ -240,7 +244,7 @@ class Kidzou_Geolocator {
 	{
 		$coords = $this->request_coords;
 
-		Kidzou_Utils::log('Kidzou_Geolocator [get_request_coords] '. $coords['latitude'].'/'. $coords['longitude'], true);
+		// Kidzou_Utils::log('Kidzou_Geolocator [get_request_coords] '. $coords['latitude'].'/'. $coords['longitude'], true);
 
 		return $this->request_coords;
 	}
@@ -357,9 +361,10 @@ class Kidzou_Geolocator {
 	 * @param radius (int)
 	 * @param search_lat (float) 
 	 * @param search_lng (float) 
+	 * @param post_types (array)
 	 * @author 
 	 **/
-	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5)
+	public function getPostsNearToMeInRadius($search_lat = 51.499882, $search_lng = -0.126178, $radius=5, $post_types = array() )
 	{
 
 		//@see http://stackoverflow.com/questions/20686211/how-should-i-use-setlocale-setting-lc-numeric-only-works-sometimes
@@ -372,14 +377,19 @@ class Kidzou_Geolocator {
 		if (is_string($search_lng))
 			$search_lng = str_replace(",",".",$search_lng);
 
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $search_lat.'/' . $search_lng . ' (' . (int)$radius. ')', true);
+		// Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $search_lat.'/' . $search_lng . ' (' . (int)$radius. ')', true);
 
 		$search_lat = floatval($search_lat);
 		$search_lng = floatval($search_lng);
 
 		$tablename = "geodatastore";
 		$orderby = "ASC";
-		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types());
+
+		//par defaut
+		if (count($post_types)==0)
+			$post_types = Kidzou_GeoHelper::get_supported_post_types();
+
+		$post_types_list = implode('\',\'', $post_types);
 
 		global $wpdb;// Dont forget to include wordpress DB class
 			
@@ -406,7 +416,7 @@ class Kidzou_Geolocator {
 		"; // End $sqlsquareradius
 
 
-		Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant Requete ' . (float)$search_lat.'/' . (float)$search_lng . ' (' . (int)$radius. ')', true);
+		// Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] Avant Requete ' . (float)$search_lat.'/' . (float)$search_lng . ' (' . (int)$radius. ')', true);
 		
 		// Create sql for circle radius check
 		$sqlcircleradius = "
@@ -440,7 +450,7 @@ class Kidzou_Geolocator {
 
 		$results = $wpdb->get_results($sqlcircleradius);
 
-		Kidzou_Utils::log($wpdb->last_query, true);
+		// Kidzou_Utils::log($wpdb->last_query, true);
 
 		$nonfeatured = array();
 
@@ -538,40 +548,6 @@ class Kidzou_Geolocator {
 			`t`.`post_id`=" . $id ; // End $sqlcircleradius
 
 		$result = $wpdb->get_var($sqlcircleradius);
-
-		Kidzou_Utils::log($wpdb->last_query, true);
-
-		// $nonfeatured = array();
-
-	    // $featured =  Kidzou_Featured::getFeaturedPosts( );
-	    
-	    // $featured_in_list = array();
-	    // $nonfeatured = array();
-
-	    // //les featured qui sont dans la liste
-	    // foreach ($results as $rk => $rv) {
-
-	    // 	$is_featured = false;
-
-	    // 	//safety check
-	    // 	//les events obsolete sont sortis
-	    // 	if (Kidzou_Events::isTypeEvent($rv->post_id) && !Kidzou_Events::isEventActive($rv->post_id))
-	    // 		continue;
-
-	    // 	foreach ($featured as $fk => $fv) {
-	    		
-	    // 		if ( intval($fv->ID) == intval($rv->post_id) ) {
-	    // 			array_push($featured_in_list, $rv);
-	    // 			$is_featured = true;
-	    // 		}
-	    // 	}
-
-	    // 	if (!$is_featured) {
-	    // 		array_push($nonfeatured, $rv);
-	    // 	}
-	    // }
-	    
-	    // $posts = array_merge( $featured_in_list, $nonfeatured );
 
 	    return $result;
 	}

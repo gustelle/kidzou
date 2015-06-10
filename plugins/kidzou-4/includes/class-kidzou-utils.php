@@ -117,6 +117,14 @@ class Kidzou_Utils {
 
 	}
 
+	public static function get_options(  ) {
+
+		global $kidzou_options;
+
+		return $kidzou_options;
+
+	}
+
 	/**
 	 * les AJAX sont identifiées dans le domaine de l'admin
 	 * il faut les exclure
@@ -137,12 +145,13 @@ class Kidzou_Utils {
 	 * true si la requete en cours est une api json
 	 *
 	 * @return Bool
-	 * @author 
+	 * @deprecated 
 	 **/
 	public static function is_api()
 	{
 		return preg_match( '#\/api\/#', self::get_request_path() );
 	}
+
 
 	public static function get_request_path() {
 
@@ -270,6 +279,104 @@ class Kidzou_Utils {
 	        }
 	    }
 	    return $content;
+	}
+
+	/**
+	 * Ajoute une image à une gallery
+	 * ou créée une gallery et l'ajoute au post si le poste ne contenait pas de gallery
+	 */
+	public static function  add_to_gallery( $post_id, $attach_id=0 ) {
+
+		Kidzou_Utils::log('add_to_gallery '. $post_id . '/' . $attach_id, true);
+	   
+	    if ($attach_id==0 || $post_id==0)
+	    	return;
+
+	    $post = get_post($post_id);
+
+	    $new_content = $post->post_content;
+	    $gallery_found = false;
+
+	    preg_match_all( '/'. get_shortcode_regex() .'/s', $post->post_content , $matches, PREG_SET_ORDER );
+	    
+	    //il y a des shortcodes dans le contenu
+	    if ( ! empty( $matches ) ) {
+
+	        //il y a une gallery dans le contenu du post
+	        foreach ( $matches as $shortcode ) {
+	            
+	            if ( 'gallery' === $shortcode[2] ) {
+	            	Kidzou_Utils::log('Gallery trouvée', true);
+	            	$gallery_found = true;
+	                //recupere la string des ids, et transforme en array
+	                $atts = shortcode_parse_atts( $shortcode[3] ); //$shortcode[3] contient ids="xxx"
+	                //ajout de l'id de la photo dans les args du shortcode
+	                $atts['ids'] = $atts['ids'].','.$attach_id; 
+	                $new_gallery = '[gallery ';
+	                foreach ($atts as $key => $value) {
+	                	$new_gallery = $new_gallery.$key.'="'.$value.'"';
+	                }
+	                $new_gallery .= ']';
+	                $new_content = str_replace($shortcode[0], $new_gallery,$post->post_content);
+	                Kidzou_Utils::log('Nouvelle gallery : '.$new_gallery, true);
+	            }
+	        }
+	    }
+
+	    //il n'y aps de gallery dans le contenu
+	   	if (!$gallery_found) {
+
+	    	//il n'y a pas de shortcode dans le post, il faut en créer une 
+	    	Kidzou_Utils::log('Pas de gallery trouvée', true);
+	    	$new_gallery = '[gallery ids="'.$attach_id.'"]';
+	    	$new_content = $post->post_content . $new_gallery;
+	    	Kidzou_Utils::log('Gallery ajoutée au contenu '. $new_content, true);
+	    }
+
+	    // Kidzou_Utils::log('Nouveau contenu : '. $new_content);
+
+	    //ne pas oublier d'enregistrer les modifs..
+	    $post->post_content = $new_content;
+	    wp_update_post( $post );
+
+	}
+
+	/**
+	 * renvoie l'adresse IP de l'utilisateur
+	 * pour securiser les vote des users  et mesurer les appels d'API
+	 *
+	 * @return IP Address (String)
+	 * @author http://www.media-camp.fr/blog/developpement/recuperer-adresse-ip-visiteur-php
+	 **/
+	public static function get_ip()
+	{
+	    if ( isset ( $_SERVER['HTTP_X_FORWARDED_FOR'] ) )
+	    {
+	        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+	    }
+	    elseif ( isset ( $_SERVER['HTTP_CLIENT_IP'] ) )
+	    {
+	        $ip  = $_SERVER['HTTP_CLIENT_IP'];
+	    }
+	    else
+	    {
+	        $ip = $_SERVER['REMOTE_ADDR'];
+	    }
+	    return $ip;
+	}
+
+	/**
+	 * hash pour identifier un user de facon anonyme (vote ou appel d'API)
+	 *
+	 * @return a hash string to identify "uniquely" an anonymous user
+	 * @author Kidzou
+	 **/
+	public static function hash_anonymous()
+	{
+	  $ip = self::get_ip(); 
+	  $ua = $_SERVER['HTTP_USER_AGENT'];
+
+	  return md5( $ip . $ua );
 	}
 
 
