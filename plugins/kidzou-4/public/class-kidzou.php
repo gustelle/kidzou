@@ -78,8 +78,8 @@ class Kidzou {
 		add_action( 'tgmpa_register', array( $this, 'register_required_plugins' ) );
 
 		// Load plugin text domain
-		add_action( 'init', array( $this, 'load_plugin_textdomain' ) );
-		add_action( 'init', array( $this, 'register_taxonomies' ) );
+		add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
+		add_action( 'init', array( $this, 'register_taxonomies' ), 1 );
 
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );

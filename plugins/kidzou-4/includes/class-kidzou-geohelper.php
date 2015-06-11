@@ -1,6 +1,6 @@
 <?php
 
-add_action('kidzou_loaded', array('Kidzou_GeoHelper', 'get_instance'));
+add_action('plugins_loaded', array('Kidzou_GeoHelper', 'get_instance'), 100);
 
 /**
  * Kidzou_Geo
@@ -288,27 +288,30 @@ class Kidzou_GeoHelper {
 	            "fields" => "all"
 	        ) );
 
-	        Kidzou_Utils::log('get_terms("ville") ', true);
-	        Kidzou_Utils::log($villes, true);
-
 	        $result  = array();
 
-	        //sortir les villes à couverture nationale
-	        //on prend le premier de la liste
-	        foreach ($villes as $key=>$value) {
-	            $def = Kidzou_Utils::get_option('geo_national_metropole'); 
-	            if ( intval($def) ==  intval($value->term_id) ) {
+	        if (!is_wp_error($villes)) {
 
-	            } else {
-	                $result[$key] = $value;
-	                Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
-	            }
-	        }   
+	        	//sortir les villes à couverture nationale
+		        //on prend le premier de la liste
+		        foreach ($villes as $key=>$value) {
+		            $def = Kidzou_Utils::get_option('geo_national_metropole'); 
+		            if ( intval($def) ==  intval($value->term_id) ) {
 
-	        if (!empty($result) && count($result)>0)
-	       		set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
+		            } else {
+		                $result[$key] = $value;
+		                Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
+		            }
+		        }   
 
-	        Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
+		        if (!empty($result) && count($result)>0) {
+		        	set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
+		        	Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
+		        }
+		       		
+	        } else {
+	        	Kidzou_Utils::log($villes, true);
+	        }
 	    }
 
 	    return $result;
