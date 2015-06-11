@@ -206,26 +206,6 @@ class Kidzou_GF_Webapi  {
         return $text;
     }
 
-    /**
-    * replace custom merge tags in field content
-    * @param string $field_content
-    * @param array $field
-    * @param string $value
-    * @param int $lead_id
-    * @param int $form_id
-    * @return string
-    */
-    // function wpse_121476_field_content($field_content, $field, $value, $lead_id, $form_id) {
-    //     if (strpos($field_content, '{user_phone}') !== false) {
-    //         $userid = get_current_user_id();
-    //         $phone = $userid ? get_user_meta($userid, 'phone', true) : '';
-    //         $field_content = str_replace('{user_phone}', $phone, $field_content);
-    //     }
-
-    //     return $field_content;
-    // }
-
-
     
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-add_action('kidzou_loaded', array('Kidzou_Featured', 'get_instance'));
+add_action('plugins_loaded', array('Kidzou_Featured', 'get_instance'), 100);
 
 
 /**

@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_loaded', array( 'Kidzou_Customer', 'get_instance' ) );
+add_action( 'plugins_loaded', array( 'Kidzou_Customer', 'get_instance' ), 100 );
 
 
 /**

@@ -84,12 +84,11 @@ register_activation_hook( __FILE__, array( 'Kidzou', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Kidzou', 'deactivate' ) );
 
 /*
- * @TODO:
- *
- * - replace Plugin_Name with the name of the class defined in
- *   `class-plugin-name.php`
+ * Charger le plus tot possible cette classe
+ * qui va faire les register des taxonomies utilisées ensuite dans bcp d'autres classes
+ * 
  */
-add_action( 'plugins_loaded', array( 'Kidzou', 			'get_instance' ) );
+add_action( 'plugins_loaded', array( 'Kidzou', 	'get_instance' ), 0 );
 
 
 /*----------------------------------------------------------------------------*

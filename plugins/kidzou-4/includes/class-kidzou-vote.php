@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_loaded', array( 'Kidzou_Vote', 'get_instance' ) );
+add_action( 'plugins_loaded', array( 'Kidzou_Vote', 'get_instance' ), 100 );
 
 // rafraichir l'index featured en fonction des votes
 if( !wp_next_scheduled( 'kidzou_votes_scheduler' ) ) {
