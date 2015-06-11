@@ -81,7 +81,7 @@ var kidzouGeoContent = (function () {
 				//verifier qu'on est dans une des metropoles couvertes
 				for (var m in kidzou_geo_jsvars.geo_possible_metropoles) {
 
-					if (kidzou_geo_jsvars.geo_possible_metropoles.hasOwnProperty(m)) {
+					if (kidzou_geo_jsvars.geo_possible_metropoles.hasOwnProperty(m) && kidzou_geo_jsvars.geo_possible_metropoles[m].slug) {
 
 						// console.info(kidzou_geo_jsvars.geo_possible_metropoles[m]);
 
@@ -190,7 +190,7 @@ var kidzouGeoContent = (function () {
 
 							if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
 
-								console.info('New position detected ' );
+								// console.info('New position detected ' );
 
 								//stockage des résultats dans un cookie pour transmission en requete 
 								storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
@@ -205,7 +205,7 @@ var kidzouGeoContent = (function () {
 
 							} else {
 								
-								console.info('Old position still OK');
+								// console.info('Old position still OK');
 
 								var myEvent = new CustomEvent("geolocation", {
 									detail: {error: false, acceptGeolocation : true, refresh : false},
@@ -258,7 +258,7 @@ var kidzouGeoContent = (function () {
 
 		} else {
 
-			console.info('Error, navigator does not accept geolocation');
+			console.error('Error, navigator does not accept geolocation');
 			
 			var myEvent = new CustomEvent("geolocation", {
 				detail: {error: true, acceptGeolocation : false},

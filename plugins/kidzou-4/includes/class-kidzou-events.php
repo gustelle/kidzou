@@ -1,6 +1,6 @@
 <?php
 
-add_action('kidzou_loaded', array('Kidzou_Events', 'get_instance'));
+add_action('plugins_loaded', array('Kidzou_Events', 'get_instance'), 100);
 
 // schedule the feedburner_refresh event only once
 if( !wp_next_scheduled( 'kidzou_events_scheduler' ) ) {

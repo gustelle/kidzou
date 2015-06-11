@@ -1,5 +1,11 @@
 <?php
-add_action('kidzou_loaded', array('Kidzou_GeoFilters', 'get_instance'));
+
+/** 
+ * Charger cette classe relativement tard, pour être certain que les taxonomies soient disponibles (registered)
+ *
+ */
+// add_action('kidzou_loaded', array('Kidzou_GeoFilters', 'get_instance'), 999);
+add_action('plugins_loaded', array('Kidzou_GeoFilters', 'get_instance'), 100);
 
 /**
  * Kidzou
@@ -323,8 +329,6 @@ class Kidzou_GeoFilters {
 			$post = get_post($page);
 
 			if ($rewrite) {
-
-				// Kidzou_Utils::log('Kidzou_GeoFilters : ré-ecriture pour '. $link);
 
 				$pos = strpos( $link, '/'. $post->post_name );
 				$new_link = substr_replace($link, "/".$m, $pos, 0);
