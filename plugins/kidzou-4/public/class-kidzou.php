@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Paques 2015 RC2';
+	const VERSION = 'Paques 2015 RC3';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -747,6 +747,7 @@ class Kidzou {
 	{
 		
 		$fields = Kidzou_Utils::get_option('newsletter_fields', array());
+		// Kidzou_Utils::log( $fields ,true);
 		$is_firstname 	= $fields['firstname'];
 		$is_lastname 	= $fields['lastname'];
 		$is_zipcode 	= $fields['zipcode'];
@@ -826,7 +827,8 @@ class Kidzou {
 				Kidzou_Utils::get_option('newsletter_footer', '')
 				// __( 'Ne plus me proposer de m&apos;inscrire &agrave; la newsletter', 'kidzou' ),
 			);
-	
+		
+		// Kidzou_Utils::log( $form ,true);
 
 		return $form;
 	}

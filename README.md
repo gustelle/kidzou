@@ -1,11 +1,11 @@
-# NOTES DE MISE EN PROD - Paques 2015 #
+# Procédure de MISE EN PROD - Paques 2015 #
 
 ### Gravity Forms ###
 
 * Créer le formulaire d'envoi de photo mobile
 * Reporter la config du formulaire dans les réglages Kidzou
 
-### Admin UI ###
+### WP Admin UI ###
 
 * Dans le dashboard, masquer tout sauf le "Bienvenue sur Kidzou"
 
@@ -13,4 +13,8 @@
 
 * Activer l'API social
 * Activer l'API config
+
+### Web performances ###
+
+* Désactiver les options de performance Kidzou, elles causent une régression sur fontello et sur les notifications
 

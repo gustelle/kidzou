@@ -455,10 +455,10 @@ var kidzouNewsletter = (function() {
 			data:
 			{
 				nonce 		: kidzou_commons_jsvars.api_newsletter_nonce,
-				firstname 	: (kidzou_commons_jsvars.newsletter_fields.firstname=='1' ? form.querySelector('[name="firstname"]').value : ''),
-				lastname 	: (kidzou_commons_jsvars.newsletter_fields.lastname=='1' ? form.querySelector('[name="lastname"]').value: ''),
+				firstname 	: (kidzou_commons_jsvars.newsletter_fields.firstname=='1' && form.querySelector('[name="firstname"]') ? form.querySelector('[name="firstname"]').value : ''),
+				lastname 	: (kidzou_commons_jsvars.newsletter_fields.lastname=='1' && form.querySelector('[name="lastname"]') ? form.querySelector('[name="lastname"]').value : ''),
 				email 		: form.querySelector('[name="email"]').value,
-				zipcode 	: (kidzou_commons_jsvars.newsletter_fields.zipcode=='1' ? form.querySelector('[name="zipcode"]').value : ''),
+				zipcode 	: (kidzou_commons_jsvars.newsletter_fields.zipcode=='1' && form.querySelector('[name="zipcode"]') ? form.querySelector('[name="zipcode"]').value : ''),
 				key 		: kidzou_commons_jsvars.mailchimp_key,
 				list_id 	: kidzou_commons_jsvars.mailchimp_list
 			},
@@ -504,10 +504,6 @@ var kidzouNewsletter = (function() {
 						document.querySelector('#newsletter_form_error_message').innerHTML = data.message;
 
 						kidzouTracker.trackEvent("Newsletter", 'subscribe', '', 0);
-
-						// if (_callback)
-						// 	_callback();
-						
 					}
 					
 				//erreur technique dans l'API
