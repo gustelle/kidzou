@@ -148,6 +148,17 @@ class Kidzou_API {
 		if (!$quota || $quota=='' || intval($quota)<0)
 			$quota = 0;
 
+		Kidzou_Utils::log(array(
+				'getQuota' => array(
+						'key' => $key,
+						'api_name' => $api_name,
+						'customer' => $customer->ID,
+						'quota_array' => $quota_array,
+						'quota'=> $quota
+
+					)
+			), true);
+
 		return $quota;
 
 	}
@@ -156,6 +167,15 @@ class Kidzou_API {
 
 		$quota = self::getQuota($key, $api_name);
 		$usage = self::getCurrentUsage($key, $api_name);
+
+		Kidzou_Utils::log(
+			array('isQuotaOK' => array(
+					'key' => $key,
+					'api_name'=> $api_name,
+					'quota'=> $quota, 
+					'usage'=>$usage
+				)
+			), true);
 
 		return ($quota-$usage)>0;
 	}
