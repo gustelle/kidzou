@@ -728,10 +728,14 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * Gestion des
-	 * - Quota
-	 * - API disponibles
-	 * - Token
+	 * Metabox de l'écran "customer" pour la Gestion des
+	 * <ul> 
+	 * <li>Quota</li>
+	 * <li>API disponibles</li>
+	 * <li>Token</li>
+	 * </ul>
+	 *
+	 * @todo Actuellement seule l'API "excerpts" est geree dans cette fonction
 	 *
 	 * @return void
 	 * @author 
@@ -744,39 +748,52 @@ class Kidzou_Admin {
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_apis_metabox', 'customer_apis_metabox_nonce' );
 
+		//La clé d'API d'un client est unique pour toutes les API
 		$key	 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_key, TRUE);
 
 		if ($key == '') {
 			$key = md5(uniqid());
 		}
 
+		//actuellement $api_names ne sert à rien dans le code
+		//C'est pour ouvrir la voie vers une généralisation de la gestion des API
 		$api_names = Kidzou_API::getAPINames();
+		Kidzou_Utils::log(array('api_names' => $api_names),true);
+ 		
+ 		//todo : c'est ici qu'on fait référence en dur à l'API excerpts
+ 		//pour généraliser cette fonction, il faudrait boucler sur toutes les API 
+ 		//il faudrait gérer dans les options la liste des API ouvertes puis les récupérer ici par un get_option()
+		$open_apis = array();
+		$open_apis[0] = 'excerpts';
 
-		$quota = Kidzou_API::getQuota($key, $api_names[0]);
-		$usage = Kidzou_API::getCurrentUsage($key, $api_names[0]);
+		$quota = Kidzou_API::getQuota($key, $open_apis[0]); //$api_names[i]
+		$usage = Kidzou_API::getCurrentUsage($key, $open_apis[0]); //$api_names[i]
 
 		$output = sprintf('
+			<h4>API d&apos;acc&egrave;s au r&eacute;sum&eacute; des contenus</h4>
+			<input type="hidden" name="api_name_0" value="%1$s"  />
 			<ul>
 				<li>
 					<label for="customer_api_key_text">Cl&eacute; de s&eacute;curit&eacute;:</label>
-					<input type="hidden" name="customer_api_key" value="%1$s"  />
-			  		%2$s
+					<input type="hidden" name="customer_api_key" value="%2$s"  />
+			  		%3$s
 				</li>
 				<li>
 					<label for="customer_api_quota">Quota d&apos;appel par jour:</label>
-			  		<input type="text" name="customer_api_quota" value="%3$s"  />
+			  		<input type="text" name="customer_api_quota" value="%4$s"  />
 				</li>
 				<li>
-					Utilisation en cours: %4$s
+					Utilisation en cours: %5$s
 				</li>
 			</ul>
 			<ul>
 				<li>
 					<strong>URL &agrave; communiquer au client:</strong><br/>
-					<a target="_blank" href="%5$s">%5$s</a>
+					<a target="_blank" href="%6$s">%6$s</a>
 				</li>
 			</ul>
 		',
+		$open_apis[0],
 		$key,
 		$key,
 		$quota,
@@ -1676,8 +1693,10 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * undocumented function
+	 * Sauvegarde en base des Quota et de la clé du client, tels que définis dans la Metabox sur l'écran "customer"
 	 *
+	 * @todo Actuellement seule une API est gérée 
+	 * 
 	 * @return void
 	 * @author 
 	 **/
@@ -1714,7 +1733,10 @@ class Kidzou_Admin {
 		
 		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
 
-		$api_names = Kidzou_API::getAPINames();
+		//todo : actuellement seule une API est gérée
+		$api_names = array();
+		$api_names[0] = $_POST['api_name_0'];
+
 		$meta[Kidzou_Customer::$meta_api_quota] = array($api_names[0] => $quota);
 
 		self::save_meta($post_id, $meta);
