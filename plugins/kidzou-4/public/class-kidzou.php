@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Paques 2015 RC3';
+	const VERSION = 'Paques 2015 RC5';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -214,8 +214,8 @@ class Kidzou {
 	        ),
 
 	        array(
-	            'name'               => 'WP Admin UI Customize', // The plugin name.
-	            'slug'               => 'wp-admin-ui-customize', // The plugin slug (typically the folder name).
+	            'name'               => 'Adminimize', // The plugin name.
+	            'slug'               => 'adminimize', // The plugin slug (typically the folder name).
 	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
 	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
 	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
