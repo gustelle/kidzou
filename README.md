@@ -7,6 +7,7 @@
 
 ### JSON API ###
 
+* Ajouter le plugin JSON API User
 * Activer l'API social
 * Activer l'API config
 
