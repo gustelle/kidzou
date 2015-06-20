@@ -1887,6 +1887,8 @@ class Kidzou_Admin {
 	 * appelé par le hook <code>restrict_manage_posts</code>
 	 * </p>
 	 *
+	 * Uniquement accessible aux Auteurs ou +
+	 *
 	 * @link http://wordpress.stackexchange.com/questions/578/adding-a-taxonomy-filter-to-admin-list-for-a-custom-post-type
 	 */
 	public function filter_posts_list() {
@@ -1896,7 +1898,7 @@ class Kidzou_Admin {
 		$taxonomies = array('ville');
 	 
 		// must set this to the post type you want the filter(s) displayed on
-		if( $typenow == 'post' ){
+		if( $typenow == 'post' && Kidzou_Utils::current_user_is('author') ){
 	 
 			foreach ($taxonomies as $tax_slug) {
 				$tax_obj = get_taxonomy($tax_slug);

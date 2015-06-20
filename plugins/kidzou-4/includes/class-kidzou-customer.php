@@ -2,7 +2,6 @@
 
 add_action( 'plugins_loaded', array( 'Kidzou_Customer', 'get_instance' ), 100 );
 
-
 /**
  * Kidzou
  *
@@ -95,10 +94,10 @@ class Kidzou_Customer {
 
 		add_action('init', array($this, 'register_customer_type'));
 
-		// Kidzou_Utils::log(get_declared_classes(), true);
-
 		//pour le F.O
-		if (class_exists('GADASH_Frontend') && !Kidzou_Utils::is_really_admin() )
+		//la classe GADWP_Frontend_Item_Reports n'est pas encore instanciée à cet endroit
+		//c'est pourquoi le check se fait sur le Manager
+		if (class_exists('GADWP_Manager') )
 		{
 			add_action('wp', array($this, 'check_customer_analytics'), 0);
 		}
@@ -126,6 +125,11 @@ class Kidzou_Customer {
 	 * Si les analytics sont actifs et que le user a le droit
 	 * on ouvre les tuyaux pour afficher les analytics en bas de page
 	 *
+	 * Les analytics peuvent être activés/désactivés d'une facon générale pour tous les customers dans les options Kidzou
+	 * et ensuite, on peut activer/désactiver les analytics d'un client en particulier dans la fiche client
+	 * 
+	 * <em>Cette filtre n'est actif que sur la boucle principale (is_main_query()) pour optimiser (pas besoin sur les autres boucles)</em>
+	 *
 	 * @return void
 	 * @since customer-analytics
 	 * @see https://wordpress.org/plugins/google-analytics-dashboard-for-wp/
@@ -133,25 +137,29 @@ class Kidzou_Customer {
 	 **/
 	public function check_customer_analytics()
 	{
-		Kidzou_Utils::log('Kidzou_Customer [check_customer_analytics]',true);
-		if (is_user_logged_in() && !Kidzou_Utils::current_user_is('author'))
+		if (!Kidzou_Utils::current_user_is('author'))
 		{
 			$remove_analytics = false;
+
+			global $post;
+
+			//activation ou désactivation générale des analytics dans les options Kidzou
 			$activate = Kidzou_Utils::get_option('customer_analytics_activate', false);
 		
-			if (!$activate)
+			if ( !$activate || !is_single() || !is_user_logged_in() )
 			{
-				//checker si le user à le droit de voir les analytics
-				// Kidzou_Utils::log('Analytics non actifs');
+				Kidzou_Utils::log(array('method' => __METHOD__, 'activate' => $activate, 'is_single' => is_single(), 'is_user_logged_in'=> is_user_logged_in(),'post_id' => $post->ID, 'post_title' => $post->post_title), true);
 				$remove_analytics = true;
 			}
 			else
 			{	
-				global $post;
-				// Kidzou_Utils::log($post);
+				// global $post;
+				// Kidzou_Utils::log(array('method' => __METHOD__, 'post_title', get_the_title()) , true);
 				//vérif que le customer de la page courante est autorisé à visualiser ses analytics
 				$customer_id = self::getCustomerIDByPostID( $post->ID );
 				$is_authorized = self::isAnalyticsAuthorizedForCustomer($customer_id);
+
+				Kidzou_Utils::log(array('method' => __METHOD__, 'customer_id' => $customer_id, 'isAnalyticsAuthorizedForCustomer' => $is_authorized ), true);
 
 				if (!$is_authorized)
 				{
@@ -168,23 +176,22 @@ class Kidzou_Customer {
 
 					if ( !in_array($customer_id, $current_user_customers) )
 					{
+						Kidzou_Utils::log(array('method' => __METHOD__,'customer_id' => $customer_id, 'current_user_customers' => $current_user_customers, 'message' => 'Current Customer not in array of User customers' ), true);
 						$remove_analytics = true;
-					}
-					// else 
-					// 	Kidzou_Utils::log('Bande de veinards');
+					} 
+					else 
+						Kidzou_Utils::log(array('method' => __METHOD__, 'message' => 'Current User matches the current customer users', 'remove_analytics' => $remove_analytics), true);
+
 				}
-				
 			}
 
 			if ($remove_analytics)
 			{
-				Kidzou_Utils::remove_filters_for_anonymous_class('the_content', 'GADASH_Frontend', 'ga_dash_front_content', 10);
-				Kidzou_Utils::remove_filters_for_anonymous_class('wp_enqueue_scripts', 'GADASH_Frontend', 'ga_dash_front_enqueue_styles', 10);
+				Kidzou_Utils::log('User not authorized to see analytics, removing filters', true);
+				Kidzou_Utils::remove_filters_for_anonymous_class('admin_bar_menu', 'GADWP_Frontend_Item_Reports', 'custom_adminbar_node', 999);
+				Kidzou_Utils::remove_filters_for_anonymous_class('wp_enqueue_scripts', 'GADWP_Frontend_Setup', 'load_styles_scripts', 10);
 			}
 		}
-
-	
-
 	}
 
 	
@@ -253,7 +260,7 @@ class Kidzou_Customer {
 		if (!$customer || $customer=='')
 			$customer = 0;
 
-		// Kidzou_Utils::log('getCustomerIDByPostID '. $customer);
+		Kidzou_Utils::log(array('method', __METHOD__, 'post_id' => $post_id, 'customer'=> $customer) , true);
 
 		return intval($customer);
 	}
@@ -384,7 +391,9 @@ class Kidzou_Customer {
 	 **/
 	public static function isAnalyticsAuthorizedForCustomer($customer_id = 0)
 	{
-		return get_post_meta($customer_id, self::$meta_customer_analytics , TRUE);
+		$meta = get_post_meta($customer_id, self::$meta_customer_analytics , TRUE);
+		Kidzou_Utils::log( array('method' => __METHOD__ , 'customer_id' => $customer_id, 'meta' => $meta), true);
+		return $meta;
 	}
 
 

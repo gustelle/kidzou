@@ -3,6 +3,8 @@
 <ul>
 	<li>Ouverture de nouvelles API pour l'appli mobile</li>
 	<li>Corrections sur l'habillage publicitaire</li>
+	<li>Upgrade général des plugins</li>
+	<li>Passage à WP 4.2.2</li>
 </ul>
 
 <h4>St Cyprien</h4>
