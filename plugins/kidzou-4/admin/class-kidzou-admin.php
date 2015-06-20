@@ -48,7 +48,7 @@ class Kidzou_Admin {
 	 *
 	 * @var      string
 	 */
-	public $screen_with_meta_event = array('post', 'offres');
+	protected $screen_with_meta_event = array('post', 'offres');
 
 	/**
 	 * les ecrans qui meritent qu'on y ajoute des meta  client

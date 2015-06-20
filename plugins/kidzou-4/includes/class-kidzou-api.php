@@ -74,6 +74,10 @@ class Kidzou_API {
 		return self::$instance;
 	}
 
+	/**
+	 *
+	 * la tableau des noms des API, correspondant aux noms de méthodes  dand JSON_API_Content_Controller
+	 */
 	public static function getAPINames() {
 
 		require_once(plugin_dir_path( __FILE__ ) ."/api/content.php");
@@ -101,6 +105,10 @@ class Kidzou_API {
 
 	}
 
+	/** 
+	 *
+	 * Le tableau des stats d'utilisation des API
+	 */ 
 	public static function getUsages($key='', $api_name='') {
 
 		$customer = self::getCustomerByKey($key);
