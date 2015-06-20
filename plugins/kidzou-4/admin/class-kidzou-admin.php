@@ -44,11 +44,13 @@ class Kidzou_Admin {
 	/**
 	 * les ecrans qui meritent qu'on y ajoute des meta  d'evenement
 	 *
+	 * Cette variable est public, est est utlisée dans <code>Kidzou_Admin_geo->enqueue_geo_scripts()</code>
+	 *
 	 * @since    1.0.0
 	 *
 	 * @var      string
 	 */
-	protected $screen_with_meta_event = array('post', 'offres');
+	public $screen_with_meta_event = array('post', 'offres');
 
 	/**
 	 * les ecrans qui meritent qu'on y ajoute des meta  client
@@ -64,6 +66,8 @@ class Kidzou_Admin {
 	 * meta communes aux écrans $screen_with_meta
 	 * 
 	 *
+	 * Cette variable est public, est est utlisée dans <code>Kidzou_Admin_geo->enqueue_geo_scripts()</code>
+     *
 	 * @since    1.0.0
 	 *
 	 * @var      string
