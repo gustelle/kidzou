@@ -213,7 +213,7 @@ class Kidzou_Utils {
 	 * @author BeAPI - Copyright 2012 Amaury Balmer - amaury@beapi.fr
 	 * @see https://github.com/herewithme/wp-filters-extras/blob/master/wp-filters-extras.php
 	 **/
-	function remove_filters_with_method_name( $hook_name = '', $method_name = '', $priority = 0 ) {
+	public static function remove_filters_with_method_name( $hook_name = '', $method_name = '', $priority = 0 ) {
 		global $wp_filter;
 		
 		// Take only filters on right hook name and priority
@@ -242,20 +242,25 @@ class Kidzou_Utils {
 	 * @author BeAPI - Copyright 2012 Amaury Balmer - amaury@beapi.fr
 	 * @see https://github.com/herewithme/wp-filters-extras/blob/master/wp-filters-extras.php
 	 **/
-	function remove_filters_for_anonymous_class( $hook_name = '', $class_name ='', $method_name = '', $priority = 0 ) {
+	public static function remove_filters_for_anonymous_class( $hook_name = '', $class_name ='', $method_name = '', $priority = 0 ) {
 		global $wp_filter;
+		// Kidzou_Utils::log(array('method'=> __METHOD__,'wp_filter[hook_name]'=> $wp_filter[$hook_name][$priority]), true);
 		
 		// Take only filters on right hook name and priority
-		if ( !isset($wp_filter[$hook_name][$priority]) || !is_array($wp_filter[$hook_name][$priority]) )
+		if ( !isset($wp_filter[$hook_name][$priority]) || !is_array($wp_filter[$hook_name][$priority]) ) {
+			// Kidzou_Utils::log(array('method'=> __METHOD__,'message'=> 'filter not found'), true);
 			return false;
-		
+		}
+			
 		// Loop on filters registered
 		foreach( (array) $wp_filter[$hook_name][$priority] as $unique_id => $filter_array ) {
 			// Test if filter is an array ! (always for class/method)
 			if ( isset($filter_array['function']) && is_array($filter_array['function']) ) {
+				// Kidzou_Utils::log(array('method'=> __METHOD__,'class'=> get_class($filter_array['function'][0])), true);
 				// Test if object is a class, class and method is equal to param !
 				if ( is_object($filter_array['function'][0]) && get_class($filter_array['function'][0]) && get_class($filter_array['function'][0]) == $class_name && $filter_array['function'][1] == $method_name ) {
 					unset($wp_filter[$hook_name][$priority][$unique_id]);
+					// Kidzou_Utils::log(array('method'=> __METHOD__,'message'=> 'filter unset'), true);
 				}
 			}
 			

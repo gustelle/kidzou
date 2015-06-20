@@ -1202,6 +1202,7 @@ function kz_pb_portfolio( $atts ) {
 
 				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', $featured);
 
+				wp_reset_postdata();
 			}
 
 			$index++;
