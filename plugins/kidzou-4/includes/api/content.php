@@ -61,7 +61,8 @@ class JSON_API_Content_Controller {
 						'id'		=> $value->post_id,
 						'location'	=> Kidzou_GeoHelper::get_post_location($value->post_id),
 						'distance'	=> $value->distance,
-						'votes'		=> Kidzou_Vote::getVoteCount($value->post_id)
+						'votes'		=> Kidzou_Vote::getVoteCount($value->post_id),
+						'comments_count'	=> $post->comments_count
 					));
 				
 			}
@@ -69,13 +70,12 @@ class JSON_API_Content_Controller {
 			wp_reset_postdata();
 		}
 
-		//finalement on incrémente
-		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
 
 		return array(
 			'places' => $pins	
 		);
 	}
+
 
 	/**
 	 * La liste des événements programmés 
@@ -87,9 +87,10 @@ class JSON_API_Content_Controller {
 		global $json_api;
 
 		$args = array(
-			'posts_per_page' => -1,
-			'post_type'      => Kidzou::post_types(),
-		);
+	      'posts_per_page' => -1, 
+	      'post_status' => 'publish',
+	      'is_active'	=> true 
+	    );
 
 
 		$query = new Event_Query($args);
@@ -99,12 +100,14 @@ class JSON_API_Content_Controller {
 		//attacher les meta
 		foreach ($posts as $post) {
 			$o = array('post'=>$post);
-			$o['post_meta'] = Kidzou_Events::getEventDates($post->ID);
+			$o['post_meta'] = array(
+				"dates" => Kidzou_Events::getEventDates($post->ID),
+				"votes" => Kidzou_Vote::getVoteCount($post->ID)
+			);
+			$thumb = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), 'medium' );
+			$o['thumbnail'] = $thumb['0'];
 			array_push($list, $o);
 		}
-
-		//finalement on incrémente
-		// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
 
 		return array(
 			'events' => $list
