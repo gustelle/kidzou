@@ -940,10 +940,26 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 	if (Kidzou_Events::isTypeEvent()) {
 
-		$location = Kidzou_Events::getEventDates(get_the_ID());
+		ini_set('date.timezone', 'Europe/Paris');
+
+		$location = Kidzou_Events::getEventDates();
 
 		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+
+		//fix pour les serveurs de prod 
+		//seule méthode trouvée pour que les dates de fin ne soient pas décalées (fin à 23:59:59 décalées à 00:59:59)
 		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
+		//$end->setTimeZone(new DateTimeZone('Europe/London'));
+
+		//bon OK c'est un hack pour régler un pb d'affichage
+		//la date de fin s'affiche au lendemain de la date souhaitée
+		// if ($end>$start)
+		// 	$end->sub(new DateInterval('PT1H'));
+
+		$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
+		$formatter->setPattern('cccc dd LLLL');
+
+
 		$formatted = '';
 
 		//mieux vaut prévenir les erreurs que les guérir
@@ -952,11 +968,11 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		if ($start!==false && $end!==false) {
 
 			//bon OK c'est un hack pour régler un pb d'affichage
-			//la date de fin s'affiche au lendemain de la date souhaitée
-			$end->sub(new DateInterval('PT12H'));
+			// //la date de fin s'affiche au lendemain de la date souhaitée
+			// $end->sub(new DateInterval('PT12H'));
 			
-			$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
-			$formatter->setPattern('EEEE dd MMMM');
+			// $formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::SHORT);
+			// $formatter->setPattern('EEEE dd MMMM');
 
 			if ($start->format("Y-m-d") == $end->format("Y-m-d"))
 				$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
@@ -1157,6 +1173,8 @@ function kz_pb_portfolio( $atts ) {
 	$temp_query = $wp_query;
 	$wp_query   = NULL;
 	$wp_query   = $query;
+
+	Kidzou_Utils::log(array('WP_Query' => $query->request), true);
 
 	if ( $query->have_posts() ) {
 

@@ -89,13 +89,16 @@ class JSON_API_Content_Controller {
 		$args = array(
 	      'posts_per_page' => -1, 
 	      'post_status' => 'publish',
-	      'is_active'	=> true 
+	      'is_archive'	=> false,
 	    );
 
 
 		$query = new Event_Query($args);
 		$posts = $query->get_posts();
 		$list = array();
+
+		//temp pour débug
+		// $sql = $query;
 
 		//attacher les meta
 		foreach ($posts as $post) {
@@ -110,7 +113,8 @@ class JSON_API_Content_Controller {
 		}
 
 		return array(
-			'events' => $list
+			'events' => $list,
+			// 'sql' => $sql
 		);
 	}
 

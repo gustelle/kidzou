@@ -27,7 +27,7 @@ class Event_Query extends WP_Query {
                             )
                     );
 
-    }
+    } 
 
     //requete sur les archives
     if (isset($args['is_archive'])) {
