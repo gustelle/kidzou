@@ -205,22 +205,25 @@ class JSON_API_Content_Controller {
 		
 		$id = $json_api->query->id;
 
-		$gallery = get_post_gallery( $id, false )	;
-
-		$ids = explode( ",", $gallery['ids'] );
+		$gallery = get_post_gallery( $id, false );
 
 		$images = [];
 
-		foreach( $ids as $id ) {
+		if ($gallery && count($gallery)>0)
+		{
+			$ids = explode( ",", $gallery['ids'] );
 
-			$images[] = array(
-				'image_base' => wp_upload_dir()['baseurl'],
-				'post' => get_post( $id ),
-				'meta' => wp_get_attachment_metadata( $id ),
-				'comments' => get_comments(array('post_id'=>$id, 'status'=>'approve'))
-			);
+			foreach( $ids as $the_id ) {
 
-		} 
+				$images[] = array(
+					'image_base' => wp_upload_dir()['baseurl'],
+					'post' => get_post( $the_id ),
+					'meta' => wp_get_attachment_metadata( $the_id ),
+					// 'comments' => get_comments(array('post_id'=>$id, 'status'=>'approve'))
+				);
+
+			} 
+		}
 
 		return array(
 			'gallery' => $images
