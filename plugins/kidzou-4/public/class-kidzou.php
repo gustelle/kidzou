@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Paques 2015 fix 4';
+	const VERSION = 'Paques 2015 fix 5';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
