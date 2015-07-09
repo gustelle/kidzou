@@ -45,13 +45,10 @@ class JSON_API_Content_Controller {
 				$post = get_post($value->post_id);
 				setup_postdata($post);
 
-				// Kidzou_Utils::log($post, true);
-
 				$thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
 				
-				// $thumb = $thumbnail["thumb"];
-				// $img = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, 100, 100, '', false);
-
+				$is_event = Kidzou_Events::isTypeEvent($value->post_id);
+				
 				array_push($pins, array(
 						'latitude' => $value->latitude,
 						'longitude'=> $value->longitude,
@@ -62,7 +59,9 @@ class JSON_API_Content_Controller {
 						'location'	=> Kidzou_GeoHelper::get_post_location($value->post_id),
 						'distance'	=> $value->distance,
 						'votes'		=> Kidzou_Vote::getVoteCount($value->post_id),
-						'comments_count'	=> $post->comments_count
+						'comments_count'	=> wp_count_comments($value->post_id)->approved,
+						'is_event' 	=> $is_event,
+						'event_dates' => ($is_event ? Kidzou_Events::getEventDates($value->post_id) : array())
 					));
 				
 			}
@@ -72,7 +71,8 @@ class JSON_API_Content_Controller {
 
 
 		return array(
-			'places' => $pins	
+			'places' => $pins,
+			'radius'	=> $radius
 		);
 	}
 
