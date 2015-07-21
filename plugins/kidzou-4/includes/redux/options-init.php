@@ -1,8 +1,8 @@
 <?php
 
 /**
-  ReduxFramework Sample Config File
-  For full documentation, please visit: https://docs.reduxframework.com
+ * ReduxFramework Sample Config File
+*  For full documentation, please visit: https://docs.reduxframework.com
  * */
 
 if (!class_exists('admin_folder_Redux_Framework_config')) {
@@ -181,7 +181,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
-                'desc'      => __('Page de login, etc..', 'kidzou'),
+                'desc'      => __('Ces r&eacute;glages ont besoin d&apos;&ecirc;tre export&eacute;s dans la config pour reutilisation (mobile..)', 'kidzou'),
                 'icon'      => 'el-icon-cog',
                 'fields'    => array(
 
@@ -194,11 +194,28 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
+                            'id'        => 'legal_page',
+                            'type'      => 'select',
+                            'data'      => 'page',
+                            'title'     => __('Page "Qui sommes nous ?"', 'kidzou'),
+                            'subtitle'  => __('Informations l&eacute;gales sur Kidzou', 'kidzou'),
+                        ),
+
+                        array(
                             'id'        => 'user_favs_page',
                             'type'      => 'select',
                             'data'      => 'page',
                             'title'     => __('Page de Favoris utilisateur', 'kidzou'),
                             'subtitle'  => __('Les users retrouvent dans cette page les lieux et &eacute;v&eacute;nements qu&apos;ils ont aim&eacute;', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'main_cats',
+                            'type'      => 'select',
+                            'multi'     => true,
+                            'data'      => 'categories',
+                            'title'     => __('Categories principales', 'kidzou'),
+                            'subtitle'  => __('Quel grand rangement d&apos;information proposer aux users', 'kidzou'),
                         ),
 
                         array(

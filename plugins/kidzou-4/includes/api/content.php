@@ -8,9 +8,76 @@ Controller Author: Kidzou
 
 class JSON_API_Content_Controller {
 
+	/**
+	 * tous les lieux référencés
+	 *
+	  @todo !!! dépendance avec get_thumbnail qui est une fonctoin du thème !!!!
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @param radius : rayon de recherche
+	 *
+	 */
+	public function get_all_places() {
+
+		global $json_api;
+
+		$args = array(
+				'post_type' => 'post',
+        		'posts_per_page' => -1,
+			);
+		
+		global $post;
+		$query = new Geo_Query($args); 
+		$posts = $query->get_posts(); //Kidzou_Utils::log($posts,true);
+		$pins = array();
+
+		if (!empty($posts))
+		{	
+
+			foreach ($posts as $post) 
+			{
+				// $post = get_post($value->post_id);
+				setup_postdata($post);
+
+				// Kidzou_Utils::log($p,true);
+
+				$thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
+				
+				$is_event = Kidzou_Events::isTypeEvent(get_the_ID());
+
+				//exit les events non actifs
+				if ($is_event && !Kidzou_Events::isEventActive(get_the_ID()))
+					continue;
+				
+				array_push($pins, array(
+						'title'		=> get_the_title() ,
+						'permalink' => get_the_permalink(),
+						'thumbnail' => $thumbnail['thumb'],
+						'id'		=> get_the_ID(),
+						'location'	=> Kidzou_GeoHelper::get_post_location(get_the_ID()),
+						'votes'		=> Kidzou_Vote::getVoteCount(get_the_ID()),
+						'comments_count'	=> wp_count_comments(get_the_ID())->approved,
+						'is_event' 	=> $is_event,
+						'event_dates' => ($is_event ? Kidzou_Events::getEventDates(get_the_ID()) : array())
+					));
+				
+			}
+			wp_reset_postdata();
+			
+		}
+
+
+		return array(
+			'places' => $pins,
+		);
+	}
+
 
 	/**
 	 * Une liste de lieux référencés autour de coordonnées, dans un rayon donné
+	 *
+	 	@todo !!! dépendance avec get_thumbnail qui est une fonctoin du thème !!!!
 	 * 
 	 * @param latitude
 	 * @param longitude
@@ -50,8 +117,8 @@ class JSON_API_Content_Controller {
 				$is_event = Kidzou_Events::isTypeEvent($value->post_id);
 				
 				array_push($pins, array(
-						'latitude' => $value->latitude,
-						'longitude'=> $value->longitude,
+						// 'latitude' => $value->latitude,
+						// 'longitude'=> $value->longitude,
 						'title'		=> get_the_title() ,
 						'permalink' => get_the_permalink(),
 						'thumbnail' => $thumbnail['thumb'],

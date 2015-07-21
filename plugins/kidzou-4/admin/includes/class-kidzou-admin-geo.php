@@ -160,10 +160,10 @@ class Kidzou_Admin_Geo {
 		if ( Kidzou_GeoHelper::has_post_location($id) && $syncable )
 	   	{	
 	   		// Kidzou_Utils::log('add_post_to_geo_ds, suite');
-	   		$post = get_post($id); 
-   			$type = $post->post_type;
+	   		// $post = get_post($id); 
+   			// $type = $post->post_type;
 	   		$location = Kidzou_GeoHelper::get_post_location($id);
-	   		$meta_key = 'kz_'.$type.'_location_latitude';
+	   		$meta_key = Kidzou_GeoHelper::$meta_latitude;
 
 	   		$mid = $wpdb->get_var( 
 	   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
@@ -215,10 +215,10 @@ class Kidzou_Admin_Geo {
 
 		Kidzou_Utils::log('delete_post_from_geo_ds : post ' . $id, true);
 
-   		$post = get_post($id); 
-		$type = $post->post_type;
+   		// $post = get_post($id); 
+		// $type = $post->post_type;
  
-   		$meta_key_lat = 'kz_'.$type.'_location_latitude';
+   		$meta_key_lat = Kidzou_GeoHelper::$meta_latitude;
 
    		$deleted_meta_id = $wpdb->get_var( 
    			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key_lat'"
@@ -290,12 +290,12 @@ class Kidzou_Admin_Geo {
 
     	Kidzou_Utils::log('after_post_meta ' . $meta_id.', '.$post_id.', '. $meta_key. ', '. $meta_value );
 
-    	$post = get_post($post_id); 
+    	// $post = get_post($post_id); 
 
-	   	$type = $post->post_type;
+	   	// $type = $post->post_type;
 
-	   	$lat_meta = 'kz_'.$type.'_location_latitude';
-	   	$lng_meta = 'kz_'.$type.'_location_longitude';
+	   	$lat_meta = Kidzou_GeoHelper::$meta_latitude;//'kz_'.$type.'_location_latitude';
+	   	$lng_meta = Kidzou_GeoHelper::$meta_longitude;//'kz_'.$type.'_location_longitude';
 
     	switch ($meta_key) {
     		case $lat_meta:

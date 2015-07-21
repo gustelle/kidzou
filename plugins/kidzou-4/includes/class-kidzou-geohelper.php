@@ -30,6 +30,9 @@ class Kidzou_GeoHelper {
 	 */
 	const META_COORDS = 'kz_coords';
 
+	public static $meta_latitude = 'kz_post_location_latitude';
+	public static $meta_longitude = 'kz_post_location_longitude';
+
 	/**
 	 * Instance of this class.
 	 *
@@ -53,9 +56,7 @@ class Kidzou_GeoHelper {
 	 * @since     1.0.0
 	 */
 	private function __construct() { 
-
-		self::init();
-			
+		self::init();	
 	}
 
 
@@ -102,9 +103,6 @@ class Kidzou_GeoHelper {
 		foreach ($more_types as $key => $value) {
 			array_push(self::$supported_post_types, $value);
 		}
-
-		// Kidzou_Utils::log('Kidzou_GeoHelper [add_supported_post_types]', true);
-
 	}
 
 	/**
@@ -134,17 +132,17 @@ class Kidzou_GeoHelper {
 	        $post_id = $post->ID; 
 	    }
 
-	    $post = get_post($post_id); 
+	    // $post = get_post($post_id); 
 
-	   	$type = $post->post_type;
+	   	// $type = $post->post_type;
 
-	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
-	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
-	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE);
-	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
-	    $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
-	    $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
-	    $location_city   = get_post_meta($post_id, 'kz_'.$type.'_location_city', TRUE);
+	    $location_name      = get_post_meta($post_id, 'kz_post_location_name', TRUE);
+	    $location_address   = get_post_meta($post_id, 'kz_post_location_address', TRUE);
+	    $location_latitude  = get_post_meta($post_id, self::$meta_latitude, TRUE); //'kz_'.$type.'_location_latitude'
+	    $location_longitude = get_post_meta($post_id, self::$meta_longitude, TRUE); //'kz_'.$type.'_location_longitude'
+	    $location_tel   = get_post_meta($post_id, 'kz_post_location_phone_number', TRUE);
+	    $location_web   = get_post_meta($post_id, 'kz_post_location_website', TRUE);
+	    $location_city   = get_post_meta($post_id, 'kz_post_location_city', TRUE);
 
 	    return array(
 	        'location_name' => $location_name,
@@ -300,13 +298,13 @@ class Kidzou_GeoHelper {
 
 		            } else {
 		                $result[$key] = $value;
-		                Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
+		                // Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
 		            }
 		        }   
 
 		        if (!empty($result) && count($result)>0) {
 		        	set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
-		        	Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
+		        	// Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
 		        }
 		       		
 	        } else {
