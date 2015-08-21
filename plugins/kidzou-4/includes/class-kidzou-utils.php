@@ -347,6 +347,48 @@ class Kidzou_Utils {
 	}
 
 	/**
+	 * renvoie l'URL de la thumbnail d'un post
+	 *
+	 * @return URL (String)
+	 * @param size (thumbnail|medium|large|full)
+	 *
+	 **/
+	public static function get_post_thumbnail($post_id=0, $size='medium')
+	{
+	    if ( $post_id == 0 ) return '';
+
+		$thumb = '';
+
+		if ( has_post_thumbnail( $post_id ) ) {
+
+			$et_fullpath = wp_get_attachment_image_src( get_post_thumbnail_id( $post_id ), $size );
+			$thumb = $et_fullpath[0];
+		}
+
+		return $thumb;
+	}
+
+	/**
+	 * renvoie l'URL de l'avatar d'un commentaire
+	 *
+	 * @return URL (String)
+	 * @author http://wordpress.stackexchange.com/questions/59442/how-do-i-get-the-avatar-url-instead-of-an-html-img-tag-when-using-get-avatar
+	 **/
+	public static function get_comment_avatar($comment='') 
+	{
+		if ($comment=='') return '';
+
+		if (function_exists('get_avatar_url'))  //since WP 4.2
+			$url = get_avatar_url($comment->comment_author_email);
+		else {
+			preg_match("/src=['\"](.*?)['\"]/i", $get_avatar, $matches);
+			$url = $matches[1];
+		}
+
+		return $url;
+	}
+
+	/**
 	 * renvoie l'adresse IP de l'utilisateur
 	 * pour securiser les vote des users  et mesurer les appels d'API
 	 *

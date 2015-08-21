@@ -249,6 +249,23 @@ class Kidzou_API {
 	}
 
 	/**
+	 * les cles publiques permettent l'utilisation d'API de facon publique (non authentifié)
+	 * Une clé publique n'appartient pas à un client mais à tout le monde
+	 *
+	 * @param key : une cle publique (String)
+	 */
+	public static function isPublicKey($key) {
+
+		$public_key = Kidzou_Utils::get_option('api_public_key');
+
+		Kidzou_Utils::log('Public Key : '.$public_key, true);
+
+		return ($key==$public_key);
+
+	}
+
+
+	/**
 	 * fonction utilitaire
 	 */
 	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {

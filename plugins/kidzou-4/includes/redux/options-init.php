@@ -122,17 +122,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             return $defaults;
         }
 
-        // Remove the demo link and the notice of integrated demo from the redux-framework plugin
-        // function remove_demo() {
-
-        //     // Used to hide the demo mode link from the plugin page. Only used when Redux is a plugin.
-        //     if (class_exists('ReduxFrameworkPlugin')) {
-        //         remove_filter('plugin_row_meta', array(ReduxFrameworkPlugin::instance(), 'plugin_metalinks'), null, 2);
-
-        //         // Used to hide the activation notice informing users of the demo panel. Only used when Redux is a plugin.
-        //         remove_action('admin_notices', array(ReduxFrameworkPlugin::instance(), 'admin_notices'));
-        //     }
-        // }
 
         public function setSections() {
 
@@ -140,9 +129,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             //@see https://github.com/ReduxFramework/redux-framework/issues/1042
             $previous_options = get_option('kidzou_options');
 
-            // Kidzou_Utils::log($previous_options, true);
-            
-            $permalink_href = admin_url('options-permalink.php');
+            //mailchimp_lists
             $mailchimp_lists = get_transient( 'kz_mailchimp_lists' );
 
             if (false==$mailchimp_lists) {
@@ -154,7 +141,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
             //intégration Gravity Forms
             $gf = false;
-            if (class_exists('GFAPI')) {
+            if (class_exists('GFForms')) {
 
                 $gf = true;
 
@@ -458,6 +445,13 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'min'      => '1',
                         'step'     => '1',
                         'max'      => '30'
+                    ),
+
+                    array(
+                        'id'        => 'api_public_key',
+                        'type'      => 'text',
+                        'default'   => md5(uniqid()),
+                        'title'     => __('Cle publique pour utilisation des API sans authentification', 'kidzou'),
                     ),
 
                 )
@@ -1110,6 +1104,7 @@ if (!function_exists('get_mailchimp_lists')):
     }
  
 endif;
+            
 
 /**
  * A la validation d'une Clé Mailchimp, récupère les listes
@@ -1119,16 +1114,12 @@ if (!function_exists('set_mailchimp_lists')):
     function set_mailchimp_lists($field, $value, $existing_value) {
 
         $return['value'] = $value;
-
-
         $transient = get_transient( 'kz_mailchimp_lists' ) ;
-
 
         //si la valeur change ,on récupère les listes
         if ( $value!=$existing_value || (false === $transient ) ) 
         {
             try {
-
 
                 $lists = get_mailchimp_lists($value);
 
