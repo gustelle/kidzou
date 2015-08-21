@@ -1,7 +1,13 @@
 <?php
 
 /** 
- * Intégraiton avec Gravity Forms
+ * Intégration avec Gravity Forms WebAPI pour déclencher des action automatiquement 
+ * lorsqu'on recoit des formulaires par API REST
+ * 
+ * Les actions déclenchées sont :
+ * - Transformation d'une image Base64 en fichier Image
+ * - Fournit un preview pour les images transférées via WebAPI en REST dans la liste des formulaires recus (entries) et dans la vue détaillée d'une entry
+ * - Ajout d'un statut de validation
  *
  */
 class Kidzou_GF_Webapi  {
@@ -13,22 +19,24 @@ class Kidzou_GF_Webapi  {
      */
     public function __construct() { 
 
-        //recup de la photo au format base64 et écriture en fichier
-        add_action( 'gform_pre_submission', array($this,'kz_write_image_file' ));
+        if (class_exists('GFForms')) {
 
-        //affichage de la liste des photos soumises : thumbnail
-        add_action( 'gform_entries_first_column', array($this,'first_column_content'), 10, 5);
+            //recup de la photo au format base64 et écriture en fichier
+            add_action( 'gform_pre_submission', array($this,'kz_write_image_file' ));
 
-        //affichage custom d'une entry (thumbnail clickable, permalink)
-        add_filter( 'gform_entry_field_value', array($this,'kz_entry_fields'), 10, 4 );
-        
-        //uniquement les admins sont listés dans les settings
-        add_filter( 'gform_webapi_get_users_settings_page', array($this,'kz_webapi_get_users_args'));
+            //affichage de la liste des photos soumises : thumbnail
+            add_action( 'gform_entries_first_column', array($this,'first_column_content'), 10, 5);
 
-        //recuperation du statut de la photo pour notification user
-        add_filter('gform_custom_merge_tags', array($this,'kz_status_merge_tag'), 10, 4);
-        add_filter('gform_replace_merge_tags', array($this,'kz_replace_merge_tags'), 10, 7);
-        // add_filter('gform_field_content', 'wpse_121476_field_content', 10, 5);
+            //affichage custom d'une entry (thumbnail clickable, permalink)
+            add_filter( 'gform_entry_field_value', array($this,'kz_entry_fields'), 10, 4 );
+            
+            //uniquement les admins sont listés dans les settings
+            add_filter( 'gform_webapi_get_users_settings_page', array($this,'kz_webapi_get_users_args'));
+
+            //recuperation du statut de la photo pour notification user
+            add_filter('gform_custom_merge_tags', array($this,'kz_status_merge_tag'), 10, 4);
+            add_filter('gform_replace_merge_tags', array($this,'kz_replace_merge_tags'), 10, 7);
+        }
 
     }
 
