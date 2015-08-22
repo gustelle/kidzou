@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Menu-Mobile';
+	const VERSION = 'API-CORS';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -80,6 +80,7 @@ class Kidzou {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
 		add_action( 'init', array( $this, 'register_taxonomies' ), 1 );
+		add_action( 'init', array( $this, 'allow_cors' ), 2 );
 
 		// Activate plugin when new blog is added
 		add_action( 'wpmu_new_blog', array( $this, 'activate_new_site' ) );
@@ -109,7 +110,6 @@ class Kidzou {
 		add_filter('json_api_social_controller_path',  array( $this, 'set_social_controller_path') );
 
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
-
 		add_action('wp_head', array( $this, 'insert_pub_header'));
 
 	}
@@ -508,6 +508,38 @@ class Kidzou {
 			));
 	}
 
+	/**
+	 * Permet l'appel d'API en dehors du domaine Kidzou
+	 * necessaire pour une app. mobile par exemple
+	 * 
+	 * @deprecated
+	 *
+	 */
+	public function allow_cors() {
+
+		$activate = ((bool)Kidzou_Utils::get_option('api_activate_cors',false)) ;
+		// Kidzou_Utils::log(array('api_activate_cors'=> $activate), true);
+		if ($activate==true) {
+
+			// Allow from any origin
+		    if (isset($_SERVER['HTTP_ORIGIN'])) {
+		        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+		        header('Access-Control-Allow-Credentials: true');
+		        header('Access-Control-Max-Age: 86400');    // cache for 1 day
+		    }
+		    // Access-Control headers are received during OPTIONS requests
+		    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+
+		        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
+		            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");         
+
+		        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
+		            header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+
+		    }
+		}
+	}
+
 
 	/**
 	 * 
@@ -649,7 +681,6 @@ class Kidzou {
 	}
 	
 	public static function post_types() {
-
 		return array('post'); //'event'
 	}
 
