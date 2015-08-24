@@ -8,70 +8,73 @@ Controller Author: Kidzou
 
 class JSON_API_Content_Controller {
 
-	// /**
-	//  * tous les lieux référencés
-	//  * 
-	//  * @deprecated
-	//  *
-	//  * @param latitude
-	//  * @param longitude
-	//  * @param radius : rayon de recherche
-	//  *
-	//  */
-	// public function get_all_places() {
+	/**
+	 * tous les lieux référencés et toutes ses metadata
+	 *
+	 * @param key : la clé d'API publique 
+	 *
+	 */
+	public function get_place() {
 
-	// 	global $json_api;
+		global $json_api;
 
-	// 	$args = array(
-	// 			'post_type' => 'post',
- //        		'posts_per_page' => -1,
-	// 		);
+		$key = $json_api->query->key;
+		$id = $json_api->query->post_id;
+
+		if ( !Kidzou_API::isPublicKey($key)) $json_api->error("Cle invalide ");
 		
-	// 	global $post;
-	// 	$query = new Geo_Query($args); 
-	// 	$posts = $query->get_posts(); //Kidzou_Utils::log($posts,true);
-	// 	$pins = array();
+		global $post;
+		$post = get_post($id);
 
-	// 	if (!empty($posts))
-	// 	{	
+		$is_event = Kidzou_Events::isTypeEvent($id);
 
-	// 		foreach ($posts as $post) 
-	// 		{
-	// 			// $post = get_post($value->post_id);
-	// 			setup_postdata($post);
+		//exit les events non actifs
+		if ($is_event && !Kidzou_Events::isEventActive($id))
+			continue;
+		
+		//avatars
+		$comments = get_comments(array('post_id'=> $id, 'status' => 'approve'));
+		foreach ($comments as $comment)
+			$comment->avatar = Kidzou_Utils::get_comment_avatar($comment);
 
-	// 			// Kidzou_Utils::log($p,true);
+		//gallery et contenu "propre" sans gallery
+		$content = Kidzou_Utils::strip_shortcode_gallery($post->post_content);
+			$post->post_content = $content;
 
-	// 			// $thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
-				
-	// 			$is_event = Kidzou_Events::isTypeEvent(get_the_ID());
+		$gallery = get_post_gallery( $id, false );
+		$images = [];
+		if ($gallery && count($gallery)>0)
+		{
+			$ids = explode( ",", $gallery['ids'] );
+			foreach( $ids as $the_id ) {
+				$images[] = array(
+					'base_url' => wp_upload_dir()['baseurl'],
+					'attachment'	=> get_post($the_id),
+					'attachment_metadata' => wp_get_attachment_metadata( $the_id ),
+				);
 
-	// 			//exit les events non actifs
-	// 			if ($is_event && !Kidzou_Events::isEventActive(get_the_ID()))
-	// 				continue;
-				
-	// 			array_push($pins, array(
-	// 					'title'		=> get_the_title() ,
-	// 					'permalink' => get_the_permalink(),
-	// 					'thumbnail' => Kidzou_Utils::get_post_thumbnail(get_the_ID(), 'large'),
-	// 					'id'		=> get_the_ID(),
-	// 					'location'	=> Kidzou_GeoHelper::get_post_location(get_the_ID()),
-	// 					'votes'		=> Kidzou_Vote::getVoteCount(get_the_ID()),
-	// 					'comments_count'	=> wp_count_comments(get_the_ID())->approved,
-	// 					'is_event' 	=> $is_event,
-	// 					'event_dates' => ($is_event ? Kidzou_Events::getEventDates(get_the_ID()) : array())
-	// 				));
-				
-	// 		}
-	// 		wp_reset_postdata();
-			
-	// 	}
+			} 
+		}
+		
+		$place = array(
+				'post'			=> $post,
+				'location'		=> Kidzou_GeoHelper::get_post_location($id),
+				'votes'			=> Kidzou_Vote::getVoteCount($id),
+				'is_event' 		=> $is_event,
+				'event_dates' 	=> ($is_event ? Kidzou_Events::getEventDates($id) : array()),
+				'thumbnail'		=> Kidzou_Utils::get_post_thumbnail($id, 'large'),
+				'comments' 		=> $comments,
+				'gallery'		=> $images
+			);
+
+		Kidzou_Utils::log('get_place', $place);
+
+		return array(
+			'place' => $place
+		);
+	}
 
 
-	// 	return array(
-	// 		'places' => $pins,
-	// 	);
-	// }
 
 	/**
 	 * tous les lieux référencés et toutes ses metadata
@@ -211,285 +214,75 @@ class JSON_API_Content_Controller {
 	}
 
 
-	// /**
-	//  * Une liste de lieux référencés autour de coordonnées, dans un rayon donné
-	//  *
-	//  * 
-	//  * @param latitude
-	//  * @param longitude
-	//  * @param radius : rayon de recherche
-	//  *
-	//  */
-	// public function places() {
+	/**
+	 * Une liste de lieux référencés autour de coordonnées, dans un rayon donné
+	 *
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @param radius : rayon de recherche
+	 *
+	 */
+	public function places() {
 
-	// 	global $json_api;
-	// 	$latitude 	= $json_api->query->latitude;
-	// 	$longitude 	= $json_api->query->longitude;
-	// 	$radius = $json_api->query->radius;
+		global $json_api;
+		$latitude 	= $json_api->query->latitude;
+		$longitude 	= $json_api->query->longitude;
+		$radius = $json_api->query->radius;
 
-	// 	if ( !is_numeric($latitude) ||  !is_numeric($longitude)) 
-	// 		$json_api->error("Coordonnees invalides");
+		if ( !is_numeric($latitude) ||  !is_numeric($longitude)) 
+			$json_api->error("Coordonnees invalides");
 
-	// 	if ( !is_numeric($radius) || floatval($radius)<0 ) 
-	// 		$json_api->error("Rayon de recherche invalide");
+		if ( !is_numeric($radius) || floatval($radius)<0 ) 
+			$json_api->error("Rayon de recherche invalide");
 		
-	// 	$locator = new Kidzou_Geolocator();
+		$locator = new Kidzou_Geolocator();
 
-	// 	$ids = $locator->getPostsNearToMeInRadius($latitude, $longitude, $radius, array('post'));
+		$ids = $locator->getPostsNearToMeInRadius($latitude, $longitude, $radius, array('post'));
 
-	// 	$pins = array();
+		$pins = array();
 
-	// 	if (!empty($ids))
-	// 	{	
-	// 		global $post;
+		if (!empty($ids))
+		{	
+			global $post;
 
-	// 		foreach ($ids as $key=>$value) 
-	// 		{
-	// 			$post = get_post($value->post_id);
-	// 			setup_postdata($post);
+			foreach ($ids as $key=>$value) 
+			{
+				$post = get_post($value->post_id);
+				setup_postdata($post);
 
-	// 			// $thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
+				// $thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
 				
-	// 			$is_event = Kidzou_Events::isTypeEvent($value->post_id);
+				$is_event = Kidzou_Events::isTypeEvent($value->post_id);
 				
-	// 			array_push($pins, array(
-	// 					// 'latitude' => $value->latitude,
-	// 					// 'longitude'=> $value->longitude,
-	// 					'title'		=> get_the_title() ,
-	// 					'permalink' => get_the_permalink(),
-	// 					'thumbnail' => Kidzou_Utils::get_post_thumbnail($value->post_id, 'large'),
-	// 					'id'		=> $value->post_id,
-	// 					'location'	=> Kidzou_GeoHelper::get_post_location($value->post_id),
-	// 					'distance'	=> $value->distance,
-	// 					'votes'		=> Kidzou_Vote::getVoteCount($value->post_id),
-	// 					'comments_count'	=> wp_count_comments($value->post_id)->approved,
-	// 					'is_event' 	=> $is_event,
-	// 					'event_dates' => ($is_event ? Kidzou_Events::getEventDates($value->post_id) : array())
-	// 				));
+				array_push($pins, array(
+						// 'latitude' => $value->latitude,
+						// 'longitude'=> $value->longitude,
+						'title'		=> get_the_title() ,
+						'permalink' => get_the_permalink(),
+						'thumbnail' => Kidzou_Utils::get_post_thumbnail($value->post_id, 'large'),
+						'id'		=> $value->post_id,
+						'location'	=> Kidzou_GeoHelper::get_post_location($value->post_id),
+						'distance'	=> $value->distance,
+						'votes'		=> Kidzou_Vote::getVoteCount($value->post_id),
+						'comments_count'	=> wp_count_comments($value->post_id)->approved,
+						'is_event' 	=> $is_event,
+						'event_dates' => ($is_event ? Kidzou_Events::getEventDates($value->post_id) : array())
+					));
 				
-	// 		}
+			}
 
-	// 		wp_reset_postdata();
-	// 	}
-
-
-	// 	return array(
-	// 		'places' => $pins,
-	// 		'radius'	=> $radius
-	// 	);
-	// }
+			wp_reset_postdata();
+		}
 
 
-	// /**
-	//  * La liste des événements programmés 
-	//  * @deprecated
-	//  *
-	//  */
-	// public function events() {
-
-	// 	global $json_api;
-
-	// 	$args = array(
-	//       'posts_per_page' => -1, 
-	//       'post_status' => 'publish',
-	//       'is_archive'	=> false,
-	//     );
+		return array(
+			'places' => $pins,
+			'radius'	=> $radius
+		);
+	}
 
 
-	// 	$query = new Event_Query($args);
-	// 	$posts = $query->get_posts();
-	// 	$list = array();
-
-	// 	//temp pour débug
-	// 	// $sql = $query;
-
-	// 	//attacher les meta
-	// 	foreach ($posts as $post) {
-	// 		$o = array('post'=>$post);
-	// 		$o['post_meta'] = array(
-	// 			"dates" => Kidzou_Events::getEventDates($post->ID),
-	// 			"votes" => Kidzou_Vote::getVoteCount($post->ID)
-	// 		);
-	// 		// $thumb = wp_get_attachment_image_src( get_post_thumbnail_id($post->ID), 'medium' );
-	// 		// $o['thumbnail'] = $thumb['0'];
-	// 		$o['thumbnail'] = Kidzou_Utils::get_post_thumbnail($post->ID, 'medium');
-	// 		array_push($list, $o);
-	// 	}
-
-	// 	return array(
-	// 		'events' => $list,
-	// 		// 'sql' => $sql
-	// 	);
-	// }
-
-	// /**
-	//  * La liste des contenus triés par recommandation 
-	//  * @deprecated
-	//  *
-	//  */
-	// public function recos() {
-
-	// 	global $json_api;
-
-	// 	$page 	= $json_api->query->page;
-	// 	$offset = $json_api->query->offset;
-
-	// 	if (!$json_api->query->page)
-	// 		$page = 0;
-
-	// 	if (!$json_api->query->offset)
-	// 		$offset = 0;
-
-	// 	if ( !is_numeric($page) || !is_numeric($offset)) 
-	// 		$json_api->error("Paramètres incorrects, offset et page doivent etre numériques");
-
-	// 	$args = array(
-	// 		'posts_per_page' => 20, 
-	// 		'post_type'      => Kidzou::post_types(),
-	// 		'page'	=> $page,
-	// 		'offset' => $offset
-	// 	);
-
-	// 	$query = new Vote_Query($args);
-
-	// 	$posts = $query->get_posts();
-	// 	$list = array();
-
-	// 	//attacher les meta
-	// 	foreach ($posts as $post) {
-	// 		$o = array('post'=>$post);
-	// 		$o['post_meta'] = array('reco_count' => Kidzou_Vote::getVoteCount($post->ID));
-	// 		array_push($list, $o);
-	// 	}
-
-	// 	//finalement on incrémente
-	// 	// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
-
-	// 	return array(
-	// 		'votes' => $list	
-	// 	);
-	// }
-
-	// /**
-	//  * La galerie de photos d'un post
-	//  * @deprecated
-	//  *
-	//  * @param id 
-	//  *
-	//  */
-	// public function get_content_without_gallery() {
-
-	// 	global $json_api;
-		
-	// 	$id = $json_api->query->id;
-
-	// 	// $gallery = get_post_gallery($id, false);
-
-	// 	$content = get_post_field('post_content', $id);
-
- //       	$content = Kidzou_Utils::strip_shortcode_gallery($content);
-
- //       	$content = str_replace( ']]>', ']]&gt;',   apply_filters('the_content', $content)); 
-
- //       	//finalement on incrémente
-	// 	// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
-
- //       	return array(
-	// 		'content' => $content	
-	// 	);
-
-	// }
-
-	// /**
-	//  * La galerie de photos d'un post
-	//  * @deprecated
-	//  *
-	//  */
-	// public function get_post_gallery() {
-
-	// 	global $json_api;
-		
-	// 	$id = $json_api->query->id;
-
-	// 	$gallery = get_post_gallery( $id, false );
-
-	// 	$images = [];
-
-	// 	if ($gallery && count($gallery)>0)
-	// 	{
-	// 		$ids = explode( ",", $gallery['ids'] );
-
-	// 		foreach( $ids as $the_id ) {
-
-	// 			$images[] = array(
-	// 				'image_base' => wp_upload_dir()['baseurl'],
-	// 				'post' => get_post( $the_id ),
-	// 				'meta' => wp_get_attachment_metadata( $the_id ),
-	// 				// 'comments' => get_comments(array('post_id'=>$id, 'status'=>'approve'))
-	// 			);
-
-	// 		} 
-	// 	}
-
-	// 	return array(
-	// 		'gallery' => $images
-	// 	);
-	// }
-
-	// /**
-	//  * Distance  à un lieu identifié par un ID, à partir de latitude et longitude données
-	//  *
-	//  */
-	// public function distance() {
-
-	// 	global $json_api;
-
-	// 	$id = $json_api->query->id;
-	// 	$latitude 	= $json_api->query->latitude;
-	// 	$longitude 	= $json_api->query->longitude;
-
-	// 	if ( !is_numeric($latitude) ||  !is_numeric($longitude)) 
-	// 		$json_api->error("Coordonnees invalides");
-
-	// 	if ( !is_numeric($id) || $id<1 ) 
-	// 		$json_api->error("ID de post invalide");
-		
-	// 	$locator = new Kidzou_Geolocator();
-
-	// 	$distance = $locator->getPostDistanceInKmById($latitude, $longitude, $id);
-
-	// 	//finalement on incrémente
-	// 	// Kidzou_API::incrementUsage(Kidzou_Utils::hash_anonymous(), __FUNCTION__ );
-
-	// 	return array(
-	// 		'distance' => $distance	
-	// 	);
-	// }
-
-	// /**
-	//  * Retourne l'URL de l'avatar d'un commentaire
-	//  *
-	//  * @param comment_id 
-	//  *
-	//  */
-	// public function get_avatar() {
-
-	// 	global $json_api;
-		
-	// 	$id = $json_api->query->comment_id;
-
-	// 	if ( !is_numeric($id) ) 
-	// 		$json_api->error("ID de commentaire invalide");
-
-	// 	$comment = get_comment( $id ); 
-
-	// 	$url = Kidzou_Utils::get_comment_avatar($comment);
-
- //       	return array(
-	// 		'avatar' => $url	
-	// 	);
-
-	// }
 
 	/**
 	 * fournit la liste des extraits de tous les contenus produits depuis une date donnée 
