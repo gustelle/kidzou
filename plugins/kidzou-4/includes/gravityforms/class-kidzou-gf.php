@@ -1,8 +1,11 @@
 <?php
 
 /** 
- * Intégraiton avec Gravity Forms
- *
+ * Intégraiton avec le Back office de Gravity Forms pour le formulaire d'envoi de photo par API
+ * 
+ * Si l'administrateur accepte la photo, elle est rattachée à la gallery du post parent
+ * Si l'administrateur la rejete, rien ne se passe
+ * 
  */
 class Kidzou_GF  {
 
@@ -62,7 +65,7 @@ class Kidzou_GF  {
 		// self::send_notifications($form['id'],$entry['id']);
 
 		// $config_form_id        = Kidzou_Utils::get_option('gf_form_id', '1');
-		$config_image_field    = Kidzou_Utils::get_option('gf_field_photo', '1');
+		$config_image_field    = Kidzou_Utils::get_option('gf_field_image_url', '1');
 		$config_login_field    = Kidzou_Utils::get_option('gf_field_user_id', '1');
 		$config_post_field     = Kidzou_Utils::get_option('gf_field_post_id', '1');
 		$config_comment_field  = Kidzou_Utils::get_option('gf_field_comment', '1');
