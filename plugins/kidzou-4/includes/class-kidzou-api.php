@@ -256,11 +256,15 @@ class Kidzou_API {
 	 */
 	public static function isPublicKey($key) {
 
-		$public_key = Kidzou_Utils::get_option('api_public_key');
+		$public_keys = Kidzou_Utils::get_option('api_public_key');
 
-		Kidzou_Utils::log('Public Key : '.$public_key, true);
+		foreach ($public_keys as $a_key) {
+		    if ($a_key==$key) return true;
+		}
 
-		return ($key==$public_key);
+		// Kidzou_Utils::log('Public Key : '.$public_key, true);
+
+		return false;
 
 	}
 
