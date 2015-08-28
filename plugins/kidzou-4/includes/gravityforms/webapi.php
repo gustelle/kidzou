@@ -9,6 +9,10 @@
  * - Fournit un preview pour les images transférées via WebAPI en REST dans la liste des formulaires recus (entries) et dans la vue détaillée d'une entry
  * - Ajout d'un statut de validation
  *
+ * @since Mobile-PhotoUploadV3 :
+ * Cette classe utilise la methode Kidzou_Utils::get_options() pour faire référence aux options plutot que Kidzou_Utils::get_option('my_option')
+ * car la methode  Kidzou_Utils::get_option('my_option') ne renvoie parfois rien ? (Bug??)
+ * 
  */
 class Kidzou_GF_Webapi  {
 
@@ -60,17 +64,17 @@ class Kidzou_GF_Webapi  {
      * @todo externaliser les ID des input, les rendre configurable
      *
      */
-    // $config_form_id        = Kidzou_Utils::get_option('gf_form_id', '1');
-    // Kidzou_Utils::log('action_hook'.$action_hook, true);
     function kz_write_image_file( $form ) {
 
-        $config_form_id        = Kidzou_Utils::get_option('gf_form_id', '1');
-        $config_image_base64_field = Kidzou_Utils::get_option('gf_field_image_base64', '1');
-        $config_image_url_field    = Kidzou_Utils::get_option('gf_field_image_url', '1');
-        $config_login_field    = Kidzou_Utils::get_option('gf_field_user_id', '1');
-        $config_email_field    = Kidzou_Utils::get_option('gf_field_user_email', 'contact@kidzou.fr');
-        $config_post_field     = Kidzou_Utils::get_option('gf_field_post_id', '1');
-        $config_comment_field  = Kidzou_Utils::get_option('gf_field_comment', '1');
+        $options = Kidzou_Utils::get_options();
+
+        $config_form_id        = $options['gf_form_id'];
+        $config_image_base64_field = $options['gf_field_image_base64'];
+        $config_image_url_field    = $options['gf_field_image_url'];
+        $config_login_field    = $options['gf_field_user_id'];
+        $config_email_field    = $options['gf_field_user_email'];
+        $config_post_field     = $options['gf_field_post_id'];
+        $config_comment_field  = $options['gf_field_comment'];
 
         if ( $form['id']== intval($config_form_id) ) {
 
@@ -109,8 +113,11 @@ class Kidzou_GF_Webapi  {
 
             //Kidzou_Utils::log(array('file_return' => $file_return), true);
 
-            //desormais le champ input de l'image contient le lien de l'image et plus les data
+            //populer le champ URL
             $_POST['input_'.$config_image_url_field] = $file_return['url'];
+
+            //la data au format base64 n'est plus nécessaire, elle va encombrer la DB
+            $_POST['input_'.$config_image_base64_field] = '-';
 
             //populer le champs email qui pourra être utilisé pour notifier le user 
             $_POST['input_'.$config_email_field] = $user->user_email;
@@ -128,8 +135,10 @@ class Kidzou_GF_Webapi  {
      */
     function kz_entries_first_column($form_id, $field_id, $value, $entry, $query_string) {
 
-        $config_form_id        = Kidzou_Utils::get_option('gf_form_id', '1');
-        $config_image_id       = Kidzou_Utils::get_option('gf_config_image_url_field', '1');
+        $options = Kidzou_Utils::get_options();
+        
+        $config_form_id        = $options['gf_form_id'];
+        $config_image_id       = $options['gf_field_image_url']; 
 
         if ( $form_id == intval($config_form_id) && $field_id==$config_image_id ) {
             $preview = sprintf(
@@ -148,14 +157,15 @@ class Kidzou_GF_Webapi  {
      * @todo externaliser dans une config la classe qui permet de repérer que le champ est une image
      */
     function kz_entries_columns( $value, $form_id, $field_id, $entry, $query_string ) {
-        
-        $config_form_id        = Kidzou_Utils::get_option('gf_form_id', '1');
-        $config_image_id       = Kidzou_Utils::get_option('gf_config_image_url_field', '1');
 
-        // Kidzou_Utils::log(array('entry', $entry), true);
+        $options = Kidzou_Utils::get_options();
+        
+        $config_form_id        = $options['gf_form_id'];
+        $config_image_id       = $options['gf_field_image_url']; 
 
         //only change the data when form id is 1 and field id is 2
         if ( $form_id == $config_form_id && $field_id == $config_image_id ) {
+            // Kidzou_Utils::log('URL '. $value,true);
             return sprintf(
                     "<img style='width:50px;height:auto;max-height:50px;overflow:hidden;' src='%s'>",
                     $value
@@ -173,14 +183,16 @@ class Kidzou_GF_Webapi  {
      */
     function kz_entry_fields($value, $field, $lead, $form) { //$content, $field, $value, $lead_id, $form_id
 
-        $config_form_id        = Kidzou_Utils::get_option('gf_form_id', '1');
-        $config_post_field     = Kidzou_Utils::get_option('gf_field_post_id', '1');
-        $config_image_field    = Kidzou_Utils::get_option('gf_config_image_url_field', '1');
+        $options = Kidzou_Utils::get_options();
+
+        $config_form_id        = $options['gf_form_id'];
+        $config_post_field     = $options['gf_field_post_id'];
+        $config_image_field    = $options['gf_field_image_url'];
 
         if ( $form['id']== intval($config_form_id) ) {
 
             if ( $field['id'] == intval($config_image_field)  ) {
-
+                // Kidzou_Utils::log('URL '. $value,true);
                 $value = sprintf(
                         "<a href='%s' target='_blank'><img style='width:100px;height:auto;max-height:100px;overflow:hidden;' src='%s'></a>",
                         $value,

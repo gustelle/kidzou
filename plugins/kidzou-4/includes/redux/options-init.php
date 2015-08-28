@@ -166,6 +166,8 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 }
             }
 
+
+
             $this->sections[] = array(
                 'title'     => __('R&eacute;glages g&eacute;n&eacute;raux', 'kidzou'),
                 'desc'      => __('Ces r&eacute;glages ont besoin d&apos;&ecirc;tre export&eacute;s dans la config pour reutilisation (mobile..)', 'kidzou'),
@@ -449,8 +451,8 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
                     array(
                         'id'        => 'api_public_key',
-                        'type'      => 'text',
-                        'default'   => md5(uniqid()),
+                        'type'      => 'multi_text',
+                        'subtitle'  => 'Cl&eacute; g&eacute;n&eacute;r&eacute;e au hasard :'.md5(uniqid()),
                         'title'     => __('Cle publique pour utilisation des API sans authentification', 'kidzou'),
                     ),
 
@@ -461,6 +463,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
                         'default'  => '0',// 1 = on | 0 = off
                     ),
+
+                    // array(
+                    //     'id'       => 'api_exposed_taxonomies',
+                    //     'type'     => 'checkbox',
+                    //     'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
+                    //     'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
+                    //     'default'  => '0',// 1 = on | 0 = off
+                    // ),
 
                 )
             );
