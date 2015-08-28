@@ -517,11 +517,13 @@ class Kidzou {
 	 */
 	public function allow_cors() {
 
-		$activate = ((bool)Kidzou_Utils::get_option('api_activate_cors',false)) ;
-		// Kidzou_Utils::log(array('api_activate_cors'=> $activate), true);
+		$activate = ((bool)Kidzou_Utils::get_option('api_activate_cors',true)) ;
+		Kidzou_Utils::log(array('api_activate_cors'=> $activate), true);
 		if ($activate==true) {
 
 			// Allow from any origin
+			Kidzou_Utils::log(array("HTTP_ORIGIN" => $_SERVER['HTTP_ORIGIN']), true);
+		    
 		    if (isset($_SERVER['HTTP_ORIGIN'])) {
 		        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 		        header('Access-Control-Allow-Credentials: true');
@@ -530,13 +532,17 @@ class Kidzou {
 		    // Access-Control headers are received during OPTIONS requests
 		    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
+		    	Kidzou_Utils::log('this is an option '. $_REQUEST, true);
+
 		        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
 		            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");         
 
 		        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
 		            header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
 
-		    }
+		   	}
+
+		   	// Kidzou_Utils::log(array('$_SERVER'=> $_SERVER), true);
 		}
 	}
 

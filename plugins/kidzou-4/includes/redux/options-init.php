@@ -483,9 +483,18 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
-                            'id'        => 'gf_field_photo',
+                            'id'        => 'gf_field_image_base64',
                             'type'      => 'select',
                             'title'     => __('Quel est le champ qui recevra la photo au format Base64 dans Gravity Forms WebAPI ?', 'kidzou'),
+                            // 'desc'     => __('', 'kidzou'),
+                            'multi'    => false,
+                            'options'  => $fields_options
+                        ),
+
+                        array(
+                            'id'        => 'gf_field_image_url',
+                            'type'      => 'select',
+                            'title'     => __('Quel est le champ qui recevra l\'URL de l\'image t&eacute;l&eacute;charg&eacute;e ?', 'kidzou'),
                             // 'desc'     => __('', 'kidzou'),
                             'multi'    => false,
                             'options'  => $fields_options
