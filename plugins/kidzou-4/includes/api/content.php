@@ -26,11 +26,15 @@ class JSON_API_Content_Controller {
 		global $post;
 		$post = get_post($id);
 
-		$is_event = Kidzou_Events::isTypeEvent($id);
+		$is_event 		= Kidzou_Events::isTypeEvent($id);
+		$is_featured  	= Kidzou_Featured::isFeatured($id);
 
 		//exit les events non actifs
 		if ($is_event && !Kidzou_Events::isEventActive($id))
 			continue;
+
+		//terms 
+		$terms = wp_get_post_terms( $id, Kidzou::get_taxonomies(), array("fields" => "all") );
 		
 		//avatars
 		$comments = get_comments(array('post_id'=> $id, 'status' => 'approve'));
@@ -64,10 +68,12 @@ class JSON_API_Content_Controller {
 				'event_dates' 	=> ($is_event ? Kidzou_Events::getEventDates($id) : array()),
 				'thumbnail'		=> Kidzou_Utils::get_post_thumbnail($id, 'large'),
 				'comments' 		=> $comments,
-				'gallery'		=> $images
+				'gallery'		=> $images,
+				'is_featured'	=> $is_featured,
+				'terms'			=> $terms 
 			);
 
-		Kidzou_Utils::log('get_place', $place);
+		// Kidzou_Utils::log('get_place', $place);
 
 		return array(
 			'place' => $place
@@ -109,11 +115,15 @@ class JSON_API_Content_Controller {
 				// $post = get_post($value->post_id);
 				setup_postdata($post);
 
-				$is_event = Kidzou_Events::isTypeEvent(get_the_ID());
+				$is_event 		= Kidzou_Events::isTypeEvent(get_the_ID());
+				$is_featured  	= Kidzou_Featured::isFeatured(get_the_ID());
 
 				//exit les events non actifs
 				if ($is_event && !Kidzou_Events::isEventActive(get_the_ID()))
 					continue;
+
+				//terms 
+				$terms = wp_get_post_terms( get_the_ID(), Kidzou::get_taxonomies(), array("fields" => "all") );
 				
 				//avatars
 				$comments = get_comments(array('post_id'=> get_the_ID(), 'status' => 'approve'));
@@ -147,7 +157,9 @@ class JSON_API_Content_Controller {
 						'event_dates' 	=> ($is_event ? Kidzou_Events::getEventDates(get_the_ID()) : array()),
 						'thumbnail'		=> Kidzou_Utils::get_post_thumbnail(get_the_ID(), 'large'),
 						'comments' 		=> $comments,
-						'gallery'		=> $images
+						'gallery'		=> $images,
+						'is_featured'	=> $is_featured,
+						'terms'			=> $terms
 					));
 				
 			}
@@ -157,6 +169,29 @@ class JSON_API_Content_Controller {
 
 		return array(
 			'places' => $places,
+		);
+	}
+
+	/**
+	 * Toutes les taxonomies et leurs enfants utilisées pour classifier le contenu
+	 *
+	 * @param key : la clé d'API publique 
+	 *
+	 */
+	public function get_terms() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+
+		if ( !Kidzou_API::isPublicKey($key)) $json_api->error("Cle invalide ");
+
+		$taxonomies = Kidzou::get_taxonomies();
+		
+		$terms = get_terms( $taxonomies, $args);
+
+		return array(
+			'terms' => $terms,
 		);
 	}
 
@@ -204,8 +239,7 @@ class JSON_API_Content_Controller {
 		} 
 
 		return array(
-			// 'message' => 'Gravity Forms is not available and is required for this API function',
-			'results' => $input_values
+			'results' => $results
 		);
 
 	}

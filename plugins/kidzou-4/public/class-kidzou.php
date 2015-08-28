@@ -518,11 +518,11 @@ class Kidzou {
 	public function allow_cors() {
 
 		$activate = ((bool)Kidzou_Utils::get_option('api_activate_cors',true)) ;
-		Kidzou_Utils::log(array('api_activate_cors'=> $activate), true);
+		// Kidzou_Utils::log(array('api_activate_cors'=> $activate), true);
 		if ($activate==true) {
 
 			// Allow from any origin
-			Kidzou_Utils::log(array("HTTP_ORIGIN" => $_SERVER['HTTP_ORIGIN']), true);
+			// Kidzou_Utils::log(array("HTTP_ORIGIN" => $_SERVER['HTTP_ORIGIN']), true);
 		    
 		    if (isset($_SERVER['HTTP_ORIGIN'])) {
 		        header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
@@ -532,7 +532,7 @@ class Kidzou {
 		    // Access-Control headers are received during OPTIONS requests
 		    if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 
-		    	Kidzou_Utils::log('this is an option '. $_REQUEST, true);
+		    	// Kidzou_Utils::log('this is an option '. $_REQUEST, true);
 
 		        if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
 		            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");         
@@ -688,6 +688,15 @@ class Kidzou {
 	
 	public static function post_types() {
 		return array('post'); //'event'
+	}
+
+	/**
+	 * Les taxonomies utilisées pour classifier le contenu 
+	 *
+	 */ 
+	public static function get_taxonomies() {
+		// return get_taxonomies(array(), 'names');
+		return array('ville', 'divers', 'age', 'category', 'post_tag'); 
 	}
 
 	/*JSON API*/
