@@ -13,7 +13,7 @@ class JSON_API_Config_Controller {
 	 *
 	 * @return Array 
 	 **/
-	public function all()
+	public function get_config()
 	{
 		global $json_api;
 
@@ -28,7 +28,14 @@ class JSON_API_Config_Controller {
 			$json_api->error("You must login to access these data.");
 		}	
 
-		return array("config" => Kidzou_Utils::get_options());
+		$options = Kidzou_Utils::get_options();
+		$config = array(
+				'api_public_key'=> $options['api_public_key'],
+				'geo_default_lat'=> $options['geo_default_lat'],
+				'geo_default_lng'=> $options['geo_default_lng'],
+			);
+
+		return array("config" => $config);
 		
 	}
 
