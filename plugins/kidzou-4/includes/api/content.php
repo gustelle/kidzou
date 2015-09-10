@@ -6,6 +6,13 @@ Controller Description: Permet de requeter les contenus du site par des filtres 
 Controller Author: Kidzou
 */
 
+
+/**
+ *
+ * @todo : sécuriser l'accès aux API: 
+ *			demander une clé par app (nonce valable pendant une durée indéfinie, jusqu'à révocation)
+ *			vérifier ce nonce avant accès au contenu (revoir isPublicKey)
+ */
 class JSON_API_Content_Controller {
 
 	/**
@@ -25,7 +32,7 @@ class JSON_API_Content_Controller {
 		
 		global $post;
 		$post = get_post($id);
-
+		
 		$is_event 		= Kidzou_Events::isTypeEvent($id);
 		$is_featured  	= Kidzou_Featured::isFeatured($id);
 
@@ -79,7 +86,6 @@ class JSON_API_Content_Controller {
 			'place' => $place
 		);
 	}
-
 
 
 	/**
@@ -159,7 +165,8 @@ class JSON_API_Content_Controller {
 						'comments' 		=> $comments,
 						'gallery'		=> $images,
 						'is_featured'	=> $is_featured,
-						'terms'			=> $terms
+						'terms'			=> $terms,
+						'permalink'		=> get_the_permalink(),
 					));
 				
 			}
@@ -192,15 +199,18 @@ class JSON_API_Content_Controller {
 	 * @todo coupler ca à la geolocalisation pour ne retenir que les related qui sont pas trop éloignés
 	 *
 	 */
-	public function get_related_posts() {
+	public function get_related_posts(){
 
 		global $json_api;
 
 		$key = $json_api->query->key;
 		$id = $json_api->query->post_id;
 
-		if ( !Kidzou_API::isPublicKey($key)) $json_api->error("Cle invalide ");
-		if (!$id || !is_int($id))  $json_api->error("post_id non reconnu");
+		if ( !Kidzou_API::isPublicKey($key) ) 
+			$json_api->error("Cle invalide ");
+		
+		if ( !is_int($id) )  
+			$json_api->error("post_id non reconnu");
 
 		$results = array(); 
 
@@ -210,7 +220,6 @@ class JSON_API_Content_Controller {
 		return array(
 				'related'=> $results
 			);
-
 	}
 
 
@@ -260,7 +269,6 @@ class JSON_API_Content_Controller {
 		return array(
 			'results' => $results
 		);
-
 	}
 
 
@@ -310,8 +318,6 @@ class JSON_API_Content_Controller {
 
 				
 				array_push($pins, array(
-						// 'latitude' => $value->latitude,
-						// 'longitude'=> $value->longitude,
 						'title'		=> get_the_title() ,
 						'permalink' => get_the_permalink(),
 						'thumbnail' => Kidzou_Utils::get_post_thumbnail($value->post_id, 'large'),
@@ -429,15 +435,12 @@ class JSON_API_Content_Controller {
 		return array(
 			'posts' => $results	,
 		);
-
 	}
 
-	public static function validateDate($date, $format = 'Y-m-d H:i:s')
-	{
+	public static function validateDate($date, $format = 'Y-m-d H:i:s') {
 	    $d = DateTime::createFromFormat($format, $date);
 	    return $d && $d->format($format) == $date;
 	}
-
 }
 
 
