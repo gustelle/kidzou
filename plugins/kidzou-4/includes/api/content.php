@@ -205,17 +205,21 @@ class JSON_API_Content_Controller {
 
 		$key = $json_api->query->key;
 		$id = $json_api->query->post_id;
+		$limit = $json_api->query->limit;
 
 		if ( !Kidzou_API::isPublicKey($key) ) 
 			$json_api->error("Cle invalide ");
 		
-		if ( !is_int($id) )  
+		if ( !is_int(intval($id)) )  
 			$json_api->error("post_id non reconnu");
+
+		if ( !is_int(intval($limit)) )  
+			$limit=3;
 
 		$results = array(); 
 
 		if (function_exists('get_crp_posts_id'))
-			$results = get_crp_posts_id();
+			$results = get_crp_posts_id(array( 'postid' => $id, 'limit' => $limit ));
 
 		return array(
 				'related'=> $results
