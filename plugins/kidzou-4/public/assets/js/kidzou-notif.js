@@ -79,7 +79,7 @@ var kidzouNotifier = (function(){
 	}
 	
 	/**
-	 * chaque message de notification est un modle objet
+	 * Modele Objet d'un message de notification
 	 * 
 	 */ 
 	function Message(_id, _title, _body, _target, _icon) {
@@ -232,9 +232,12 @@ var kidzouNotifier = (function(){
 			boxcontent += '<h3>' + kidzou_notif.message_title + '</h3>';
 		}
 
-		if (!is_newsletter)
-			boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + m.body + '</span></a>';
-		else
+		if (!is_newsletter) {
+			//Bugfix : pour je ne sais quelle raison le body de certains messages n'est pas limité par l'excerpt
+			//du coup on sécurise la taille du body
+			var excerpt = (m.body.length > 200 ? m.body.substring(0,200) + '...' : m.body);
+			boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + excerpt + '</span></a>';
+		} else 
 			boxcontent += '<i class="fa fa-close close"></i>' + m.icon + '<h3>' + m.title + '</h3>' + m.body ;
 
 		if (jQuery.fn.endpage_box) {

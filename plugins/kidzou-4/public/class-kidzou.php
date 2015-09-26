@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'API-CORS';
+	const VERSION = 'WP-API';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.

@@ -333,6 +333,10 @@ if ( class_exists( 'GFForms' ) ) {
 					<?php
 					foreach ( $entries as $entry ) {
 						$form = GFAPI::get_form( $entry['form_id'] );
+						if ($entry['created_by']=='') {
+							Kidzou_Utils::log("$entry[created_by] was null, set to current user", true);
+							$entry['created_by'] = $current_user->ID ;
+						}
 						$user = get_user_by( 'id', (int) $entry['created_by'] );
 						?>
 						<tr>
@@ -344,7 +348,7 @@ if ( class_exists( 'GFForms' ) ) {
 								?>
 							</td>
 							<td>
-								<?php
+								<?php 
 								$url_all_for_user = sprintf( 'admin.php?page=gf_entries&id=%d&s=%d&field_id=created_by&operator=is', $entry['form_id'], $user->ID );
 								$url_all_for_user = admin_url( $url_all_for_user );
 								echo "<a href='{$url_all_for_user}'>{$user->display_name}</a>";

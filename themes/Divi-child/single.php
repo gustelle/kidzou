@@ -69,20 +69,10 @@
 
 								$location = Kidzou_Events::getEventDates();
 
-								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
+								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
+								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
 
-								//fix pour les serveurs de prod 
-								//seule méthode trouvée pour que les dates de fin ne soient pas décalées (fin à 23:59:59 décalées à 00:59:59)
-								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
-								//$end->setTimeZone(new DateTimeZone('Europe/London'));
-
-								//bon OK c'est un hack pour régler un pb d'affichage
-								//la date de fin s'affiche au lendemain de la date souhaitée
-								// if ($end>$start)
-								// 	$end->sub(new DateInterval('PT1H'));
-
-								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
-								$formatter->setPattern('cccc dd LLLL');
+								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);								$formatter->setPattern('cccc dd LLLL');
 
 
 								$formatted = '';
