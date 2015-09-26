@@ -26,7 +26,7 @@ class Kidzou_GF_Webapi  {
         if (class_exists('GFForms')) {
 
             //recup de la photo au format base64 et écriture en fichier
-            add_action( 'gform_pre_submission', array($this,'kz_write_image_file' ));
+            add_action( 'gform_pre_submission', array($this,'kz_pre_submission' ));
 
             //affichage du thumbnail sur la 1ere colonne de la liste des photos soumises : 
             add_action( 'gform_entries_first_column', array($this,'kz_entries_first_column'), 10, 5);
@@ -57,6 +57,7 @@ class Kidzou_GF_Webapi  {
         return $args;
     }
 
+
     /**
      * Recupere une image au format Base64 du formulaire n° x (indiqué en config)
      * et la transforme en fichier déposé dans le répertoire d'upload
@@ -64,7 +65,7 @@ class Kidzou_GF_Webapi  {
      * @todo externaliser les ID des input, les rendre configurable
      *
      */
-    function kz_write_image_file( $form ) {
+    function kz_pre_submission( $form ) {
 
         $options = Kidzou_Utils::get_options();
 
@@ -111,8 +112,6 @@ class Kidzou_GF_Webapi  {
 
             $file_return = wp_handle_sideload($file, array( 'test_form' => false ));
 
-            //Kidzou_Utils::log(array('file_return' => $file_return), true);
-
             //populer le champ URL
             $_POST['input_'.$config_image_url_field] = $file_return['url'];
 
@@ -147,7 +146,7 @@ class Kidzou_GF_Webapi  {
                 );
             echo  $preview;
 
-        } //else echo $value;
+        } 
     }
 
     /**
@@ -192,7 +191,7 @@ class Kidzou_GF_Webapi  {
         if ( $form['id']== intval($config_form_id) ) {
 
             if ( $field['id'] == intval($config_image_field)  ) {
-                // Kidzou_Utils::log('URL '. $value,true);
+
                 $value = sprintf(
                         "<a href='%s' target='_blank'><img style='width:100px;height:auto;max-height:100px;overflow:hidden;' src='%s'></a>",
                         $value,
@@ -255,7 +254,6 @@ class Kidzou_GF_Webapi  {
                 break;
         }
         $text = str_replace('{status}', $status, $text);
-        // Kidzou_Utils::log($text);
         return $text;
     }
 

@@ -288,7 +288,9 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * déclenchée sur la sauvegarde du user profile dans l'admin
+	 * déclenchée sur la sauvegarde du user profile dans l'admin pour enregistrer les meta kidzou:
+	 * - Metropole du user
+	 * - Info de Carte famille (obsolete)
 	 *
 	 * @return void
 	 * @author 
@@ -327,9 +329,9 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * undocumented function
+	 * La liste des métropoles du User
 	 *
-	 * @return void
+	 * @return array
 	 * @author 
 	 **/
 	public static function get_user_metropoles ($user_id)
@@ -366,9 +368,10 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * undocumented function
+	 * Retourne True si le user courant a la carte famille
 	 *
-	 * @return void
+	 * @deprecated
+	 * @return Booléen
 	 * @author 
 	 **/
 	public function has_family_card()
@@ -419,6 +422,10 @@ class Kidzou_Admin {
 		$the_post = get_post($_REQUEST['post_id']);
 		$the_author = get_user_by('id', $the_post->post_author);
 		$customdir = '/' . $the_author->data->user_login; //alternative : display_name
+
+		//Bugfix : suppression de Whitespaces dans les login (ex: "Barraca Zem")
+		//ce qui cause des soucis à l'affichage
+		$customdir = preg_replace('/\s+/','',$customdir);
 
 	    $path['path']    = str_replace($path['subdir'], '', $path['path']); //remove default subdir (year/month)
 	    $path['url']     = str_replace($path['subdir'], '', $path['url']);      

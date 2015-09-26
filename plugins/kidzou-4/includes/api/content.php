@@ -36,10 +36,6 @@ class JSON_API_Content_Controller {
 		$is_event 		= Kidzou_Events::isTypeEvent($id);
 		$is_featured  	= Kidzou_Featured::isFeatured($id);
 
-		//exit les events non actifs
-		if ($is_event && !Kidzou_Events::isEventActive($id))
-			continue;
-
 		//terms 
 		$terms = wp_get_post_terms( $id, Kidzou::get_taxonomies(), array("fields" => "all") );
 		
