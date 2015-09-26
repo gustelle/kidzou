@@ -33,6 +33,7 @@ class JSON_API_Config_Controller {
 				'api_public_key'=> $options['api_public_key'],
 				'geo_default_lat'=> $options['geo_default_lat'],
 				'geo_default_lng'=> $options['geo_default_lng'],
+				'main_cats'	=> $options['main_cats']
 			);
 
 		return array("config" => $config);

@@ -464,14 +464,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'default'  => '0',// 1 = on | 0 = off
                     ),
 
-                    // array(
-                    //     'id'       => 'api_exposed_taxonomies',
-                    //     'type'     => 'checkbox',
-                    //     'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
-                    //     'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
-                    //     'default'  => '0',// 1 = on | 0 = off
-                    // ),
-
                 )
             );
             
