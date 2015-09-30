@@ -319,6 +319,7 @@ class JSON_API_Content_Controller {
 				
 				array_push($pins, array(
 						'title'		=> get_the_title() ,
+						'content'	=> get_the_content(),
 						'permalink' => get_the_permalink(),
 						'thumbnail' => Kidzou_Utils::get_post_thumbnail($value->post_id, 'large'),
 						'id'		=> $value->post_id,

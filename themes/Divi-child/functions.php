@@ -940,8 +940,6 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 	if (Kidzou_Events::isTypeEvent()) {
 
-		ini_set('date.timezone', 'Europe/Paris');
-
 		$location = Kidzou_Events::getEventDates();
 
 		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
@@ -949,7 +947,6 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 		$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
 		$formatter->setPattern('cccc dd LLLL');
-
 
 		$formatted = '';
 
