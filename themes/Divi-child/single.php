@@ -65,18 +65,15 @@
 
 							if (Kidzou_Events::isTypeEvent()) {
 
-								ini_set('date.timezone', 'Europe/Paris');
-
 								$location = Kidzou_Events::getEventDates();
 
 								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
 								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
 
-								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);								$formatter->setPattern('cccc dd LLLL');
-
+								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);								
+								$formatter->setPattern('cccc dd LLLL');
 
 								$formatted = '';
-
 
 								if ($start->format("Y-m-d") == $end->format("Y-m-d"))
 									$formatted = __( 'Le ', 'Divi').  $formatter->format($start) ;
