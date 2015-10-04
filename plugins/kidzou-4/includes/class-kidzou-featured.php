@@ -42,7 +42,7 @@ class Kidzou_Featured {
 	 * les types de posts qui peuvent être mis en avant
 	 *
 	 */
-	public static $supported_post_types = array('post','offres');
+	public static $supported_post_types = array('post'); //'offres'
 
 
 	/**

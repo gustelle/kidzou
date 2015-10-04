@@ -294,7 +294,7 @@ class Kidzou_Notif {
 	
 
 	public static function cleanup_transients() {
-		delete_transient('kz_notifications_content_offres');
+		// delete_transient('kz_notifications_content_offres');
         delete_transient('kz_notifications_content_page');
         delete_transient('kz_notifications_content_post');
 

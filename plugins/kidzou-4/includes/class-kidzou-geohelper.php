@@ -46,7 +46,7 @@ class Kidzou_GeoHelper {
 	 * le tableau des post types qui supportent la geolocalisation$
 	 * ce tableay est complété à l'init par les post types additionnels ajoutés par l'admin
 	 */
-	protected static $supported_post_types = array('post', 'page', 'offres');
+	protected static $supported_post_types = array('post', 'page'); //'offres'
 
 
 	/**

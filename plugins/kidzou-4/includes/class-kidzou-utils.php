@@ -244,6 +244,7 @@ class Kidzou_Utils {
 	 **/
 	public static function remove_filters_for_anonymous_class( $hook_name = '', $class_name ='', $method_name = '', $priority = 0 ) {
 		global $wp_filter;
+		// Kidzou_Utils::log('remove_filters_for_anonymous_class : '.$hook_name.'|'.$class_name ,true);
 		// Kidzou_Utils::log(array('method'=> __METHOD__,'wp_filter[hook_name]'=> $wp_filter[$hook_name][$priority]), true);
 		
 		// Take only filters on right hook name and priority

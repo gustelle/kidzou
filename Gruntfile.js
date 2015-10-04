@@ -40,92 +40,7 @@ module.exports = function(grunt) {
 		    },
 		  },
 
-		//quality check pour les CSS
-		// csslint: {
-		//   strict: {
-		//     options: {
-		//       import: false,
-		//       "unique-headings": false,
-		//     },
-		//     src: ['<%= cfg.theme_path %>/style.css'] //'css/vex.css','css/vex-theme-default.css','css/vex-theme-top-w750.css'
-		//   }
-		// },
 		
-
-		//tache de déploiement en prod
-		// 'ftp-deploy': {
-		// 	plugins: {
-		// 		auth: {
-		// 		  host: 'vps40390.ovh.net',
-		// 		  port: 21,
-		// 		  authKey: 'prod'
-		// 		},
-		// 		src: './plugins',
-		// 		dest: '/wp-content/plugins',
-		// 		exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'] //livré une fois, pas à chauqe fois pour perf du process
-				
-		// 	},
-			
-		// 	themes: {
-		// 		auth: {
-		// 		  host: 'vps40390.ovh.net',
-		// 		  port: 21,
-		// 		  authKey: 'prod'
-		// 		},
-		// 		src: './themes',
-		// 		dest: '/wp-content/themes',
-		// 		exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images']
-
-		// 	}
-		// },
-
-		// 'sftp-deploy': {
-		// 	  rec_plugins: {
-		// 	    auth: {
-		// 	      host: 'vps127696.ovh.net',
-		// 	      port: 22,
-		// 	      authKey: 'rec'
-		// 	    },
-		// 	    cache: 'sftpCache.json',
-		// 	    src: './plugins',
-		// 	    dest: '/var/www/wp-content/plugins',
-		// 	    exclusions: ['./plugins/kidzou', './plugins/kidzou-clients', './plugins/kidzou-contest', './plugins/kidzou-events', './plugins/kidzou-geo', './plugins/kidzou-users', './plugins/seo-automatic-links'],
-		// 	    serverSep: '/',
-		// 	    concurrency: 4,
-		// 	    progress: true
-		// 	  },
-		// 	  rec_themes: {
-		// 	    auth: {
-		// 	      host: 'vps127696.ovh.net',
-		// 	      port: 22,
-		// 	      authKey: 'rec'
-		// 	    },
-		// 	    cache: 'sftpCache.json',
-		// 	    src: './themes',
-		// 	    dest: '/var/www/wp-content/themes',
-		// 	    exclusions: ['./themes/Trim-child', './themes/Trim','./themes/Divi-child/screenshot.png','./themes/Divi-child/images'],
-		// 	    serverSep: '/',
-		// 	    concurrency: 4,
-		// 	    progress: true
-		// 	  }
-		// 	},
-
-		// http: {
-		//     recette: {
-		//       options: {
-		//         url: 'http://kidzou.deployhq.com/projects/kidzou-web/deployments',
-		//         method: 'POST',
-		//         form: {
-		//           parent_identifier: '96694384-f4a6-8acf-f9d2-f90f59893d0c',
-		//           mode : "queue",
-		//           username : "guillaume@kidzou.fr",
-		//           key	: "0pxecoogd50yql675h3xv03l2kkdqgu0vjnqkpn4"
-		//         },
-		//       }
-		//     },
-		    
-		//   },
-
 		//tache de déploiement en local
 		copy: {
 
@@ -139,9 +54,9 @@ module.exports = function(grunt) {
 
 		  deps: {
 		    files: [
-		      {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-facebook-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-facebook-connect/'},
-		      {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-google-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-google-connect/'},
-		      {expand:true, cwd: '<%= cfg.plugins_root %>/ajaxed-comments/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/ajaxed-comments/'}, // includes files in path and its subdirs,
+		      // {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-facebook-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-facebook-connect/'},
+		      // {expand:true, cwd: '<%= cfg.plugins_root %>/nextend-google-connect/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/nextend-google-connect/'},
+		      // {expand:true, cwd: '<%= cfg.plugins_root %>/ajaxed-comments/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/ajaxed-comments/'}, // includes files in path and its subdirs,
 		      // {expand:true, cwd: '<%= cfg.plugins_root %>/seo-automatic-links/', src: ['**'], dest: '<%= cfg.wp_plugins_root %>/seo-automatic-links/'}
 		    ]
 		  },
