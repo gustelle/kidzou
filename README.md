@@ -1,23 +1,9 @@
-# Procédure de MISE EN PROD - Paques 2015 #
+# Procédure de MISE EN PROD - API V6 #
 
-### Gravity Forms ###
+* aller sur [DeployHQ](https://kidzou.deployhq.com/projects/kidzou-web/deployments) pour deployer le commit 2dcd78
 
-* Créer le formulaire d'envoi de photo mobile
-* Reporter la config du formulaire dans les réglages Kidzou
-
-### JSON API ###
-
-* Ajouter le plugin JSON API User
-* Activer l'API social
-* Activer l'API config
-
-### Web performances ###
-
-* Désactiver les options de performance Kidzou, elles causent une régression sur fontello et sur les notifications
-
-### Admin UI ###
-
-* Désactiver et supprimer WP Admin UI Customize
-* Installer et configurer Adminize  (importer depuis la recette)
-* Configurer Easy Social Share buttons (importer depuis la recette)
-
+* sudo apt-get update
+* sudo apt-get upgrade
+* Upgrade WP 4.3.1
+* Upgrade de tous les plugins
+* Suppression et reinstallation des plugins Nextend
