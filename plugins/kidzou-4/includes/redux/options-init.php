@@ -259,7 +259,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'id'       => 'geo_supported_post_types',
                             'type'     => 'select',
                             'title'    => __('Types de contenus sujets &agrave; geolocalisation ?', 'kidzou'), 
-                            'subtitle'  => __('Par d&eacute;faut, les contenus de type <code>post, page</code> et <code>offres</code> sont support&eacute;s.', 'kidzou'),
+                            'subtitle'  => __('Par d&eacute;faut, les contenus de type <code>post, page</code> sont support&eacute;s.', 'kidzou'),
                             'desc'      => __('les types de contenu que vous choisirez seront <em>ajout&eacute;s</em> aux contenus nativement support&eacutes;s par Kidzou','kidzou'),
                             'data'      => 'post_types',
                             'multi'    => true,
@@ -678,14 +678,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         //Must provide key => value pairs for multi checkbox options
                         'options'  => array(
                             'post' => 'Post',
-                            'offres' => 'Offres',
+                            // 'offres' => 'Offres',
                             'page' => 'page'
                         ),
                      
                         //See how default has changed? you also don't need to specify opts that are 0.
                         'default' => array(
                             'post' => '1', 
-                            'offres' => '0', 
+                            // 'offres' => '0', 
                             'page' => '0'
                         ),
                         'compiler'  => true

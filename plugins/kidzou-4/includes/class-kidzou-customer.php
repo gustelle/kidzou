@@ -79,7 +79,7 @@ class Kidzou_Customer {
 	 * Les post types supportés pour se raccrocher à un customer
 	 *
 	 */
-	public static $supported_post_types = array('product', 'post', 'offres' );
+	public static $supported_post_types = array('post'); //'offres', 'product'
 
 
 
@@ -143,13 +143,16 @@ class Kidzou_Customer {
 
 			global $post;
 
+			// Kidzou_Utils::log('check_customer_analytics(1)['.$remove_analytics.']',true);
+
 			//activation ou désactivation générale des analytics dans les options Kidzou
 			$activate = Kidzou_Utils::get_option('customer_analytics_activate', false);
 		
 			if ( !$activate || !is_single() || !is_user_logged_in() )
 			{
-				Kidzou_Utils::log(array('method' => __METHOD__, 'activate' => $activate, 'is_single' => is_single(), 'is_user_logged_in'=> is_user_logged_in(),'post_id' => $post->ID, 'post_title' => $post->post_title), true);
+				// Kidzou_Utils::log(array('method' => __METHOD__, 'activate' => $activate, 'is_single' => is_single(), 'is_user_logged_in'=> is_user_logged_in(),'post_id' => $post->ID, 'post_title' => $post->post_title), true);
 				$remove_analytics = true;
+				// Kidzou_Utils::log('check_customer_analytics(2)['.$remove_analytics.']',true);
 			}
 			else
 			{	
@@ -159,12 +162,13 @@ class Kidzou_Customer {
 				$customer_id = self::getCustomerIDByPostID( $post->ID );
 				$is_authorized = self::isAnalyticsAuthorizedForCustomer($customer_id);
 
-				Kidzou_Utils::log(array('method' => __METHOD__, 'customer_id' => $customer_id, 'isAnalyticsAuthorizedForCustomer' => $is_authorized ), true);
+				// Kidzou_Utils::log(array('method' => __METHOD__, 'customer_id' => $customer_id, 'isAnalyticsAuthorizedForCustomer' => $is_authorized ), true);
 
 				if (!$is_authorized)
 				{
-					// Kidzou_Utils::log('Client non autorisé pour les analytics ' . $is_authorized);
+					// Kidzou_Utils::log('Client non autorisé pour les analytics ' . $is_authorized, true);
 					$remove_analytics = true;
+					// Kidzou_Utils::log('check_customer_analytics(3)['.$remove_analytics.']',true);
 				}
 				else
 				{	
@@ -176,20 +180,23 @@ class Kidzou_Customer {
 
 					if ( !in_array($customer_id, $current_user_customers) )
 					{
-						Kidzou_Utils::log(array('method' => __METHOD__,'customer_id' => $customer_id, 'current_user_customers' => $current_user_customers, 'message' => 'Current Customer not in array of User customers' ), true);
+						// Kidzou_Utils::log(array('method' => __METHOD__,'customer_id' => $customer_id, 'current_user_customers' => $current_user_customers, 'message' => 'Current Customer not in array of User customers' ), true);
 						$remove_analytics = true;
+						// Kidzou_Utils::log('check_customer_analytics(4)['.$remove_analytics.']',true);
 					} 
-					else 
-						Kidzou_Utils::log(array('method' => __METHOD__, 'message' => 'Current User matches the current customer users', 'remove_analytics' => $remove_analytics), true);
+					// else 
+						// Kidzou_Utils::log(array('method' => __METHOD__, 'message' => 'Current User matches the current customer users', 'remove_analytics' => $remove_analytics), true);
 
 				}
 			}
 
 			if ($remove_analytics)
 			{
-				Kidzou_Utils::log('User not authorized to see analytics, removing filters', true);
+				// Kidzou_Utils::log('User not authorized to see analytics, removing filters', true);
 				Kidzou_Utils::remove_filters_for_anonymous_class('admin_bar_menu', 'GADWP_Frontend_Item_Reports', 'custom_adminbar_node', 999);
 				Kidzou_Utils::remove_filters_for_anonymous_class('wp_enqueue_scripts', 'GADWP_Frontend_Setup', 'load_styles_scripts', 10);
+			} else {
+				// Kidzou_Utils::log('User authorized to see analytics for this post', true);
 			}
 		}
 	}

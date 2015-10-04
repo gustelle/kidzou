@@ -50,7 +50,7 @@ class Kidzou_Admin {
 	 *
 	 * @var      string
 	 */
-	public $screen_with_meta_event = array('post', 'offres');
+	public $screen_with_meta_event = array('post'); //, 'offres'
 
 	/**
 	 * les ecrans qui meritent qu'on y ajoute des meta  client
@@ -59,7 +59,7 @@ class Kidzou_Admin {
 	 *
 	 * @var      string
 	 */
-	public $screen_with_meta_client = array('post', 'offres', 'product');
+	public $screen_with_meta_client = array('post'); //'offres', 'product'
 
 	/**
 	 * les ecrans customer, ils sont particuliers et ne bénéficient pas des 
