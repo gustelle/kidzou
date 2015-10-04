@@ -234,13 +234,14 @@ class Kidzou_Admin_Geo {
 	 * @see  sc_GeoDataStore
 	 * @author 
 	 **/
-	public function sync_geo_data()
+	public static function sync_geo_data()
 	{
 
-		Kidzou_Utils::log('Kidzou_Admin_Geo [sync_geo_data]', true);
 		global $wpdb;
 
 		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types() );
+
+		Kidzou_Utils::log('Synchronisation avec GeoDataStore les post types : '. $post_types_list, true);
 
 		//ajouter des quotes autour des valeurs
 
@@ -336,19 +337,19 @@ class Kidzou_Admin_Geo {
 			    		if ($should_sync) {
 			    			//plus rien à checker
 			    		} else {
-			    			Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post non géolocalisé");
+			    			Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post non géolocalisé", true);
 			    		}
 
 			    	} else {
-			    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post non publié");
+			    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post non publié", true);
 			    	}
 		    	
 		    	} else {
-		    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Event non actif");
+		    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Event non actif", true);
 		    	}
 
 	    	} else {
-	    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post Type non supporté");
+	    		Kidzou_Utils::log("Pas de synchro avec le geo datastore - Post Type non supporté", true);
 	    	}
 
 
