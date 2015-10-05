@@ -70,7 +70,14 @@
 								$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
 								$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
 
-								$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);								
+
+								$formatter = new IntlDateFormatter('fr_FR',
+						                                            IntlDateFormatter::SHORT,
+						                                            IntlDateFormatter::NONE,
+						                                            'Europe/Paris',
+						                                            IntlDateFormatter::GREGORIAN,
+						                                            'dd/MM/yyyy');
+								
 								$formatter->setPattern('cccc dd LLLL');
 
 								$formatted = '';
