@@ -166,26 +166,27 @@
 
 														if (Kidzou_Events::isTypeEvent()) {
 
-															$location = Kidzou_Events::getEventDates(get_the_ID());
+															$location = Kidzou_Events::getEventDates();
 
-															$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date']);
-															$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date']);
-															$formatted = '';
+															$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
+															$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
 
-															//bon OK c'est un hack pour régler un pb d'affichage
-															//la date de fin s'affiche au lendemain de la date souhaitée
-															if ($end>$start)
-																$end->sub(new DateInterval('PT12H'));
 
-															$formatter = new IntlDateFormatter('fr_FR', IntlDateFormatter::SHORT, IntlDateFormatter::NONE);
-															$formatter->setPattern('EEEE dd MMMM');
+															$formatter = new IntlDateFormatter('fr_FR',
+													                                            IntlDateFormatter::SHORT,
+													                                            IntlDateFormatter::NONE,
+													                                            'Europe/Paris',
+													                                            IntlDateFormatter::GREGORIAN,
+													                                            'dd/MM/yyyy');
+															
+															$formatter->setPattern('cccc dd LLLL');
 
 															$formatted = '';
 
 															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-																$formatted = __( 'Le ', 'Divi'). $formatter->format($start) ;
+																$formatted = __( 'Le ', 'Divi').  $formatter->format($start) ;
 															else
-																$formatted = __( 'Du ', 'Divi'). $formatter->format($start).__(' au ', 'Divi').$formatter->format($end);
+																$formatted = __( 'Du ', 'Divi').  $formatter->format($start).__(' au ', 'Divi'). $formatter->format($end);
 														?>
 															<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
 														
