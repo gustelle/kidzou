@@ -217,8 +217,23 @@ class JSON_API_Content_Controller {
 		if (function_exists('get_crp_posts_id'))
 			$results = get_crp_posts_id(array( 'postid' => $id, 'limit' => $limit ));
 
+		//filtrer les résultats
+		$filtered = array();
+		foreach ($results as $id) {
+
+			$is_event 		= Kidzou_Events::isTypeEvent($id);
+
+			//exit les events non actifs
+			if ($is_event && !Kidzou_Events::isEventActive($id)) {
+				Kidzou_Utils::log('get_related_posts/'.$id.'/ filtré, l\'evenement n\'est pas actif');
+				continue;
+			}
+				
+			$filtered[] = $id;
+		}
+
 		return array(
-				'related'=> $results
+				'related'=> $filtered
 			);
 	}
 
