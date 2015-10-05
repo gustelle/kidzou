@@ -1,3 +1,21 @@
+<h4>API V8</h4>
+<h5>Début octobre 2015</h5>
+<ul>
+	<li>Fix sur l'API content/get_related_posts</li>
+</ul>
+
+<h4>API V7</h4>
+<h5>Début octobre 2015</h5>
+<ul>
+	<li>Upgrade général des plugins</li>
+	<li>Passage à WP 4.3.1</li>
+	<li>Nettoyage des plugins Nextend</li>
+	<li>Rebranchement de HHVM</li>
+	<li>Correctif sur les dates d'événement</li>
+	<li>Correctif sur le nom du répertoire de téléchargement des media</li>
+	<li>Préparation des API pour l'App mobile</li>
+</ul>
+
 <h4>Paques 2015</h4>
 <h5>Vacances de Pâques 2015</h5>
 <ul>

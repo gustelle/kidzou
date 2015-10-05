@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'WP-API';
+	const VERSION = 'API-V8';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
