@@ -8,4 +8,3 @@
 * Upgrade de tous les plugins
 * Suppression et reinstallation des plugins Nextend
 
-
