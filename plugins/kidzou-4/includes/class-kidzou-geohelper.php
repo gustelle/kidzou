@@ -132,17 +132,19 @@ class Kidzou_GeoHelper {
 	        $post_id = $post->ID; 
 	    }
 
-	    // $post = get_post($post_id); 
+	    //necessité de récupérer le post type
+	    //car les customers ont une adresse stockée sur la meta kz_customer_xxx
+	    //c'est du legacy...
+	    $post = get_post($post_id); 
+	   	$type = $post->post_type;
 
-	   	// $type = $post->post_type;
-
-	    $location_name      = get_post_meta($post_id, 'kz_post_location_name', TRUE);
-	    $location_address   = get_post_meta($post_id, 'kz_post_location_address', TRUE);
+	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
+	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
 	    $location_latitude  = get_post_meta($post_id, self::$meta_latitude, TRUE); //'kz_'.$type.'_location_latitude'
 	    $location_longitude = get_post_meta($post_id, self::$meta_longitude, TRUE); //'kz_'.$type.'_location_longitude'
-	    $location_tel   = get_post_meta($post_id, 'kz_post_location_phone_number', TRUE);
-	    $location_web   = get_post_meta($post_id, 'kz_post_location_website', TRUE);
-	    $location_city   = get_post_meta($post_id, 'kz_post_location_city', TRUE);
+	    $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
+	    $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
+	    $location_city   = get_post_meta($post_id, 'kz_'.$type.'_location_city', TRUE);
 
 	    return array(
 	        'location_name' => $location_name,
