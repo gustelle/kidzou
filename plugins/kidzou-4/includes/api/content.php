@@ -219,18 +219,19 @@ class JSON_API_Content_Controller {
 
 		//filtrer les résultats
 		$filtered = array();
-		foreach ($results as $id) {
+		global $post;
+        foreach ($results as $id) {
+            $post = get_post($id);
+            setup_postdata($post);
+            $is_event               = Kidzou_Events::isTypeEvent(get_the_ID());
+            
+            //exit les events non actifs
+            if ($is_event && !Kidzou_Events::isEventActive(get_the_ID()))
+                    continue;
+            
+            $filtered[] = $id;
+        }
 
-			$is_event 		= Kidzou_Events::isTypeEvent($id);
-
-			//exit les events non actifs
-			if ($is_event && !Kidzou_Events::isEventActive($id)) {
-				Kidzou_Utils::log('get_related_posts/'.$id.'/ filtré, l\'evenement n\'est pas actif');
-				continue;
-			}
-				
-			$filtered[] = $id;
-		}
 
 		return array(
 				'related'=> $filtered

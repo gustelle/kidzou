@@ -153,7 +153,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 
 			self.initPlace = function(name, address, website, phone_number, city, lat, lng, opening_hours) {
-				// console.debug('initplace');
+				// console.debug('initplace', name, address);
 				self.placeData().place(new Place(name, address, website, phone_number, city, lat, lng, opening_hours));
 
 				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')
