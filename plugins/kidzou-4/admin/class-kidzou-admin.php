@@ -171,6 +171,13 @@ class Kidzou_Admin {
 		add_action('restrict_manage_posts',array($this, 'filter_posts_list'));
 
 		
+		/**
+		 * Ajout d'un contenu par defaut lors de l'édition de contenu
+		 *
+		 * @link https://developer.wordpress.org/reference/hooks/default_content/
+		 */
+		add_filter( 'default_content', array($this, 'kz_default_content') );
+
 
 	}
 
@@ -1892,6 +1899,16 @@ class Kidzou_Admin {
 			$links
 		);
 
+	}
+
+	/**
+	 * Lors de l'édition d'un contenu, par défaut on propose le contenu pré-saisi dans les options Kidzou
+	 *
+	 */
+	public function kz_default_content() {
+
+		$content = Kidzou_Utils::get_option('default_content');
+    	return $content;
 	}
 
 	/**
