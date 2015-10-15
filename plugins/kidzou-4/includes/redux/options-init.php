@@ -607,6 +607,17 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'fields'    => array(
 
                     array(
+                        'id'        => 'default_content',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Contenu par d&eacute;faut lors de l&apos;&eacute;dition d&apos;un contenu', 'kidzou'),
+                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        // 'desc'      => 'Un javascript est attendu',
+                        'default'   => ''
+                    ),
+
+                    array(
                         'id'       => 'widget_guidelines_activate',
                         'type'     => 'checkbox',
                         'title'    => __('Activer le Tutorial  sur le dashboard des contributeurs ?', 'kidzou'), 
