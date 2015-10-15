@@ -77,7 +77,7 @@ class Kidzou_Admin_Customer {
 	 **/
 	public function add_metaboxes()
 	{
-		Kidzou_Utils::log('Kidzou_Admin_Customer [add_metaboxes]', true);
+		// Kidzou_Utils::log('Kidzou_Admin_Customer [add_metaboxes]', true);
 		$screen = get_current_screen(); 
 
 		if ($screen->id =='customer' )

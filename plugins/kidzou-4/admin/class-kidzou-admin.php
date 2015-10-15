@@ -226,7 +226,7 @@ class Kidzou_Admin {
 		        global $current_user;
 		        $wp_query->set( 'author', $current_user->ID );
 
-		        Kidzou_Utils::log("Kidzou_Admin [contrib_contents_filter]", true);
+		        // Kidzou_Utils::log("Kidzou_Admin [contrib_contents_filter]", true);
 		    }
 	}
 
@@ -494,6 +494,8 @@ class Kidzou_Admin {
 	public function enqueue_admin_scripts() {
 
 		$screen = get_current_screen(); 
+
+		// Kidzou_Utils::log('enqueue_admin_scripts : '. $screen->id, true);
 
 		//ajout de la meta client
 		if (in_array($screen->id , $this->screen_with_meta_client) ) {
@@ -1066,12 +1068,13 @@ class Kidzou_Admin {
 	 **/
 	public function place_metabox()
 	{
-		Kidzou_Utils::log('Kidzou_Admin [place_metabox]', true);
 		global $post;
 		// Noncename needed to verify where the data originated
 		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
 		$location = Kidzou_GeoHelper::get_post_location($post->ID); 
+
+		// Kidzou_Utils::log(array('location'=>$location), true);
 
 		// Get the location data if its already been entered
 		$location_name 		= $location['location_name'];

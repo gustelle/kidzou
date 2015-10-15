@@ -1,7 +1,8 @@
-<h4>API V8</h4>
+<h4>API V9</h4>
 <h5>Début octobre 2015</h5>
 <ul>
 	<li>Fix sur l'API content/get_related_posts</li>
+	<li>Fix sur la Kidzou_GeoHelper::get_post_location() qui ne remonte pas l'adresse pour les customers</li>
 </ul>
 
 <h4>API V7</h4>
