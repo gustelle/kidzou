@@ -1081,8 +1081,6 @@ class Kidzou_Admin {
 
 		$location = Kidzou_GeoHelper::get_post_location($post->ID); 
 
-		// Kidzou_Utils::log(array('location'=>$location), true);
-
 		// Get the location data if its already been entered
 		$location_name 		= $location['location_name'];
 		$location_address 	= $location['location_address'];
