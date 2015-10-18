@@ -5,7 +5,7 @@ Controller Description: Acccès aux propriétés des users
 Controller Author: Kidzou 
 */
 
-class JSON_API_User_Controller {
+class JSON_API_Utils_Controller {
 
 	/**
 	 *
