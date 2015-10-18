@@ -30,6 +30,7 @@ class Kidzou_GeoHelper {
 	 */
 	const META_COORDS = 'kz_coords';
 
+	//utilisé en externe
 	public static $meta_latitude = 'kz_post_location_latitude';
 	public static $meta_longitude = 'kz_post_location_longitude';
 
@@ -140,8 +141,8 @@ class Kidzou_GeoHelper {
 
 	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
 	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
-	    $location_latitude  = get_post_meta($post_id, self::$meta_latitude, TRUE); //'kz_'.$type.'_location_latitude'
-	    $location_longitude = get_post_meta($post_id, self::$meta_longitude, TRUE); //'kz_'.$type.'_location_longitude'
+	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE); //'kz_'.$type.'_location_latitude'
+	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE); //'kz_'.$type.'_location_longitude'
 	    $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
 	    $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
 	    $location_city   = get_post_meta($post_id, 'kz_'.$type.'_location_city', TRUE);
