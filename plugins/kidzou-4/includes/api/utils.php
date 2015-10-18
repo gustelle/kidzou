@@ -1,7 +1,7 @@
 <?php
 /*
-Controller Name: User
-Controller Description: Acccès aux propriétés des users 
+Controller Name: Utils
+Controller Description: Fonctions utilitaires diverses
 Controller Author: Kidzou 
 */
 
