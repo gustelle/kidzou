@@ -101,7 +101,7 @@ class Kidzou {
 		add_filter('json_api_controllers', array( $this, 'add_Kidzou_controller' ));
 		add_filter('json_api_vote_controller_path', 	array( $this, 'set_vote_controller_path' )  );
 		add_filter('json_api_auth_controller_path', 	array( $this, 'set_auth_controller_path' )  );
-		add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
+		// add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
