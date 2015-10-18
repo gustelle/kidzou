@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'API-V11';
+	const VERSION = 'API-V12';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -108,7 +108,7 @@ class Kidzou {
 		add_filter('json_api_mailchimp_controller_path',  array( $this, 'set_mailchimp_controller_path') );
 		add_filter('json_api_config_controller_path',  array( $this, 'set_config_controller_path') );
 		add_filter('json_api_social_controller_path',  array( $this, 'set_social_controller_path') );
-		add_filter('json_api_user_controller_path',  array( $this, 'set_user_controller_path') );
+		add_filter('json_api_utils_controller_path',  array( $this, 'set_utils_controller_path') );
 
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
 		add_action('wp_head', array( $this, 'insert_pub_header'));
@@ -709,7 +709,7 @@ class Kidzou {
 		$controllers[] = 'Mailchimp';
 		$controllers[] = 'Config';
 		$controllers[] = 'Social';
-		$controllers[] = 'User';
+		$controllers[] = 'Utils';
 
 		return $controllers;
 	}
@@ -736,8 +736,8 @@ class Kidzou {
 	public function set_social_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/social.php";
 	}
-	public function set_user_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/../includes/api/user.php";
+	public function set_utils_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/utils.php";
 	}
 
 	/**
