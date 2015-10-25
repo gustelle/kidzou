@@ -1782,6 +1782,8 @@ a{color:#1ea4e8 !important}.et-search-form, .nav li ul, .et_mobile_menu, .footer
 a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-menu-item > a, .bottom-nav li.current-menu-item>a{color:#1ea4e8}h1,h2,h3,h4,h5,h6{font-family:'Bree Serif',Georgia,"Times New Roman",serif}body,input,textarea,select{font-family:'Roboto',Helvetica,Arial,Lucida,sans-serif}
 
 
+.selectBox {font-size: 1.1em; height: 2em;}
+
 
 /*------------------------------------------------*/
 /*---------------[RESPONSIVE LAYOUTS]-------------*/
