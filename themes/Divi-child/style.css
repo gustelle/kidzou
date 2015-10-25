@@ -179,7 +179,7 @@ table.shop_table { margin-bottom: 30px !important; }
 	.et_fixed_nav.et_secondary_nav_enabled #page-container { padding-top: 114px; }
 
 	#top-header { font-size: 12px; line-height: 13px; z-index: 100000; }
-		#top-header .container { padding-top: 10px; }
+		#top-header .container { padding-top: 10px; padding-bottom: 10px;}
 	.et_fixed_nav #top-header { top: 0; left: 0; right: 0; }
 	.et_duplicate_social_icons { display: none; }
 	#main-header { line-height: 23px; font-weight: 500; top: 0; background-color: #fff; width: 100%; padding: 18px 0 0 0; min-height: 43px; box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1); -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1); -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1); -moz-transition: all 0.2s ease-in-out; -webkit-transition: all 0.2s ease-in-out; transition: all 0.2s ease-in-out; position: relative; z-index: 99999; }

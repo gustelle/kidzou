@@ -2254,13 +2254,6 @@
 		}
 	});
 
-	//changement de metropole
-
-	var selectEl = document.querySelector('#metropoleRedirect');
-
-	selectEl.onchange = function(){
-	    window.location = this.value;
-	};
 
 	
 })(jQuery);
