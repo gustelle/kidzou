@@ -32,7 +32,7 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 					}
 				?>
 
-						<p id="footer-info"><i class="fa fa-copyright"></i><?php _e('Copyright Kidzou 2014','Divi'); ?></p>
+						<p id="footer-info"><i class="fa fa-copyright"></i><?php _e('Copyright Kidzou 2015','Divi'); ?></p>
 					</div>	<!-- .container -->
 				</div>
 			</footer> <!-- #main-footer -->

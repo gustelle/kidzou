@@ -82,7 +82,7 @@ function override_divi_parent_functions()
 	//surcharge des JS du parent
 	add_action( 'wp_enqueue_scripts', 'kz_divi_load_scripts' ,99);
 
-	//Alterer les queries pour les archives afin de trier par reco count
+	//Alterer les queries des archives : pas de limite / pas de paging
 	add_action( "pre_get_posts", "filter_archive_query" );
 
 	//gestion de l'habillage publicitaire
@@ -156,29 +156,38 @@ function  kz_metropole_nav()
 			$locator = new Kidzou_Geolocator();
 			$current_metropole = $locator->get_request_metropole();
 
-			$ttes_metros .= '';
+			$uri = $_SERVER['REQUEST_URI'];
+			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
+
+			$ttes_metros .= '<select id="metropoleRedirect">';
 
 			$i=0;
 			foreach ($metropoles as $m) {
 
-				if ($i>0)
-					$ttes_metros .= '&nbsp;|&nbsp;';
-
-				// error_log(print_r($m), true);
+				if ($i>0) $ttes_metros .= '&nbsp;|&nbsp;';
 
 				$selected = ($m->slug == $current_metropole);
+				$pattern = '#\/'.$regexp.'\/?#';
+				
+				if (preg_match($pattern, $uri, $matches)) {
+					// Kidzou_Utils::log(array('$pattern '=>$pattern, '$m->slug'=> $m->slug, '$uri'=> $uri), true);
+					$new_url = site_url().preg_replace($regexp, $m->slug, $uri);
+				} else {
+					$new_url = site_url().'/'.$m->slug;
+				} 
 
 				$ttes_metros .= sprintf(
-					'<span class="%1$s"><a class="metropole" data-metropole="%2$s" href="%3$s">%4$s</a></span>',
-					($selected ? 'selected_item' : ''),
-					$m->slug,
-					site_url().'/'.$m->slug,
-					($selected ? '<i class="fa fa-map-marker"></i>'.$m->name : $m->name)
+					'<option value="%2$s" %1$s>%3$s</option>',
+					($selected ? 'selected' : ''),
+					$new_url,
+					$m->name
 				);
 
 				$i++;
 
 			}
+
+			$ttes_metros .= '</select>';
 		}
 
 		echo $ttes_metros;	
@@ -186,16 +195,15 @@ function  kz_metropole_nav()
 }
 
 /**
- * undocumented function
+ * Hook qui altere le rendu des Archives  
  *
  * @return void
- * @author 
+ * @Hook 
+ *
  **/
 function filter_archive_query($query)
 {
 	if (is_archive() && $query->is_main_query() && !is_admin()) {
-
-		Kidzou_Utils::log('functions.php [filter_archive_query]',true);
 
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set('nopaging', true);
@@ -1067,10 +1075,13 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
  * post__in
  * with_votes (true/false) pour utiliser le systeme de votes kidzou
  *
- * Ajout également d'un filtre de catégories configurable (show_filters = on|off)
+ * Ajout également d'un filtre de catégories configurable (filter = none|taxonomy)
+ * Veillez bien à ce que le filtre soit le nom du taxonomie
  *
  */
 function kz_pb_portfolio( $atts ) {
+
+	// Kidzou_Utils::log(array('kz_pb_portfolio'=> $atts),true);
 	
 	extract( shortcode_atts( array(
 			'module_id' => '',
@@ -1085,8 +1096,8 @@ function kz_pb_portfolio( $atts ) {
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
 			'show_ad' => 'on',
-			'show_filters' => 'off',
-			'filter' => 'none',
+			// 'show_filters' => 'off',
+			'filter' => 'none', //nom d'une taxonomie par laquelle on va pouvoir filtrer
 			'orderby' => 'publish_date',
 			'render_featured' => 'on' //faut-il rendre les featured différemment des autres ?
 		), $atts
@@ -1160,8 +1171,7 @@ function kz_pb_portfolio( $atts ) {
 	$temp_query = $wp_query;
 	$wp_query   = NULL;
 	$wp_query   = $query;
-
-	Kidzou_Utils::log(array('WP_Query' => $query->request), true);
+	$filter_terms = [];
 
 	if ( $query->have_posts() ) {
 
@@ -1203,6 +1213,19 @@ function kz_pb_portfolio( $atts ) {
 
 				$query->the_post();
 
+				//si les filtres sont actifs, retenir les terms du post pour utilisation plus lointaine dans $filter_terms
+				//NB : $filter_terms sera filtré par array_unique pour assurer de ne pas avoir de term en doublon
+				if ($filter!='none') {
+					$terms = wp_get_post_terms($post->ID, $filter, array("fields" => "all"));
+					foreach ($terms as $term) {
+						array_push(
+							$filter_terms, 
+							$term
+						);
+					}	
+					Kidzou_Utils::log(array('$filter_terms' => $filter_terms), true);
+				} 
+
 				$featured = ($render_featured=='on' ? true : false);
 
 				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', $featured);
@@ -1242,11 +1265,24 @@ function kz_pb_portfolio( $atts ) {
 
 	if ($filter!='none') {
 
-		$terms = get_terms( $filter ); //, $terms_args 
-
 		$category_filters = '<ul class="clearfix">';
+
+		//assurer l'unicité des filtres de navigation
+		//l'unicité est assurée par le slug
+		$unique_terms = array_filter($filter_terms, function($obj)
+		{
+		    static $slugsList = array();
+		    if(in_array($obj->slug,$slugsList)) {
+		        return false;
+		    }
+		    $slugsList[]= $obj->slug;
+		    return true;
+		});
+
+		Kidzou_Utils::log($unique_terms, true);
 		
-		foreach ( $terms as $term  ) {
+		foreach ( $unique_terms as $term  ) {
+			// Kidzou_Utils::log($term, true);
 			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
 				esc_attr( $term->slug ),
 				esc_html( $term->name ),
@@ -1255,16 +1291,14 @@ function kz_pb_portfolio( $atts ) {
 			);
 		}
 		$category_filters .= '</ul>';
- 
-		if ('off' !== $show_filters) {
-			$filters_html = sprintf(
-							'<div class="et_pb_filterable_portfolio ">
-								<div class="et_pb_portfolio_filters clearfix">
-									%1$s
-								</div><!-- .et_pb_portfolio_filters -->
-							</div>',
-							$category_filters);
-		}
+
+		$filters_html = sprintf(
+						'<div class="et_pb_filterable_portfolio ">
+							<div class="et_pb_portfolio_filters clearfix">
+								%1$s
+							</div><!-- .et_pb_portfolio_filters -->
+						</div>',
+						$category_filters);
 	}
 		
 
@@ -1293,6 +1327,7 @@ function kz_pb_portfolio( $atts ) {
 }
 
 function kz_pb_filterable_portfolio( $atts ) {
+
 	extract( shortcode_atts( array(
 			'module_id' => '',
 			'module_class' => '',
