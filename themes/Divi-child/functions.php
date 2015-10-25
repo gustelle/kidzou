@@ -159,7 +159,7 @@ function  kz_metropole_nav()
 			$uri = $_SERVER['REQUEST_URI'];
 			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
 
-			$ttes_metros .= '<select id="metropoleRedirect" class="selectBox">';
+			$ttes_metros .= '<select onchange="window.location = this.value;" class="selectBox">';
 
 			$i=0;
 			foreach ($metropoles as $m) {
