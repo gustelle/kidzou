@@ -1,3 +1,13 @@
+
+<h4>API V15</h4>
+<h5>25 octobre 2015</h5>
+<ul>
+	<li>Re-engineering de style.css pour optimisation Responsive, notamment sur iPad</li>
+	<li>Copyright 2015</li>
+	<li>Nouvelle fonction de filtrage dans les pages qui utilisent le Portfolio Kidzou</li>
+	<li>Choix de la métropole dans le Header par liste déroulante</li>
+</ul>
+
 <h4>API V8, V9, V10, V11, V12</h4>
 <h5>Début octobre 2015</h5>
 <ul>
@@ -5,6 +15,7 @@
 	<li>Fix sur la Kidzou_GeoHelper::get_post_location() qui ne remonte pas l'adresse pour les customers</li>
 	<li>Ajout d'un contenu par defaut lors de l'édition d'un post</li>
 	<li>Ajout d'une API pour récupérer l'avatar d'un user dans l'API Utils</li>
+	<li>Correctif sur la remontée de latitude/longitude pour les Customers dans wp-admin</li>
 </ul>
 
 <h4>API V7</h4>

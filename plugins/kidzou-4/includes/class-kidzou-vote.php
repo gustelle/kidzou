@@ -71,6 +71,28 @@ class Kidzou_Vote {
 
 		if (!Kidzou_Utils::is_really_admin())
 			add_action( 'wp_head', array($this, 'insert_template'));
+
+		//Alterer les queries des archives : tri par nb de votes
+		add_action( "pre_get_posts", array($this, "archives_orderby_vote") );
+
+	}
+
+	/**
+	 * Hook qui altere le rendu des Archives  
+	 *
+	 * @return void
+	 * @Hook 
+	 *
+	 **/
+	public function archives_orderby_vote($query)
+	{
+		if (is_archive() && $query->is_main_query() && !is_admin()) {
+
+			$query->set( 'orderby', 'meta_value_num' );
+       		$query->set( 'meta_key', 'kz_reco_count' );
+        	$query->set( 'order', 'DESC' );
+			
+		}
 	}
 
 

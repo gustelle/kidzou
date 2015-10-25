@@ -90,7 +90,7 @@ class Kidzou_Geolocator {
 		// Kidzou_Utils::log('[set_request_metropole] _COOKIE : ' . $cook_m);
 
 		//en dépit du cookie, la valeur de la metropole passée en requete prime
-		if (preg_match('#\/'.$regexp.'(/)?#', $uri, $matches)) {
+		if (preg_match('#\/'.$regexp.'\/?#', $uri, $matches)) {
 
 			// Kidzou_Utils::log('[get_request_metropole] Regexp identifiée ');
 			
