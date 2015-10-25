@@ -1,5 +1,5 @@
 
-<h4>API V15</h4>
+<h4>API V15, V16</h4>
 <h5>25 octobre 2015</h5>
 <ul>
 	<li>Re-engineering de style.css pour optimisation Responsive, notamment sur iPad</li>
