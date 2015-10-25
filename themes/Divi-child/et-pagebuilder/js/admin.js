@@ -2178,6 +2178,7 @@ var ET_PageBuilder = ET_PageBuilder || {};
 			}),
 
 			createLayoutFromContent : function( content, parent_cid, inner_shortcodes ) {
+				// console.debug('createLayoutFromContent', content);
 				var this_el = this,
 					et_pb_shortcodes_tags = typeof inner_shortcodes === 'undefined'
 						? 'et_pb_section|et_pb_row|et_pb_column|et_pb_column_inner|et_pb_row_inner|et_pb_text|et_pb_blurb|et_pb_tabs|et_pb_testimonial|et_pb_toggle|et_pb_cta|et_pb_signup|et_pb_login|et_pb_contact_form|et_pb_divider|kz_pb_blog|kz_pb_portfolio|kz_pb_filterable_portfolio|kz_pb_fullwidth_portfolio|kz_pb_proximite|et_pb_image|et_pb_gallery|et_pb_shop|et_pb_slider|et_pb_pricing_tables|et_pb_accordion|et_pb_counters|et_pb_circle_counter|et_pb_number_counter|et_pb_fullwidth_slider|et_pb_sidebar|et_pb_fullwidth_header|et_pb_map|et_pb_fullwidth_map|et_pb_fullwidth_menu|et_pb_countdown_timer|et_pb_social_media_follow|et_pb_team_member|et_pb_audio'
@@ -2512,6 +2513,7 @@ var ET_PageBuilder = ET_PageBuilder || {};
 			},
 
 			generateModuleShortcode : function( $module, open_tag_only ) {
+				// console.debug('generateModuleShortcode', $module);
 				var attributes = '',
 					content = '',
 					$this_module = $module,
@@ -2919,6 +2921,7 @@ var ET_PageBuilder = ET_PageBuilder || {};
 		}
 
 		function et_pb_set_content( textarea_id, content ) {
+			// console.debug('et_pb_set_content', content);
 			if ( typeof window.tinyMCE !== 'undefined' && window.tinyMCE.get( textarea_id ) && ! window.tinyMCE.get( textarea_id ).isHidden() )
 				window.tinyMCE.get( textarea_id ).setContent( content, { format : 'html'  } );
 			else
