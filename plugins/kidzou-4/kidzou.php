@@ -110,7 +110,8 @@ if ( is_admin() || defined( 'DOING_CRON' ) ) {
     $admin_directories = array(
             'admin/',
             'admin/includes/',
-            'admin/views/'
+            'admin/views/',
+            // 'admin/includes/Facebook'
     );
     foreach ($admin_directories as $admin_directory) {
         foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $admin_class) {

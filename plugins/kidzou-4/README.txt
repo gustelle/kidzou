@@ -1,10 +1,15 @@
+<h4>API V18</h4>
+<h5>28 octobre 2015</h5>
+<ul>
+	<li>Nouvelle Fonction : Import d'événement Facebook dans un article</li>
+</ul>
 
 <h4>API V15, V16</h4>
 <h5>25 octobre 2015</h5>
 <ul>
 	<li>Re-engineering de style.css pour optimisation Responsive, notamment sur iPad</li>
 	<li>Copyright 2015</li>
-	<li>Nouvelle fonction de filtrage dans les pages qui utilisent le Portfolio Kidzou</li>
+	<li>Nouvelle Fonction : filtrage dans les pages qui utilisent le Portfolio Kidzou</li>
 	<li>Les Archives sont maintenant triées par nombre de votes</li>
 	<li>Choix de la métropole dans le Header par liste déroulante</li>
 </ul>
