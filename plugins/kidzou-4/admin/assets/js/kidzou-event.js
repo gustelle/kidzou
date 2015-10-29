@@ -314,6 +314,64 @@ var kidzouEventsModule = (function() { //havre de paix
 				return true;
 			});
 
+			//si l'URL d'un evenement facebook est renseignée, on déclenche la mise à jour des autres champs
+			self.facebookUrl 	= ko.computed({
+				read: function() {
+		    		return '';
+		    	},
+		    	write: function(value) {
+
+		    		var patt = /https?:\/\/www.facebook.com\/events\/([0-9]*)\/?/i;
+					var matches = patt.exec(value);
+		    		if (matches!=null) {
+		    			var eventId = matches[1];
+
+					    FB.api(
+						    "/" + eventId + '?access_token=' + document.querySelector('input[name="access_token"]').value + '&fields=cover,name,description,place,end_time,start_time',
+						    function (response) {
+						      if (response && !response.error) {
+						        // console.debug('FB.api', response);
+						        self.start_date(moment(response.start_time).startOf("day").format("YYYY-MM-DD HH:mm:ss"));
+						        self.end_date(moment(response.end_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
+
+						        document.querySelector('input[name="post_title"]').value  = response.name;
+						        
+						        //remplacer les CR LF par des <br>
+						        var content = response.description.replace(/(\r\n|\n|\r)/gm,"<br/>");
+
+						        if (window.tinyMCE)
+						        	tinyMCE.execCommand('mceSetContent', false, content); 
+						        
+						        //fixer le contenu dans l'editor
+						        if (window.kidzouPlaceModule) {
+						        	kidzouPlaceModule.model.initPlace(
+						        			response.place.name,
+						        			response.place.location.street,
+						        			value, //website
+						        			response.place.location.phone, //phone
+						        			response.place.location.city,
+						        			response.place.location.latitude,
+						        			response.place.location.longitude,
+						        			'' //opening hours
+						        		);
+						        }
+
+
+
+						        //inserer le cover comme featured image
+						        // var frame = wp.media({});
+
+							    // console.debug(frame);
+
+
+						      }
+						    }
+						);
+		    			
+		    		}
+		    	},
+		    	owner:self
+			});
 		    
 		}
 

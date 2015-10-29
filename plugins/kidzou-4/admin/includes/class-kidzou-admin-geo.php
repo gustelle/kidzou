@@ -114,9 +114,10 @@ class Kidzou_Admin_Geo {
 	{
 
 		$screen = get_current_screen(); 
-		$admin = Kidzou_Admin::get_instance();
+		$events = Kidzou_Admin_Events::get_instance();
+		$customer = Kidzou_Admin_Customer::get_instance();
 
-		if (in_array($screen->id , $admin->screen_with_meta_event) || in_array($screen->id, $admin->customer_screen)) {
+		if (in_array($screen->id , $events->screen_with_meta_event) || in_array($screen->id, $customer->customer_screen)) {
 
 			wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
 
@@ -289,7 +290,7 @@ class Kidzou_Admin_Geo {
     	if (is_array($meta_value))
     		$meta_value = implode(',', $meta_value);
 
-    	Kidzou_Utils::log('after_post_meta ' . $meta_id.', '.$post_id.', '. $meta_key. ', '. $meta_value );
+    	// Kidzou_Utils::log('after_post_meta ' . $meta_id.', '.$post_id.', '. $meta_key. ', '. $meta_value );
 
     	// $post = get_post($post_id); 
 
@@ -449,7 +450,7 @@ class Kidzou_Admin_Geo {
 		}
 
         flush_rewrite_rules();
-		Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
+		// Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
 
 	}
 
@@ -467,11 +468,11 @@ class Kidzou_Admin_Geo {
 	public function on_all_status_transitions($new_status, $old_status, $post) {
 
 		if ( $old_status != 'publish'  &&  $new_status == 'publish' ) {
-	        Kidzou_Utils::log('Passage au statut publié, synchro avec le Geo DataStore pour le post ' .$post->ID);
+	        // Kidzou_Utils::log('Passage au statut publié, synchro avec le Geo DataStore pour le post ' .$post->ID);
 	        self::add_post_to_geo_ds($post->ID);
 	    }
 	    if ( $old_status == 'publish'  &&  $new_status != 'publish' ) {
-	        Kidzou_Utils::log('Dépublication , suppression du Geo DataStore pour le post ' .$post->ID);
+	        // Kidzou_Utils::log('Dépublication , suppression du Geo DataStore pour le post ' .$post->ID);
 	        self::delete_post_from_geo_ds($post->ID);
 
 	    }
