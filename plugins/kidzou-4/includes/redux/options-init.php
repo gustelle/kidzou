@@ -231,7 +231,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         array(
                             'id'        => 'fb_app_id',
                             'type'      => 'text',
-                            'title'     => __('App ID pour la connexion Facebook', 'kidzou'),
+                            'title'     => __('Facebook App ID ', 'kidzou'),
+                            'subtitle'  => __('Utilis&eacute; pour la connexion Facebook et pour l&apos;import d&apos;&eacute;v&eacute;nements facebook', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'fb_app_secret',
+                            'type'      => 'text',
+                            'title'     => __('Facebook App Secret ', 'kidzou'),
+                            'subtitle'  => __('Utilis&eacute; pour l&apos;import d&apos;&eacute;v&eacute;nements facebook', 'kidzou'),
                         ),
                         
                     )
