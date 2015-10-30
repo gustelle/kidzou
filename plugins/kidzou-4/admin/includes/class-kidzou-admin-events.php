@@ -122,10 +122,11 @@ class Kidzou_Admin_Events {
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', dirname(__FILE__) ), array('jquery-ui-datepicker'),'1.0', true);
 
-			wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
+			// wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
+			wp_localize_script('kidzou-event', 'events_jsvars', array(
 				'api_getClients'				=> site_url()."/api/clients/getClients/",
-				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
+				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
+				'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/"
 				)
 			);
 
@@ -243,6 +244,7 @@ class Kidzou_Admin_Events {
 							<label for="facebook_url">URL de l&apos;&eacute;v&eacute;nement Facebook:</label>
 					    	<input type="text" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
 							<input type="hidden" name="access_token"  value="'.$matches[1].'" />
+							<span data-bind="html: eventData().facebookImportMessage"></span>
 						</li>
 					</ul>
 				';

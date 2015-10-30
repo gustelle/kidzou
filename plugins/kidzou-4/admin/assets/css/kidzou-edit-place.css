@@ -96,3 +96,4 @@
 .events_form input:required:valid + .form_hint {background: #28921f;}
 .events_form input:required:valid + .form_hint::before {color:#28921f;}
 
+

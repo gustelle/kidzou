@@ -88,51 +88,14 @@ class Kidzou_Admin_Customer {
 		$screen = get_current_screen(); 
 
 
-		if ( in_array($screen->id, $this->customer_screen) ) { //$screen->id == $this->plugin_screen_hook_suffix ||
+		if ( in_array($screen->id, $this->customer_screen) ) { 
+
+		} elseif ( in_array($screen->id , $this->screen_with_meta_client) ) { 
 			
-			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
-			wp_enqueue_style( 'kidzou-admin', plugins_url( 'assets/css/kidzou-client.css', dirname(__FILE__) ) );
-
-			wp_enqueue_style( 'kidzou-place', plugins_url( 'assets/css/kidzou-edit-place.css', dirname(__FILE__) ) );
-			wp_enqueue_style( 'placecomplete', plugins_url( 'assets/css/jquery.placecomplete.css', dirname(__FILE__) ) );
-			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
-
-			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
-			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
-
-			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
-			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', dirname(__FILE__) ),array("ko-validation"), '1.0', true);
-
-			//requis par placecomplete
-			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
-			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
-			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
-
-			//selection des places dans Google Places
-			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
-			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', dirname(__FILE__) ),array('jquery-select2', 'google-maps'), '1.0', true);
-			
-			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', dirname(__FILE__) ) ,array('jquery','ko-mapping'), Kidzou::VERSION, true);
-
-			//ecran de gestion des clients
+			//sur les post on a besoin d'une meta client
 			wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
 			wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
-				'api_getClients'				=> site_url()."/api/clients/getClients/",
-				// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
-				'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
-				'api_saveClient'				=> site_url().'/api/clients/saveClient/',
-				// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
-				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
-				// 'api_get_userinfo'			 	=> site_url().'/api/user/get_userinfo/',
-				'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
-				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-				'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
-				'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
-				'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
 				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
-				// 'is_user_admin'					=> current_user_can('manage_options')
-
 				)
 			);
 
@@ -197,7 +160,7 @@ class Kidzou_Admin_Customer {
 	 **/
 	public function client_metabox()
 	{ 
-		Kidzou_Utils::log('Kidzou_Admin [client_metabox]',true);
+		// Kidzou_Utils::log('Kidzou_Admin [client_metabox]',true);
 		global $post; 
 
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
