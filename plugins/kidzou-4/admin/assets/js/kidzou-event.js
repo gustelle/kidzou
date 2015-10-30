@@ -315,32 +315,40 @@ var kidzouEventsModule = (function() { //havre de paix
 			});
 
 			//si l'URL d'un evenement facebook est renseignée, on déclenche la mise à jour des autres champs
+			self.facebookImportMessage 	= ko.observable("");
 			self.facebookUrl 	= ko.computed({
 				read: function() {
 		    		return '';
 		    	},
 		    	write: function(value) {
 
+		    		self.facebookImportMessage("<span class='form_hint'>Import en cours...</span>");
+
 		    		var patt = /https?:\/\/www.facebook.com\/events\/([0-9]*)\/?/i;
 					var matches = patt.exec(value);
 		    		if (matches!=null) {
 		    			var eventId = matches[1];
-
 					    FB.api(
 						    "/" + eventId + '?access_token=' + document.querySelector('input[name="access_token"]').value + '&fields=cover,name,description,place,end_time,start_time',
 						    function (response) {
-						      if (response && !response.error) {
-						        // console.debug('FB.api', response);
+
+						      if (response && !response.error && typeof response.start_time!='undefined') {
+
 						        self.start_date(moment(response.start_time).startOf("day").format("YYYY-MM-DD HH:mm:ss"));
-						        self.end_date(moment(response.end_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
+														        
+						        //il arrive que la date de fin ne soit pas renseignée
+						        if (typeof response.end_time=='undefined')
+						        	self.end_date(moment(response.start_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
+						        else 
+						        	self.end_date(moment(response.end_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
 
 						        document.querySelector('input[name="post_title"]').value  = response.name;
 						        
 						        //remplacer les CR LF par des <br>
-						        var content = response.description.replace(/(\r\n|\n|\r)/gm,"<br/>");
-
-						        if (window.tinyMCE)
-						        	tinyMCE.execCommand('mceSetContent', false, content); 
+						        if (typeof response.description!='undefined' && window.tinyMCE) {
+						        	var content = response.description.replace(/(\r\n|\n|\r)/gm,"<br/>");
+						       		tinyMCE.execCommand('mceSetContent', false, content); 
+						        }
 						        
 						        //fixer le contenu dans l'editor
 						        if (window.kidzouPlaceModule) {
@@ -356,14 +364,35 @@ var kidzouEventsModule = (function() { //havre de paix
 						        		);
 						        }
 
-
-
 						        //inserer le cover comme featured image
-						        // var frame = wp.media({});
+						        if (typeof response.cover!='undefined') {
+						        	jQuery.post(events_jsvars.api_addMediaFromURL,{
+										url : response.cover.source,
+										title : response.name,
+										post_id : document.querySelector('#post_ID').value //c'est un champ caché de la page
+									}).done(function(resp) {
+										
+										if (document.querySelector('#postimagediv img')) {
+									  		document.querySelector('#postimagediv img').src = resp.src;
+									  	} else {
+									  		var node = document.createElement("IMG");    
+									  		node.setAttribute('src', resp.src);             
+											document.querySelector("#set-post-thumbnail").appendChild(node);  
+									  	} 
 
-							    // console.debug(frame);
+									  	self.facebookImportMessage ('');
+									}).fail(function(err) {
+										console.error('erreur lors de l\'import de la photo', err);
+									   	self.facebookImportMessage("<span class='form_hint'>La photo n&apos;a pas pu &ecirc;tre import&eacute;e :-/</span>");
+									});
+						        } 
 
+						        //c'est fini, plus besoin de message si ce n'est un message OK 
+						        //@todo confirmer la fin du process
+						        self.facebookImportMessage ('');
 
+						      } else {
+						      	self.facebookImportMessage ("<span class='form_hint'>L'import a &eacute;chou&eacute; :-(</span>");
 						      }
 						    }
 						);

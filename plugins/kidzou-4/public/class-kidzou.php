@@ -109,6 +109,7 @@ class Kidzou {
 		add_filter('json_api_config_controller_path',  array( $this, 'set_config_controller_path') );
 		add_filter('json_api_social_controller_path',  array( $this, 'set_social_controller_path') );
 		add_filter('json_api_utils_controller_path',  array( $this, 'set_utils_controller_path') );
+		add_filter('json_api_import_controller_path',  array( $this, 'set_import_controller_path') );
 
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
 		add_action('wp_head', array( $this, 'insert_pub_header'));
@@ -710,6 +711,7 @@ class Kidzou {
 		$controllers[] = 'Config';
 		$controllers[] = 'Social';
 		$controllers[] = 'Utils';
+		$controllers[] = 'Import';
 
 		return $controllers;
 	}
@@ -738,6 +740,9 @@ class Kidzou {
 	}
 	public function set_utils_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/utils.php";
+	}
+	public function set_import_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/import.php";
 	}
 
 	/**
