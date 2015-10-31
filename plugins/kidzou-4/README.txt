@@ -1,4 +1,4 @@
-<h4>API V18</h4>
+<h4>API V18, V19, V20</h4>
 <h5>28 octobre 2015</h5>
 <ul>
 	<li>Nouvelle Fonction : Import d'événement Facebook dans un article</li>
