@@ -36,7 +36,7 @@ class JSON_API_Import_Controller {
 
 		$tmp = download_url( $url );
 		if( is_wp_error( $tmp ) ){
-			$json_api->error("Erreur lors du telechargement");
+			$json_api->error("Erreur lors de la recuperation de l'URL");
 		}
 
 		$file_array = array();
@@ -60,7 +60,7 @@ class JSON_API_Import_Controller {
 		// If error storing permanently, unlink
 		if ( is_wp_error($attach_id) ) {
 			@unlink($file_array['tmp_name']);
-			$json_api->error("Erreur lors de l'ecriture du fichier");
+			$json_api->error($attach_id->get_error_messages());
 		}
 
 		$src = wp_get_attachment_url( $attach_id );

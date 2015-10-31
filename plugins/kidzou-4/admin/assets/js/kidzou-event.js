@@ -322,7 +322,7 @@ var kidzouEventsModule = (function() { //havre de paix
 		    	},
 		    	write: function(value) {
 
-		    		self.facebookImportMessage("<span class='form_hint'>Import en cours...</span>");
+		    		self.facebookImportMessage("<span class='updated notice'>Import en cours...</span>");
 
 		    		var patt = /https?:\/\/www.facebook.com\/events\/([0-9]*)\/?/i;
 					var matches = patt.exec(value);
@@ -366,6 +366,8 @@ var kidzouEventsModule = (function() { //havre de paix
 
 						        //inserer le cover comme featured image
 						        if (typeof response.cover!='undefined') {
+						        	self.facebookImportMessage("<span class='updated notice'>T&eacute;l&eacute;chargement de l&apos;image...</span>");
+						        	
 						        	jQuery.post(events_jsvars.api_addMediaFromURL,{
 										url : response.cover.source,
 										title : response.name,
@@ -379,20 +381,22 @@ var kidzouEventsModule = (function() { //havre de paix
 									  		node.setAttribute('src', resp.src);             
 											document.querySelector("#set-post-thumbnail").appendChild(node);  
 									  	} 
+									  	self.facebookImportMessage ("<span class='updated notice is-dismissable'>T&eacute;l&eacute;chargement Termin&eacute;</span>");
 
-									  	self.facebookImportMessage ('');
 									}).fail(function(err) {
 										console.error('erreur lors de l\'import de la photo', err);
-									   	self.facebookImportMessage("<span class='form_hint'>La photo n&apos;a pas pu &ecirc;tre import&eacute;e :-/</span>");
+									   	self.facebookImportMessage("<span class='error notice is-dismissable'>La photo n&apos;a pas pu &ecirc;tre import&eacute;e :-/</span>");
 									});
-						        } 
+						        }  else {
+						        	self.facebookImportMessage ('');
+						        }
 
 						        //c'est fini, plus besoin de message si ce n'est un message OK 
 						        //@todo confirmer la fin du process
-						        self.facebookImportMessage ('');
+						        
 
 						      } else {
-						      	self.facebookImportMessage ("<span class='form_hint'>L'import a &eacute;chou&eacute; :-(</span>");
+						      	self.facebookImportMessage ("<span class='error notice is-dismissable'>L'import a &eacute;chou&eacute; :-(</span>");
 						      }
 						    }
 						);
