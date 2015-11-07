@@ -196,7 +196,7 @@ class Kidzou_Admin_Events {
 						<script>
 						  window.fbAsyncInit = function() {
 						    FB.init({
-						      appId      : 'your-app-id',
+						      appId      : '".$facebook_appId."',
 						      xfbml      : true,
 						      version    : 'v2.4'
 						    });
