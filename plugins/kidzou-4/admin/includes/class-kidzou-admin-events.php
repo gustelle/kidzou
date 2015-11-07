@@ -49,7 +49,7 @@ class Kidzou_Admin_Events {
 	 *
 	 * @var      string
 	 */
-	public $screen_with_meta_place = array('post', 'customer'); 
+	// public $screen_with_meta_place = array('post', 'customer'); 
 
 
 
@@ -88,8 +88,6 @@ class Kidzou_Admin_Events {
 		if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
 
 		
-			wp_enqueue_style( 'kidzou-place', plugins_url( 'assets/css/kidzou-edit-place.css', dirname(__FILE__) ) );
-			wp_enqueue_style( 'placecomplete', plugins_url( 'assets/css/jquery.placecomplete.css', dirname(__FILE__) ) );
 			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 
 			//datepicker pour les events
@@ -102,18 +100,8 @@ class Kidzou_Admin_Events {
 			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
 			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', dirname(__FILE__) ),array("ko-validation"), '1.0', true);
 			
-			//requis par placecomplete
-			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
-			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
-			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
-
-			//selection des places dans Google Places
-			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', dirname(__FILE__) ),array('jquery-select2', 'google-maps'), '1.0', true);
-			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
-
 			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', dirname(__FILE__) ) ,array('jquery','ko-mapping'), Kidzou::VERSION, true);
-			
+
 			//gestion des events
 			wp_enqueue_script('kidzou-event', plugins_url( 'assets/js/kidzou-event.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'moment'), Kidzou::VERSION, true);
 			wp_enqueue_script('moment',			"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
@@ -163,10 +151,6 @@ class Kidzou_Admin_Events {
 			// add_meta_box('kz_facebook_metabox', 'Importer un &eacute;v&eacute;nement Facebook', array($this, 'facebook_event_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 		} 
-
-		if ( in_array($screen->id , $this->screen_with_meta_place) ) {
-			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
-		}
 
 	}
 
@@ -224,7 +208,7 @@ class Kidzou_Admin_Events {
 		});
 		</script>
 
-		<div class="kz_form" id="event_form">';
+		<div class="kz_form hide" id="event_form">';
 
 			if ($facebook_appId!='' && $facebook_appSecret!='' && Kidzou_Utils::current_user_is('administrator')) {
 
@@ -365,136 +349,6 @@ class Kidzou_Admin_Events {
 
 	}
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function place_metabox()
-	{
-		global $post;
-		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-		$location = Kidzou_GeoHelper::get_post_location($post->ID); 
-
-		// Get the location data if its already been entered
-		$location_name 		= $location['location_name'];
-		$location_address 	= $location['location_address'];
-		$location_website 	= $location['location_web'];
-		$location_phone_number 	= $location['location_tel'];
-		$location_city 			= $location['location_city'];
-		$location_latitude 		= $location['location_latitude'];
-		$location_longitude 	= $location['location_longitude'];
-
-		//si aucune méta de lieu n'est pré-existante, on prend celle du client associé au post
-		if ($location_name=='') {
-
-			$id = 0;
-
-			if (!Kidzou_Utils::current_user_is('administrator') ) {
-
-				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
-
-				//on prend le premier s'il n'y en a qu'un
-				if (is_array($res) && count($res)==1) {
-					$vals =array_values($res);
-					$id = $vals[0];
-				}
-					
-			} else {
-				
-				$id = Kidzou_Customer::getCustomerIDByPostID();
-				if (is_wp_error($id))
-					$id=0;
-			}
-
-			$location = Kidzou_GeoHelper::get_post_location($id);
-
-			if (isset($location['location_name']) && $location['location_name']!='') {
-
-				$location_name 		= $location['location_name'];
-				$location_address 	= $location['location_address'];
-				$location_website 	= $location['location_web'];
-				$location_phone_number 	= $location['location_tel'];
-				$location_city 			= $location['location_city'];
-				$location_latitude 		= $location['location_latitude'];
-				$location_longitude 	= $location['location_longitude'];
-			}
-
-		}
-
-		echo '<script>
-		jQuery(document).ready(function() {
-			kidzouPlaceModule.model.initPlace("'.$location_name.'","'.$location_address.'","'.$location_website.'","'.$location_phone_number.'","'.$location_city.'","'.$location_latitude.'","'.$location_longitude.'");
-		});
-		</script>
-
-		<div class="kz_form" id="place_form">
-
-			<input type="hidden" name="kz_location_latitude" id="kz_location_latitude" data-bind="value: placeData().place().lat" />
-			<input type="hidden" name="kz_location_longitude" id="kz_location_longitude" data-bind="value: placeData().place().lng" />
-
-			<h4>Cela se passe o&ugrave; ?</h4>
-			<ul>
-			<!-- ko ifnot: customPlace() -->
-			<li>
-				<input type="hidden" name="place" data-bind="placecomplete:{
-																placeholderText: \'Ou cela se passe-t-il ?\',
-																minimumInputLength: 2,
-																allowClear:true,
-															    requestParams: {
-															        types: [\'establishment\']
-															    }}, event: {\'placecomplete:selected\':completePlace}" style="width:80%" >
-				<br/><br/>
-				<em>
-					<a href="#" data-bind="click: displayCustomPlaceForm">Vous ne trouvez pas votre bonheur dans cette liste?</a><br/>
-				</em>
-			</li>
-			<!-- /ko -->
-			<!-- ko if: customPlace() -->
-			<li>
-				<label for="kz_location_name">Nom du lieu:</label>
-				<input type="text" name="kz_location_name" placeholder="Ex: chez Gaspard" data-bind="value: placeData().place().venue" required>
-
-			</li>
-			<li>
-				<label for="kz_location_address">Adresse:</label>
-				<input type="text" name="kz_location_address" placeholder="Ex: 13 Boulevard Louis XIV 59800 Lille" data-bind="value: placeData().place().address" required>
-			</li>
-			<li>
-				<label for="kz_location_city">Quartier / Ville:</label>
-				<input type="text" name="kz_location_city" placeholder="Ex: Lille Sud" data-bind="value: placeData().place().city" required>
-
-			</li>
-			<li>
-				<label for="kz_location_latitude">Latitude:</label>
-				<input type="text" name="kz_location_latitude" placeholder="Ex : 50.625935" data-bind="value: placeData().place().lat" >
-			</li>
-			<li>
-				<label for="kz_location_longitude">Longitude:</label>
-				<input type="text" name="kz_location_longitude" placeholder="Ex : 3.0462689999999384" data-bind="value: placeData().place().lng" >
-			</li>
-			<li>
-				<label for="kz_location_website">Site web:</label>
-				<input type="text" name="kz_location_website" placeholder="Ex: http://www.kidzou.fr" data-bind="value: placeData().place().website" >
-			</li>
-			<li>
-				<label for="kz_location_phone_number">Tel:</label>
-				<input type="text" name="kz_location_phone_number" placeholder="Ex : 03 20 30 40 50" data-bind="value: placeData().place().phone_number" >
-			</li>
-
-			<li>
-				
-			</li>
-			<li><button data-bind="click: displayGooglePlaceForm" class="button button-primary button-large">Changer de lieu</button></li>	
-			<!-- /ko -->
-
-			</ul>
-
-		</div>';
-	}
 
 
 	/**
@@ -508,7 +362,7 @@ class Kidzou_Admin_Events {
 
 		//
 		$this->save_event_meta($post_id);
-		$this->save_place_meta($post_id);
+		// $this->save_place_meta($post_id);
 
 	}
 
@@ -600,52 +454,6 @@ class Kidzou_Admin_Events {
 
 	}
 
-	/**
-	 * kz_event_featured : stockage des valeurs A/B pour des problématiques de non stockage si valeur numérique à 0
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	private function save_place_meta($post_id)
-	{	
-		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
-			return ;
 
-		$slugs = array('post', 'customer');
-
-	    // If this isn't a 'book' post, don't update it.
-	    if ( !isset($_POST['post_type']) || !in_array($_POST['post_type'] , $slugs) ) {
-	        return;
-	    }
-
-		if ( ! isset( $_POST['placemeta_noncename'] ) )
-			return $post_id;
-
-		// verify this came from the our screen and with proper authorization,
-		// because save_post can be triggered at other times
-		if ( !wp_verify_nonce( $_POST['placemeta_noncename'], plugin_basename(__FILE__) )) {
-			return $post_id;
-		}
-		// Is the user allowed to edit the post or page?
-		if ( !Kidzou_Utils::current_user_is('contributor') )
-			return $post_id;
-
-		$type = get_post_type($post_id);
-
-		// OK, we're authenticated: we need to find and save the data
-		// We'll put it into an array to make it easier to loop though.
-		$events_meta['location_name'] 			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
-		$events_meta['location_address'] 		= (isset($_POST['kz_location_address']) ? $_POST['kz_location_address'] : '');
-		$events_meta['location_website'] 		= (isset($_POST['kz_location_website']) ? $_POST['kz_location_website'] : '');
-		$events_meta['location_phone_number'] 	= (isset($_POST['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
-		$events_meta['location_city'] 			= (isset($_POST['kz_location_city']) ? $_POST['kz_location_city'] : '');
-		$events_meta['location_latitude'] 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
-		$events_meta['location_longitude'] 		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
-
-		$prefix = 'kz_' . $type . '_';
-
-		Kidzou_Admin::save_meta($post_id, $events_meta, $prefix);
-		
-	}
 
 }

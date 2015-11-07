@@ -3,131 +3,91 @@
 
 	$(function () {
 
-	   function formatUser(object) { return object.data.user_login; };
-	   function formatUserId(item) { return item.data.ID+"#"+item.data.user_login; };
-	
-		$("#main_users_input").select2({
-			placeholder: "Selectionnez un ou plusieurs utilisateurs",
-			allowClear: true,
-			multiple: true,
-			separator : "|",
-			// data: users,
-			initSelection : function (element, callback) {
-			    var data = [];
-			    // console.debug(element.val());
-			    $(element.val().split("|")).each(function () {
-			    	// console.debug(this);
-			        var pieces = this.split("#");
-			        // console.debug(pieces);
-					data.push({data:{ID: pieces[0], user_login: pieces[1]}});
-			    });//console.log(data);
-			    callback(data);
-			},
-			ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-		        url: client_jsvars.api_get_userinfo,
-		        dataType: 'jsonp',
-		        data: function (term, page) {
-		            return {
-		                term: term, // search term
-		                // term_field: 'user_lastname',
-		            };
-		        },
-		        results: function (data, page) { // parse the results into the format expected by Select2.
-		            // since we are using custom formatting functions we do not need to alter remote JSON data
-		            // console.debug(data.status);
-		            return {results: data.status};
+		//Creation d'un client depuis une autre endroit que la fiche Customer 
+		//Ex:  creation d'un client depuis un article
+		var customerEditor = function() {
 
-		        }
-		    },
-		    formatResult : formatUser,
-		    formatSelection : formatUser,
-		    id : formatUserId,
-		});
-	
+			var model = new CustomerModel();
 
+			function CustomerModel () {
 
-		//liste des posts du client
+				var self = this;
 
-		function formatPost(post) { return post.title; };
-	   function formatPostId(item) {return item.id+"#"+item.title; };
+				//ce qui sera transmis dans le formulaire après creation d'un client
+				// self.customerSelection = ko.observable('');
 
-		$("#customer_posts").select2({
-			placeholder: "Selectionnez un ou plusieurs articles par leur titre",
-			allowClear: true,
-			multiple: true,
-			separator : "|",
-			// data: users,
-			initSelection : function (element, callback) {
-			    var data = [];
-			    $(element.val().split("|")).each(function () {
-			        var pieces = this.split("#");
-					data.push({id: pieces[0], title: pieces[1]});
-			    });//console.log(data);
-			    callback(data);
-			},
-			ajax: { // instead of writing the function to execute the request we use Select2's convenient helper
-		        url: client_jsvars.api_queryAttachablePosts,
-		        dataType: 'jsonp',
-		        data: function (term, page) {
-		            return {
-		                term: term, // search term
-		            };
-		        },
-		        results: function (data, page) { // parse the results into the format expected by Select2.
-		            // since we are using custom formatting functions we do not need to alter remote JSON data
-		            // console.debug(data)
-		            return {results: data.posts};
+				//si le client est en mode edition 
+				self.editMode = ko.observable(false); 
 
-		        }
-		    },
-		    formatResult : formatPost,
-		    formatSelection : formatPost,
-		    id : formatPostId,
-		});
+				//le nom du client
+				self.customerName = ko.observable('');
 
-	   if ($("#kz_customer").length) {
-	   		$("#kz_customer").select2({
-				placeholder: "Selectionnez un client",
-				allowClear : true,
-		        data : clients,
-		        initSelection : function (element, callback) {
-		        	var pieces = element.val().split("#");
-		        	var data = {id: pieces[0], text: pieces[1]};
-			        callback(data);
-			    }
-			});
+				//statut affiché au user pendant le process de creation client
+				self.creationStatus = ko.observable('');
 
-			//mise à jour de Google place quand on choisit un client
-			//le lieu est alimenté par le lieu par défaut du client
-			$("#kz_customer").on("select2-selecting", function(e) { 
-				// console.debug ("selecting val="+ e.val+" choice="+ JSON.stringify(e.choice)); 
+				self.displayEditCustomerForm = function() {
+					self.editMode(true);
+				};
 
-				//l'id du client est socké dans e.val
-				jQuery.get(client_jsvars.api_getCustomerPlace, { 
-		   				id 	: e.val
-	   				}).done(function(data) {
-	   					// console.log(data);
-	   					if (data.status==="ok" && data.location.location_name!='') {
-	   						kidzouPlaceModule.model.initPlace(
-	   							data.location.location_name, 
-	   							data.location.location_address, 
-	   							data.location.location_web, 
-	   							data.location.location_tel, 
-	   							data.location.location_city,
-	   							data.location.location_latitude,
-	   							data.location.location_longitude
-	   						);
-	   					} 
-	    			});
+				self.displayCustomerSelect = function() {
+					self.editMode(false);
+				};
 
-			});
+				self.createCustomer = function() {
 					
-			// if (!client_jsvars.is_user_admin) {
-			// 	// console.debug('user not admin, disabling customer field');
-			// 	$("#kz_customer").select2("enable", false);	
-			// }
-	   }
+					if (self.customerName()=='') return;
+
+					self.creationStatus('Cr&eacute;ation en cours...');
+					$.ajax({
+						// get the nonce
+						url: '/api/get_nonce/?controller=posts&method=create_post',
+						type: 'GET',
+						success: function  (data) {
+							// create the post
+							$.ajax({
+								url: '/api/create_post/',
+								type: 'POST',
+								data: {nonce: data.nonce, status:'publish',title: self.customerName(), type: 'customer'},
+								success: function  (data) {
+									// console.debug('clients, pushing ', {"id":data.post.id,"text":data.post.title});
+									// clients.push({"id":data.post.id,"text":data.post.title});
+									// console.debug('clients', clients);
+									// self.customerSelection(data.post.id + '#' + data.post.title);
+									// console.debug('self.customerSelection', self.customerSelection());
+									$("select[name='customer_select']").selectize()[0].selectize.addOption({ id: data.post.id , name: data.post.title });
+									$("select[name='customer_select']").selectize()[0].selectize.addItem( data.post.id , false);
+									self.creationStatus('<a href="/wp-admin/post.php?post='+ data.post.id +'&action=edit" target="_blank">Continuer l\'edition du client</a>');
+								},
+								error: function  (data) {
+									console.error('create_post', data);
+									self.creationStatus('La cr&eacute;ation a &eacute;chou&eacute; :-(');
+								}
+							});
+						},
+						error: function  (data) {
+							console.log('get_nonce', data);
+							self.creationStatus('La cr&eacute;ation a &eacute;chou&eacute; :-(');
+						}
+					});
+				};
+
+			}
+
+			return { 
+				model : model 
+			};
+		}();
+ 
+		$(document).ready(function() {
+			ko.applyBindings( customerEditor.model, document.querySelector("#customer_form") ); //retourne un EventsEditorModel
 			
+			//maintenant que le binding est fait, faire apparaitre le form
+			setTimeout(function(){
+				document.querySelector("#customer_form").classList.remove('hide');
+				document.querySelector("#customer_form").classList.add('pop-in');
+				console.debug('customer_form', document.querySelector("#customer_form").classList);
+			}, 300);
+		});
 
 	});
 

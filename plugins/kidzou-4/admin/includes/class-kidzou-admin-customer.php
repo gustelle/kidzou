@@ -90,47 +90,26 @@ class Kidzou_Admin_Customer {
 
 		if ( in_array($screen->id, $this->customer_screen) ) { 
 
-			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
-			wp_enqueue_style( 'kidzou-admin', plugins_url( 'assets/css/kidzou-client.css', dirname(__FILE__) ) );
-
-			wp_enqueue_style( 'kidzou-place', plugins_url( 'assets/css/kidzou-edit-place.css', dirname(__FILE__) ) );
-			wp_enqueue_style( 'placecomplete', plugins_url( 'assets/css/jquery.placecomplete.css', dirname(__FILE__) ) );
-			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
-
-			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
-			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
-
-			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
-			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', dirname(__FILE__) ),array("ko-validation"), '1.0', true);
-
 			//requis par placecomplete
-			wp_enqueue_script('jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.min.js",array('jquery'), '1.0', true);
-			wp_enqueue_script('jquery-select2-locale', 	"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2_locale_fr.min.js",array('jquery-select2'), '1.0', true);
-			wp_enqueue_style( 'jquery-select2', 		"http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.4/select2.css" );
+			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
+			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
 
-			//selection des places dans Google Places
-			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
-			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', dirname(__FILE__) ),array('jquery-select2', 'google-maps'), '1.0', true);
-			
-			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', dirname(__FILE__) ) ,array('jquery','ko-mapping'), Kidzou::VERSION, true);
-
-			//ecran de gestion des clients
-			wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
-				'api_getClients'				=> site_url()."/api/clients/getClients/",
+			// ecran de gestion des clients
+			wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
+			wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
+				// 'api_getClients'				=> site_url()."/api/clients/getClients/",
 				// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
-				'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
-				'api_saveClient'				=> site_url().'/api/clients/saveClient/',
+				// 'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
+				// 'api_saveClient'				=> site_url().'/api/clients/saveClient/',
 				// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
 				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
 				// 'api_get_userinfo'			 	=> site_url().'/api/user/get_userinfo/',
-				'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
+				// 'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
 				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-				'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
-				'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
-				'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
-				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
+				// 'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
+				// 'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
+				// 'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
+				// 'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
 				// 'is_user_admin'					=> current_user_can('manage_options')
 
 				)
@@ -138,6 +117,9 @@ class Kidzou_Admin_Customer {
 
 
 		} elseif ( in_array($screen->id , $this->screen_with_meta_client) ) { 
+
+			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
+			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
 			
 			//sur les post on a besoin d'une meta client
 			wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
@@ -186,10 +168,6 @@ class Kidzou_Admin_Customer {
 			add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
-
-			//lieu par défaut d'un customer
-			// add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
-
 		
 		} elseif ( in_array($screen->id , $this->screen_with_meta_client) ) { 
 
@@ -207,23 +185,23 @@ class Kidzou_Admin_Customer {
 	 **/
 	public function client_metabox()
 	{ 
-		// Kidzou_Utils::log('Kidzou_Admin [client_metabox]',true);
 		global $post; 
 
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
+		//le customer_id sert à initialiser la selectBox pour le post qui a déjà un client affecté
 		$customer_id =0;
-		$customer_name = '';
+		// $customer_name = '';
 		
 		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
 	
 		if (is_wp_error($customer_id))
 			$customer_id=0;
-		else {
-			$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
-			if (is_wp_error($customer_name))
-				$customer_name = '';
-		}
+		// else {
+		// 	$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
+		// 	if (is_wp_error($customer_name))
+		// 		$customer_name = '';
+		// }
 
 		$clients = array();
 		$args = array(
@@ -262,7 +240,11 @@ class Kidzou_Admin_Customer {
 			$posts = $q->get_posts();
 
 			foreach ($posts as $mypost) {
-				$clients[] = array("id" => $mypost->ID, "text" => $mypost->post_title);
+				$clients[] = array(
+						"id" => $mypost->ID, 
+						"name" => $mypost->post_title,
+						"location" => Kidzou_GeoHelper::get_post_location($mypost->ID)
+					);
 			}
 
 			wp_reset_query();
@@ -272,29 +254,101 @@ class Kidzou_Admin_Customer {
 		//pre-selection s'il n'y en a qu'un
 		if (count($clients)==1) {
 			$customer_id = $clients[0]['id'];
-			$customer_name = $clients[0]['text'];
+			// $customer_name = $clients[0]['name'];
+			// $customer_location = $clients[0]['location'];
 		}
 
-		echo sprintf('<script>var clients = %1$s;</script>', json_encode($clients));
-		
-		?>
-		<div class="events_form">
+		echo sprintf('
+				<script>
+					jQuery(document).ready(function() {
+						jQuery("select[name=\'customer_select\']").selectize({
+							mode: "single",
+							options : %1$s,
+							valueField: \'id\',
+							labelField: \'name\',
+							sortField: [
+								{field: \'name\', direction: \'asc\'},
+							],
+							searchField : [
+								\'name\'
+							],
+							render: {
+								item: function(item, escape) {
+									return \'<div>\' + escape(item.name) + \'</div>\';
+								},
+								option: function(item, escape) {
+									if (typeof item.location==\'undefined\' || typeof item.location.location_address==\'undefined\' || item.location.location_address==\'\') 
+										return \'<div>\' + escape(item.name) + \'</div>\';
+									return \'<div>\' + escape(item.name) + \'<br/><em style="font-size:smaller">\' + escape(item.location.location_address) + \', \' + escape(item.location.location_city) + \'</em></div>\';
+								}
+							},
+							onItemAdd : function(value, item) {
 
-			<?php
+								if (window.kidzouPlaceModule) {
 
+									jQuery.get(client_jsvars.api_getCustomerPlace, { 
+					   					id 	: value
+									}).done(function(data) {
+										// console.log(data);
+										if (data.status===\'ok\' && data.location.location_name!=\'\') {
+											kidzouPlaceModule.model.proposePlace(\'customer\', {
+													name 		: data.location.location_name,
+								        			address 	: data.location.location_address,
+								        			website 	: data.location.location_web, //website
+								        			phone		: data.location.location_tel, //phone
+								        			city 		: data.location.location_city,
+								        			latitude	: data.location.location_latitude,
+								        			longitude 	: data.location.location_longitude,
+								        			opening_hours : \'\' //opening hours
+												});
+										} 
+									});
+
+								}
+							
+							}
+						});
+					});
+				</script>
+			', json_encode($clients));
+	
+		//le post a déjà un customer 
+		if ($customer_id>0) {
 			echo '
+				<script>
+					jQuery(document).ready(function() {
+						//Charger la select avec le client du post
+						//ne pas déclencher le onItemAdd...
+						jQuery("select[name=\'customer_select\']").selectize()[0].selectize.addItem('.$customer_id.', true);
+					});
+				</script>
+				';
+		}
+		
+
+		echo '
+			<div class="events_form hide" id="customer_form">
 				<ul>
-				<li>
-					<label for="kz_customer">Nom du client:</label>
-					<input type="hidden" name="kz_customer" id="kz_customer" value="' . $customer_id . '#'.$customer_name.'" style="width:80%" />
+				<!-- selectize ne fonctionne que si l\'element est dans le DOM , il faut donc utiliser un bind "visible" et non "if" -->
+				<li data-bind="visible: !editMode()">
+					<label for="customer_select">Nom du client:</label>
+					<select name="customer_select" style="width:80%"></select>
+					<br/><br/>
+					<em><a href="#" data-bind="click: displayEditCustomerForm">Cr&eacute;er un nouveau client</a></em>
 				</li>
-				</ul>';
-
-			?>
-			
-		</div>
-
-		<?php
+				<!-- ko if: editMode() -->
+				<li>
+					<label for="customer_input">Nom du client:</label>
+					<input type="text" name="customer_input" placeholder="Le nom du client" data-bind="value: customerName" required>
+					<span data-bind="html: creationStatus"></span>
+				</li>
+				<li>
+					<button data-bind="click: displayCustomerSelect" class="button button-large">Choisir un client existant</button>
+					<button data-bind="click: createCustomer" class="button button-primary button-large">Cr&eacute;er le client</button>
+				</li>
+				<!-- /ko -->
+				</ul>
+			</div>';
 	}
 
 	/**
@@ -322,7 +376,7 @@ class Kidzou_Admin_Customer {
 	}
 
 	/**
-	 * undocumented function
+	 * les posts rattachés au client
 	 *
 	 * @return void
 	 * @author 
@@ -335,7 +389,7 @@ class Kidzou_Admin_Customer {
 
 		$args = array(
 			'post_type' => Kidzou_Customer::$supported_post_types,
-		   'meta_query' => array(
+		   	'meta_query' => array(
 		       array(
 		           'key' => Kidzou_Customer::$meta_customer,
 		           'value' => $post->ID,
@@ -347,19 +401,12 @@ class Kidzou_Admin_Customer {
 		$query = new WP_Query($args);
 
 		$posts = $query->get_posts();
-
-		$posts_list = '';
-
-		if ( !empty($posts) ) {
-			foreach ($posts as $mypost) {
-				
-				if ($posts_list!='')
-					$posts_list .= '|';
-
-				// $post_o = get_post( $mypost );
-				$posts_list .= $mypost->ID.'#'.$mypost->post_title; 
-			}
+		$init_options = '';
+		foreach ($posts as $init_post){
+		    $init_options .= '<option value="'.$init_post->ID.'" selected>'.$init_post->post_title.'</option>';
 		}
+
+		// Kidzou_Utils::log(array('init_posts'=>$init_posts),true);
 
 		wp_reset_query();
 
@@ -367,31 +414,66 @@ class Kidzou_Admin_Customer {
 		wp_nonce_field( 'customer_posts_metabox', 'customer_posts_metabox_nonce' );
 
 		$output = sprintf('
-			<ul>
-				<li>
-					<label for="customer_posts" style="display:block;">
-						Articles appartenant au client :
-					</label>
-					<input type="hidden" name="customer_posts" id="customer_posts" value="%1$s" style="width:100%% ; display:block;" />
-				</li>
-				
-			</ul>',
-			$posts_list
+				<script>
+					jQuery(document).ready(function() {
+
+						jQuery("#customer_posts").selectize({
+						    options : [],
+						    create: false,
+						    hideSelected : true,
+						    valueField: \'id\',
+						    labelField: \'title\',
+						    searchField: \'title\',
+						    delimiter: \',\',
+						    plugins: [\'remove_button\'],
+						    render: {
+						    	item: function(item, escape) {
+						            return \'<div><span class="name">\' + escape(item.title) + \'</span></div>\';
+						        },
+						        option: function(item, escape) {
+						            return 	\'<div><span class="title"><span class="name">\' + escape(item.title) +
+						            		 \'</span></span></div>\';
+						        }
+						    },
+						    load: function(query, callback) {
+						        if (!query.length) return callback();
+						        jQuery.ajax({
+						            url: client_jsvars.api_queryAttachablePosts ,
+						            data: {
+						                term: query,
+						            },
+						            error: function() {
+						                callback();
+						            },
+						            success: function(data) { console.debug(data.posts)
+						                callback(data.posts);
+						            }
+						        });
+						    }
+						});
+					});
+				</script>
+				<label for="customer_posts[]" style="display:block;">
+					Articles appartenant au client :
+				</label>
+				<br/>
+				<select multiple="multiple" name="customer_posts[]" id="customer_posts" placeholder="rechercher par titre..." style="width:80%;">%1$s</select>
+					',
+				$init_options
 			);
 
-		echo $output;
-		
+		echo $output;	
 	}
 
 	/**
-	 * undocumented function
+	 * Dans l'écran customer, on peut affecter des users au client
+	 * cela aura pour effet que les users s'ils sont contributeurs et qu'ils créent du contenu, leur posts sont automatiquement affectés au client
 	 *
 	 * @return void
 	 * @author 
 	 **/
 	public function customer_users_metabox()
 	{	
-		// Kidzou_Utils::log('Kidzou_Admin [customer_users_metabox]',true);
 		
 		global $post;
 
@@ -400,21 +482,13 @@ class Kidzou_Admin_Customer {
 		$user_query = new WP_User_Query( array( 
 			'meta_key' => Kidzou_Customer::$meta_customer, 
 			'meta_value' => $post_id , 
-			'fields' => array('ID', 'user_login') 
+			'fields' => array('ID', 'display_name', 'user_email') 
 			) 
 		);
-		$main_users = "";
-
+		$main_users = '';
 		if ( !empty($user_query->results) ) {
 			foreach ($user_query->results as $main) {
-				
-				if ($main_users!='')
-					$main_users .= '|';
-
-				$id = $main->ID;
-				$login = $main->user_login;
-
-				$main_users .= $id.'#'.$login; 
+				$main_users .= '<option value="'.$main->ID.'" data-data=\''.json_encode($main).'\' selected>'.$main->display_name.'</option>';
 			}
 		}
 
@@ -423,23 +497,62 @@ class Kidzou_Admin_Customer {
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
 
 		$output = sprintf('
-			<ul>
-				<li>
-					<label for="main_users_input" style="display:block;">
-						Utilisateurs autoris&eacute;s &agrave; saisir des contenus<br/>
-						<strong>La recherche se fait par login ou email</strong>
-					</label>
-					<input type="hidden" name="main_users_input" id="main_users_input" value="%1$s" style="width:50%% ; display:block;" />
-				</li>
-				
-			</ul>',
+				<script>
+					jQuery(document).ready(function() {
+
+						jQuery("#customer_users").selectize({
+						    options : [],
+						    hideSelected : true,
+						    create: false,
+						    valueField: \'ID\',
+						    labelField: \'display_name\',
+						    searchField: [\'display_name\',\'user_email\'],
+						    delimiter: \',\',
+						    plugins: [\'remove_button\'],
+						    render: {
+						    	item: function(item, escape) { 
+						            return \'<div><span class="name">\' + escape(item.display_name) + \'</span><span class="email">\' + escape(item.user_email) + \'</span></div>\';
+						        },
+						        option: function(item, escape) {
+						            return 	\'<div><span class="label">\' + escape(item.display_name) + \'</span><span class="caption">\' + escape(item.user_email) + \'</span></div>\';
+						        }
+						    },
+						    load: function(query, callback) {
+						        if (!query.length) return callback();
+						        jQuery.ajax({
+						            url: client_jsvars.api_get_userinfo ,
+						            data: {
+						                term: query,
+						            },
+						            error: function() {
+						                callback();
+						            },
+						            success: function(data) {
+						            	callback(data.status.map(function(item) {
+										    return {
+										        ID: item.data.ID,
+										        display_name : item.data.display_name,
+										        user_email : item.data.user_email
+										    };
+										}));
+						            }
+						        });
+						    }
+						});
+					});
+				</script>
+				<label for="customer_users[]" style="display:block;">
+					Utilisateurs autoris&eacute;s &agrave; saisir des contenus<br/>
+					<strong>La recherche se fait par login ou email</strong>
+				</label>
+				<br/>
+				<select multiple="multiple" name="customer_users[]" id="customer_users" class="contacts" placeholder="rechercher par email ou login..." style="width:80%;">%1$s</select>
+			',
 			$main_users
 		);
 
 
 		echo $output;
-
-
 	}
 
 	/**
@@ -530,26 +643,18 @@ class Kidzou_Admin_Customer {
 
 		$this->save_analytics_metabox($post_id);
 
-		//
-		// $this->save_event_meta($post_id);
+		//pour les posts
 		$this->save_client_meta($post_id);
-
-		// //
-		// $this->save_post_metropole($post_id);
-		// $this->set_post_metropole($post_id);
 
 		//et pour les clients
 		$this->set_customer_users($post_id);
 		$this->set_customer_posts($post_id);
 		$this->set_customer_apis($post_id);
-
-		//pour tout le monde
-		// $this->save_place_meta($post_id);
 		
 	}
 
 	/**
-	 * undocumented function
+	 * A l'enregistrement d'un post, on associé le client
 	 *
 	 * @return void
 	 * @author 
@@ -569,39 +674,37 @@ class Kidzou_Admin_Customer {
 
 		if ( !isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
 
-			//OK, le user ne voit pas la meta client, c'est peut-être qu'il n'a pas le droit de voir la metabox
+			//le user ne voit pas la meta client, peut-être qu'il n'a pas le droit de voir la metabox
 			//Car elle a été cachée par un autre plugin
 			//dans ce cas, le post est rattaché à la méta "client" du user courant
 
 			$current_user_customers = Kidzou_Customer::getCustomersIDByUserID(); //c'est un tableau
 
-			// Kidzou_Utils::log($current_user_customers);
-
 			if (count($current_user_customers)>0)
 			{
 				Kidzou_Admin::save_meta($post_id, array(
-					Kidzou_Customer::$meta_customer => $current_user_customers[0] //on prend le premier
+					Kidzou_Customer::$meta_customer => $current_user_customers[0] //on prend le premier client du user courant
 					)
 				); 
 			}
 
 			//pas la peine d'aller plus loin
 			return $post_id;
-		
 		}
 
-		// verify this came from the our screen and with proper authorization,
-		// because save_post can be triggered at other times
+		// si le user voit la meta_client, on vérifie les data envoyées
 		if ( !isset( $_POST['clientmeta_noncename'] ) || !wp_verify_nonce( $_POST['clientmeta_noncename'], plugin_basename(__FILE__) )) {
 			return $post_id;
 		}
-			
 
 		$key = Kidzou_Customer::$meta_customer;
 
-		$tmp_post = $_POST[$key];
-		$tmp_arr = explode("#", $tmp_post );
-		$events_meta[$key] 	= $tmp_arr[0];
+		// Kidzou_Utils::log($_POST,true);
+
+		// $tmp_post = $_POST[$key];
+		// $tmp_arr = explode("#", $tmp_post );
+		// $events_meta[$key] 	= $tmp_arr[0];
+		$events_meta[$key] 	= $_POST['customer_select'];
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
@@ -687,19 +790,12 @@ class Kidzou_Admin_Customer {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		$main = array();
+		// $main = array();
 		$meta = array();
 
-		$tmp_post = $_POST['main_users_input'];
+		$customer_users = (isset($_POST['customer_users']) ? $_POST['customer_users'] : array());
 
-		Kidzou_Utils::log( 'set_customer_users, reception de ' . $tmp_post  );
-
-		$tmp_token = explode("|", $tmp_post );
-		foreach ($tmp_token as $tok) {
-			$pieces = explode("#", $tok );
-			if (intval($pieces[0])>0)
-				$main[] = intval($pieces[0]);
-		}
+		Kidzou_Utils::log(array("_POST"=>$_POST ), true);
 
 		//sauvegarder également coté user pour donner les rôles
 		
@@ -716,7 +812,7 @@ class Kidzou_Admin_Customer {
 		//si non
 		// 	on ajoute le user à la liste des users du client
 		//		si il n'a pas la capacité edit_others_events, -
-		foreach ($main as $a_user) {
+		foreach ($customer_users as $a_user) {
 
 			//toujours s'assurer qu'il est contrib, ca ne mange pas de pain
 			//mais ne pas dégrader son role s'il est éditeur ou admin
@@ -774,13 +870,13 @@ class Kidzou_Admin_Customer {
 			//boucle complémentaire:
 			foreach ($old_users as $a_user) {
 
-				Kidzou_Utils::log( 'Boucle secondaire, User ' . $a_user );
+				Kidzou_Utils::log( 'Boucle secondaire, User ' . $a_user. ', provient de la requete ? '.in_array($a_user, $customer_users) );
 
 				//l'utilisateur n'a pas été repassé dans la requete
 				//il n'est pas donc plus attaché au client
-				if (!in_array($a_user, $main)) {
+				if (!in_array($a_user, $customer_users)) {
 
-					$u = new WP_User( $user->ID );
+					$u = new WP_User( $a_user );
 
 					$better = false;
 
@@ -850,15 +946,7 @@ class Kidzou_Admin_Customer {
 		$posts = array();
 		$meta = array();
 
-		$tmp_post = $_POST['customer_posts'];
-		$tmp_token = explode("|", $tmp_post );
-
-		Kidzou_Utils::log(  'set_customer_posts : Reception de ' .$tmp_post );
-
-		foreach ($tmp_token as $tok) {
-			$pieces = explode("#", $tok );
-			$posts[] = $pieces[0];
-		}
+		$posts = (isset($_POST['customer_posts']) ? $_POST['customer_posts'] : array());
 
 		$meta[Kidzou_Customer::$meta_customer] 	= $post_id;
 
