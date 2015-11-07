@@ -808,6 +808,8 @@ class Kidzou_Admin {
 		if ($post_id==0)
 			return;
 
+		// Kidzou_Utils::log(array('save_meta'=> array('post_id'=>$post_id, "arr"=>$arr, "prefix"=>$prefix )), true);
+
 		// Add values of $events_meta as custom fields
 		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
 

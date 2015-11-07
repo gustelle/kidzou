@@ -77,7 +77,7 @@ class JSON_API_Clients_Controller {
 
 		return array(
 			"posts" => $posts,
-			"query" => $wp_query->request
+			// "query" => $wp_query->request
 		);
 	} 
 

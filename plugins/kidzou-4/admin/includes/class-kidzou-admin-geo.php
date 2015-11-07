@@ -292,9 +292,8 @@ class Kidzou_Admin_Geo {
 
     	// Kidzou_Utils::log('after_post_meta ' . $meta_id.', '.$post_id.', '. $meta_key. ', '. $meta_value );
 
-    	// $post = get_post($post_id); 
-
-	   	// $type = $post->post_type;
+    	$post = get_post($post_id); 
+	   	$type = $post->post_type;
 
 	   	$lat_meta = Kidzou_GeoHelper::$meta_latitude;//'kz_'.$type.'_location_latitude';
 	   	$lng_meta = Kidzou_GeoHelper::$meta_longitude;//'kz_'.$type.'_location_longitude';
