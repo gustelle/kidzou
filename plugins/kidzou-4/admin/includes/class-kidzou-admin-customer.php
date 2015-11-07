@@ -171,7 +171,10 @@ class Kidzou_Admin_Customer {
 		
 		} elseif ( in_array($screen->id , $this->screen_with_meta_client) ) { 
 
-			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
+			if (Kidzou_Utils::current_user_is('author')) {
+				//par sécu, les users qui sont contributeurs ne voient même pas la metabox de sélection du client
+				add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
+			}
 		
 		} 
 
@@ -190,18 +193,12 @@ class Kidzou_Admin_Customer {
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
 		//le customer_id sert à initialiser la selectBox pour le post qui a déjà un client affecté
-		$customer_id =0;
-		// $customer_name = '';
+		// $customer_id =0;
 		
 		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
 	
 		if (is_wp_error($customer_id))
 			$customer_id=0;
-		// else {
-		// 	$customer_name = Kidzou_Customer::getCustomerNameByCustomerID($customer_id);
-		// 	if (is_wp_error($customer_name))
-		// 		$customer_name = '';
-		// }
 
 		$clients = array();
 		$args = array(
@@ -211,28 +208,27 @@ class Kidzou_Admin_Customer {
 				'posts_per_page' => -1,
 			);
 
-		$q = null;
+		// $q = null;
 
 		//il faut que le client soit > contributeur pour voir tous els clients
-		if ( !Kidzou_Utils::current_user_is('author') ) {
+		// if ( !Kidzou_Utils::current_user_is('author') ) {
 
-			$user_customers = Kidzou_Customer::getCustomersIDByUserID();
+		// 	$user_customers = Kidzou_Customer::getCustomersIDByUserID();
 		
-			//si le user est affecté à au moins un client, on filtre la liste des clients
+		// 	//si le user est affecté à au moins un client, on filtre la liste des clients
+		// 	if (count($user_customers)>0)
+		// 	{
+		// 		$q = new WP_Query(
+		// 			array_merge($args, array('post__in' => $user_customers))
+		// 		);
+		// 	} 
 
-			if (count($user_customers)>0)
-			{
-				$q = new WP_Query(
-					array_merge($args, array('post__in' => $user_customers))
-				);
-			} 
-
-			//si le user n'est affecté à aucun client on ne fait rien
-			//dans ce cas $q est null
+		// 	//si le user n'est affecté à aucun client on ne fait rien
+		// 	//dans ce cas $q est null
 			
-		} else {
-			$q = new WP_Query( $args );
-		}
+		// } else {
+		$q = new WP_Query( $args );
+		// }
 			
 
 		if (null!=$q)
@@ -254,8 +250,6 @@ class Kidzou_Admin_Customer {
 		//pre-selection s'il n'y en a qu'un
 		if (count($clients)==1) {
 			$customer_id = $clients[0]['id'];
-			// $customer_name = $clients[0]['name'];
-			// $customer_location = $clients[0]['location'];
 		}
 
 		echo sprintf('
@@ -671,11 +665,10 @@ class Kidzou_Admin_Customer {
 	        return;
 	    }
 
-		if ( !isset( $_POST['clientmeta_noncename'] ) && !Kidzou_Utils::current_user_is('author') ) {
+		if ( !Kidzou_Utils::current_user_is('author') ) {
 
-			//le user ne voit pas la meta client, peut-être qu'il n'a pas le droit de voir la metabox
-			//Car elle a été cachée par un autre plugin
-			//dans ce cas, le post est rattaché à la méta "client" du user courant
+			//le user ne voit pas la meta client s'il n'est pas au moins auteur
+			//dans ce cas on rattache le post au client du user
 
 			$current_user_customers = Kidzou_Customer::getCustomersIDByUserID(); //c'est un tableau
 
