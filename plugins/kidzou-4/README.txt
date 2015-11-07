@@ -1,4 +1,4 @@
-<h4>API V21</h4>
+<h4>API V21, V22</h4>
 <h5>7 novembre 2015</h5>
 <ul>
 	<li>Nouvelle Fonction : Creation d'un client depuis une article</li>

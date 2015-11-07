@@ -327,24 +327,23 @@ class Kidzou_Admin_Customer {
 		
 
 		echo '
-			<div class="events_form hide" id="customer_form">
+			<div class="kz_form hide" id="customer_form">
 				<ul>
 				<!-- selectize ne fonctionne que si l\'element est dans le DOM , il faut donc utiliser un bind "visible" et non "if" -->
 				<li data-bind="visible: !editMode()">
 					<label for="customer_select">Nom du client:</label>
-					<select name="customer_select" style="width:80%"></select>
+					<select name="customer_select"></select>
 					<br/><br/>
 					<em><a href="#" data-bind="click: displayEditCustomerForm">Cr&eacute;er un nouveau client</a></em>
 				</li>
 				<!-- ko if: editMode() -->
 				<li>
-					<label for="customer_input">Nom du client:</label>
+					<label for="customer_input">Nom du client:</label> 
 					<input type="text" name="customer_input" placeholder="Le nom du client" data-bind="value: customerName" required>
-					<span data-bind="html: creationStatus"></span>
 				</li>
 				<li>
 					<button data-bind="click: displayCustomerSelect" class="button button-large">Choisir un client existant</button>
-					<button data-bind="click: createCustomer" class="button button-primary button-large">Cr&eacute;er le client</button>
+					<button data-bind="click: createCustomer, html: creationStatus, disable: creationFailure" class="button button-primary button-large"></button>
 				</li>
 				<!-- /ko -->
 				</ul>

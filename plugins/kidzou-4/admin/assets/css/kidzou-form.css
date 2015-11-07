@@ -20,7 +20,7 @@
   padding: 3px;
   /*font-weight: bold;*/
 }
-.kz_form input:not([type='checkbox']):not([type='radio']) {
+.kz_form input:not([type='checkbox']):not([type='radio']), .kz_form select {
   width:70%; 
   padding: 0.3em 0.4em;
   /*min-width: 20em;*/
@@ -161,4 +161,26 @@
   color: #68b12f;
   padding: 6px 20px;
   text-shadow: 0 -1px 0 #68b12f;
+}
+
+.import-success {
+  color:#28921f;
+}
+.import-progress {
+  color:#ff9e02;
+}
+.import-error {
+  color:#b03535;
+}
+
+.address_proposal {
+  margin-right: 0.4em;
+  margin-bottom: 0.4em;
+  padding: 1em;
+  border: 1px solid #C6c6c6;
+  font-size: smaller;
+  display: inline-block;
+  width: 27%;
+  height: 8em;
+  overflow: auto;
 }
