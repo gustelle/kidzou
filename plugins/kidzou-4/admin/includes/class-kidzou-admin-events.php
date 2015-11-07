@@ -179,28 +179,6 @@ class Kidzou_Admin_Events {
 		$facebook_appId = Kidzou_Utils::get_option('fb_app_id','');
 		$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
 
-		if ($facebook_appId!='' && $facebook_appSecret!='') {
-
-			echo "
-				<script>
-				  window.fbAsyncInit = function() {
-				    FB.init({
-				      appId      : 'your-app-id',
-				      xfbml      : true,
-				      version    : 'v2.4'
-				    });
-				  };
-
-				  (function(d, s, id){
-				     var js, fjs = d.getElementsByTagName(s)[0];
-				     if (d.getElementById(id)) {return;}
-				     js = d.createElement(s); js.id = id;
-				     js.src = '//connect.facebook.net/en_US/sdk.js';
-				     fjs.parentNode.insertBefore(js, fjs);
-				   }(document, 'script', 'facebook-jssdk'));
-				</script>
-			";
-		}
 
 		echo '<script>
 		jQuery(document).ready(function() {
@@ -210,32 +188,51 @@ class Kidzou_Admin_Events {
 
 		<div class="kz_form hide" id="event_form">';
 
-			if ($facebook_appId!='' && $facebook_appSecret!='' && Kidzou_Utils::current_user_is('administrator')) {
+			if (Kidzou_Utils::current_user_is('author')) {
 
-				$token_url =	"https://graph.facebook.com/oauth/access_token?" .
-								"client_id=" . $facebook_appId .
-								"&client_secret=" . $facebook_appSecret .
-								"&grant_type=client_credentials";
+				if ($facebook_appId!='' && $facebook_appSecret!='') {
 
-				$resp = file_get_contents($token_url);
-				$pattern = '/access_token=(.+)/';
-				preg_match($pattern, $resp, $matches);
+					echo "
+						<script>
+						  window.fbAsyncInit = function() {
+						    FB.init({
+						      appId      : 'your-app-id',
+						      xfbml      : true,
+						      version    : 'v2.4'
+						    });
+						  };
 
-				echo '
-					<h4>Importer un &eacute;v&eacute;nement Facebook</h4>
-					<div data-bind="html: eventData().facebookImportMessage" style="display:inline;"></div>
-					<ul>
-						<li>
-							<label for="facebook_url">URL de l&apos;&eacute;v&eacute;nement Facebook:</label>
-					    	<input type="text" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
-							<input type="hidden" name="access_token"  value="'.$matches[1].'" />
-						</li>
-					</ul>
-				';
-			}
+						  (function(d, s, id){
+						     var js, fjs = d.getElementsByTagName(s)[0];
+						     if (d.getElementById(id)) {return;}
+						     js = d.createElement(s); js.id = id;
+						     js.src = '//connect.facebook.net/en_US/sdk.js';
+						     fjs.parentNode.insertBefore(js, fjs);
+						   }(document, 'script', 'facebook-jssdk'));
+						</script>
+					";
 
-			//si le user n'est pas un "pro", on permet des fonctions d'administration supplémentaires
-			if (Kidzou_Utils::current_user_is('administrator')) {
+					$token_url =	"https://graph.facebook.com/oauth/access_token?" .
+									"client_id=" . $facebook_appId .
+									"&client_secret=" . $facebook_appSecret .
+									"&grant_type=client_credentials";
+
+					$resp = file_get_contents($token_url);
+					$pattern = '/access_token=(.+)/';
+					preg_match($pattern, $resp, $matches);
+
+					echo '
+						<h4>Importer un &eacute;v&eacute;nement Facebook</h4>
+						<div data-bind="html: eventData().facebookImportMessage" style="display:inline;"></div>
+						<ul>
+							<li>
+								<label for="facebook_url">URL de l&apos;&eacute;v&eacute;nement Facebook:</label>
+						    	<input type="text" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
+								<input type="hidden" name="access_token"  value="'.$matches[1].'" />
+							</li>
+						</ul>
+					';
+				}
 
 				echo '<h4>Fonctions client</h4>
 						<ul>';
@@ -245,7 +242,6 @@ class Kidzou_Admin_Events {
 							<input type="checkbox" name="kz_event_featured"'. ( $checkbox == 'A' ? 'checked="checked"' : '' ).'/>  
 						</li>
 						</ul>';
-					
 			} 
 
 			echo '<h4>Dates de l&apos;&eacute;v&eacute;nement</h4>
