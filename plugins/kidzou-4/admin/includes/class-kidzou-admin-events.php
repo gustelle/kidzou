@@ -253,13 +253,13 @@ class Kidzou_Admin_Events {
 			<ul>
 				<li>
 					<label for="start_date">Date de d&eacute;but:</label>
-			    	<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().start_date, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> <!-- required -->
+			    	<input type="text" placeholder="Ex : 30 Janvier" class="date" data-bind="datepicker: eventData().start_date, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> <!-- required -->
 			    	<input type="hidden" name="kz_event_start_date"  data-bind="value: eventData().formattedStartDate" />
 			    	<span data-bind="validationMessage: eventData().formattedStartDate" class="form_hint"></span>
 				</li>
 				<li>
 					<label for="end_date">Date de fin</label>
-			    	<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().end_date, datepickerOptions: { dateFormat: \'dd MM yy\' }" />
+			    	<input type="text" placeholder="Ex : 30 Janvier" class="date" data-bind="datepicker: eventData().end_date, datepickerOptions: { dateFormat: \'dd MM yy\' }" />
 					<input type="hidden" name="kz_event_end_date"  data-bind="value: eventData().formattedEndDate" />
 					<em data-bind="if: eventData().eventDuration()!==\'\'">(<span data-bind="text: eventData().eventDuration"></span>)</em>
 					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>
