@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'API-V23';
+	const VERSION = 'API-V24';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
