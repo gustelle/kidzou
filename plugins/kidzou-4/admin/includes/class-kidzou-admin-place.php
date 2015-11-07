@@ -254,7 +254,7 @@ class Kidzou_Admin_Place {
 			<li>
 				<h5>Autre adresse possible : </h5>
 				<div data-bind="foreach: placeProposals">
-					<div class="adress_proposal">
+					<div class="address_proposal">
 						<span data-bind="text: $data.place.name"></span><br/>
 						<span data-bind="text: $data.place.address"></span><br/>
 						<span data-bind="text: $data.place.city"></span><br/>
@@ -272,33 +272,33 @@ class Kidzou_Admin_Place {
 				</em>
 			</li>
 			<!-- ko if: customPlace() -->
-			<li data-bind="visible: customPlace()">
+			<li class="fade-in">
 				<label for="kz_location_name">Nom du lieu:</label>
 				<input type="text" name="kz_location_name" placeholder="Ex: chez Gaspard" data-bind="value: placeData().place().venue" required>
 
 			</li>
-			<li>
+			<li class="fade-in">
 				<label for="kz_location_address">Adresse:</label>
 				<input type="text" name="kz_location_address" placeholder="Ex: 13 Boulevard Louis XIV 59800 Lille" data-bind="value: placeData().place().address" required>
 			</li>
-			<li>
+			<li class="fade-in">
 				<label for="kz_location_city">Quartier / Ville:</label>
 				<input type="text" name="kz_location_city" placeholder="Ex: Lille Sud" data-bind="value: placeData().place().city" required>
 
 			</li>
-			<li>
+			<li class="fade-in">
 				<label for="kz_location_latitude">Latitude:</label>
 				<input type="text" name="kz_location_latitude" placeholder="Ex : 50.625935" data-bind="value: placeData().place().lat" >
 			</li>
-			<li>
+			<li class="fade-in">
 				<label for="kz_location_longitude">Longitude:</label>
 				<input type="text" name="kz_location_longitude" placeholder="Ex : 3.0462689999999384" data-bind="value: placeData().place().lng" >
 			</li>
-			<li>
+			<li class="fade-in">
 				<label for="kz_location_website">Site web:</label>
 				<input type="text" name="kz_location_website" placeholder="Ex: http://www.kidzou.fr" data-bind="value: placeData().place().website" >
 			</li>
-			<li>
+			<li class="fade-in">
 				<label for="kz_location_phone_number">Tel:</label>
 				<input type="text" name="kz_location_phone_number" placeholder="Ex : 03 20 30 40 50" data-bind="value: placeData().place().phone_number" >
 			</li>

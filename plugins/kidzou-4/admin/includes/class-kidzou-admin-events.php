@@ -223,12 +223,12 @@ class Kidzou_Admin_Events {
 
 				echo '
 					<h4>Importer un &eacute;v&eacute;nement Facebook</h4>
+					<div data-bind="html: eventData().facebookImportMessage" style="display:inline;"></div>
 					<ul>
 						<li>
 							<label for="facebook_url">URL de l&apos;&eacute;v&eacute;nement Facebook:</label>
 					    	<input type="text" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
 							<input type="hidden" name="access_token"  value="'.$matches[1].'" />
-							<div data-bind="html: eventData().facebookImportMessage" style="display:inline;"></div>
 						</li>
 					</ul>
 				';

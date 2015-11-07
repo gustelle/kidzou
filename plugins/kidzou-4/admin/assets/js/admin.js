@@ -19,11 +19,17 @@
 				//si le client est en mode edition 
 				self.editMode = ko.observable(false); 
 
+				//si le process de création de client échoue, on désactive le bouton
+				self.creationFailure = ko.observable(false);
+
 				//le nom du client
 				self.customerName = ko.observable('');
 
+				//simple marker pour changer le lien du bouton de création de lcient
+				self.createdCustomerId = 0;
+
 				//statut affiché au user pendant le process de creation client
-				self.creationStatus = ko.observable('');
+				self.creationStatus = ko.observable('Cr&eacute;er le client');
 
 				self.displayEditCustomerForm = function() {
 					self.editMode(true);
@@ -35,7 +41,10 @@
 
 				self.createCustomer = function() {
 					
-					if (self.customerName()=='') return;
+					if (self.customerName()=='' || self.creationFailure()) return;
+
+					if (self.createdCustomerId>0)
+						window.open('/wp-admin/post.php?post='+ self.createdCustomerId +'&action=edit', "_blank");
 
 					self.creationStatus('Cr&eacute;ation en cours...');
 					$.ajax({
@@ -56,17 +65,25 @@
 									// console.debug('self.customerSelection', self.customerSelection());
 									$("select[name='customer_select']").selectize()[0].selectize.addOption({ id: data.post.id , name: data.post.title });
 									$("select[name='customer_select']").selectize()[0].selectize.addItem( data.post.id , false);
-									self.creationStatus('<a href="/wp-admin/post.php?post='+ data.post.id +'&action=edit" target="_blank">Continuer l\'edition du client</a>');
+									self.creationStatus('Continuer l\'edition du client');
+									
+									//permettra au prochain click de continuer l'édition dans une nouvelle fenetre
+									self.createdCustomerId = data.post.id;
+
+									//va automatiquement rendre le button "enabled"
+									self.creationFailure(false); 
 								},
 								error: function  (data) {
 									console.error('create_post', data);
 									self.creationStatus('La cr&eacute;ation a &eacute;chou&eacute; :-(');
+									self.creationFailure(true);
 								}
 							});
 						},
 						error: function  (data) {
 							console.log('get_nonce', data);
 							self.creationStatus('La cr&eacute;ation a &eacute;chou&eacute; :-(');
+							self.creationFailure(true);
 						}
 					});
 				};
