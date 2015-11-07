@@ -352,16 +352,16 @@ var kidzouEventsModule = (function() { //havre de paix
 						        
 						        //fixer le contenu dans l'editor
 						        if (window.kidzouPlaceModule) {
-						        	kidzouPlaceModule.model.initPlace(
-						        			response.place.name,
-						        			response.place.location.street,
-						        			value, //website
-						        			response.place.location.phone, //phone
-						        			response.place.location.city,
-						        			response.place.location.latitude,
-						        			response.place.location.longitude,
-						        			'' //opening hours
-						        		);
+						        	kidzouPlaceModule.model.proposePlace('facebook', {
+						        			name 	: response.place.name,
+						        			address : response.place.location.street,
+						        			website 	: value, //website
+						        			phone	: response.place.location.phone, //phone
+						        			city 	: response.place.location.city,
+						        			latitude	: response.place.location.latitude,
+						        			longitude 	: response.place.location.longitude,
+						        			opening_hours : '' //opening hours
+						        		});
 						        }
 
 						        //inserer le cover comme featured image
@@ -502,7 +502,13 @@ var kidzouEventsModule = (function() { //havre de paix
 	}();  //kidzouEventsEditor
 
 	jQuery(document).ready(function() { 
-		ko.applyBindings( kidzouEventsEditor.model, document.getElementById("event_form") ); //retourne un EventsEditorModel
+		ko.applyBindings( kidzouEventsEditor.model, document.querySelector("#event_form") ); //retourne un EventsEditorModel
+	
+		//maintenant que le binding est fait, faire apparaitre le form
+		setTimeout(function(){
+			document.querySelector("#event_form").classList.remove('hide');
+			document.querySelector("#event_form").classList.add('pop-in');
+		}, 300);
 	});
 
 	return {

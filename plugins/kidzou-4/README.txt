@@ -1,3 +1,11 @@
+<h4>API V21</h4>
+<h5>7 novembre 2015</h5>
+<ul>
+	<li>Nouvelle Fonction : Creation d'un client depuis une article</li>
+	<li>Changement de framework JS pour appel à Google Maps PlaceComplete : Selectize</li>
+	<li>Refactoring des widgets d'admin pour la gestion des lieux (class-kidzou-admin-place)</li>
+</ul>
+
 <h4>API V18, V19, V20</h4>
 <h5>28 octobre 2015</h5>
 <ul>

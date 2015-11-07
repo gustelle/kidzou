@@ -33,32 +33,6 @@ var kidzouPlaceModule = (function() { //havre de paix
 	};
 
 
-	ko.bindingHandlers.placecomplete = {
-	    init: function(element, valueAccessor, allBindingsAccessor) {
-	        var obj = valueAccessor(),
-	            allBindings = allBindingsAccessor(),
-	            lookupKey = allBindings.lookupKey;
-	       	// console.log(obj);
-	       	// console.log( jQuery(element));
-	        jQuery(element).placecomplete(obj);
-	        // console.log(obj);
-	        if (lookupKey) {
-	            var value = ko.utils.unwrapObservable(allBindings.value);
-	            jQuery(element).placecomplete('data', ko.utils.arrayFirst(obj.data.results, function(item) {
-	                return item[lookupKey] === value;
-	            }));
-	        }
-
-	        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-	            jQuery(element).placecomplete('destroy');
-	        });
-	    },
-	    update: function(element) {
-	        jQuery(element).trigger('change');
-	    }
-	};
-
-
 	ko.validation.registerExtenders();
 	ko.validation.init({ 
 		insertMessages : true,
@@ -97,7 +71,6 @@ var kidzouPlaceModule = (function() { //havre de paix
 		function PlaceModel() {
 
 			var self = this;
-
 			self.place 				= ko.observable(new Place());	
 		    
 		}
@@ -114,61 +87,81 @@ var kidzouPlaceModule = (function() { //havre de paix
 		    //ce flag permet d'afficher le formulaire d'adresse custom
 		    self.customPlace 		= ko.observable(false);
 
+		    //les propositions faites au user, en provenance de l'adresse client, de l'import facebook
+		    self.placeProposals 	= ko.observableArray([]);
+		    //une proposition a-t-elle été faite au user ?
+		    self.isProposal 		= ko.observable(false);
+
+		    //marker : les champs sont ils remplis ?
+		    //si oui : on propose des places; on ne remplit plus les champs si une nouvelle adresse arrive
+		    //si non : on peut remplir les champs
+		    self.isPlaceComplete 	= ko.observable(false);
+
+		    //Resultats en provenance de Google PlaceComplete
 		    //https://developers.google.com/places/documentation/details
-			self.completePlace = function(d,ev, result) {
-				// console.log(result);
-				var city = result.display_text;
-
-				//tentative de retrouver la ville de manière plus précise
-				//voir https://developers.google.com/maps/documentation/geocoding/?hl=FR#Types
-				result.address_components.forEach(function(entry) {
-				    if (entry.types[0]=='locality') {
-				    	city = entry.long_name;
-				    	// console.log('found ' + city);
-				    }
-				});
-
-				var opening_hours = result.opening_hours ? result.opening_hours.periods : [];
+			self.completePlace = function(result) {
 
 				self.placeData().place(new Place(
-					result.name, 
-					result.formatted_address, 
-					result.website, 
-					result.formatted_phone_number, 
-					city, //city 
-					result.geometry.location.lat(), //latitude
-					result.geometry.location.lng(), //longitude
-					opening_hours
+						result.name, 
+						result.address, 
+						result.website, 
+						result.phone, 
+						result.city, //city 
+						result.latitude, //latitude
+						result.longitude, //longitude
+						result.opening_hours
 					)
 				); 
 
 				kidzouAdminGeo.getMetropole(
-					result.geometry.location.lat(), 
-					result.geometry.location.lng(), function(metropole) {
-													updateVilleTaxonomy(jQuery("#post_ID").val(),metropole);
-												}); 
+					result.latitude, 
+					result.longitude, function(metropole) {
+												updateVilleTaxonomy(jQuery("#post_ID").val(),metropole);
+											}); 
 
 				self.customPlace(true); //make custom place from google place
+				self.isPlaceComplete(true);
 			};
 
-
+			//reprise d'une adresse qui a commencé a étre renseignée
+			//ou d'une adresse précédemment complètement renseignée et reprise au chargement de l'écran
 			self.initPlace = function(name, address, website, phone_number, city, lat, lng, opening_hours) {
-				// console.debug('initplace', name, address);
+
 				self.placeData().place(new Place(name, address, website, phone_number, city, lat, lng, opening_hours));
 
 				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')
 					self.customPlace(true); //l'adresse a commencé à etre renseignée
+
 			};
 
-			
+			//Ajouter une adresse à la liste des propositions
+			self.proposePlace = function(type, place) {
+				
+				//si aucune place n'a été renseignée on peut directement mapper les champs
+				if (!self.isPlaceComplete()) {
+					self.completePlace(place);
+				} else {
+					self.isProposal(true);
+					self.placeProposals.push({type : type, place : place});
+				}
+			};
+
+			//utiliser une proposition d'adresse selectionnée par le user
+			self.useAddress = function() {
+				self.completePlace(this.place);
+				//plus besoin de cette adresse dans la liste des propositions
+				self.placeProposals.remove(this);
+			};
 
 			self.displayCustomPlaceForm = function() {
 				self.placeData().place(new Place()); //remise à zero si éventuellement existante
 				self.customPlace(true);
+				self.isPlaceComplete(false);
 			};
 
 			self.displayGooglePlaceForm = function() {
 				self.customPlace(false);
+				self.isPlaceComplete(false);
 			};
 
 
@@ -182,7 +175,13 @@ var kidzouPlaceModule = (function() { //havre de paix
 	}();  //kidzouEventsEditor
 
 	jQuery(document).ready(function() {
-		ko.applyBindings( kidzouPlaceEditor.model, document.getElementById("place_form") ); //retourne un EventsEditorModel
+		ko.applyBindings( kidzouPlaceEditor.model, document.querySelector("#place_form") ); //retourne un EventsEditorModel
+		
+		//maintenant que le binding est fait, faire apparaitre le form
+		setTimeout(function(){
+			document.querySelector("#place_form").classList.remove('hide');
+			document.querySelector("#place_form").classList.add('pop-in');
+		}, 300);
 	});
 
 	return {
