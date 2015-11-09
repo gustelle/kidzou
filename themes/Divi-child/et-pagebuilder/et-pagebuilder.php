@@ -2797,15 +2797,6 @@ echo <<<END
 			</div> <!-- .et-pb-option -->
 
 			<div class="et-pb-option">
-				<label for="et_pb_radius">Rayon de recherche: </label>
-				<div class="et-pb-option-container">
-					<input id="et_pb_radius" type="text" class="regular-text" value="<%= typeof( et_pb_radius ) !== 'undefined' ?  et_pb_radius : '2' %>" />
-
-					<p class="description">Jusque quelle distance autour de l&apos;utilisateur doit-on rechercher ?.</p>
-				</div> <!-- .et-pb-option-container -->
-			</div> <!-- .et-pb-option -->
-
-			<div class="et-pb-option">
 				<label for="et_pb_zoom">Zoom de la carte: </label>
 				<div class="et-pb-option-container">
 					<input id="et_pb_zoom" type="text" class="regular-text" value="<%= typeof( et_pb_zoom ) !== 'undefined' ?  et_pb_zoom : '13' %>" />
@@ -2819,6 +2810,7 @@ echo <<<END
 					<select name="et_pb_display_mode" id="et_pb_display_mode">
 						<option value="simple"<%= typeof( et_pb_display_mode ) !== 'undefined' && 'simple' === et_pb_display_mode ?  ' selected="selected"' : '' %>>Simple Portfolio</option>
 						<option value="with_map"<%= typeof( et_pb_display_mode ) !== 'undefined' && 'with_map' === et_pb_display_mode ?  ' selected="selected"' : '' %>>Portfolio avec Carte</option>
+						<option value="map_only"<%= typeof( et_pb_display_mode ) !== 'undefined' && 'map_only' === et_pb_display_mode ?  ' selected="selected"' : '' %>>Carte uniquement</option>
 					</select>
 				</div> <!-- .et-pb-option-container -->
 			</div> <!-- .et-pb-option -->
@@ -3899,6 +3891,49 @@ echo <<<END
 				<input id="et_pb_address_lng" class="et_pb_address_lng" type="hidden"  value="<%= typeof( et_pb_address_lng ) !== 'undefined' ?  et_pb_address_lng : '' %>" />
 				<div id="et_pb_map_center_map" class="et-pb-map et_pb_map_center_map"></div>
 			</div>
+
+			<div class="et-pb-option">
+				<label for="et_pb_module_id">CSS ID: </label>
+
+				<div class="et-pb-option-container">
+					<input id="et_pb_module_id" type="text" class="regular-text" value="<%= typeof( et_pb_module_id ) !== 'undefined' ?  et_pb_module_id : '' %>" />
+					<p class="description">Enter an optional CSS ID to be used for this module. An ID can be used to create custom CSS styling, or to create links to particular sections of your page.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="et_pb_module_class">CSS Class: </label>
+
+				<div class="et-pb-option-container">
+					<input id="et_pb_module_class" type="text" class="regular-text" value="<%= typeof( et_pb_module_class ) !== 'undefined' ?  et_pb_module_class : '' %>" />
+					<p class="description">Enter optional CSS classes to be used for this module. A CSS class can be used to create custom CSS styling. You can add multiple classes, separated with a space.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+		</div>
+	</script>
+
+	<script type="text/template" id="et-builder-kz_pb_fullwidth_map-module-template">
+		<h3 class="et-pb-settings-heading">Configuration de la carte</h3>
+
+		<div class="et-pb-main-settings">
+
+			<div class="et-pb-option">
+				<label for="et_pb_zoom">Zoom de la carte: </label>
+				<div class="et-pb-option-container">
+					<input id="et_pb_zoom" type="text" class="regular-text" value="<%= typeof( et_pb_zoom ) !== 'undefined' ?  et_pb_zoom : '13' %>" />
+					<p class="description">Il s&apos;agit du <a href="https://developers.google.com/maps/documentation/javascript/tutorial">Zoom Google Map</a></p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
+			<div class="et-pb-option">
+				<label for="admin_label">Admin Label: </label>
+
+				<div class="et-pb-option-container">
+					<input id="admin_label" type="text" class="regular-text" value="<%= typeof( admin_label ) !== 'undefined' ?  admin_label : '' %>" />
+					<p class="description">This will change the label of the module in the builder for easy identification.</p>
+				</div> <!-- .et-pb-option-container -->
+			</div> <!-- .et-pb-option -->
+
 
 			<div class="et-pb-option">
 				<label for="et_pb_module_id">CSS ID: </label>

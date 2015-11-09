@@ -29,6 +29,9 @@ class JSON_API_Content_Controller {
 		$id = $json_api->query->post_id;
 
 		if ( !Kidzou_API::isPublicKey($key)) $json_api->error("Cle invalide ");
+
+		if ( !is_int(intval($id)) )  
+			$json_api->error("post_id non reconnu");
 		
 		global $post;
 		$post = get_post($id);
@@ -73,7 +76,8 @@ class JSON_API_Content_Controller {
 				'comments' 		=> $comments,
 				'gallery'		=> $images,
 				'is_featured'	=> $is_featured,
-				'terms'			=> $terms 
+				'terms'			=> $terms ,
+				'permalink'		=> get_the_permalink(),
 			);
 
 		// Kidzou_Utils::log('get_place', $place);
