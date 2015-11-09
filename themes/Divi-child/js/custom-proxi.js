@@ -158,8 +158,15 @@ var kidzouProximite = (function(){
 	 */
 	var getPostContent = function getPostContentF( _post_id, callback ) {
 
+		var key;
+		if( Object.prototype.toString.call( kidzou_proxi.api_public_key ) === '[object Array]' ) {
+		    key = kidzou_proxi.api_public_key[0];
+		} else {
+			key = kidzou_proxi.api_public_key;
+		}
+
 		jQuery.ajax({
-			url: kidzou_proxi.api_get_place + '?key=' + kidzou_proxi.api_public_key + '&post_id=' + _post_id,
+			url: kidzou_proxi.api_get_place + '?key=' + key + '&post_id=' + _post_id,
 			success: function( data ){
 				callback(data.place);
 			}
