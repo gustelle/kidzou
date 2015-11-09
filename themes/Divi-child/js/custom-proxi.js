@@ -31,7 +31,7 @@ var kidzouProximite = (function(){
 	}
 
 	
-	var mapContainer = document.querySelector('#proxi_content .et_pb_map');
+	var mapContainer = document.querySelector(kidzou_proxi.map_selector);
 	
 	/**
 	 * l'objet map de Google Maps
@@ -80,15 +80,15 @@ var kidzouProximite = (function(){
 				doing_ajax = true;
 
 				//nettoyer le HTML
-				document.querySelector('#proxi_content .more_results').innerHTML = '';
+				document.querySelector(kidzou_proxi.more_results_selector).innerHTML = '';
 
 				//Créer un message temporaire qui sera nettoyé plus tard
 				var sp1 = document.createElement("span");
 				sp1.classList.add('message');
 				sp1.innerHTML = kidzou_proxi.wait_refreshing;
 
-				var mapNode = document.querySelector('#proxi_content .et_pb_map');
-				document.querySelector('#proxi_content .et_pb_map_container').insertBefore(sp1, mapNode);
+				var mapNode = document.querySelector(kidzou_proxi.map_selector);
+				document.querySelector(kidzou_proxi.map_container).insertBefore(sp1, mapNode);
 
 			},
 			success: function( data ){
@@ -96,8 +96,8 @@ var kidzouProximite = (function(){
 				doing_ajax = false;
 
 				//nettoyer le message temporaire créé ci-dessus
-				document.querySelector('#proxi_content .et_pb_map_container').removeChild(
-					document.querySelector('#proxi_content .message')
+				document.querySelector(kidzou_proxi.map_container).removeChild(
+					document.querySelector(kidzou_proxi.message_selector)
 				);
 
 				if (data.empty_results) {
@@ -105,18 +105,18 @@ var kidzouProximite = (function(){
 				} else {
 
 					
-					document.querySelector('#proxi_content .et_pb_portfolio_results').innerHTML = data.portfolio;
-					document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results; 
+					document.querySelector(kidzou_proxi.portfolio_selector).innerHTML = data.portfolio;
+					document.querySelector(kidzou_proxi.more_results_selector).innerHTML = kidzou_proxi.more_results; 
 
 					//nettoyer le eventListener initial pour attacher un autre avec un rayon mis à jour
-					document.querySelector('.load_more_results').removeEventListener("click", loadMoreResults);
+					document.querySelector(kidzou_proxi.more_results_cta_selector).removeEventListener("click", loadMoreResults);
 
 					//nouveau listener dynamique
-					document.querySelector('.load_more_results').addEventListener("click", function() {
+					document.querySelector(kidzou_proxi.more_results_cta_selector).addEventListener("click", function() {
 						getContent(parseFloat(radius) + 5);
 					});
 
-					if (kidzou_proxi.display_mode == 'with_map')
+					if (kidzou_proxi.display_mode != 'simple')
 					{	
 						//panTo new Position if user has not dragged the map
 						if (!getMapDragged()) {
@@ -130,14 +130,16 @@ var kidzouProximite = (function(){
 						
 						var pins = data.markers;
 						for (var i = 0; i < pins.length; i++) {
-							var pin = pins[i];
-						      addMarker(map, pin.latitude, pin.longitude, pin.title, pin.content);
+							var pin = pins[i]; 
+						    addMarker(map, pin.latitude, pin.longitude, pin.id);
 						}
+						var markerCluster = new MarkerClusterer(map, markers);
+						// console.debug('markerCluster',markerCluster);
 
 					} else {
 
 						// console.info('todo : plus de résultats sans carte');
-						document.querySelector('#proxi_content .more_results').innerHTML = kidzou_proxi.more_results;
+						document.querySelector(kidzou_proxi.more_results_selector).innerHTML = kidzou_proxi.more_results;
 
 					}
 					
@@ -150,11 +152,27 @@ var kidzouProximite = (function(){
 
 	};
 
+	/** 
+	 * Récupere le contenu d'un post identifié par son ID au format JSON
+	 *
+	 */
+	var getPostContent = function getPostContentF( _post_id, callback ) {
+
+		jQuery.ajax({
+			url: kidzou_proxi.api_get_place + '?key=' + kidzou_proxi.api_public_key + '&post_id=' + _post_id,
+			success: function( data ){
+				callback(data.place);
+			}
+		});
+
+	};
+
 	//geolocation_progress est déclenché par kidzou-geo.js
 	//il indique que getCurrentPosition est en cours
 	document.addEventListener("geolocation_progress", function(e) {
 		// console.info('geolocation in progress');
-		document.querySelector('.distance_message').innerHTML = kidzou_proxi.wait_geoloc_progress;			
+		if (document.querySelector(kidzou_proxi.distance_message_selector))
+			document.querySelector(kidzou_proxi.distance_message_selector).innerHTML = kidzou_proxi.wait_geoloc_progress;			
 	}, false);
 
 
@@ -182,7 +200,7 @@ var kidzouProximite = (function(){
 				if (e.detail.acceptGeolocation) {
 
 					// console.info("Le user accepte la geoloc, une erreur technique est survenue");
-					var node = document.querySelector('#proxi_content');
+					var node = document.querySelector(kidzou_proxi.page_container_selector);
 					var div1 = document.createElement("DIV");
 					div1.innerHTML = kidzou_proxi.geoloc_error_msg;
 					node.insertBefore(div1, node.childNodes[0]);
@@ -190,7 +208,7 @@ var kidzouProximite = (function(){
 				} else {
 
 					// console.info("Le user n'accepte pas la geoloc, dégrader les résultats");
-					var node = document.querySelector('#proxi_content');
+					var node = document.querySelector(kidzou_proxi.page_container_selector);
 					var div1 = document.createElement("DIV");
 					div1.innerHTML = kidzou_proxi.geoloc_pleaseaccept_msg;
 					node.insertBefore(div1, node.childNodes[0]);
@@ -206,17 +224,19 @@ var kidzouProximite = (function(){
 
 	function addRefreshMessage() {
 		// console.info('addRefreshMessage');
-		document.querySelector('.distance_message').innerHTML = kidzou_proxi.refresh_message;
-		document.querySelector('.distance_message a').addEventListener('click', function(e){
+		if (document.querySelector(kidzou_proxi.distance_message_selector)) {
+			document.querySelector(kidzou_proxi.distance_message_selector).innerHTML = kidzou_proxi.refresh_message;
+			document.querySelector(kidzou_proxi.distance_message_selector +' a').addEventListener('click', function(e){
 
-			//recharger une geoloc complete
-			//cette geoloc redéclenchera une mise à jour du contenu
-			//grace au EventListener "geolocation"
+				//recharger une geoloc complete
+				//cette geoloc redéclenchera une mise à jour du contenu
+				//grace au EventListener "geolocation"
 
-			kidzouGeoContent.getUserLocation(function(position) {
+				kidzouGeoContent.getUserLocation(function(position) {
 
-			});
-		}, false);
+				});
+			}, false);
+		}
 	}
 
 	function removeLoadingMessage() {
@@ -230,16 +250,16 @@ var kidzouProximite = (function(){
 		);
 	}
 
-	if (document.querySelector('.load_more_results')) {
-		document.querySelector('.load_more_results').addEventListener("click", loadMoreResults);
+	if (document.querySelector(kidzou_proxi.more_results_selector)) {
+		document.querySelector(kidzou_proxi.more_results_selector).addEventListener("click", loadMoreResults);
 	}
 
 	function initialize( ) {
 
-		// console.debug('initialize');
-
-		if (kidzou_proxi.display_mode == 'with_map')
+		if (kidzou_proxi.display_mode != 'simple')
 		{
+			var scrollwheel = (kidzou_proxi.scrollwheel && kidzou_proxi.scrollwheel=='off' ? false : true);
+			
 			// console.debug('initialize map');
 			removeLoadingMessage();
 			setCurrentPosition({latitude : mapContainer.dataset.center_lat, longitude : mapContainer.dataset.center_lng});
@@ -249,50 +269,25 @@ var kidzouProximite = (function(){
 			//l'affichage ??
 			setTimeout(function() {
 
-				console.info('map initialize')
-
 				map = new google.maps.Map( mapContainer, {
 					zoom: parseInt(kidzou_proxi.zoom),
 					center: new google.maps.LatLng( parseFloat( mapContainer.dataset.center_lat ) , parseFloat( mapContainer.dataset.center_lng )),
-					mapTypeId: google.maps.MapTypeId.ROADMAP
+					mapTypeId: google.maps.MapTypeId.ROADMAP,
+					scrollwheel: scrollwheel ,
+					disableDefaultUI : false,
+					mapTypeControl : false,
+					// panControl : false,
+					// scaleControl : true,
+					streetView : true,
+					zoomControl : true
 				});
 
 				var pins = kidzou_proxi.markers;
 				for (var i = 0; i < pins.length; i++) {
-					var pin = pins[i];
-					addMarker(map, pin.latitude, pin.longitude, pin.title, pin.content);
+					var pin = pins[i]; 
+					addMarker(map, pin.latitude, pin.longitude, pin.id);
 				};
-
-				mapCenter = map.getCenter();
-
-				//calculer la distance entre le centre de la carte et le Marker max requeté par kidzou
-				//autrement dit, le radius de kidzou
-				google.maps.event.addListener(map, 'bounds_changed', function() {
-		        	
-		        	//le radius courant de la carte
-		        	var distance = getDistanceToCenter();
-
-		        	//prefetcher les prochains resultats
-		        	//si la distance au radius kidzou est dépassée
-		        	if ( parseFloat( distance ) < parseFloat(kidzou_proxi.max_distance) ) {
-
-		        		if ( (parseFloat( distance ) > parseFloat( kidzou_proxi.radius ) )  ) {	
-
-		        			mapCenter = map.getCenter();
-
-		        			setCurrentPosition({ latitude : mapCenter.lat(), longitude : mapCenter.lng() });
-
-		        			//le user a bougé la carte, on ne le recentrera pas
-		        			setMapDragged(true);
-
-			        		//aller chercher du contenu
-			        		getContent(
-								distance*2 //*2 : bon je sais pas pourquoi, mais soit
-							);
-
-			        	} 
-		        	}
-		      	});
+				var markerCluster = new MarkerClusterer(map, markers);
 
 				//http://stackoverflow.com/questions/832692/how-can-i-check-whether-google-maps-is-fully-loaded
 				google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
@@ -315,58 +310,50 @@ var kidzouProximite = (function(){
 
 	}
 
-	function addMarker(map, lat, lng, title, content ) {
+	function addMarker(map, lat, lng, post_id ) {
 		
 		var position = new google.maps.LatLng( parseFloat( lat ) , parseFloat( lng ) );
 
 		var marker = new google.maps.Marker({
 			position: position,
 			map: map,
-			title: title,
-			icon: { url: et_custom.images_uri + '/marker.png', size: new google.maps.Size( 46, 43 ), anchor: new google.maps.Point( 16, 43 ) },
-			shape: { coord: [1, 1, 46, 43], type: 'rect' },
 			draggable : false,
-			animation: google.maps.Animation.DROP
 		});
 
 		markers.push(marker);
+		var infowindow = new google.maps.InfoWindow({});
+		// console.debug('post_id', post_id);
 
-		var infowindow = new google.maps.InfoWindow({
-			content: content
-		});
-
-		google.maps.event.addListener(marker, 'click', function() {
-			infowindow.open( map, marker );
-		});
+		google.maps.event.addListener(marker, 'click', (function(m,_id) {
+		    return function() {
+		    	infowindow.setContent('<i class="fa fa-spinner fa-spin"></i>Chargement...');
+				infowindow.open( map, m );
+		        getPostContent(_id, function(data){
+		        	var content = windowContent(data); //console.debug(content);
+					infowindow.setContent(content);
+				});
+		    }
+		})(marker, post_id));
 	}
 
-	/**
-	 * La distance entre le centre initial et les bords de la carte
-	 * i.e. faut-il aller chercher de nouveaux résultats ou est-on encore dans le radius kidzou
-	 * @see http://stackoverflow.com/questions/3525670/radius-of-viewable-region-in-google-maps-v3
-	 */
-	function getDistanceToCenter( ) {
+	var windowContent = function formatInfoWindow(json_data) {
 
-		var bounds = map.getBounds();
+		var terms_list = json_data.terms.map(function(term){
+			return term.name;
+		}).join(', ');	
 
-		// var center  = map.getCenter();
-		var ne = bounds.getNorthEast();
-
-		// r = radius of the earth in statute miles
-		var r = 3963.0;  
-
-		// Convert lat or lng from decimal degrees into radians (divide by 57.2958)
-		var lat1 = mapCenter.lat() / 57.2958; 
-		var lon1 = mapCenter.lng() / 57.2958;
-		var lat2 = ne.lat() / 57.2958;
-		var lon2 = ne.lng() / 57.2958;
-
-		// distance = circle radius from center to Northeast corner of bounds
-		var dis = r * Math.acos(Math.sin(lat1) * Math.sin(lat2) + 
-		  Math.cos(lat1) * Math.cos(lat2) * Math.cos(lon2 - lon1));
-
-		return dis;
-	}
+		var str = '<div id="post-{0}" class="infowindow et_pb_portfolio_item kz_portfolio_item post-{0} post type-post status-publish format-gallery has-post-thumbnail hentry">' +
+					'<a href="{1}">' +
+						'<span class="et_portfolio_image">' +
+							'<img src="{2}" alt="{3}">'+
+						'</span><!--  et_portfolio_image -->'+
+					'</a>'+
+					'<h2><a href="{1}">{3}</a></h2>'+
+					'<p><a href="{1}">{4}</a></p>' + 
+					'<p><a href="{1}"><i class="fa fa-heart vote"></i><span class="vote">{5}</span><i class="fa fa-comments-o"></i><span>{6}</span></a></p>'+
+				'</div>';
+		return str.format(json_data.post.ID, json_data.permalink, json_data.thumbnail,json_data.post.post_title, terms_list ,json_data.votes, json_data.comments.length);
+	};
 
 	/**
 	 *
@@ -378,11 +365,23 @@ var kidzouProximite = (function(){
             markers.pop().setMap(null);
         }
 
-        console.log("Remove All Markers");
+        // console.log("Remove All Markers");
     }
 
-	if (kidzou_proxi.display_mode == 'with_map')
+    //s'il y a une carte, c'est par ici que tout commence
+	if (kidzou_proxi.display_mode != 'simple')
 		google.maps.event.addDomListener(window, 'load', initialize);
 
-
 })();
+
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}

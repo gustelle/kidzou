@@ -475,6 +475,7 @@ table.shop_table { margin-bottom: 30px !important; }
 .et_pb_map { height: 440px; width: 100%; position: relative; }
 .et_pb_map_container { margin: 0 0 30px 0; }
 .et_pb_fullwidth_section .et_pb_map_container { margin: 0; }
+.et_pb_fullwidth_section .et_pb_map {height: 1000px;}
 .et_pb_map_container img { max-width: inherit; }
 .et_pb_map_pin { display: none; visibility: hidden; }
 .et_pb_column_4_4 .et_pb_map { width: 1080px; }
@@ -2754,7 +2755,7 @@ a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-men
 	.et_full_width_page.woocommerce ul.products li.product:nth-child(3n), .et_full_width_page.woocommerce-page ul.products li.product:nth-child(3n), .et_pb_pagebuilder_layout ul.products li.product:nth-child(3n), .et_pb_pagebuilder_layout ul.products li.product:nth-child(3n) { margin-right: 0 !important; }
 	.et_full_width_page.woocommerce ul.products li.product:nth-child(3n+1), .et_full_width_page.woocommerce-page ul.products li.product:nth-child(3n+1), .et_pb_pagebuilder_layout ul.products li.product:nth-child(3n+1), .et_pb_pagebuilder_layout ul.products li.product:nth-child(3n+1) { clear: both; }
 
-	.et_pb_fullwidth_section .et_pb_map { height: 330px; }
+	.et_pb_fullwidth_section .et_pb_map { height: 800px; }
 	.et_pb_column_4_4 .et_pb_map, .et_pb_column_3_4 .et_pb_map, .et_pb_column_2_3 .et_pb_map, .et_pb_column_1_2 .et_pb_map, .et_pb_column_1_3 .et_pb_map, .et_pb_column_1_4 .et_pb_map { height: 330px; /*width: 688px;*/}
 
 	.woocommerce div.product div.images, .woocommerce-page div.product div.images, .woocommerce #content div.product div.images, .woocommerce-page #content div.product div.images { width: 328px !important; }
@@ -3044,7 +3045,7 @@ a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-men
 
 	.woocommerce .form-row { float: none !important; width: auto !important; }
 
-	.et_pb_fullwidth_section .et_pb_map { height: 220px; }
+	.et_pb_fullwidth_section .et_pb_map { height: 600px; }
 	.et_pb_column_4_4 .et_pb_map, .et_pb_column_3_4 .et_pb_map, .et_pb_column_2_3 .et_pb_map, .et_pb_column_1_2 .et_pb_map, .et_pb_column_1_3 .et_pb_map, .et_pb_column_1_4 .et_pb_map { height: 220px; /*width: 400px;*/ }
 
 	.footer-widget { width: 100%; margin: 0 0 35px 0; float: none; }
@@ -3196,7 +3197,7 @@ a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-men
 	.et_pb_widget_area_right { border-left: none; }
 	.et_pb_promo { padding: 40px; }
 
-	.et_pb_fullwidth_section .et_pb_map { height: 155px; }
+	.et_pb_fullwidth_section .et_pb_map { height: 600px; }
 	.et_pb_column_4_4 .et_pb_map, .et_pb_column_3_4 .et_pb_map, .et_pb_column_2_3 .et_pb_map, .et_pb_column_1_2 .et_pb_map, .et_pb_column_1_3 .et_pb_map, .et_pb_column_1_4 .et_pb_map { height: 155px; /*width: 280px;*/ }
 
 	.et_pb_newsletter { padding: 30px 0; }
@@ -3505,34 +3506,23 @@ a{color:#74747f}#top-menu li.current-menu-ancestor > a, #top-menu li.current-men
 
 /*-------------------[Maps / A proximité]------------------*/
 
-/*https://katz.co/resizing-infowindow/*/
-.gm-style-iw {
-	width: 160px; 
-	min-height: 170px;
-}
 
-.gm-style-iw a {
-	font-size: 1em;
-	font-weight: bold;
-	color: #666;
-	display: block;
-	padding: 4px;
-}
-/*.gm-style-iw a img {float: left; margin-right: 4px;}*/
-
-/*http://stackoverflow.com/questions/23807044/cant-drag-zoom-interact-with-google-maps*/
-.gm-style * {
-  width:auto;
-  height:auto;
-}
-
-.kz_pb_map_marker {
+.infowindow {width: 100%;max-width:180px;margin-bottom: 0px !important}
+.infowindow img {width:100%;max-width:150px; height: auto;}
+.infowindow h2 {font-size: 1.1em; }
+.infowindow p {
 	width: 150px;
-	height: auto;
-	max-height: 150px;
-	overflow: hidden;
-	margin: 4px;
-	display: block;
+  	white-space: nowrap;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
+  	line-height: 1.2em;
+}
+.infowindow a {	color: #666;}
+.infowindow span + i {margin-left: 1.3em;}
+@media only screen and ( max-width: 479px ) {
+	.infowindow {width: 100%;max-width:130px;}
+	.infowindow img {width:120px; height: auto;}
+	.infowindow p {width: 120px;}
 }
 
 .et_pb_map_container .message {
