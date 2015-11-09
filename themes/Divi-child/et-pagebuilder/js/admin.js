@@ -165,6 +165,11 @@ var ET_PageBuilder = ET_PageBuilder || {};
 						'fullwidth_only' : 'on'
 					},
 					{
+						'title' : 'Carte Kidzou Plein Ecran',
+						'label' : 'kz_pb_fullwidth_map',
+						'fullwidth_only' : 'on'
+					},
+					{
 						'title' : 'Social Media Follow',
 						'label' : 'et_pb_social_media_follow'
 					}
@@ -2181,7 +2186,7 @@ var ET_PageBuilder = ET_PageBuilder || {};
 				// console.debug('createLayoutFromContent', content);
 				var this_el = this,
 					et_pb_shortcodes_tags = typeof inner_shortcodes === 'undefined'
-						? 'et_pb_section|et_pb_row|et_pb_column|et_pb_column_inner|et_pb_row_inner|et_pb_text|et_pb_blurb|et_pb_tabs|et_pb_testimonial|et_pb_toggle|et_pb_cta|et_pb_signup|et_pb_login|et_pb_contact_form|et_pb_divider|kz_pb_blog|kz_pb_portfolio|kz_pb_filterable_portfolio|kz_pb_fullwidth_portfolio|kz_pb_proximite|et_pb_image|et_pb_gallery|et_pb_shop|et_pb_slider|et_pb_pricing_tables|et_pb_accordion|et_pb_counters|et_pb_circle_counter|et_pb_number_counter|et_pb_fullwidth_slider|et_pb_sidebar|et_pb_fullwidth_header|et_pb_map|et_pb_fullwidth_map|et_pb_fullwidth_menu|et_pb_countdown_timer|et_pb_social_media_follow|et_pb_team_member|et_pb_audio'
+						? 'et_pb_section|et_pb_row|et_pb_column|et_pb_column_inner|et_pb_row_inner|et_pb_text|et_pb_blurb|et_pb_tabs|et_pb_testimonial|et_pb_toggle|et_pb_cta|et_pb_signup|et_pb_login|et_pb_contact_form|et_pb_divider|kz_pb_blog|kz_pb_portfolio|kz_pb_filterable_portfolio|kz_pb_fullwidth_portfolio|kz_pb_proximite|et_pb_image|et_pb_gallery|et_pb_shop|et_pb_slider|et_pb_pricing_tables|et_pb_accordion|et_pb_counters|et_pb_circle_counter|et_pb_number_counter|et_pb_fullwidth_slider|et_pb_sidebar|et_pb_fullwidth_header|et_pb_map|et_pb_fullwidth_map|kz_pb_fullwidth_map|et_pb_fullwidth_menu|et_pb_countdown_timer|et_pb_social_media_follow|et_pb_team_member|et_pb_audio'
 						: 'et_pb_tab|et_pb_slide|et_pb_pricing_table|et_pb_counter|et_pb_accordion_item|et_pb_social_media_follow_network|et_pb_map_pin',
 					reg_exp = window.wp.shortcode.regexp( et_pb_shortcodes_tags ),
 					inner_reg_exp = this.wp_regexp_not_global( et_pb_shortcodes_tags ),

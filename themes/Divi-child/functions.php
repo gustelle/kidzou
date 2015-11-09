@@ -58,6 +58,9 @@ function override_divi_parent_functions()
     add_shortcode( 'et_pb_fullwidth_map', 'kz_pb_map' );
 	add_shortcode( 'et_pb_map', 'kz_pb_map' );
 
+	//nouveau shortcode pour afficher tous les lieux sur une carte plein écran
+	add_shortcode( 'kz_pb_fullwidth_map', 'kz_pb_fullwidth_map' );
+
 	//ajout du codepostal dans le formulaire d'inscription à la newsletter
 	remove_shortcode('et_pb_signup');
 	add_shortcode( 'et_pb_signup', 'kz_pb_signup' );
@@ -1613,12 +1616,14 @@ function kz_pb_proximite( $atts ) {
 			'show_title' => 'on',
 			'show_categories' => 'on',
 			'background_layout' => 'light',
-			'radius' => 2,
+			// 'radius' => 2,
 			'zoom'	=> 13,
 			'display_mode' => 'simple',
 			'max_distance'	=> 50
 		), $atts
 	) );
+
+	$radius = 1000; //on simule l'infini...
 
 	//generer le scripts qui va checker que lat/lng sont présents en localStorage
 	//si lat/lng sont détéctés, déclencher un ajax pour charger le portfolio
@@ -1630,9 +1635,18 @@ function kz_pb_proximite( $atts ) {
 		true 
 	);
 
+	//le clusterer sert à regrouper les icons pour une meilleure perfromance d'affichage
+	wp_enqueue_script(
+		'marker-clusterer',
+		get_stylesheet_directory_uri() . '/js/markerclusterer_compiled.js',
+		array( 'custom-proxi' ),
+		Kidzou::VERSION,
+		true 
+	);
+
 	$is_geolocalized = $locator->is_request_geolocalized();
 
-	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode=='with_map') 
+	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode!='simple') 
 		wp_enqueue_script( 'google-maps-api' );
 
 	//initialement : récupérer les coords 
@@ -1655,7 +1669,7 @@ function kz_pb_proximite( $atts ) {
 
 	$pins = array();
 
-	if ($display_mode=='with_map') {
+	if ($display_mode!='simple' ) {
 		$pins = kz_get_map_markers($ids);
 	}
 
@@ -1687,7 +1701,15 @@ function kz_pb_proximite( $atts ) {
 		'markers'				=> $pins,
 		'zoom'					=> $zoom,
 		'max_distance'			=> $max_distance,
-		'request_coords'		=> $coords
+		'request_coords'		=> $coords,
+		'page_container_selector'=> '#proxi_content',
+		'map_selector'			=> '#proxi_content .et_pb_map',
+		'map_container'			=> '#proxi_content .et_pb_map_container',
+		'more_results_selector' => '#proxi_content .more_results',
+		'more_results_cta_selector'	=> '.load_more_results',
+		'message_selector'		=> '#proxi_content .message',
+		'portfolio_selector'	=> '#proxi_content .et_pb_portfolio_results',
+		'distance_message_selector'	=> '.distance_message',
 
 	) );
 	
@@ -1706,50 +1728,77 @@ function kz_pb_proximite( $atts ) {
 				( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
 				'on' //mousewheel
 			);
+	} elseif ($display_mode=='map_only') {
+		$out = sprintf(
+				'<div%5$s class="et_pb_map_container%6$s">
+					<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
+					<!--div class="et_pb_pins">%4$s</div-->
+				</div><hr class="et_pb_space et_pb_divider" />',
+				esc_attr( $coords['latitude'] ),
+				esc_attr( $coords['longitude'] ),
+				$zoom, //zoom level
+				'',//$pins,
+				( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+				( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+				'on' //mousewheel
+			);
 	} else {
 		$out = '<!-- simple portfolio -->';
 	}
 
-	$class = " et_pb_bg_layout_{$background_layout}";
-	$filters_html = '';
-	$filter_out = '';
+	if ($display_mode!='map_only') {
 
-	//prévision d'évolutions pour filtrer
-	if ($filters_html!='') {
-		$filter_out = sprintf(
-				'<div class="et_pb_filterable_portfolio ">
+		$class = " et_pb_bg_layout_{$background_layout}";
+		$filters_html = '';
+		$filter_out = '';
+
+		//prévision d'évolutions pour filtrer
+		if ($filters_html!='') {
+			$filter_out = sprintf(
+					'<div class="et_pb_filterable_portfolio ">
+						%1$s
+					</div>',
+					$filters_html
+				);
+		}
+
+		$out .= sprintf(
+			'<div%5$s class="%1$s%3$s%6$s">
+				%7$s
+				<div class="et_pb_portfolio_results">%2$s</div>
+			%4$s',
+			( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
+			$portfolio,
+			esc_attr( $class ),
+			'',
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+			'',
+			$filter_out
+		);
+
+		return sprintf(
+			'%1$s
+			<div id="proxi_content">
+				<div class="results">
+					%2$s
+				</div>
+				<div class="more_results"></div>
+			</div>',
+			'<div class="distance_message"></div>',
+			$out
+		);
+	}  else {
+
+		return sprintf(
+			'<div id="proxi_content">
+				<div class="results">
 					%1$s
-				</div>',
-				$filters_html
-			);
+				</div>
+			</div>',
+			$out
+		);
 	}
-
-	$out .= sprintf(
-		'<div%5$s class="%1$s%3$s%6$s">
-			%7$s
-			<div class="et_pb_portfolio_results">%2$s</div>
-		%4$s',
-		( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
-		$portfolio,
-		esc_attr( $class ),
-		'',
-		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-		'',
-		$filter_out
-	);
-
-	return sprintf(
-		'%1$s
-		<div id="proxi_content">
-			<div class="results">
-				%2$s
-			</div>
-			<div class="more_results"></div>
-		</div>',
-		'<div class="distance_message"></div>',
-		$out
-	);
 
 }
 
@@ -1796,7 +1845,7 @@ function kz_pb_proximite_content() {
 
 	$pins = array();
 
-	if ($display_mode=='with_map') {
+	if ($display_mode!='simple') {
 		$pins = kz_get_map_markers($ids);
 	}
 
@@ -1851,9 +1900,9 @@ function kz_pb_render_proximite_portfolio ($coords, $ids, $radius, $show_distanc
 }
 
 /**
- * undocumented function
+ * Construit un tableau de data à utiliser par les Markers Google Maps coté JS 
  *
- * @return void
+ * @return Array
  * @author 
  **/
 function kz_get_map_markers ($ids)
@@ -1870,20 +1919,21 @@ function kz_get_map_markers ($ids)
 			$post = get_post($value->post_id);
 			setup_postdata($post);
 
-			$thumbnail = get_thumbnail( 100, 100, '', get_the_title() , get_the_title() , false );
+			$thumbnail = get_thumbnail( 40, 40, '', get_the_title() , get_the_title() , false );
 			// Kidzou_Utils::log($thumbnail);
 			$thumb = $thumbnail["thumb"];
-			$img = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, 100, 100, 'kz_pb_map_marker', false);
+			$img = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, 40, 40, 'kz_pb_map_marker', false);
 
 			$content = '<a title="'.get_the_permalink().'" href="'.get_the_permalink().'">'.
-					$img. get_the_title().
+					$img. '<br/>'. get_the_title().
 				'</a>';
 
 			array_push($pins, array(
 					'latitude' => $value->latitude,
 					'longitude'=> $value->longitude,
-					'title'		=> get_the_title() ,
-					'content'	=> $content
+					'id'	=> get_the_ID()
+					// 'title'		=> get_the_title() ,
+					// 'content'	=> $content
 				));
 			
 		}
@@ -2033,7 +2083,7 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  */
 function get_portfolio_items( $args = array() ) {
 
-	Kidzou_Utils::log('functions.php [get_portfolio_items]',true);
+	// Kidzou_Utils::log('functions.php [get_portfolio_items]',true);
 
 	// return Kidzou_Geo::WP_Query( $args ) ;
 	// $args['get_portfolio_items'] = true;
@@ -2121,6 +2171,103 @@ function et_single_settings_meta_box( $post ) {
 	</p>
 <?php endif;
 
+}
+
+/**
+ * surcharge du shortcode pour pouvoir l'inclure dans un tab (map_inside)
+ *
+ */
+function kz_pb_fullwidth_map( $atts, $content = '' ) {
+	
+	extract( shortcode_atts( array(
+			'module_id' => '',
+			'module_class' => '',
+			'zoom'	=> 13,
+		), $atts
+	) );
+
+	$locator = new Kidzou_Geolocator();
+
+	$radius = 1000; //on simule l'infini...
+
+	//generer le scripts qui va checker que lat/lng sont présents en localStorage
+	//si lat/lng sont détéctés, déclencher un ajax pour charger le portfolio
+	wp_enqueue_script(
+		'custom-proxi',
+		get_stylesheet_directory_uri() . '/js/custom-proxi.js',
+		array( 'jquery', 'google-maps-api' ),
+		Kidzou::VERSION,
+		true 
+	);
+
+	//le clusterer sert à regrouper les icons pour une meilleure perfromance d'affichage
+	wp_enqueue_script(
+		'marker-clusterer',
+		get_stylesheet_directory_uri() . '/js/markerclusterer_compiled.js',
+		array( 'custom-proxi' ),
+		Kidzou::VERSION,
+		true 
+	);
+
+	$is_geolocalized = $locator->is_request_geolocalized();
+
+	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode!='simple') 
+		wp_enqueue_script( 'google-maps-api' );
+
+	//initialement : récupérer les coords 
+	$coords = $locator->get_request_coords();
+	$ids = $locator->getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
+	$pins = kz_get_map_markers($ids);
+
+	wp_localize_script( 'custom-proxi', 'kidzou_proxi', array(
+		// 'ajaxurl'           	=> admin_url( 'admin-ajax.php' ),
+		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous sommes entrain de d&eacute;terminer votre position...</h2>',
+		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
+		'wait_refreshing' 		=> '<h5><i class="fa fa-spinner fa-spin"></i>Actualisation de la carte</h5>',
+		'wait_geoloc_progress' 	=> '<h4><i class="fa fa-spinner fa-spin pull-left"></i>Actualisation de votre position</h4><br/>',
+		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
+		'refresh_message'		=> 'Ces r&eacute;sultats ne vous paraissent pas pertinents&nbsp;?&nbsp;<a title="Rafraichir les r&eacute;sultats">Rafraichir les r&eacute;sultats</a><br/><br/>',
+		'display_mode'			=> 'fullwidth',
+		'geoloc_error_msg'			=> __('<h3><i class="fa fa-warning  pull-left"></i>Nous ne parvenons pas &agrave; vous localiser plus pr&eacute;cis&eacute;ment</h3>','Divi'),
+		'geoloc_pleaseaccept_msg'	=> __('<h3><i class="fa fa-warning pull-left"></i>Pour des r&eacute;sultats plus pertinents, acceptez la geolocalisation de votre navigateur !</h3>','Divi'),
+		'markers'				=> $pins,
+		'zoom'					=> $zoom,
+		'scrollwheel'			=> 'off',
+		'page_container_selector'=> '#proxi_content',
+		'map_selector'			=> 	'#proxi_content .et_pb_map',
+		'map_container'			=> 	'#proxi_content .et_pb_map_container',
+		'more_results_selector' => 	'#proxi_content .more_results',
+		'more_results_cta_selector'	=> '.load_more_results',
+		'message_selector'		=> 	'#proxi_content .message',
+		'portfolio_selector'	=> 	'#proxi_content .et_pb_portfolio_results',
+		'distance_message_selector'	=> '.distance_message',
+		'api_get_place'			=> site_url()."/api/content/get_place/",
+		'api_public_key'		=> Kidzou_Utils::get_option('api_public_key', '')
+
+	) );
+		
+	$out = sprintf(
+			'<div%5$s class="et_pb_map_container%6$s">
+				<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
+			</div>',
+			esc_attr( $coords['latitude'] ),
+			esc_attr( $coords['longitude'] ),
+			$zoom, //zoom level
+			'',//$pins,
+			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
+			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
+			'off' //mousewheel
+		);
+
+	return sprintf(
+		'<div id="proxi_content">
+			<div class="results">
+				%1$s
+			</div>
+		</div>',
+		$out
+	);
+	
 }
 
 /**

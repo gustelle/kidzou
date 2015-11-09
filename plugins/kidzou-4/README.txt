@@ -1,4 +1,11 @@
-<h4>API V21, V22</h4>
+<h4>Proximite V2</h4>
+<h5>novembre 2015</h5>
+<ul>
+	<li>Refonte de la fonction "A proximité"</li>
+</ul>
+
+
+<h4>API V27</h4>
 <h5>7 novembre 2015</h5>
 <ul>
 	<li>Nouvelle Fonction : Creation d'un client depuis une article</li>
@@ -6,13 +13,13 @@
 	<li>Refactoring des widgets d'admin pour la gestion des lieux (class-kidzou-admin-place)</li>
 </ul>
 
-<h4>API V18, V19, V20</h4>
+<h4>API V20</h4>
 <h5>28 octobre 2015</h5>
 <ul>
 	<li>Nouvelle Fonction : Import d'événement Facebook dans un article</li>
 </ul>
 
-<h4>API V15, V16</h4>
+<h4>API V16</h4>
 <h5>25 octobre 2015</h5>
 <ul>
 	<li>Re-engineering de style.css pour optimisation Responsive, notamment sur iPad</li>
@@ -22,7 +29,7 @@
 	<li>Choix de la métropole dans le Header par liste déroulante</li>
 </ul>
 
-<h4>API V8, V9, V10, V11, V12</h4>
+<h4>API V12</h4>
 <h5>Début octobre 2015</h5>
 <ul>
 	<li>Fix sur l'API content/get_related_posts</li>
