@@ -1,4 +1,4 @@
-<h4>Proximite V2</h4>
+<h4>Proximite V30</h4>
 <h5>novembre 2015</h5>
 <ul>
 	<li>Refonte de la fonction "A proximité"</li>

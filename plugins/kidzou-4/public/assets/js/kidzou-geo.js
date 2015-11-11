@@ -258,7 +258,7 @@ var kidzouGeoContent = (function () {
 
 		} else {
 
-			console.error('Error, navigator does not accept geolocation');
+			// console.error('Error, navigator does not accept geolocation');
 			
 			var myEvent = new CustomEvent("geolocation", {
 				detail: {error: true, acceptGeolocation : false},

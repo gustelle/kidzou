@@ -1,3 +1,4 @@
+
 var kidzouProximite = (function(){
 
 	//la position courante du cnetre de la carte, 
@@ -159,9 +160,11 @@ var kidzouProximite = (function(){
 	var getPostContent = function getPostContentF( _post_id, callback ) {
 
 		var key;
+		//il se peut que les API Key arrivent sous forme de tableau
 		if( Object.prototype.toString.call( kidzou_proxi.api_public_key ) === '[object Array]' ) {
 		    key = kidzou_proxi.api_public_key[0];
 		} else {
+			//ou sous forme de String
 			key = kidzou_proxi.api_public_key;
 		}
 
@@ -186,12 +189,13 @@ var kidzouProximite = (function(){
 	//les résultats de getCurrentPosition sont arrivés
 	document.addEventListener("geolocation", function(e) {
 
-		// console.info('geolocation done');
-		// console.info(e.detail);
-
 		addRefreshMessage();
-
+		
 		if (!e.detail.error && e.detail.refresh) {
+
+			if (!document.querySelector('#warning_msg')) {
+				document.querySelector('#warning_msg').style.display = 'none';
+			}
 
 			//stockage pour reutilisation ultérieure
 			setCurrentPosition(e.detail.coords);
@@ -206,17 +210,28 @@ var kidzouProximite = (function(){
 				// console.info('Error ' );
 				if (e.detail.acceptGeolocation) {
 
-					// console.info("Le user accepte la geoloc, une erreur technique est survenue");
-					var node = document.querySelector(kidzou_proxi.page_container_selector);
-					var div1 = document.createElement("DIV");
-					div1.innerHTML = kidzou_proxi.geoloc_error_msg;
-					node.insertBefore(div1, node.childNodes[0]);
+					if (!document.querySelector('#warning_msg')) {
+						var node = document.querySelector(kidzou_proxi.page_container_selector);
+						var div1 = document.createElement("DIV");
+						var att = document.createAttribute("id"); 
+						att.value = "warning_msg";    
+						div1.setAttributeNode(att);    
+						div1.classList.add('warning');
+						div1.classList.add('et_pb_animation_fade_in');
+						div1.classList.add('et-animated');
+						div1.innerHTML = kidzou_proxi.geoloc_error_msg;
+						node.insertBefore(div1, node.childNodes[0]);
+						kidzouGeoContent.getUserLocation(function(position) {
+							console.debug('rafraichissement...', position);
+						});
+					}
 
 				} else {
 
 					// console.info("Le user n'accepte pas la geoloc, dégrader les résultats");
 					var node = document.querySelector(kidzou_proxi.page_container_selector);
 					var div1 = document.createElement("DIV");
+					div1.classList.add('warning');
 					div1.innerHTML = kidzou_proxi.geoloc_pleaseaccept_msg;
 					node.insertBefore(div1, node.childNodes[0]);
 
