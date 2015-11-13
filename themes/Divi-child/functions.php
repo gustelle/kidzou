@@ -103,6 +103,12 @@ function override_divi_parent_functions()
 	remove_shortcode('et_pb_login');
 	add_shortcode( 'et_pb_login', 'kz_pb_login' );
 
+	//depuis WP 4.2, WP ajoute des scripts et styles pour supporter les Emojis, 
+	//on s'en fout ?? 
+	//@see https://wordpress.org/support/topic/emoji-and-smiley-js-and-css-added-to-head
+	// remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	// remove_action( 'wp_print_styles', 'print_emoji_styles' );
+
 }
 
 

@@ -936,31 +936,12 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 'fields'    => array(
 
                         array(
-                            'id'        => 'perf_activate',
+                            'id'        => 'perf_activate_js',
                             'type'      => 'checkbox',
-                            'default'      => '0',
-                            'title'     => __('Activer les optimisations de performance', 'kidzou'),
-                        ),
+                            'default'   => '0',
+                            'title'     => __('Optimiser le chargement des JS par ajout de l&apos;attribut <em>async defer</em>', 'kidzou'),
+                            'subtitle'  => __('Les JS seront mis en footer et charg&eacute;s en <em>async defer</em>', 'kidzou'),
 
-                        array(
-                            'id'=>'perf_css_in_header',
-                            'type' => 'multi_text',
-                            'title' => __('Ne pas charger les CSS suivants en arri&egrave;re plan par Javascript', 'kidzou'),
-                            'subtitle' => __('Les CSS list&eacute;es seront charg&eacute;es dans le footer. Il faut saisir les handle des CSS - Un handle par ligne', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'=>'perf_js_in_header',
-                            'type' => 'multi_text',
-                            'title' => __('Conserver les JS suivants dans le header', 'kidzou'),
-                            'subtitle' => __('En particulier les scripts qui utilisent des variables localis&eacute;s par wp_localize_script. Il faut saisir les handle des Javascript - Un handle par ligne', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'perf_add_async_attr',
-                            'type'      => 'checkbox',
-                            'default'      => '0',
-                            'title'     => __('Charger les Javascripts avec l&apos;attribut async', 'kidzou'),
                         ),
 
                         array(
@@ -970,13 +951,47 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'subtitle' => __('Cela n&apos;est utile que si les chargements asynchrones sont actifs', 'kidzou'),
                         ),
 
+
+                        array(
+                            'id'        => 'perf_activate_css',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Optimiser le chargement des CSS', 'kidzou'),
+                            'subtitle'  => __('Les CSS seront charg&eacute;s en background en asynchrone par un Javascript', 'kidzou'),
+
+                        ),
+
                         array(
                             'id'        => 'perf_remove_css_id',
                             'type'      => 'checkbox',
                             'default'      => '0',
-                            'title'     => __('Permettre la combinaison des CSS', 'kidzou'),
+                            'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
+                            'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
+
                         ),
 
+                        array(
+                            'id'=>'perf_css_in_header',
+                            'type' => 'multi_text',
+                            'title' => __('Ne pas optimiser les CSS suivantes', 'kidzou'),
+                            'subtitle' => __('Les CSS list&eacute;es seront charg&eacute;es dans le footer. Il faut saisir les handle des CSS - Un handle par ligne', 'kidzou'),
+                        ),
+
+                        // array(
+                        //     'id'=>'perf_js_root_dependency',
+                        //     'type' => 'multi_text',
+                        //     'title' => __('Charger les Javascripts suivants en priorit&eacute;', 'kidzou'),
+                        //     'subtitle' => __('Ce sont par exemple les Javascripts qui sont utilis&eacute;s par les autres', 'kidzou'),
+                        // ),
+
+                        // array(
+                        //     'id'        => 'perf_add_async_attr',
+                        //     'type'      => 'checkbox',
+                        //     'default'      => '0',
+                        //     'title'     => __('Charger les Javascripts avec l&apos;attribut async', 'kidzou'),
+                        // ),
+
+                        
                         array(
                             'id'=>'perf_css_no_combine',
                             'type' => 'multi_text',
