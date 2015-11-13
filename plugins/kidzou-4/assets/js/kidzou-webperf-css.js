@@ -1,7 +1,7 @@
 
+var asyncCSSLoader = (function(){
 
-
-var asyncLoader = (function(){
+	"use strict";
 
 	/*!
 	loadCSS: load a CSS file asynchronously.
@@ -9,7 +9,7 @@ var asyncLoader = (function(){
 	Licensed MIT
 	*/
 	function loadCSS( href, before, media ){
-		"use strict";
+		
 		// Arguments explained:
 		// `href` is the URL for your CSS file.
 		// `before` optionally defines the element we'll use as a reference for injecting our <link>
@@ -46,15 +46,18 @@ var asyncLoader = (function(){
 		return ss;
 	}
 
-	var cssToBeLoaded = kidzou_webperf.css;
+	var cssToBeLoaded = kidzou_webperf_css.css;
 	var i = cssToBeLoaded.length;
 
 	while (i--) {
-		loadCSS( cssToBeLoaded[i].src + '?ver=' + kidzou_webperf.version, null,  cssToBeLoaded[i].media );
+		loadCSS( cssToBeLoaded[i].src + '?ver=' + kidzou_webperf_css.version, null,  cssToBeLoaded[i].media );
 		// console.debug('loaded ' + cssToBeLoaded[i].src + ' / ' + cssToBeLoaded[i].media);
 	}
 
 	
-
 })();
+
+
+
+
 
