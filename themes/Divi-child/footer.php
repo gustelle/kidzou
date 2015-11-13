@@ -44,8 +44,30 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 
 	<?php wp_footer(); ?>
 
-<!-- </div> .habillage -->
-
-
 </body>
+
+<!-- 
+	this adds the class "js" to the <html> element when Javascript is enable
+	@see https://css-tricks.com/snippets/javascript/css-for-when-javascript-is-enabled/
+-->
+<script type="text/javascript">
+	document.documentElement.className = 'js';
+</script>
+
+<!-- 
+	SiteLinks searchbox
+	@see https://developers.google.com/structured-data/slsb-overview
+-->
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "url": "http://www.kidzou.fr/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "http://www.kidzou.fr?s={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
 </html>

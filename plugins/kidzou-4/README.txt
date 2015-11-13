@@ -1,3 +1,9 @@
+<h4>Performances API-V31</h4>
+<h5>novembre 2015</h5>
+<ul>
+	<li>Optimisations de performance au travers du chargement des JS/CSS</li>
+</ul>
+
 <h4>Proximite V30</h4>
 <h5>novembre 2015</h5>
 <ul>
