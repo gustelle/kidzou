@@ -56,6 +56,16 @@ class Kidzou_WebPerf {
 	 */
 	protected static $css_no_combine = array(  );  //
 
+	/**
+	 * les CSS qui interviennent au dessus de la ligne de flotaison doivent être chargés dans le header
+	 * 
+	 *
+	 * @since    1.0.0
+	 *
+	 * @var      object
+	 */
+	protected static $css_in_header = array(  );  //
+
 
 	/**
 	 * les CSS supprimés de la queue wordpress, donc non rendus en HTML
@@ -149,9 +159,6 @@ class Kidzou_WebPerf {
 			// $js_no_async = array_merge( Kidzou_Utils::get_option('js_no_async', array()) , self::$js_no_async);
 			$queue = $wp_scripts->queue;
 			$datas = array();
-
-			wp_register_script('kidzou-webperf-js' , plugins_url( '../assets/js/kidzou-webperf-js.js', __FILE__ ), array(  ), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-webperf-js' );
 
 		    foreach( $queue as $queued ) {
 
