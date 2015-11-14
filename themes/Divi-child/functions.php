@@ -2019,15 +2019,18 @@ function format_fullwidth_portolio_items($projects, $show_title = "on", $show_da
 			?>
 			<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item ' ); ?>>
 			<?php
-				$thumb = '';
+				// $thumb = '';
+				$width = 400;
+				$height = 250;
 
-				$width = 320;
-				$width = (int) apply_filters( 'et_pb_portfolio_image_width', $width );
+				$classtext = 'et_pb_post_main_image';
+				$titletext = get_the_title();
+				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false );
+				$thumb = $thumbnail["thumb"];
 
-				$height = 241;
-				$height = (int) apply_filters( 'et_pb_portfolio_image_height', $height );
+				// $thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
 
-				list($thumb_src, $thumb_width, $thumb_height) = wp_get_attachment_image_src( get_post_thumbnail_id( get_the_ID() ), array( $width, $height ) );
+				// list($thumb_src, $thumb_width, $thumb_height) = wp_get_attachment_image_src( get_post_thumbnail_id( get_the_ID() ), array( $width, $height ) );
 
 				$orientation = ( $thumb_height > $thumb_width ) ? 'portrait' : 'landscape';
 
@@ -2036,7 +2039,8 @@ function format_fullwidth_portolio_items($projects, $show_title = "on", $show_da
 
 						<a href="<?php the_permalink(); ?>">
 							
-							<img src="<?php esc_attr_e( $thumb_src); ?>" alt="<?php esc_attr_e( get_the_title() ); ?>"/>
+							<!-- img src="< ? php esc_attr_e( $thumb_src); ? >" alt="< ? php esc_attr_e( get_the_title() ); ? >"/ -->
+							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
 							<div class="meta">
 								<span class="et_overlay"></span>
 								<?php if ( 'on' === $show_title ) : ?>
