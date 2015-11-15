@@ -923,6 +923,8 @@ function kz_pb_blog( $atts ) {
 }
 
 /**
+ *
+ * @param fullwidth on|off
  * @param render_featured : True si les posts featured doivent etre rendus différemment des autres
  */
 function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '', $render_featured = true) {
@@ -1232,7 +1234,7 @@ function kz_pb_portfolio( $atts ) {
 							$term
 						);
 					}	
-					Kidzou_Utils::log(array('$filter_terms' => $filter_terms), true);
+					// Kidzou_Utils::log(array('$filter_terms' => $filter_terms), true);
 				} 
 
 				$featured = ($render_featured=='on' ? true : false);
@@ -2027,14 +2029,9 @@ function format_fullwidth_portolio_items($projects, $show_title = "on", $show_da
 				$titletext = get_the_title();
 				$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false );
 				$thumb = $thumbnail["thumb"];
+				$orientation = 'landscape';
 
-				// $thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
-
-				// list($thumb_src, $thumb_width, $thumb_height) = wp_get_attachment_image_src( get_post_thumbnail_id( get_the_ID() ), array( $width, $height ) );
-
-				$orientation = ( $thumb_height > $thumb_width ) ? 'portrait' : 'landscape';
-
-				if ( '' !== $thumb_src ) : ?>
+				if ( '' !== $thumb ) : ?>
 					<div class="et_pb_portfolio_image <?php esc_attr_e( $orientation ); ?>">
 
 						<a href="<?php the_permalink(); ?>">

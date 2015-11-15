@@ -103,11 +103,11 @@ class JSON_API_Vote_Controller {
 		elseif ($in!='') 
 		{
 
-			$list_array = json_decode($in, true);
-
-			if (count($list_array)>0)
+			// $list_array = json_decode($in, true);
+			// Kidzou_Utils::log(array('in'=>$in), true);
+			if (count($in)>0)
 			{
-				$status = Kidzou_Vote::getPostsListVotes($list_array);
+				$status = Kidzou_Vote::getPostsListVotes($in);
 			}
 
 		}

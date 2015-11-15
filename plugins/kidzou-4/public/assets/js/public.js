@@ -41,7 +41,7 @@ var kidzouModule = (function() { //havre de paix
 	document.addEventListener('DOMContentLoaded', function(event) {
 
 		//assurer que les dépendances sont là...
-		if (window.jQuery && window.ko && window.storageSupport) {
+		// if (window.jQuery && window.ko && window.storageSupport) {
 
 			String.prototype.toBoolean = function()
 			{switch(this.toLowerCase()){case "true": case "yes": case "1": return true;case "false": case "no": case "0": case null: return false;default: return Boolean(this);}};
@@ -74,8 +74,13 @@ var kidzouModule = (function() { //havre de paix
 				//initialement (permettre le vote même si le user n'accepte pas la geoloc)
 				feedViewModel();
 
+				/**
+				 * Les éléments "déjà votés" (issus du localstorage ou d'une requete ajax)
+				 * vont être marqués voted(true), de sorte 
+				 * - dans le UI on pourra indiquer par un marqueur que ce votable a déjà été voté
+				 * - lorsqu'on cliquera sur l'élément de vote, on supprimera le vote (via la fonction doUpOrDown())
+				 */
 				function mapVotedToVotables(_voted) {
-
 					ko.utils.arrayForEach(_voted, function(item) {
 						ko.utils.arrayFirst(votesModel.votableItems, function(i) {
 				            if ( i.id == item.id) i.voted(true);    
@@ -88,8 +93,9 @@ var kidzouModule = (function() { //havre de paix
 				* 
 				*/
 				function refreshVotesCount() {
+					// console.debug('refreshVotesCount', ko.toJSON(votesModel.votableIds));
 					jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_status, {
-							posts_in: ko.toJSON(votesModel.votableIds)
+							posts_in: votesModel.votableIds
 						},
 						function(data) {
 							setVotesCount(data.status);
@@ -97,7 +103,14 @@ var kidzouModule = (function() { //havre de paix
 				    );
 				}
 
+				/**
+				 * Mise à jour du nombre de votes dans le modèle JS 
+				 * ensuite on peut s'en servir pour l'afficher dans le UI
+				 * 
+				 * Uniquement appelé en cas de rafraichissement via refreshVotesCount() 
+				 */
 				function setVotesCount(votes) {
+
 					ko.utils.arrayMap(votes, function(item) {
 						var matchedItem = ko.utils.arrayFirst(votesModel.votableItems, function(i) {
 				            if (i.id == item.id) return i;
@@ -115,7 +128,7 @@ var kidzouModule = (function() { //havre de paix
 				}
 
 				/**
-				* si le localx n'est pas supporté, les votes ne sont pas stockés en local
+				* si le localStorage n'est pas supporté, les votes ne sont pas stockés en local
 				* dans ce cas on rafraichit systématiquement les données en provenance du serveur
 				*
 				* Lié avec la fonction d'écriture des votes lorsque le user recommande/ne recommande pas un article
@@ -133,7 +146,7 @@ var kidzouModule = (function() { //havre de paix
 
 			        if (localVotes===null || localVotes.length===0) 
 					{
-						logger.warn("Rafraichissement des votes, aucun vote local trouvé pour " + user_hash);
+						// logger.warn("Rafraichissement des votes, aucun vote local trouvé pour " + user_hash);
 
 						//assurer de ne pas passer la valeur "null" dans la requete
 						//renvoyer dans ce cas une chaine vide
@@ -145,7 +158,7 @@ var kidzouModule = (function() { //havre de paix
 						jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_user, { user_hash: getUserHash() })
 						.done(function(d) {
 							
-							logger.debug("storeLocalVotes " + ko.toJSON(d));
+							// logger.debug("storeLocalVotes " + ko.toJSON(d));
 							
 							//cas des users loggués : le user_hash n'est pas renvoyé
 							if (d!==null && d.user_hash!==null && d.user_hash!=="undefined")
@@ -173,7 +186,7 @@ var kidzouModule = (function() { //havre de paix
 						return;
 
 					if (getUserHash()===null || getUserHash()==="" || getUserHash()==="undefined") {
-						logger.debug("setUserHash : " + hash);
+						// logger.debug("setUserHash : " + hash);
 						storageSupport.setLocal("user_hash", hash);
 					}
 				}
@@ -185,19 +198,22 @@ var kidzouModule = (function() { //havre de paix
 				function getUserHash ( ) {
 
 					if (storageSupport.getLocal("user_hash")==="undefined") { //pour le legacy
-						logger.debug("user_hash undefined" );
+						// logger.debug("user_hash undefined" );
 						storageSupport.removeLocal("user_hash");
 					}
 
 					return storageSupport.getLocal("user_hash");
 				}
 
-
+				/**
+				 * quels sont les elements de la page qui peuvent etre votés
+				 */
 				function feedViewModel() {
-			
-					ko.utils.arrayMap(jQuery('.votable'), function(item) {
-						votesModel.votableIds.push( jQuery(item).data('post') );
-					    votesModel.votableItems.push(new VotableItem ( jQuery(item).data('post'), 0, false, jQuery(item).data('slug')) );
+					ko.utils.arrayMap(document.querySelectorAll('.votable'), function(item) {
+						var id 		=  item.getAttribute('data-post');	
+						var slug 	=  item.getAttribute('data-slug');		
+						votesModel.votableIds.push( id );
+					    votesModel.votableItems.push( new VotableItem ( id, 0, false, slug) );
 					}); 
 
 					refreshVotesCount();  //cached by server
@@ -215,6 +231,7 @@ var kidzouModule = (function() { //havre de paix
 					self.votableItems 	= [];
 
 					self.getVotableItem = function (_id) {
+						// console.debug("votableItems", self.votableItems);
 						return ko.utils.arrayFirst(self.votableItems, function(item) {
 				  		    if (item.id == _id) return item;
 				    	});
@@ -374,14 +391,15 @@ var kidzouModule = (function() { //havre de paix
 			logger.setLogging(kidzou_commons_jsvars.cfg_debug_mode); 
 
 			kidzou.bindView();
-		}
+		// }
 
 	}, false); // jQuery(document).ready(function() {
 
 
 	function afterVoteUpdate(callback) {
 
-		var current_page_id = jQuery('.votable').first().data('post');
+		// var current_page_id = jQuery('.votable').first().data('post');
+		var current_page_id = document.querySelector('.votable').getAttribute('data-post');
 
 		jQuery.getJSON(kidzou_commons_jsvars.api_voted_by_user, {
 				post_id: current_page_id
@@ -395,7 +413,8 @@ var kidzouModule = (function() { //havre de paix
 	}
 
 	function getCurrentPageId( ) {
-		var current_page_id = jQuery('.votable').first().data('post');
+		// var current_page_id = jQuery('.votable').first().data('post');
+		var current_page_id = document.querySelector('.votable').getAttribute('data-post');
 		return current_page_id;
 
 	}
