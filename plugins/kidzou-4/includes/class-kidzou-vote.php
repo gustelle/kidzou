@@ -198,6 +198,13 @@ class Kidzou_Vote {
 
 	}
 
+	/**
+	 * 
+	 * @param id 	le post pour lequel on rend le template de vote
+	 * @param useCountText 	afficher ou non le nombre de votes du post
+	 * @param echo 	renvoyer le HTML directement par echo ou par un return
+	 * @return HTML avec binding Knockout qui associé a public/assets/js/public.js va rendre le nombre de vote du post passé en param
+	 */
 	public static function get_vote_template($id=0, $class='', $useCountText=false, $echo=true) {
 
 		if ($id==0)
@@ -207,14 +214,6 @@ class Kidzou_Vote {
 		}
 
 		$out ='';
-
-		// if (!self::$is_template_inserted) {
-		// 	if ($echo)
-		// 		self::set_template('', $useCountText, false, true);
-		// 	else
-		// 		$out .= self::set_template('', $useCountText, false, false);
-		// }
-
 		$apost = get_post();
 		$slug = $apost->post_name;
 
@@ -425,7 +424,7 @@ class Kidzou_Vote {
 		//ajout de DISTINCT et suppression de la limite car certains couples ID|META_VALUE peuvent être multiples !?
 		$res = $wpdb->get_results(
 			"SELECT DISTINCT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id in $list ", ARRAY_A); //LIMIT $limit
-		
+		// Kidzou_Utils::log(array('getPostsListVotes'=> $res), true);
 		$status = array();
 
 		$status['status'] = array(); $i=0;
