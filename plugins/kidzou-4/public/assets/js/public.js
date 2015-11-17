@@ -93,11 +93,12 @@ var kidzouModule = (function() { //havre de paix
 				* 
 				*/
 				function refreshVotesCount() {
-					// console.debug('refreshVotesCount', ko.toJSON(votesModel.votableIds));
+					// console.debug('refreshVotesCount', votesModel.votableIds);
 					jQuery.getJSON(kidzou_commons_jsvars.api_get_votes_status, {
 							posts_in: votesModel.votableIds
 						},
 						function(data) {
+							// console.debug('setVotesCount', data);
 							setVotesCount(data.status);
 				        }
 				    );
