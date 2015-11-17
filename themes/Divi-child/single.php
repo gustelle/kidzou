@@ -97,9 +97,15 @@
 
 
 							<?php 
+								//shortcodes d'intégration de boutons de social sharing
+
 								//easy social share buttons
 								if ( shortcode_exists( 'easy-social-share' ) )
 									echo do_shortcode('[easy-social-share counters=0 hide_names="yes" counter_pos="hidden" native="no" hide_total="yes"]');
+
+								//alternative Super Socialize
+								if ( shortcode_exists( 'TheChamp-Sharing' ) )
+									echo do_shortcode('[TheChamp-Sharing]');
 							?>
 
 							
