@@ -1749,7 +1749,8 @@ p.location {line-height: 1.3em; padding-bottom: 0.3em;}
 
 	.kz_portfolio_featured_hover .portfolio_dates {margin-left: 10px;}
 
-	.kz_portfolio_featured_hover .post-meta { margin: 10px !important;}
+	.kz_portfolio_featured_hover .post-meta { margin: 10px 0 0 10px !important;}
+	.kz_portfolio_featured_hover .portfolio_meta { margin: 0 0 0 10px;}
 
 /*}*/
 
