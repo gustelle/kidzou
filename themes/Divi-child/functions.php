@@ -955,8 +955,16 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 	$thumb = $thumbnail["thumb"];
 
 	$event_meta = '';
+	$location_meta = '';
 	$output = '';
 
+	//les posts dont l'adresse est renseignée : on affiche la ville pour donner un repère rapide au user
+	if (Kidzou_GeoHelper::has_post_location()) {
+		$location = Kidzou_GeoHelper::get_post_location();
+		$location_meta = '<div class="portfolio_meta"><i class="fa fa-map-marker"></i>'.$location['location_city'].'</div>'; 
+	}
+
+	//pour les posts de type event, la date est affichée
 	if (Kidzou_Events::isTypeEvent()) {
 
 		$location = Kidzou_Events::getEventDates();
@@ -987,9 +995,9 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		
 		 	$event_meta = '<div class="portfolio_meta"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
 		}
-	
 	} 
 
+	//la distance au post est affichée de facon "intelligente"
 	if ($distance != '') {
 
 		if (floatval($distance)<1) {
@@ -1001,8 +1009,10 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		$distance = '<div class="portfolio_meta"><i class="fa fa-location-arrow"></i>'.$distance.'</div>' ;
 	}
 
+	//rendu du thumbnail
 	if ( '' !== $thumb ) {
 
+		//Rendu des post featured
 		if ( $featured ) {
 
 			//ultérieur, pour intégration Facebook ?
@@ -1015,6 +1025,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 									%s
 									%s
 									%s
+									%s
 								</div>",
 					Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
 					get_permalink(),
@@ -1022,8 +1033,8 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 					kz_get_post_meta(),
 					$distance,
 					$event_meta,
+					$location_meta,
 					$fb);
-			
 		} else  {
 			$output .= Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
 		}
@@ -1039,7 +1050,6 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 				get_permalink(),
 				$image
 				);
-
 		} else if ( 'on' !== $fullwidth ) { 
 			
 			$output = sprintf("
@@ -1058,16 +1068,18 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		} 
 	}
 
+	//le titre
 	if ( 'on' === $show_title && !$featured) {
 		$output .= '<h2><a href="'.get_the_permalink().'">'.get_the_title().'</a></h2>';
 	}
 
+	//les cats
 	if ( 'on' === $show_categories && !$featured ) {
 		$output .= '<p class="post-meta">'.get_the_term_list( get_the_ID(), "category", '', ', ' ).'</p>';
 	}
 
 	if (!$featured) {
-		$output .= $event_meta;
+		$output .= $event_meta.$location_meta;
 		$output .= $distance;
 	}
 
