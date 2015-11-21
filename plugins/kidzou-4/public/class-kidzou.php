@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'API-V35';
+	const VERSION = 'API-V37';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -80,6 +80,8 @@ class Kidzou {
 		// Load plugin text domain
 		add_action( 'init', array( $this, 'load_plugin_textdomain' ), 0 );
 		add_action( 'init', array( $this, 'register_taxonomies' ), 1 );
+
+		//force l'autorisation des cors pour attaquer les API
 		add_action( 'init', array( $this, 'allow_cors' ), 2 );
 
 		// Activate plugin when new blog is added
@@ -89,19 +91,16 @@ class Kidzou {
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		/* Define custom functionality.
-		 * Refer To http://codex.wordpress.org/Plugin_API#Hooks.2C_Actions_and_Filters
-		 */
-		// add_action( '@TODO', array( $this, 'action_method_name' ) );
+		//c'est plus logique de présenter les comments du plus récent au plus ancien
 		add_filter( 'comments_array', array( $this, 'reverse_comments' ) );
 
 		add_filter('the_excerpt_rss', array( $this, 'rss_post_thumbnail' ) );
 		add_filter('the_content_feed', array( $this, 'rss_post_thumbnail' ) );
 
+		//Extensions des Controllers JSON API
 		add_filter('json_api_controllers', array( $this, 'add_Kidzou_controller' ));
 		add_filter('json_api_vote_controller_path', 	array( $this, 'set_vote_controller_path' )  );
 		add_filter('json_api_auth_controller_path', 	array( $this, 'set_auth_controller_path' )  );
-		// add_filter('json_api_users_controller_path',    array( $this, 'set_users_controller_path' ) );
 		add_filter('json_api_clients_controller_path',  array( $this, 'set_clients_controller_path') );
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
@@ -111,6 +110,7 @@ class Kidzou {
 		add_filter('json_api_utils_controller_path',  array( $this, 'set_utils_controller_path') );
 		add_filter('json_api_import_controller_path',  array( $this, 'set_import_controller_path') );
 
+		//JS externes pour Google analytics et Pub
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
 		add_action('wp_head', array( $this, 'insert_pub_header'));
 
