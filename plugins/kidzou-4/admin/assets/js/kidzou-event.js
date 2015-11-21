@@ -347,7 +347,11 @@ var kidzouEventsModule = (function() { //havre de paix
 						        //remplacer les CR LF par des <br>
 						        if (typeof response.description!='undefined' && window.tinyMCE) {
 						        	var content = response.description.replace(/(\r\n|\n|\r)/gm,"<br/>");
-						       		tinyMCE.execCommand('mceSetContent', false, content); 
+						        	//le contenu de Facebook est ajouté à la fin du contenu pré-existant
+						        	//il faut donc récupérer le contenu existant 
+						        	var previousContent = tinyMCE.activeEditor.getContent({format : 'raw'});
+
+						       		tinyMCE.execCommand('mceSetContent', false, previousContent+content); 
 						        }
 						        
 						        //fixer le contenu dans l'editor
