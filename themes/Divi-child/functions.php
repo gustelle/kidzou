@@ -2062,7 +2062,7 @@ function format_fullwidth_portolio_items($projects, $show_title = "on", $show_da
 								<?php endif; ?>
 
 								<!-- pour des raisons de SEO (Code to Text Ratio) on rend le short desc du post meme s'il n'est pas affiché -->
-								<?php echo '<div style="display:none;"'.get_the_excerpt().'</div>'; ?>
+								<!-- '<div style="display:none;"'.get_the_excerpt().'</div>'; -->
 
 
 							</div>
