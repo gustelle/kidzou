@@ -1082,7 +1082,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 	}
 
 	//pour des raisons de SEO (Code to Text Ratio) on rend le short desc du post meme s'il n'est pas affiché
-	$output .= '<div style="display:none;"'.get_the_excerpt().'</div>';
+	//$output .= '<div style="display:none;"'.get_the_excerpt().'</div>';
 
 	return sprintf("<div id='post-%1s' class='%2s'>%3s</div>",
 		get_the_ID(),
