@@ -173,13 +173,10 @@ function  kz_metropole_nav()
 			$i=0;
 			foreach ($metropoles as $m) {
 
-				if ($i>0) $ttes_metros .= '&nbsp;|&nbsp;';
-
 				$selected = ($m->slug == $current_metropole);
 				$pattern = '#\/'.$regexp.'\/?#';
 				
 				if (preg_match($pattern, $uri, $matches)) {
-					// Kidzou_Utils::log(array('$pattern '=>$pattern, '$m->slug'=> $m->slug, '$uri'=> $uri), true);
 					$new_url = site_url().preg_replace($regexp, $m->slug, $uri);
 				} else {
 					$new_url = site_url().'/'.$m->slug;
@@ -1050,6 +1047,7 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 				get_permalink(),
 				$image
 				);
+
 		} else if ( 'on' !== $fullwidth ) { 
 			
 			$output = sprintf("
@@ -1082,6 +1080,9 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		$output .= $event_meta.$location_meta;
 		$output .= $distance;
 	}
+
+	//pour des raisons de SEO (Code to Text Ratio) on rend le short desc du post meme s'il n'est pas affiché
+	$output .= '<div style="display:none;"'.get_the_excerpt().'</div>';
 
 	return sprintf("<div id='post-%1s' class='%2s'>%3s</div>",
 		get_the_ID(),

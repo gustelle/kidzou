@@ -1,7 +1,14 @@
-<h4>Performances API-V31</h4>
+<h4>SEO-DEC</h4>
+<h5>décembre 2015</h5>
+<ul>
+	<li>Améliorations / corrections d'erreurs suite rapport Woorank</li>
+</ul>
+
+<h4>Performances API-V38</h4>
 <h5>novembre 2015</h5>
 <ul>
 	<li>Optimisations de performance au travers du chargement des JS/CSS</li>
+	<li>Amélioration des import d'événements Facebook : le contenu Facebook est ajouté à la fin du contenu pré-existant</li>
 </ul>
 
 <h4>Proximite V30</h4>
