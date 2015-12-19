@@ -21,14 +21,18 @@
 
 	<?php do_action( 'et_head_meta' ); ?>
 
-	<link rel="pingback" href="<?php bloginfo('pingback_url'); ?>" />
-
 	<?php $template_directory_uri = get_template_directory_uri(); ?>
 	<!--[if lt IE 9]>
 	<script src="<?php echo esc_url( $template_directory_uri . '/js/html5.js"' ); ?>" type="text/javascript"></script>
 	<![endif]-->
 
-
+	<!-- amélioration SEO : lien vers la page Google+ -->
+	<?php 
+		if (et_get_option( 'divi_google_url', '#' )!='#') {
+			echo '<link href="'.esc_url( et_get_option( 'divi_google_url', '#' )).'" rel="publisher" />';
+		}
+	?>
+	
 	<?php wp_head(); ?>
 
 </head>
@@ -208,7 +212,7 @@
 					<?php if ( false !== et_get_option( 'show_search_icon', true ) ) : ?>
 					<div id="et_top_search">
 						<span id="et_search_icon"></span>
-						<form role="search" method="get" class="et-search-form et-hidden" action="<?php echo esc_url( home_url( '/' ) ); ?>">
+						<form method="get" class="et-search-form et-hidden" action="<?php echo esc_url( home_url( '/' ) ); ?>">
 						<?php
 							printf( '<input type="search" class="et-search-field" placeholder="%1$s" value="%2$s" name="s" title="%3$s" />',
 								esc_attr_x( 'Search &hellip;', 'placeholder', 'Divi' ),
