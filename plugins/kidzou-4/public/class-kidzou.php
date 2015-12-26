@@ -589,7 +589,7 @@ class Kidzou {
 	 */
 	public function enqueue_styles() {
 		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );
-		wp_enqueue_style( 'fontello', "http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
+		wp_enqueue_style( 'fontello', "https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
 	
 	}
 
@@ -601,8 +601,8 @@ class Kidzou {
 	public function enqueue_scripts() {
 
 		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( 'kidzou-4/assets/js/kidzou-storage.js' ), array( 'jquery', 'ko', 'ko-mapping' ), self::VERSION, true);
-		wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
-		wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
+		wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
+		wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 
 		if (!Kidzou_Utils::is_really_admin())
 		{
@@ -612,7 +612,7 @@ class Kidzou {
 			
 			//utilisation d'un polyfill pour compatibilité avec les vieux navigateurs
 			//Car on utilise les DOMContentLoaded, les CustomEvent...
-			wp_enqueue_script('dom4',	"http://cdnjs.cloudflare.com/ajax/libs/dom4/1.3.1/dom4.js",array(), '1.3.1', true);
+			wp_enqueue_script('dom4',	"https://cdnjs.cloudflare.com/ajax/libs/dom4/1.3.1/dom4.js",array(), '1.3.1', true);
 
 			wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
 					'msg_wait'			 			 => 'Merci de patienter...',

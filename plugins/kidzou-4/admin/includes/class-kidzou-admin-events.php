@@ -83,7 +83,6 @@ class Kidzou_Admin_Events {
 		$screen = get_current_screen(); 
 
 		//on a besoin de font awesome dans le paneau d'admin
-		// wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
 
 		if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
 
@@ -93,8 +92,8 @@ class Kidzou_Admin_Events {
 			//datepicker pour les events
 			wp_enqueue_style( 'jquery-ui-custom', plugins_url( 'assets/css/jquery-ui-1.10.3.custom.min.css', dirname(__FILE__) ) );	
 
-			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
-			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
+			wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
+			wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 			
 			//validation des champs du formulaire de saisie des events
 			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
@@ -104,8 +103,8 @@ class Kidzou_Admin_Events {
 
 			//gestion des events
 			wp_enqueue_script('kidzou-event', plugins_url( 'assets/js/kidzou-event.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'moment'), Kidzou::VERSION, true);
-			wp_enqueue_script('moment',			"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
-			wp_enqueue_script('moment-locale',	"http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
+			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
+			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
 			wp_enqueue_script('jquery-ui-core');
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', dirname(__FILE__) ), array('jquery-ui-datepicker'),'1.0', true);
