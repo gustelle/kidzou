@@ -80,8 +80,8 @@ class Kidzou_Admin_Place {
 			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 
 
-			wp_enqueue_script('ko',	 		"http://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
-			wp_enqueue_script('ko-mapping',	"http://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
+			wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
+			wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 			
 			//validation des champs du formulaire de saisie des events
 			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
