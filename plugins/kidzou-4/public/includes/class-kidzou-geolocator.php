@@ -11,9 +11,7 @@
  */
 
 /**
- * Cette classe est dédiée au Front-End pour la Geolocalisation 
- * elle permet de traiter la requete à traiter pour déterminer la Métropole de rattachement de la requete
- * ainsi que les coordonnées GPS envoyées par le navigateur
+ * Dédiée au Front-End pour la Geolocalisation , cette classe permet de paeser la requete pour déterminer la Métropole concernée, ainsi que les coordonnées GPS en provenance du cookie
  *
  * @package Kidzou_Geolocator
  * @author  Guillaume Patin <guillaume@kidzou.fr>
@@ -32,16 +30,17 @@ class Kidzou_Geolocator {
 
 
 	/**
-	 * par defaut toutes les requetes sont filtrables par geoloc 
-	 * (i.e. toutes les requetes qui vont chercher du contenu en base sont filtrées par geoloc)
+	 * déstinée à etre un Booleén, la valeur initiale est une chaine vide pour marquer que la valeur n'est pas initialisée
 	 * 
 	 */
-	protected $is_request_filter = true;
+	protected $is_request_filter = '';
+
+	// protected $object_id = 0 ;
 
 
 	public function __construct() { 
-
-		$this->init();
+		// $this->object_id = rand() ;
+		// $this->init();
 			
 	}
 
@@ -54,25 +53,26 @@ class Kidzou_Geolocator {
 	private function init()
 	{
 
-		if (!Kidzou_Utils::is_really_admin())
-		{
+		// if (!Kidzou_Utils::is_really_admin())
+		// {		
+			// Kidzou_Utils::log('Kidzou_Geolocator::init() . '.$this->object_id);
 			//la metropole choisie par le user
-			$this->set_request_metropole();
+			// $this->set_request_metropole();
 
 			//doit on filtrer les queries par metropole ?
-			$this->set_request_filter();
+			// $this->set_request_filter();
 
 			//la partie lat/lng
-			$this->set_request_position();
-		}
+			// $this->set_request_position();
+
+		// }
 
 	}
 
 	/**
-	 * undocumented function
+	 * Recuperation de la metropole passée en requete ou en Cookie
+	 * 
 	 *
-	 * @return void
-	 * @author 
 	 **/
 	private function set_request_metropole()
 	{
@@ -86,8 +86,6 @@ class Kidzou_Geolocator {
 		//la metropole en provenance du cookie
 		if ( isset($_COOKIE[self::COOKIE_METRO]) )
 			$cook_m = strtolower($_COOKIE[self::COOKIE_METRO]);
-
-		// Kidzou_Utils::log('[set_request_metropole] _COOKIE : ' . $cook_m);
 
 		//en dépit du cookie, la valeur de la metropole passée en requete prime
 		if (preg_match('#\/'.$regexp.'\/?#', $uri, $matches)) {
@@ -136,7 +134,8 @@ class Kidzou_Geolocator {
 	    else
 	    	$this->request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
 
-	    $path = substr(Kidzou_Utils::get_request_path(), 0, 20) ;
+	    // Kidzou_Utils::log('set_request_metropole : '. $this->request_metropole,true);
+	    // $path = substr(Kidzou_Utils::get_request_path(), 0, 20) ;
 		// Kidzou_Utils::log('Kidzou_Geolocator -> set_request_metropole [' . $path  .'] -> '. $this->request_metropole, true);
 	}
 
@@ -144,7 +143,8 @@ class Kidzou_Geolocator {
 	 * positionnement du booléean qui indique si la requete doit etre filtrée par metropole
 	 * i.e. est-ce que les contenus de la requetes sont filtrés ou non par métropole de rattachement des posts
 	 *
-	 * @return void
+	 * Cas particulier : si la métropole passée dans la requete HTTP correspond à la métropole à portée nationale, on positionne le booléen à FALS de sorte que les contenus ne sont pas filtrés
+	 *
 	 * @since proximite 
 	 **/
 	private function set_request_filter()
@@ -157,11 +157,17 @@ class Kidzou_Geolocator {
 		$bypass_url = Kidzou_Utils::get_option('geo_bypass_regexp', '\/api\/');
 		$is_bypass_url = preg_match( '#'.  $bypass_url .'#', $_SERVER['REQUEST_URI'] );
 
-		if ( Kidzou_Utils::is_really_admin() || $is_bypass_url || $is_bypass_param ) {
+		//Cas particulier de la métropole à portée nationale 
+		$is_national = ($this->request_metropole == Kidzou_GeoHelper::get_national_metropole());
 
-			// Kidzou_Utils::log( '		Filtrage desactive pour admin / api / bypass ', true);
+		if ( Kidzou_Utils::is_really_admin() || 
+			$is_bypass_url || 
+			$is_bypass_param  ||
+			$is_national ) {
 
 			$this->is_request_filter = false;
+
+			// Kidzou_Utils::log($_SERVER['REQUEST_URI'] . ' set is_request_filter to false', true);
 
 		} else {
 
@@ -179,9 +185,11 @@ class Kidzou_Geolocator {
 				//on renvoie la chaine '' pour pouvoir ré-ecrire l'URL en supprimant les %kz_metropole%
 				if ($this->get_request_metropole()=='' ) {
 
-					// Kidzou_Utils::log( '		Filtrage desactive / pas de metropole', true);
-					
 					$this->is_request_filter = false;
+
+				} else {
+					
+					$this->is_request_filter = true;
 				}
 
 			}
@@ -222,14 +230,15 @@ class Kidzou_Geolocator {
 
 	/**
 	 * la metropole de rattachement de la requete
-	 * si aucune metropole ne sort de la requete, et si aucun cookie n'est détecté, la chaine $no_filter est retournée
 	 *
 	 * @return String (slug)
-	 * @author 
 	 **/
 	public function get_request_metropole()
 	{
 		// Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole, true);
+
+		if ($this->request_metropole=='' && !Kidzou_Utils::is_really_admin())
+			$this->set_request_metropole();
 
 		return $this->request_metropole;
 	}
@@ -241,10 +250,9 @@ class Kidzou_Geolocator {
 	 * @author 
 	 **/
 	public function get_request_coords()
-	{
-		$coords = $this->request_coords;
-
-		// Kidzou_Utils::log('Kidzou_Geolocator [get_request_coords] '. $coords['latitude'].'/'. $coords['longitude'], true);
+	{	
+		if (empty($this->request_coords) && !Kidzou_Utils::is_really_admin())
+			$this->set_request_position();
 
 		return $this->request_coords;
 	}
@@ -258,6 +266,9 @@ class Kidzou_Geolocator {
 	 **/
 	public function is_request_geolocalized()
 	{
+		if (empty($this->request_coords) && !Kidzou_Utils::is_really_admin())
+			$this->set_request_position();
+
 		return $this->is_request_geolocalized;
 	}
 
@@ -267,6 +278,9 @@ class Kidzou_Geolocator {
 	 */
 	public function is_request_metro_filter()
 	{
+		if ($this->is_request_filter=='' && !Kidzou_Utils::is_really_admin())
+			$this->set_request_filter();
+
 		return $this->is_request_filter;
 	}
 

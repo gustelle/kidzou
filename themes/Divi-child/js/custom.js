@@ -592,7 +592,7 @@
 					$portfolio_items = $the_portfolio.find('.et_pb_portfolio_items');
 
 					$portfolio_items.data('items', $portfolio_items.find('.et_pb_portfolio_item').toArray() );
-					$the_portfolio.data('columns_setting_up', false );
+					$the_portfolio.data('columns_setting_up', false ); //console.debug('retrieved items',$portfolio_items.data('items'));
 
 				if ( $the_portfolio.hasClass('et_pb_fullwidth_portfolio_carousel') ){
 					// add left and right arrows
@@ -641,6 +641,7 @@
 						});
 
 						if ( $(this).hasClass('et-pb-arrow-next') ) {
+							console.debug('$active_carousel_group.children().first()', $active_carousel_group.children().first());
 							var $next_carousel_group,
 								current_position = 1,
 								next_position = 1,

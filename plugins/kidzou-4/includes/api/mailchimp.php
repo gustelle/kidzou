@@ -6,7 +6,10 @@ Controller Author: Kidzou
 */
 
 /**
+ * Extension du plugin JSON API, cet End Point permet d'attaquer les WS Mailchimp pour souscrire a la newsletter
  *
+ * @author  Guillaume Patin <guillaume@kidzou.fr>
+ * @package Kidzou
  * @api 
  */
 class JSON_API_Mailchimp_Controller {

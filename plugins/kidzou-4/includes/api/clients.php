@@ -5,6 +5,15 @@ Controller Description: Accès aux propriétés des clients
 Controller Author: Kidzou 
 */
 
+/**
+ * EXtension JSON API, cet End Point permet la relation Client (ou customer) / Contenu. 
+ *
+ * Les contenus rattachés à un même client sont liés entre eux, ce qui permet une navigation et une gestion facile des clients
+ * dans l'optique de services freemium
+ *
+ * @package Kidzou_Admin
+ * @author    Guillaume Patin <guillaume@kidzou.fr>
+ */
 class JSON_API_Clients_Controller {
 
 

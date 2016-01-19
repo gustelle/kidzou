@@ -159,10 +159,13 @@ class Kidzou_GeoHelper {
 	}
 
 	/**
-	 * l'URL de la page doit-elle etre préfixée de la metropole du user ?
+	 * True|False selon que le user choisisse d'injecter la metropole courante dans l'URL de la page
 	 *
-	 * @return void
-	 * @author 
+	 * Ce Booléen est une option représentée dans l'admin via une checkbox 
+	 *
+	 * @return Boolean
+	 *
+	 * @see  Kidzou_Admin::posts_metaboxes() 	Les Metabox des posts 
 	 **/
 	public static function is_page_rewrite ($post_id=0)
 	{
@@ -271,15 +274,17 @@ class Kidzou_GeoHelper {
 
 
 	/**
-	 * La liste des metropoles supportées par le système
-	 * autrement dit, les metropoles à la racine de la taxonomie "ville"
+	 * La liste des metropoles supportées par le système, autrement dit, les metropoles à la racine de la taxonomie "ville"
 	 *
-	 * @return Array<StdObject>
+	 * @param $include_national Boolean True si la tableau renvoie une métropole "nationale" 
+	 * @return Array Tableau des métropoles
 	 */ 
-    public static function get_metropoles()
+    public static function get_metropoles($include_national = false)
     {
 
-        $result = get_transient('kz_covered_metropoles_all_fields');
+    	$transient_name = $include_national ? 'kz_metropoles_incl_national' : 'kz_metropoles_excl_national';
+        $result = get_transient($transient_name);
+        // Kidzou_Utils::log($result, true);
 
 	    if (false===$result)
 	    {
@@ -296,18 +301,17 @@ class Kidzou_GeoHelper {
 	        	//sortir les villes à couverture nationale
 		        //on prend le premier de la liste
 		        foreach ($villes as $key=>$value) {
-		            $def = Kidzou_Utils::get_option('geo_national_metropole'); 
-		            if ( intval($def) ==  intval($value->term_id) ) {
+		            $def = self::get_national_metropole(); //slug only //Kidzou_Utils::get_option('geo_national_metropole'); 
+		            // Kidzou_Utils::log('get_metropoles -> '. $include_national, true);
+		            if ( $def ==  $value->slug && !$include_national ) {
 
 		            } else {
 		                $result[$key] = $value;
-		                // Kidzou_Utils::log('Kidzou_GeoHelper::get_metropoles() : adding ' . $value->slug);
 		            }
 		        }   
 
 		        if (!empty($result) && count($result)>0) {
-		        	set_transient( 'kz_covered_metropoles_all_fields', (array)$result, 60 * 60 * 24 ); //1 jour de cache
-		        	// Kidzou_Utils::log('kz_covered_metropoles_all_fields -> set ' . count($result) . ' result');
+		        	set_transient( $transient_name, (array)$result, 60 * 60 * 24 ); //1 jour de cache
 		        }
 		       		
 	        } else {
@@ -319,26 +323,25 @@ class Kidzou_GeoHelper {
     }
 
     /**
-	 * retourne un tableau de villes à portée nationale
-	 * les villes à portée nationale ont pour vocation de porter des articles à portée nationale 
-	 * Les villes à portée nationale doivent être à la racine 
+	 * retourne le chemin d'URI (slug) ou l'objet 'Term' de la métropole à portée nationale. elle a pour vocation de porter des articles à portée nationale . La ville à portée nationale doit être à la racine de la Taxonomy Ville, elle est sélectionnée dans les Réglages Kidzou
 	 *
-	 * @return array
-	 * @author 
+	 * @param $args Tableau de params array('fields'=>slug)|array('fields'=>all)
+	 * @return Mixed Le slug ou lobjet de la metropole à portée nationale
 	 **/
-	public static function get_national_metropoles()
+	public static function get_national_metropole($args = array('fields'=>'slug'))
 	{
+		// Kidzou_Utils::log('get_national_metropole', );
+		$national = get_term_by('id', Kidzou_Utils::get_option('geo_national_metropole'), 'ville');
+		
+		if (!is_wp_error($national) && is_object($national)) {
+			if ($args['fields']=='all')
+				return $national;
+			else if ($args['fields']=='slug')
+				return $national->slug;
+			else return new WP_Error( 'Unvalid param', 'Cette fonction accepte soit "slug" soit "all" en parametre' );
+		}
 
-	    $term = get_term_by('id', Kidzou_Utils::get_option('geo_national_metropole'), 'ville');
-
-	    $result = array();
-
-	    if (!is_wp_error($term) && is_object($term)) {
-			array_push($result, $term->slug);
-	    }
-
-	    return $result;
-
+		return $national; //propager l'erreur
 
 	}
 
@@ -357,7 +360,7 @@ class Kidzou_GeoHelper {
 	    if ($m==null || $m=="") return false;
 
 	    //la ville du user est-elle couverte par Kidzou
-	    $villes  = self::get_metropoles();
+	    $villes  = self::get_metropoles(true);
 
 	    $isCovered = false;
 	    foreach ($villes as $v) {
@@ -389,7 +392,7 @@ class Kidzou_GeoHelper {
 
 
 	/**
-	 * fournit le REGEX des metropoles dans une URI
+	 * fournit le REGEX des metropoles dans une URI, y compris la métropole à portée nationale
 	 *
 	 * @return String du genre (metropole1|metropole2|...)
 	 */ 
@@ -399,7 +402,7 @@ class Kidzou_GeoHelper {
 
    		if (false===$regexp) {
 
-   			$villes = self::get_metropoles();
+   			$villes = self::get_metropoles(true);
 
 	    	$regexp = '(';
 	        $i=0;

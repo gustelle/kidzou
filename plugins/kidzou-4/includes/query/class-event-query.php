@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Surcharge de WP_Query pour faciliter le requetage des 'Event'. NB : 'Event' n'est pas un type de post mias déterminé en fonction des meta start_date et end_date d'un post
+ *
+ * @see Kidzou_Events::isTypeEvent()
+ * @package Kidzou
+ * @author  Guillaume Patin <guillaume@kidzou.fr>
+ */
 class Event_Query extends WP_Query {
  
   function __construct($args=array()) {

@@ -1,4 +1,13 @@
-<?php class CustomerPostsWidget extends WP_Widget
+<?php 
+/**
+ * Ce widget retrouve les posts associés à un même client et les rend sous forme de widget
+ * 
+ *
+ * @see Kidzou_Customer::getPostsByCustomerID()
+ * @see WP_Widget
+ * @author  Guillaume Patin <guillaume@kidzou.fr>
+ */
+class CustomerPostsWidget extends WP_Widget
 {
 	/**
 	 * Register widget with WordPress.
@@ -58,8 +67,13 @@
 
 	/**
 	 * Front-end display of widget.
+	 * 
+	 * Le widget applique quelques filtres : 
+	 * * exclusion du post en cours d'affichage
+	 * * exclusion des posts archivés 
 	 *
 	 * @see WP_Widget::widget()
+	 * @uses array_filter()
 	 *
 	 * @param	array	$args	Widget arguments.
 	 * @param	array	$instance	Saved values from database.
@@ -80,23 +94,37 @@
 
 			$posts = Kidzou_Customer::getPostsByCustomerID();
 
+			/**
+			 * Les events inactifs sont filtrés de même que le post lui même
+			 */
+			$filtered =  array_filter($posts, function($entry) {
+				global $post;
+			    $is_active = Kidzou_Events::isTypeEvent($entry->ID) ? Kidzou_Events::isEventActive($entry->ID) : true;
+			    $is_self = ($post->ID == $entry->ID);
+			    // Kidzou_Utils::log(
+			    // 	array('widget filter'=> 
+			    // 			array('is_self'=> $is_self, 'is_active'=> $is_active, 'is_type_event'=>  Kidzou_Events::isTypeEvent($entry->ID), 'is_event_active'=>Kidzou_Events::isEventActive($entry->ID) )
+			    // 		), true);
+			    return !$is_self && $is_active;
+			}); 
+
 			$output = '';
 
-			if (count($posts)>0) {
+			if (count($filtered)>0) {
 				$output = $before_widget;
 				$output .= $before_title . $title . $after_title;
 				$output .= "<div class='et_pb_widget woocommerce widget_products sidebar_posts_list'><ul class='product_list_widget'>";
 			}
 
-			foreach ($posts as $post) {
-				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', $post->post_title, $post->post_title, false, 'thumbnail' );
+			foreach ($filtered as $_post) {
+				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', $_post->post_title, $_post->post_title, false, 'thumbnail' );
 				$thumb = $thumbnail["thumb"];
-				$output .= "<li class='sidebar_post_item'><a href='".get_permalink()."'>";
-				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"], $post->post_title, '', '', '', false); 
-				$output .= $post->post_title."</a></li>";
+				$output .= "<li class='sidebar_post_item'><a href='".get_permalink($_post->ID)."'>";
+				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"], $_post->post_title, '', '', '', false); 
+				$output .= $_post->post_title."</a></li>";
 			}
 
-			if (count($posts)>0) {
+			if (count($filtered)>0) {
 				$output .= "</ul></div>";
 			}
 

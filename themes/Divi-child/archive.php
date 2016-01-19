@@ -58,10 +58,6 @@
 
 									<?php
 
-										// global $kidzou_options;
-
-									// echo $GLOBALS['wp_query']->request; 
-
 										$with_votes = true;
 										$show_title = 'on';
 										$show_categories = 'on';
@@ -72,6 +68,7 @@
 										$module_id ='';
 										$module_class = '';
 										$show_ad = 'on';
+										$container_is_closed = false;
 
 										$is_pub = ( trim(Kidzou_Utils::get_option('pub_archive', '')) != '' );
 
@@ -107,10 +104,10 @@
 
 														echo $output;
 
-													}
+													} //if ( $is_pub )
 														
 
-												} else {
+												} else { //if ($index==2 && $show_ad=='on')
 
 													the_post(); 
 
@@ -119,7 +116,7 @@
 														foreach ( $categories as $category ) {
 															$categories_included[] = $category->term_id;
 														}
-													}
+													} //if ( $categories )
 													?>
 
 													<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
@@ -151,7 +148,7 @@
 															<?php endif; ?>
 															</a>
 													<?php
-														endif;
+														endif; //if ( '' !== $thumb )
 													?>
 
 														<?php if ( 'on' === $show_title ) : ?>
@@ -187,21 +184,22 @@
 																$formatted = __( 'Le ', 'Divi').  $formatter->format($start) ;
 															else
 																$formatted = __( 'Du ', 'Divi').  $formatter->format($start).__(' au ', 'Divi'). $formatter->format($end);
-														?>
-															<?php echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; ?>
+															
+															echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
 														
-														<?php } ?>
+														} //if (Kidzou_Events::isTypeEvent()) 
+														?>
 
 													</div> <!-- .et_pb_portfolio_item -->
 
 									<?php
-												//fin de test sur $index
-												}
+												
+												} //fin de test sur $index
 
 												$index++;
 
-											//fin de boucle while
-											}
+											
+											}//fin de boucle while
 
 											if ( 'on' === $show_pagination && ! is_search() ) {
 												echo '</div> <!-- .et_pb_portfolio -->';
