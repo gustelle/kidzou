@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'SEO-DEC-5';
+	const VERSION = 'NOEL-2015';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "";
+	public static $version_description = "Introduction d'un Widget qui permet d'aspirer une page HTML et d'en extraire le contenu";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -498,7 +498,7 @@ class Kidzou {
 			'update_item' => __( 'Mettre a  jour l&apos;age' ),
 			'add_new_item' => __( 'Ajouter un age' ),
 			'new_item_name' => __( 'Nom du nouvel age' ),
-			'menu_name' => __( 'Tranches d&apos;age' ),
+			'menu_name' => __( 'Tranches d\'age' ),
 			);
 
 		register_taxonomy('age',array('post','page'), array(

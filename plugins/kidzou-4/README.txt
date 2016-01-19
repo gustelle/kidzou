@@ -1,3 +1,11 @@
+<h4>NOEL 2015</h4>
+<h5>Janvier 2015</h5>
+<ul>
+	<li>Amélioration de la Documentation PHP</li>
+	<li>Filtrage du widget CustomerPosts pour exclure les events non actifs et le post encours d'affichage</li>
+	<li>Possibilité pour le user voir tous les contenus du site (pas de filtrage par métropole)</li>
+</ul>
+
 <h4>SEO-DEC</h4>
 <h5>décembre 2015</h5>
 <ul>

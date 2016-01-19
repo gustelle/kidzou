@@ -624,7 +624,12 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         // 'desc'      => 'Un javascript est attendu',
                         'default'   => ''
                     ),
-
+                    array(
+                        'id'       => 'widget_watcher_activate',
+                        'type'     => 'checkbox',
+                        'title'    => __('Activer la surveillance de contenus externes ?', 'kidzou'), 
+                        'default'  => '0'// 1 = on | 0 = off
+                    ),
                     array(
                         'id'       => 'widget_guidelines_activate',
                         'type'     => 'checkbox',

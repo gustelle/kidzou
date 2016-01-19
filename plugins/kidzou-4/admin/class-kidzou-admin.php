@@ -10,13 +10,8 @@
  */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * administrative side of the WordPress site.
+ * Cette classe contient les spécifiques Kidzou de l'Admin Wordpress
  *
- * If you're interested in introducing public-facing
- * functionality, then refer to `class-plugin-name.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
  *
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
@@ -192,10 +187,9 @@ class Kidzou_Admin {
 
 
 	/**
-	 * undocumented function
 	 *
-	 * @return void
-	 * @author 
+	 * @todo Generer ici les Notifications Kidzou dans l'interface d'admin
+	 * @see Hook 'admin_notices'
 	 **/
 	public function notify_admin ()
 	{
@@ -216,6 +210,7 @@ class Kidzou_Admin {
 	 *
 	 * @return void
 	 * @see http://shinephp.com/hide-draft-and-pending-posts-from-other-authors/ 
+	 * @param WP_Query $wp_query Query wordpress à filtrer 
 	 **/
 	public function contrib_contents_filter( $wp_query ) {
 
@@ -229,8 +224,7 @@ class Kidzou_Admin {
 
 	/**
 	 * Adds an additional settings section on the edit user/profile page in the admin.  This section allows admins to 
-	 * select a metropole from a checkbox of terms from the profession taxonomy.  This is just one example of 
-	 * many ways this can be handled.
+	 * select a metropole from a checkbox of terms from the "ville" taxonomy.  
 	 *
 	 * @param object $user The user object currently being edited.
 	 */
@@ -286,11 +280,10 @@ class Kidzou_Admin {
 
 	/**
 	 * déclenchée sur la sauvegarde du user profile dans l'admin pour enregistrer les meta kidzou:
-	 * - Metropole du user
-	 * - Info de Carte famille (obsolete)
+	 * * Metropole du user
+	 * * Info de Carte famille (obsolete)
 	 *
-	 * @return void
-	 * @author 
+	 * @param int $user_id The ID of the user currently being edited.
 	 **/
 	public function save_user_profile($user_id) {
 
@@ -328,8 +321,9 @@ class Kidzou_Admin {
 	/**
 	 * La liste des métropoles du User
 	 *
-	 * @return array
-	 * @author 
+	 * @param int $user_id The ID of the user currently being edited.
+	 * @return Array Tableau de terms
+	 * @see https://codex.wordpress.org/Function_Reference/wp_get_object_terms recupérer les terms d'un objet
 	 **/
 	public static function get_user_metropoles ($user_id)
 	{
@@ -345,7 +339,8 @@ class Kidzou_Admin {
 	/**
 	 * Rattachement automatique du post à la metropole du user
 	 *
-	 * @return void
+	 * @param int $post_id The ID of the post currently being edited.
+	 * @uses Kidzou_Admin::get_user_metropoles($user_id) pour retrouver la metropole du user 
 	 * @todo gérer le cas ou le user n'a pas de metropole de rattachement  
 	 **/
 	public function set_post_metropole($post_id)
@@ -364,12 +359,13 @@ class Kidzou_Admin {
 
 	}
 
-	/**
-	 * Retourne True si le user courant a la carte famille
+	/** 
+	 * 
+	 * Précédemment Kidzou vendait une carte famille qui donnait droit à des réductions
 	 *
 	 * @deprecated
-	 * @return Booléen
-	 * @author 
+	 * @return boolean True si le user courant a la carte famille
+	 *
 	 **/
 	public function has_family_card()
 	{
@@ -385,7 +381,8 @@ class Kidzou_Admin {
 	}	
 
 	/**
-	* @deprecated
+	*
+	* @uses Kidzou_Admin::custom_upload_dir()
 	*/
 	public function handle_upload_prefilter( $file )
 	{
@@ -394,7 +391,8 @@ class Kidzou_Admin {
 	}
 
 	/**
-	* @deprecated
+	*
+	* @uses Kidzou_Admin::custom_upload_dir()
 	*/
 	public function handle_upload( $fileinfo )
 	{
@@ -403,9 +401,11 @@ class Kidzou_Admin {
 	}
 
 	/**
-	* Organize Upload folder per author
+	*
+	* Organize Upload folder per author login
 	* 
-	* @deprecated
+	* @link http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
+	* @param object $path  
 	*/
 	public function custom_upload_dir($path)
 	{   
@@ -436,13 +436,7 @@ class Kidzou_Admin {
 	/**
 	 * Register and enqueue admin-specific style sheet.
 	 *
-	 * @TODO:
 	 *
-	 * - Rename "Plugin_Name" to the name your plugin
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    null    Return early if no settings page is registered.
 	 */
 	public function enqueue_admin_styles() {
 
@@ -453,7 +447,11 @@ class Kidzou_Admin {
 	}
 
 
-
+	/**
+	 * Ajout de metabox sur les posts 
+	 * 
+	 * @see Kidzou_Admin::render_rewrite_metabox() Metabox de ré-ecriture du permalien d'une page en fonction de la metropole courante du user
+	 */
 	public function posts_metaboxes() {
 
 		add_meta_box(
@@ -465,30 +463,6 @@ class Kidzou_Admin {
 			'high'
 		);
 
-		// $screen = get_current_screen(); 
-
-		// if ( in_array($screen->id , $this->screen_with_meta_client) ) { 
-
-		// 	add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
-		
-		// } 
-
-		// if ( in_array($screen->id , $this->screen_with_meta_event) ) { 
-
-		// 	add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
-		// 	add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
-		
-		// } else
-		// if ( in_array($screen->id, $this->customer_screen) ) {
-			
-		// 	add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
-		// 	add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
-		// 	add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
-
-		// 	//lieu par défaut d'un customer
-		// 	add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
-
-		// }
 
 		/**
 		 * Permet d'attacher des metabox additionnelles
@@ -502,26 +476,15 @@ class Kidzou_Admin {
 
 	
 
-	
-
-
-	// *
-	//  * uniquement sur les "pages" : ajout d'une meta pour savoir s'il faut préfixer l'url de la metropole courante
-	//  *
-	//  * @return void
-	//  * @author 
-	//  *
-	// public function page_rewrite_metabox () {
-
-		
-		
-	// }
-
 	/**
-	 * undocumented function
+	 * Ajout d'une Metabox de type checkbox sur les Posts de type "page" afin de choisir si l'url contient la metropole
+	 * Cela n'a qu'un incidence sur le **SEO** et permet de référencer dans les moteurs de recherche plusieurs page en fonction de leur contenu
 	 *
-	 * @return void
-	 * @author 
+	 * Par exemple : /lille/agenda ou /valenciennes/agenda pointent sur la même page mais ave des contenus différents. 
+	 * Si on ne prefixe pas l'URL par la metropole, Google référence uniquement /agenda alors que les contenus sont différents
+	 *
+	 * @see Kidzou_Admin::is_page_rewrite($post) Booléen qui stocke la valeur de cette metabox
+	 * @param oject $post The post object currently being edited.
 	 **/
 	public function render_rewrite_metabox ($post) {
 
@@ -537,30 +500,18 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 *  sauvegarde des meta lors de l'enregistrement d'un post ou d'une page
+	 *  sauvegarde des meta a l'enregistrement d'un post 
 	 *
-	 * @return void
-	 * @author 
+	 * @param int $post_id The ID of the post currently being edited.
+	 *
 	 **/
 	public function save_metaboxes($post_id) {
 
 		$this->save_rewrite_meta($post_id);
 
 		// //
-		// $this->save_event_meta($post_id);
-		// $this->save_client_meta($post_id);
-
-		// //
 		$this->save_post_metropole($post_id);
-		$this->set_post_metropole($post_id);
-
-		// //et pour les clients
-		// $this->set_customer_users($post_id);
-		// $this->set_customer_posts($post_id);
-		// $this->set_customer_apis($post_id);
-
-		// //pour tout le monde
-		// $this->save_place_meta($post_id);
+		// $this->set_post_metropole($post_id);
 
 		/**
 		 * Permet d'attacher des metabox additionnelles
@@ -576,8 +527,7 @@ class Kidzou_Admin {
 	/**
 	 *  sauvegarde des meta lors de l'enregistrement d'un post ou d'une page
 	 *
-	 * @return void
-	 * @author 
+	 * @param int $post_id The ID of the post currently being edited.
 	 **/
 	public function save_rewrite_meta($post_id) {
 
@@ -614,13 +564,13 @@ class Kidzou_Admin {
 
 
 	/**
-	 * rattache un post à une metropole
+	 * Enregistrement de la Taxonomie "ville" pour le post $post_id
 	 * 
-	 * les "editeurs" ou supérieur peuvent forcer la metropole (saisie manuelle)
-	 * les autres : la metropole est rattachée automatiquement en fonction de leur profil
+	 * * les "author" ou + peuvent selectionner la metropole en tant que Taxonomie "ville"
+	 * * Pour les autres (contributeurs) : la metropole est rattachée automatiquement en fonction de leur profil, la taxonomie est surchargée
 	 *
-	 * @return void
-	 * @author 
+	 * @see Kidzou_Admin::enrich_profile() Association d'un user avec une métropole
+	 * @param int $post_id The ID of the post currently being edited.
 	 **/
 	public function save_post_metropole($post_id)
 	{
@@ -639,13 +589,12 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * rattache un post à la metropole du user (définie dans son profil)
-	 * Si pas définie dans le profil, on rattache le post à la ville par defaut
-	 *
-	 * @return void
-	 * @author 
+	 * Le post est associé à la metropole du user
+	 * 
+	 * @see Kidzou_Admin::enrich_profile() Association d'un user avec une métropole
+	 * @param int $post_id The ID of the post currently being edited.
 	 **/
-	public function set_user_metropole($post_id)
+	private function set_user_metropole($post_id)
 	{
 	    if (!$post_id) return;
 
@@ -701,34 +650,12 @@ class Kidzou_Admin {
 
 	}
 
-	// /**
-	//  * Render the settings page for this plugin.
-	//  *
-	//  * @since    1.0.0
-	//  */
-	// public function display_plugin_admin_page() {
-	// 	include_once( 'views/admin.php' );
-	// }
-
-	// /**
-	//  * Add settings action link to the plugins page.
-	//  *
-	//  * @since    1.0.0
-	//  */
-	// public function add_action_links( $links ) {
-
-	// 	return array_merge(
-	// 		array(
-	// 			'settings' => '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
-	// 		),
-	// 		$links
-	// 	);
-
-	// }
+	
 
 	/**
 	 * Lors de l'édition d'un contenu, par défaut on propose le contenu pré-saisi dans les options Kidzou
 	 *
+	 * @return string le contenu affiché dans l'éditeur wordpress
 	 */
 	public function kz_default_content() {
 
@@ -738,10 +665,8 @@ class Kidzou_Admin {
 
 	/**
 	 *
-	 * <p>
 	 * Filtrage des listes de post par Taxonomie
 	 * appelé par le hook <code>restrict_manage_posts</code>
-	 * </p>
 	 *
 	 * Uniquement accessible aux Auteurs ou +
 	 *
@@ -800,8 +725,12 @@ class Kidzou_Admin {
 	// }
 
 	/**
-	 * fonction utilitaire utilisée par les autres classes d'admin
+	 * fonction generique de sauvegarde des meta d'un post, gere les cas de Update (meta existantes) / Delete (valeurs nulles) 
 	 *
+	 * @param int $post_id ID du post en cours d'édition
+	 * @param Array $arr un tableau de meta/valeurs
+	 * @param string $prefix Prefixe optionnel des meta à enregistrer (ex: kz_)
+	 * @return static
 	 */
 	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
 

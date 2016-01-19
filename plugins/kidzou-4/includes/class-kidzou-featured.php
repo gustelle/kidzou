@@ -4,25 +4,9 @@ add_action('plugins_loaded', array('Kidzou_Featured', 'get_instance'), 100);
 
 
 /**
- * Kidzou
+ * Gestion de posts "featured", dont la vocation est d'être remontés en début de liste pour les requetes
  *
- * @package   Kidzou_Featured
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
- *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
- *
- * @package Kidzou_Events
+ * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_Featured {
@@ -76,7 +60,11 @@ class Kidzou_Featured {
 	}
 
 
-
+	/**
+	 *
+	 * @param $post_id int le ID du post 
+	 * @return Boolean True si le post courant est featurd
+	 */
     public static function isFeatured($post_id = 0)
 	{
 
@@ -95,11 +83,9 @@ class Kidzou_Featured {
 	}
 
 	/**
-	 * la liste des post featured 
-	 * il s'agit d'un tableau d'objets WP_Post
+	 * la liste des post featured , sous d'un tableau d'objets WP_Post
 	 *
-	 * @return void
-	 * @author 
+	 * @return Array 
 	 **/
 	public static function getFeaturedPosts(  )
 	{

@@ -146,10 +146,16 @@ function kz_habillage() {
 
 
 /**
- * undocumented function
+ * Affiche une <select> box qui contient les metropoles gérées dans le système. Lorsque le user sélectionne une métropole, le contenu se rafraichit pour n'aficher que les posts attachés à la métropole sélectionnée
+ * * soit l'URI en cours contient une métropole, elle est remplacée (ex: /lille/agenda -> /valenciennes/agenda)
+ * * soit elle ne contient pas de métropole, le user est redirigé vers la home (ex: /ma-page -> /lille)
  *
- * @return void
- * @author 
+ * @uses Kidzou_GeoHelper::get_metropoles($bool)
+ * @uses Kidzou_GeoHelper::get_national_metropole()
+ * @uses Kidzou_GeoHelper::get_metropole_uri_regexp()
+ * @uses Kidzou_Geolocator
+ * 
+ * @return HTML
  **/
 function  kz_metropole_nav()
 {
@@ -157,7 +163,18 @@ function  kz_metropole_nav()
 	$active = Kidzou_Utils::get_option('geo_activate', false);
 	if ($active)
 	{
-		$metropoles = Kidzou_GeoHelper::get_metropoles();
+		$metropoles = Kidzou_GeoHelper::get_metropoles(); //inclure la métropole "nationale" qui regroupe toutes les métropoles 
+
+		//Affichage par ordre Alpha
+		//Attention le tri se fait sur les libéllés (name) et pas les slugs (id technique) car le user ne voit que les libellés
+		//ex: m1{ slug:lille, name: Lille } et m2{ slug:littoral, name: Dunkerque } => un tri sur les slugs placerait Lille avant Dunkerque, alors que D < L 
+		usort($metropoles, function($m1, $m2) {
+			return strcmp ( $m1->name, $m2->name); //comparaison de strings par ordre naturel
+		});
+
+		//ajouter en fin de tableau la ville à portée nationale
+		$metropoles[] = Kidzou_GeoHelper::get_national_metropole(array('fields'=>'all'));
+			
 		$ttes_metros = '';
 
 		if (count($metropoles)>1) 
@@ -201,8 +218,9 @@ function  kz_metropole_nav()
 }
 
 /**
- * Hook qui altere le rendu des Archives  
- *
+ * Pas de pagination sur les Archives (au sens WP du terme)
+ * 
+ * @uses is_archive() pour déterminer si la page en cours est une page d'archive
  * @return void
  * @Hook 
  *
@@ -265,6 +283,9 @@ function kz_divi_load_scripts ()
 	) );
 }
 
+/**
+ *
+ */
 function kz_mailchimp_key()
 {
 	return Kidzou_Utils::get_option('mailchimp_list', '');
@@ -272,10 +293,11 @@ function kz_mailchimp_key()
 
 
 /**
- * undocumented function
  *
- * @return void
- * @author 
+ * Affiche une [et_pb_section] contenant un formulaire Mailchimp + Related Posts
+ *
+ * @todo l'affichage des CRP doit être indépendant de Mailchimp...
+ *
  **/
 function get_post_footer()
 {

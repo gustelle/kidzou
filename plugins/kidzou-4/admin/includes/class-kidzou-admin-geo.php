@@ -435,7 +435,8 @@ class Kidzou_Admin_Geo {
 	{
 
 		//nettoyager les transients
-		delete_transient('kz_covered_metropoles_all_fields');
+		delete_transient('kz_metropoles_incl_national'); //avec métropoles nationales
+		delete_transient('kz_metropoles_excl_national'); //sans métropoles nationales
 		delete_transient('kz_metropole_uri_regexp');
 
 		//si la geoloc est active uniquement

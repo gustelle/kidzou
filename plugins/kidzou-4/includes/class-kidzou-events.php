@@ -14,25 +14,14 @@ use Carbon\Carbon;
 
 
 /**
- * Kidzou
- *
- * @package   Kidzou_Events
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
  * Plugin class. This class should ideally be used to work with the
  * public-facing side of the WordPress site.
  *
  * If you're interested in introducing administrative or dashboard
  * functionality, then refer to `class-plugin-name-admin.php`
  *
- * @TODO: Rename this class to a proper name for your plugin.
  *
- * @package Kidzou_Events
+ * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_Events {
@@ -137,8 +126,7 @@ class Kidzou_Events {
     /**
 	 * Un evenement est actif si la date de fin est postérieure à la date courante
 	 *
-	 * @return true si l'événement est en cours, false si il est terminé ou pas visible
-	 * @author 
+	 * @return Boolean true si l'événement est en cours, false si il est terminé ou pas visible
 	 **/
 	public static function isEventActive($post_id)
 	{
@@ -160,6 +148,10 @@ class Kidzou_Events {
 		return false;
 	}
 
+	/**
+	 *
+	 * @return Array un tableau contenant les dates start_date et end_date
+	 **/
     public static function getEventDates($event_id=0) {
 
     	if ($event_id==0)
@@ -203,7 +195,7 @@ class Kidzou_Events {
 
 		foreach ($obsoletes as $event) {
 
-			Kidzou_Utils::log('Event ['. $event->post_name . '] ', true );
+			// Kidzou_Utils::log('Event ['. $event->post_name . '] ', true );
 
 			////////////////////////////////
 
@@ -341,17 +333,17 @@ class Kidzou_Events {
 
 						$diffInDays = $startCarbon->diffInDays( $endCarbon, false );
 
-						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Nombre de jours entre les dates de début et de fin : '.$diffInDays,true);
+						// Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Nombre de jours entre les dates de début et de fin : '.$diffInDays,true);
 
 						$week_number = intval($startCarbon->weekOfMonth)-1; //car on se recalera déjà sur le 1er par next() 
 
-						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Numéro de semaine : '.$week_number,true);
+						// Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Numéro de semaine : '.$week_number,true);
 
 						$start_day = $startCarbon->dayOfWeek; 
 						$end_day = $endCarbon->dayOfWeek;
 
-						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Day Of Week: '.$startCarbon->dayOfWeek,true);
-						Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", startOfMonth: '.$startCarbon->startOfMonth(),true);
+						// Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Day Of Week: '.$startCarbon->dayOfWeek,true);
+						// Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", startOfMonth: '.$startCarbon->startOfMonth(),true);
 						
 						//cas particulier du 1er jour du mois:
 						// - $start_day = 0
@@ -359,7 +351,7 @@ class Kidzou_Events {
 
 						if ($start_day==0 && $week_number==0) {
 
-							Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Cas particulier du 1er jour du mois ',true);
+							// Kidzou_Utils::log('Récurrence Mensuelle, type "day_of_week", Cas particulier du 1er jour du mois ',true);
 
 							$new_start_date = $startCarbon
 											->startOfMonth()
@@ -453,7 +445,7 @@ class Kidzou_Events {
 
 				Kidzou_Admin::save_meta($event->ID, $events_meta, "kz_event_");	
 
-				Kidzou_Utils::log( 'Event changed dates ['. $event->post_name .'] : new start_date = ' . $events_meta['start_date'] , true);
+				// Kidzou_Utils::log( 'Event changed dates ['. $event->post_name .'] : new start_date = ' . $events_meta['start_date'] , true);
 
 				// Kidzou_Utils::log($events_meta);
 			}

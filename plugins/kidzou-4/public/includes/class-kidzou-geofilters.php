@@ -7,26 +7,20 @@
 // add_action('kidzou_loaded', array('Kidzou_GeoFilters', 'get_instance'), 999);
 add_action('plugins_loaded', array('Kidzou_GeoFilters', 'get_instance'), 100);
 
-/**
- * Kidzou
- *
- * @package   Kidzou_GeoFilters
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
 
 /**
- * Cette classe est dédiée au Front-End pour la Geolocalisation 
- * elle permet de filtrer les contenus de Wordpress en fonction de la geolocalisation ou de la Métropole
- * de rattachement
+ * Permet de filtrer les contenus en fonction de la geolocalisation du user ou de la Métropole de rattachement du post (chaque post est attaché à une metropole via la taxonomie 'ville')
+ *
+ * * La Geolocalisation du user est effectuée par JS 
+ * * le rattachement d'un post à une métropole est fait dans l'admin 
  *
  * Cette classe ne doit pas être utilisée directement par les développeurs, elle fonctionne de façon completement
  * autonome et transparente 
  *
  * elle s'instancie seule et reste statique
  *
+ * @link public/js/kidzou-geo.js 
+ * @see Kidzou_Admin::save_post_metropole()
  * @package Kidzou_GeoFilters
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
@@ -95,7 +89,7 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * undocumented function
+	 * Injecte les Javascripts nécessaires à la Geolocalisation du user
 	 *
 	 * @return void
 	 * @author 
@@ -124,7 +118,13 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * Rewrites incluant les metropoles
+	 * Re-ecriture des requetes HTTP pour tenir compte de la metropole 
+	 * 
+	 * Les contenus rendus par WP sont filtrés en fonction de la metropole contenue dans la requete
+	 *
+	 * Par example /lille est ré-ecrit en index.php?kz_metropole=lille
+	 *
+	 * Par example /lille/agenda est ré-ecrit en index.php?pagename=agenda&kz_metropole=lille
 	 *
 	 */
 	public function create_rewrite_rules() {
@@ -136,12 +136,8 @@ class Kidzou_GeoFilters {
 			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
 			add_rewrite_tag( Kidzou_GeoHelper::REWRITE_TAG ,$regexp, 'kz_metropole=');
 
-			// Kidzou_Utils::log('Kidzou_GeoFilters [create_rewrite_rules] ' .$regexp);
-
 			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
 		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
-		    // add_rewrite_rule($regexp.'/offres/page/?([0-9]{1,})/?','index.php?post_type=offres&paged=$matches[2]&kz_metropole=$matches[1]','top');
-		    // add_rewrite_rule($regexp.'/offres/?','index.php?post_type=offres&kz_metropole=$matches[1]','top');
 		   	add_rewrite_rule($regexp.'/(.*)$/?','index.php?pagename=$matches[2]&kz_metropole=$matches[1]','top');
 			add_rewrite_rule($regexp.'/(.*)/page/?([0-9]{1,})/?$','index.php?pagename=$matches[2]&paged=$matches[3]&kz_metropole=$matches[1]','top');
 
@@ -149,7 +145,6 @@ class Kidzou_GeoFilters {
 			//et navigue ensuite vers une rubrique ou autre:
 			add_rewrite_rule('/?rubrique/(.*)/?','index.php?category_name=$matches[1]','top');
 
-			// Kidzou_Utils::log($wp_rewrite);
 			flush_rewrite_rules();
 		}
 		
@@ -157,10 +152,9 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * undocumented function
+	 * Retourne l'instance unique de cette classe
 	 *
-	 * @return void
-	 * @author 
+	 * @return self::$locator
 	 **/
 	public static function get_locator()
 	{
@@ -168,10 +162,15 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * Recupérer les args de Geoquery
+	 * Fonction interne utilisée par la WP_Query, cette fonction récupère la metropole indiquée en requete HTTP 
+	 * et retourne les args qui vont permettre de filtrer les contenus WP
 	 *
+	 * A noter que la metropole indiquée en requete HTTP est complétée par les métropoles "NATIONALES" 
+	 *
+	 * @see Kidzou_GeoHelper::get_national_metropole() 
+	 * @see https://codex.wordpress.org/Class_Reference/WP_Query
 	 * @return Array
-	 * @author 
+	 * @internal 
 	 **/
 	private function get_metropole_args(  ) {
 
@@ -182,15 +181,14 @@ class Kidzou_GeoFilters {
 			$the_metropole = array();
 	  		$the_metropole[] = $locator->get_request_metropole();
 
-	        $national = (array)Kidzou_GeoHelper::get_national_metropoles(); 
-	       	$merge = array_merge( $the_metropole, $national );
+	  		if ($locator->get_request_metropole()!=Kidzou_GeoHelper::get_national_metropole())
+	       		array_push($the_metropole, Kidzou_GeoHelper::get_national_metropole());
 
 	       	return array(
 	                  'taxonomy' => 'ville',
 	                  'field' => 'slug',
-	                  'terms' => $merge
+	                  'terms' => $the_metropole
 	                );
-
 		}
 
 		return array();
@@ -198,20 +196,27 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * Les Query en Base sont filtrées en tenant compte de la métropole courante
-	 * Celle-ci est soit la metropole passée dans la requete (en provenance du cookie utilisateur), soit la metropole par défaut
-	 * les contenus à portée "nationale" sont également remontés
+	 * Les WP_Query utilisées sont filtrées en tenant compte de la métropole passée en requete
+	 * Celle-ci est :
+	 * * soit la metropole passée dans la requete (en provenance du cookie utilisateur), `
+	 * * soit la metropole par défaut
+	 *
+	 * les contenus à portée "nationale" sont également remontés par la WP_Query
 	 * 
+	 * @see https://codex.wordpress.org/Class_Reference/WP_Query Documentation de WP_Query
 	 * @since 0215-fix31 : filtrage des recherches par métropole
 	 */
 	public function geo_filter_query( $query ) {
 
 		$locator = self::$locator;
 
+		Kidzou_Utils::log(
+			array(	'REQUEST_URI'=>$_SERVER['REQUEST_URI'],
+					'request_metropole'=>$locator->get_request_metropole(),
+					'is_request_metro_filter' => $locator->is_request_metro_filter()), true);
 
 		if ( $locator->is_request_metro_filter() )
 		{
-
 			$post_type = $query->get('post_type');
 
 			//le post type est il suporté par le filtre ?
@@ -239,7 +244,7 @@ class Kidzou_GeoFilters {
 			//cas du search, le post type n'est pas spécifié mais on filtre par métropole qd même
 			if ($query->is_search)
 			{
-				Kidzou_Utils::log('Search queries DO support pre_get_posts');
+				// Kidzou_Utils::log('Search queries DO support pre_get_posts');
 				$supported_query = true;
 			}
 
@@ -287,7 +292,12 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * Réecriture des URL des posts s'il le faut
+	 * Cette fonction utilise le hook post_link pour injecter la métropole "courante" du user (celle passée en requete ou celle détectée par geoloc) dans le permalink d'un post
+	 * 
+	 * NB : Ce hook tient compte du REWRITE_TAG %kz_metropole% indiqué dans les options WP 
+	 *
+	 * @see https://codex.wordpress.org/Plugin_API/Filter_Reference/post_link 	Documentation du Hook post_link
+	 * @see https://www.kidzou.fr/wp-admin/options-permalink.php 	Réglages des permaliens dans l'admin Wordpress
 	 */
 	public  function rewrite_post_link( $permalink, $post ) {
 
@@ -311,10 +321,12 @@ class Kidzou_GeoFilters {
 	}
 
 	/**
-	 * Reecriture des pages qui utilisent le tempate 'tous les contenus'
-	 * car ces pages sont geolocalisées, c'est à dire que "tous" les contenus sont en fait
-	 * filtres par la metropole de rattachement du user
+	 * Injection de la métropole "courante" du user (celle passée en requete ou celle détectée par geoloc) dans le permalink d'une page
+	 * Cette technique permet d'améliorer le SEO puisque une même page peut être référencée plusieurs fois selon la métropole
+	 * Par exemple : /lille/ma-page ou /valenciennes/ma-page
 	 *
+	 * @see https://developer.wordpress.org/reference/hooks/page_link/	Documentation du Hook page_link
+	 * @see Kidzou_GeoHelper::is_page_rewrite() 	Booleen qui détermine si le permalien de la page doit être ré-ecrit pour y injecter la metropole
 	 */
 	public function rewrite_page_link( $link, $page ) {
 
