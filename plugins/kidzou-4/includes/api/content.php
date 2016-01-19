@@ -9,6 +9,13 @@ Controller Author: Kidzou
 
 /**
  *
+ * permet la lecture / écriture de contenus par API
+ *
+ * @package Kidzou
+ * @author    Guillaume Patin <guillaume@kidzou.fr>
+ * @license   GPL-2.0+
+ * @link      http://www.kidzou.fr
+ * @copyright 2014 Kidzou
  * @todo : sécuriser l'accès aux API: 
  *			demander une clé par app (nonce valable pendant une durée indéfinie, jusqu'à révocation)
  *			vérifier ce nonce avant accès au contenu (revoir isPublicKey)

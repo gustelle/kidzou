@@ -78,7 +78,8 @@ if ( is_multisite() ) {
 
 	delete_transient( 'kz_get_national_metropoles' );
     delete_transient( 'kz_default_metropole' );
-    delete_transient( 'kz_covered_metropoles_all_fields' );
+    delete_transient( 'kz_metropoles_incl_national' ); //avec métropoles nationales
+    delete_transient( 'kz_metropoles_excl_national' ); //sans métropoles nationales
     delete_transient( 'kz_covered_metropoles' );
 
     delete_transient( 'kz_mailchimp_lists' );

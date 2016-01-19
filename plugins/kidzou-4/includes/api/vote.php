@@ -6,6 +6,11 @@ Controller Description: Permet de voter ou de retirer son vote sur un article (J
 Controller Author: Kidzou
 */
 
+/**
+ * Extension du plugin JSON API, cet End Point permet au user de "liker" un contenu mais aussi de retrouver les posts que le user à "liké" par exemple
+ *
+ * @author  Guillaume Patin <guillaume@kidzou.fr>
+ */
 class JSON_API_Vote_Controller {
 
 	public function up() {

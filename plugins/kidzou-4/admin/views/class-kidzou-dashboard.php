@@ -3,12 +3,9 @@
 add_action( 'kidzou_loaded', array( 'Kidzou_Dashboard_Widgets', 'get_instance' ) );
 
 /**
- * Kidzou Admin
+ * Ajout du Widget de "Bienvenue sur Kidzou" sur le dashboard d'Admin
  *
- * Cette classe permet d'ajouter le Widget de "Bienvenue sur Kidzou" sur le dashboard d'Admin
- * Le contenu de ce widget est géré dans les options 
- *
- * @package   Kidzou_Dashboard_Widgets
+ * @package   Kidzou_Admin
  * @author    Guillaume Patin <guillaume@kidzou.fr>
  * @license   GPL-2.0+
  * @link      http://www.kidzou.fr

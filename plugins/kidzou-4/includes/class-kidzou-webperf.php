@@ -210,7 +210,7 @@ class Kidzou_WebPerf {
 					array_push(self::$css_load_per_js, array(
 				    			'handle' => $registered->handle,
 				    			'src' => $registered->src,
-				    			'media' => $registered->args
+				    			'media' => ($registered->args!='' && $registered->args!=null ? $registered->args : 'all')
 			    			)
 			    		);
 
@@ -293,9 +293,9 @@ class Kidzou_WebPerf {
 
 			foreach ($css as $item) {
 				$src = $item['src'];
-				$media = $item['media'];
+				$media = ($item['media']!='' && $item['media']!=null ? 'media="'.$item['media'].'"' : 'media="all"'); //eviter les atts invalides type media='' ou media=null qui causent une erreur W3C
 				$ver = Kidzou::VERSION;
-				$out .= "<link rel='stylesheet' property='stylesheet' href='$src?ver=$ver' type='text/css' media='$media' />";
+				$out .= "<link rel='stylesheet' property='stylesheet' href='$src?ver=$ver' type='text/css' $media />";
 			}
 			$out .= '</noscript>';
 		}

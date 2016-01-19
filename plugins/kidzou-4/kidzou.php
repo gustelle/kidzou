@@ -44,7 +44,7 @@ $directories = array(
             'includes/Carbon/',
             'includes/redux/',
             'includes/MailChimp/',
-            'includes/gravityforms/'
+            'includes/gravityforms/',
         );
 
 foreach ($directories as $directory) {
@@ -111,8 +111,16 @@ if ( is_admin() || defined( 'DOING_CRON' ) ) {
             'admin/',
             'admin/includes/',
             'admin/views/',
-            // 'admin/includes/Facebook'
+            'admin/includes/simplehtmldom/'
+            // 'admin/includes/stringEncode/',
+            // 'admin/includes/PHPHtmlParser/',
+            // 'admin/includes/PHPHtmlParser/Dom/',
+            // 'admin/includes/PHPHtmlParser/Exceptions/',
     );
+
+    //importer en premier cette classe pour éviter erreur d'import de PHPHtmlParser
+    // include_once 'admin/includes/PHPHtmlParser/CurlInterface.php';
+
     foreach ($admin_directories as $admin_directory) {
         foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $admin_class) {
             include_once $admin_class;
