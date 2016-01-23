@@ -1,13 +1,4 @@
 <?php
-/**
- * Kidzou
- *
- * @package   Kidzou_Admin
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
 
 /**
  * Cette classe contient les spécifiques Kidzou de l'Admin Wordpress
@@ -237,7 +228,7 @@ class Kidzou_Admin {
 	        return;
 
 	    /* Get the terms of the 'profession' taxonomy. */
-	    $values = Kidzou_GeoHelper::get_metropoles();
+	    $values = Kidzou_Metropole::get_metropoles();
 
 	    //valeur déjà enregistrée pour l'event ?
 	    $metros = wp_get_object_terms($user->ID, 'ville', array("fields" => "all"));
@@ -299,7 +290,7 @@ class Kidzou_Admin {
 	    //meta metropole
 	    $set = isset( $_POST['kz_user_metropole']) ;
 	    if ( !$set ) {
-	    	$metropole_slug = Kidzou_GeoHelper::get_default_metropole();
+	    	$metropole_slug = Kidzou_Metropole::get_default_metropole();
 	    	$metropole = get_term_by( 'slug', $metropole_slug, 'ville' );
 	    } else {
 	    	$metropole = $_POST['kz_user_metropole'];

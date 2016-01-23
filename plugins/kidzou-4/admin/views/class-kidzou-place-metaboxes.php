@@ -1,14 +1,15 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Admin_Place', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Place_Metaboxes', 'get_instance' ) );
 
 /**
- * 
+ * Gestion des metadonnées de localisation d'un post, rattachement à un lieu 
+ *
  * @todo Décharger la classe Admin dans cette class pour y voir clair dans le code
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_Admin_Place {
+class Kidzou_Place_Metaboxes {
 
 	/**
 	 * Instance of this class.
@@ -44,9 +45,46 @@ class Kidzou_Admin_Place {
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
 		// Load admin style sheet and JavaScript.
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 
 		add_action( 'add_meta_boxes', array( $this, 'place_metaboxes' ) );
+	}
+
+	/**
+	 * Recherche de la metropole la plus proche du lieu de rattachement
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function enqueue_geo_scripts()
+	{
+
+		$screen = get_current_screen(); 
+		// $events = Kidzou_Events_Metaboxes::get_instance();
+		// $customer = Kidzou_Customer_Metaboxes::get_instance();
+
+		if (in_array($screen->id , $this->screen_with_meta_place)) {
+
+			wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
+
+			$villes = Kidzou_Metropole::get_metropoles();
+
+			$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+	  
+			$args = array(
+						// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+						'geo_mapquest_key'			=> $key, 
+						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
+						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
+						// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
+						'geo_possible_metropoles'	=> $villes ,
+						// 'geo_coords'				=> $locator::COOKIE_COORDS,
+					);
+
+		    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+		}
+		
 	}
 
 	/**
@@ -87,9 +125,7 @@ class Kidzou_Admin_Place {
 			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 
 			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', dirname(__FILE__) ) ,array('jquery','ko-mapping'), Kidzou::VERSION, true);
-			// wp_enqueue_style( 'kidzou-place', plugins_url( 'assets/css/kidzou-edit-place.css', dirname(__FILE__) ) );
-
+			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'kidzou-admin-geo'), Kidzou::VERSION, true);
 
 		} 
 
@@ -140,7 +176,7 @@ class Kidzou_Admin_Place {
 		// Noncename needed to verify where the data originated
 		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 
-		$location = Kidzou_GeoHelper::get_post_location($post->ID); 
+		$location = Kidzou_Geoloc::get_post_location($post->ID); 
 
 		// Get the location data if its already been entered
 		$location_name 		= $location['location_name'];
@@ -174,7 +210,7 @@ class Kidzou_Admin_Place {
 					$id=0;
 			}
 
-			$location = Kidzou_GeoHelper::get_post_location($id);
+			$location = Kidzou_Geoloc::get_post_location($id);
 
 			if (isset($location['location_name']) && $location['location_name']!='') {
 
@@ -201,7 +237,7 @@ class Kidzou_Admin_Place {
 			  delimiter: null,
 			  plugins: {
 			    \'placecomplete\': {
-			      selectDetails: function(placeResult) { console.debug(placeResult);
+			      selectDetails: function(placeResult) { 
 		
 			      	var city = placeResult.display_text;
 					//tentative de retrouver la ville de manière plus précise
@@ -356,7 +392,7 @@ class Kidzou_Admin_Place {
 		$location_latitude 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
 		$location_longitude		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
 
-		Kidzou_GeoHelper::set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude);
+		Kidzou_Geoloc::set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude);
 		
 	}
 

@@ -1,30 +1,14 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Admin_Customer', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Customer_Metaboxes', 'get_instance' ) );
 
 /**
- * Kidzou
- *
- * @package   Kidzou_Admin
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
- * Plugin class. This class should ideally be used to work with the
- * administrative side of the WordPress site.
- *
- * If you're interested in introducing public-facing
- * functionality, then refer to `class-plugin-name.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
+ * Cette classe gère les Metaboxes utiles à la gestion des données Customer dans les écrans d'admin
  *
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_Admin_Customer {
+class Kidzou_Customer_Metaboxes {
 
 	/**
 	 * Instance of this class.
@@ -72,9 +56,46 @@ class Kidzou_Admin_Customer {
 		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes') );
 		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes'), 10, 1);
 
+		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 		
 	}
+
+	// /**
+	//  * Recherche de la metropole la plus proche du lieu de rattachement
+	//  *
+	//  * @return void
+	//  * @author 
+	//  **/
+	// public function enqueue_geo_scripts()
+	// {
+
+	// 	$screen = get_current_screen(); 
+	// 	$events = Kidzou_Events_Metaboxes::get_instance();
+	// 	$customer = Kidzou_Customer_Metaboxes::get_instance();
+
+	// 	if (in_array($screen->id , $events->screen_with_meta_event) || in_array($screen->id, $customer->customer_screen)) {
+
+	// 		wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
+
+	// 		$villes = Kidzou_Metropole::get_metropoles();
+
+	// 		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+	  
+	// 		$args = array(
+	// 					// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+	// 					'geo_mapquest_key'			=> $key, 
+	// 					'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
+	// 					'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
+	// 					// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
+	// 					'geo_possible_metropoles'	=> $villes ,
+	// 					// 'geo_coords'				=> $locator::COOKIE_COORDS,
+	// 				);
+
+	// 	    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+	// 	}
+		
+	// }
 
 	/**
 	 * Register and enqueue admin-specific style sheet & scripts.
@@ -87,31 +108,33 @@ class Kidzou_Admin_Customer {
 
 		$screen = get_current_screen(); 
 
+		// if ( in_array($screen->id, $this->customer_screen) ) { 
 
-		if ( in_array($screen->id, $this->customer_screen) ) { 
+		// 	// requis par placecomplete
+		// 	wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
+		// 	wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
 
-			//requis par placecomplete
-			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
-			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
-
-			// ecran de gestion des clients
-			wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
-				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
-				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-				)
-			);
+		// 	// ecran de gestion des clients
+		// 	wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
+		// 	wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
+		// 		'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
+		// 		'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
+		// 		)
+		// 	);
 
 
-		} elseif ( in_array($screen->id , $this->screen_with_meta_client) ) { 
+		// } else
+		if ( in_array($screen->id , $this->screen_with_meta_client) || in_array($screen->id, $this->customer_screen) ) { 
 
 			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
 			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
 			
 			//sur les post on a besoin d'une meta client
-			wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-admin-script', 'client_jsvars', array(
+			wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
+			wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
 				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
+				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
+				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
 				)
 			);
 
@@ -202,7 +225,7 @@ class Kidzou_Admin_Customer {
 				$clients[] = array(
 						"id" => $mypost->ID, 
 						"name" => $mypost->post_title,
-						"location" => Kidzou_GeoHelper::get_post_location($mypost->ID)
+						"location" => Kidzou_Geoloc::get_post_location($mypost->ID)
 					);
 			}
 
@@ -401,7 +424,8 @@ class Kidzou_Admin_Customer {
 						            error: function() {
 						                callback();
 						            },
-						            success: function(data) { console.debug(data.posts)
+						            success: function(data) { 
+						            	console.debug(data);
 						                callback(data.posts);
 						            }
 						        });
@@ -542,7 +566,7 @@ class Kidzou_Admin_Customer {
 		//actuellement $api_names ne sert à rien dans le code
 		//C'est pour ouvrir la voie vers une généralisation de la gestion des API
 		$api_names = Kidzou_API::getAPINames();
-		Kidzou_Utils::log(array('api_names' => $api_names),true);
+		// Kidzou_Utils::log(array('api_names' => $api_names),true);
  		
  		//todo : c'est ici qu'on fait référence en dur à l'API excerpts
  		//pour généraliser cette fonction, il faudrait boucler sur toutes les API 
@@ -665,7 +689,7 @@ class Kidzou_Admin_Customer {
 		if (strlen($events_meta[$key])==0 || intval($events_meta[$key])<=0)
 			$events_meta[$key] = 0;
 
-		Kidzou_Admin::save_meta($post_id, $events_meta);
+		Kidzou_Utils::save_meta($post_id, $events_meta);
 		
 	}
 
@@ -675,7 +699,7 @@ class Kidzou_Admin_Customer {
 	 *
 	 * @return void
 	 * @since customer-analytics
-	 * @author 
+	 * @param $post_id int ID du customer 
 	 **/
 	public function save_analytics_metabox($post_id)
 	{
@@ -700,18 +724,21 @@ class Kidzou_Admin_Customer {
 		if ( ! wp_verify_nonce( $nonce, 'analytics_metabox' ) )
 			return $post_id;
 
-		$meta = array();
+		// $meta = array();
 
-		if ( !isset($_POST[Kidzou_Customer::$meta_customer_analytics]) )
-			$meta[Kidzou_Customer::$meta_customer_analytics] = false;
-		else
-			$meta[Kidzou_Customer::$meta_customer_analytics] = ($_POST[Kidzou_Customer::$meta_customer_analytics]=='on');
-			
+		// if ( !isset($_POST[Kidzou_Customer::$meta_customer_analytics]) )
+		// 	$meta[Kidzou_Customer::$meta_customer_analytics] = false;
+		// else
+		// 	$meta[Kidzou_Customer::$meta_customer_analytics] = ($_POST[Kidzou_Customer::$meta_customer_analytics]=='on');
+		$is_analytics = false;
+		if ( isset($_POST[Kidzou_Customer::$meta_customer_analytics]) ) {
+			$is_analytics = ($_POST[Kidzou_Customer::$meta_customer_analytics]=='on');
+		}
 
-		Kidzou_Admin::save_meta($post_id, $meta);
+		Kidzou_Customer::set_analytics($post_id, $is_analytics);
 	}
 
-		/**
+	/**
 	 * undocumented function
 	 *
 	 * @return void
@@ -941,16 +968,12 @@ class Kidzou_Admin_Customer {
 
 		$key = $_POST['customer_api_key'];
 		$quota = $_POST['customer_api_quota'];
-		
-		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
 
-		//todo : actuellement seule une API est gérée
+		// //todo : actuellement seule une API est gérée
 		$api_names = array();
 		$api_names[0] = $_POST['api_name_0'];
 
-		$meta[Kidzou_Customer::$meta_api_quota] = array($api_names[0] => $quota);
-
-		Kidzou_Utils::save_meta($post_id, $meta);
+		Kidzou_Customer::set_api($post_id, $api_names, $key, $quota);
 	}
 
 	

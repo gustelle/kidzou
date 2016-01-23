@@ -99,7 +99,7 @@ class Kidzou_GeoFilters {
 		$locator = self::$locator;
 		wp_enqueue_script('kidzou-geo', plugins_url( '../assets/js/kidzou-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
 
-		$villes = Kidzou_GeoHelper::get_metropoles();
+		$villes = Kidzou_Metropole::get_metropoles();
 
 		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
   
@@ -133,8 +133,8 @@ class Kidzou_GeoFilters {
 		{
 			global $wp_rewrite; 
 
-			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
-			add_rewrite_tag( Kidzou_GeoHelper::REWRITE_TAG ,$regexp, 'kz_metropole=');
+			$regexp = Kidzou_Metropole::get_metropole_uri_regexp();
+			add_rewrite_tag( Kidzou_Metropole::REWRITE_TAG ,$regexp, 'kz_metropole=');
 
 			//see http://code.tutsplus.com/tutorials/the-rewrite-api-post-types-taxonomies--wp-25488
 		    add_rewrite_rule($regexp.'$','index.php?kz_metropole=$matches[1]','top'); //home
@@ -167,7 +167,7 @@ class Kidzou_GeoFilters {
 	 *
 	 * A noter que la metropole indiquée en requete HTTP est complétée par les métropoles "NATIONALES" 
 	 *
-	 * @see Kidzou_GeoHelper::get_national_metropole() 
+	 * @see Kidzou_Metropole::get_national_metropole() 
 	 * @see https://codex.wordpress.org/Class_Reference/WP_Query
 	 * @return Array
 	 * @internal 
@@ -181,8 +181,8 @@ class Kidzou_GeoFilters {
 			$the_metropole = array();
 	  		$the_metropole[] = $locator->get_request_metropole();
 
-	  		if ($locator->get_request_metropole()!=Kidzou_GeoHelper::get_national_metropole())
-	       		array_push($the_metropole, Kidzou_GeoHelper::get_national_metropole());
+	  		if ($locator->get_request_metropole()!=Kidzou_Metropole::get_national_metropole())
+	       		array_push($the_metropole, Kidzou_Metropole::get_national_metropole());
 
 	       	return array(
 	                  'taxonomy' => 'ville',
@@ -223,7 +223,7 @@ class Kidzou_GeoFilters {
 			if (is_array($post_type))
 			{
 				foreach ($post_type as $key => $value) {
-					if (in_array($value, Kidzou_GeoHelper::get_supported_post_types() ))
+					if (in_array($value, Kidzou_Metropole::get_supported_post_types() ))
 					{
 						$supported_query = true;
 						break;
@@ -231,13 +231,13 @@ class Kidzou_GeoFilters {
 				}
 			}
 			else
-				$supported_query = in_array($post_type, Kidzou_GeoHelper::get_supported_post_types() ) ;
+				$supported_query = in_array($post_type, Kidzou_Metropole::get_supported_post_types() ) ;
 
 			//cas spécial des archives : le post type n'est pas spécifié
 			//on ouvre au maximim les post types
 			if (is_archive() && $query->is_main_query())
 			{
-				$query->set('post_type', Kidzou_GeoHelper::get_supported_post_types() );
+				$query->set('post_type', Kidzou_Metropole::get_supported_post_types() );
 				$supported_query = true;
 			}
 
@@ -308,10 +308,10 @@ class Kidzou_GeoFilters {
 			$m = urlencode($locator->get_request_metropole());
 
 		    // Check if the %kz_metropole% tag is present in the url:
-		    if ( true === strpos( $permalink, Kidzou_GeoHelper::REWRITE_TAG ) ) {
+		    if ( true === strpos( $permalink, Kidzou_Metropole::REWRITE_TAG ) ) {
 
 			    // Replace '%kz_metropole%'
-			    $permalink = str_replace( Kidzou_GeoHelper::REWRITE_TAG, $m , $permalink );
+			    $permalink = str_replace( Kidzou_Metropole::REWRITE_TAG, $m , $permalink );
 
 		    } 
 			    
@@ -326,7 +326,7 @@ class Kidzou_GeoFilters {
 	 * Par exemple : /lille/ma-page ou /valenciennes/ma-page
 	 *
 	 * @see https://developer.wordpress.org/reference/hooks/page_link/	Documentation du Hook page_link
-	 * @see Kidzou_GeoHelper::is_page_rewrite() 	Booleen qui détermine si le permalien de la page doit être ré-ecrit pour y injecter la metropole
+	 * @see Kidzou_Metropole::is_page_rewrite() 	Booleen qui détermine si le permalien de la page doit être ré-ecrit pour y injecter la metropole
 	 */
 	public function rewrite_page_link( $link, $page ) {
 
@@ -336,7 +336,7 @@ class Kidzou_GeoFilters {
 		{
 			$m = urlencode($locator->get_request_metropole());
 
-			$rewrite = Kidzou_GeoHelper::is_page_rewrite($page);
+			$rewrite = Kidzou_Metropole::is_page_rewrite($page);
 
 			$post = get_post($page);
 
@@ -364,19 +364,19 @@ class Kidzou_GeoFilters {
 		{
 
 			// Check if the %kz_metropole% tag is present in the url:
-		    if ( false === strpos( $url, Kidzou_GeoHelper::REWRITE_TAG ) )
+		    if ( false === strpos( $url, Kidzou_Metropole::REWRITE_TAG ) )
 		        return $url;
 		 
 		    $m = urlencode($locator->get_request_metropole());
 		 
 		    // Replace '%kz_metropole%'
-		    $url = str_replace( Kidzou_GeoHelper::REWRITE_TAG, $m , $url );
+		    $url = str_replace( Kidzou_Metropole::REWRITE_TAG, $m , $url );
 
 		}
 
 		//supprimer le TAG si pas de metropole en requete
-		if (preg_match('/'.Kidzou_GeoHelper::REWRITE_TAG.'/', $url))
-			$url = str_replace( Kidzou_GeoHelper::REWRITE_TAG, '' , $url );
+		if (preg_match('/'.Kidzou_Metropole::REWRITE_TAG.'/', $url))
+			$url = str_replace( Kidzou_Metropole::REWRITE_TAG, '' , $url );
 
 		//recuperer la trace complete d'appel pour les cas ou l'URL n'est pas convertie (il reste des %kz_metropole%)
 		// if (preg_match('/'.Kidzou_GeoHelper::REWRITE_TAG.'/', $url))

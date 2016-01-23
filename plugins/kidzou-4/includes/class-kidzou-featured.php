@@ -77,9 +77,29 @@ class Kidzou_Featured {
 		$featured_index		= get_post_meta($post_id, self::$meta_featured, TRUE);
 		$featured 			= ($featured_index == 'A');
 
-		// Kidzou_Utils::log('isFeatured('.$post_id. ') : '. $featured_index,true);
+		Kidzou_Utils::log('isFeatured '.$featured_index, true);
 
 		return $featured;
+	}
+
+	/**
+	 *
+	 * @param $post_id int le ID du post 
+     * @param $featured boolean 
+	 */
+    public static function setFeatured($post_id = 0, $featured = false)
+	{
+
+		if ($post_id==0)
+		{
+			return new WP_Error('setFeatured', 'Indiquer un ID de post');
+		}
+
+		$meta = array();
+		$meta[self::$meta_featured] = ($featured ? "A" : "B");
+
+		Kidzou_Utils::save_meta($post_id, $meta);
+		
 	}
 
 	/**
@@ -89,14 +109,12 @@ class Kidzou_Featured {
 	 **/
 	public static function getFeaturedPosts(  )
 	{
-		// Kidzou_Utils::log('Kidzou_Featured [getFeaturedPosts]', true);
 		
 		$list = get_posts(array(
 					'meta_key'         => self::$meta_featured,
 					'meta_value'       => 'A',
 					'post_type'        => self::$supported_post_types,
 				));
-
 
 		return $list;
 	}

@@ -12,7 +12,7 @@
 	<p><?php esc_html_e('Vous pouvez forcer votre g&eacute;olocalisation en cliquant sur l&apos;une de nos m&eacute;tropoles ci-dessous:','Divi'); ?></p>
 	<p>
 		<?php
-		$metropoles = Kidzou_GeoHelper::get_metropoles();
+		$metropoles = Kidzou_Metropole::get_metropoles();
 		foreach ($metropoles as $m) {
 			echo sprintf("<a href='%s' title='%s' class='et_pb_more_button metropole'><i class='fa fa-map-marker pull-left fa-2x'></i>%s</a>", site_url().'/'.$m->slug, $m->name, $m->name);
 		}

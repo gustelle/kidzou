@@ -423,6 +423,7 @@ var kidzouEventsModule = (function() { //havre de paix
 
 			//recuperation au format 2014-12-03 23:59:59 et mise au format JS date
 			self.initDates = function(start, end, reccurenceData ) {
+
 				
 				var start_mom, end_mom;
 
@@ -439,19 +440,20 @@ var kidzouEventsModule = (function() { //havre de paix
 				// console.debug(reccurenceData);
 
 				//si le tableau est correctement formatté
-				if (typeof reccurenceData!='undefined' && reccurenceData.hasOwnProperty(0)) {
+				if (typeof reccurenceData!='undefined') { //&& reccurenceData.hasOwnProperty(0)
 
 					//c'est plus simple a manipuler
-					var data = reccurenceData[0]; 
+					// var data = reccurenceData[0]; 
+					console.debug(reccurenceData);
 
 					//activation de la checkbox
 					self.eventData().recurrenceModel().isReccuring(true);
 
 					//activation de la selectbox
-					if (data.model=='weekly') {
+					if (reccurenceData.model=='weekly') {
 
 						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().weeklyModel);
-						ko.utils.arrayForEach(data.repeatItems, function(item) {
+						ko.utils.arrayForEach(reccurenceData.repeatItems, function(item) {
 					        var v = parseInt(item);
 					        if (!isNaN(v)) {
 					            self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems.push(self.eventData().recurrenceModel().days[v-1]);
@@ -461,22 +463,22 @@ var kidzouEventsModule = (function() { //havre de paix
 
 						//modele monthly
 						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().monthlyModel);
-						if (data.repeatItems=='day_of_month')
+						if (reccurenceData.repeatItems=='day_of_month')
 							self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems(self.eventData().recurrenceModel().day_of_month);
 						else
 							self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems(self.eventData().recurrenceModel().day_of_week);
 					}	
 
 					//l'evenement se repete tous les ...
-					self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery(data.repeatEach);
+					self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery(reccurenceData.repeatEach);
 
 					//et se termine : à une date fixe ? au bout d'un nombre de repetitions ? jamais ?
-					self.eventData().recurrenceModel().endType(data.endType);
+					self.eventData().recurrenceModel().endType(reccurenceData.endType);
 
-					if (data.endType=='date')
-						self.eventData().recurrenceModel().reccurenceEndDate(data.endValue);
-					else if (data.endType=='occurences')
-						self.eventData().recurrenceModel().occurencesNumber(data.endValue);
+					if (reccurenceData.endType=='date')
+						self.eventData().recurrenceModel().reccurenceEndDate(reccurenceData.endValue);
+					else if (reccurenceData.endType=='occurences')
+						self.eventData().recurrenceModel().occurencesNumber(reccurenceData.endValue);
 						
 				}
 				

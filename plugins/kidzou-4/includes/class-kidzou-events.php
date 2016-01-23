@@ -14,11 +14,7 @@ use Carbon\Carbon;
 
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
- *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
+ * Classe de gestion des métadonnées de gestion des dates d'événement sur les posts
  *
  *
  * @package Kidzou
@@ -150,7 +146,7 @@ class Kidzou_Events {
 
 	/**
 	 *
-	 * @return Array un tableau contenant les dates start_date et end_date
+	 * @return Array un tableau contenant les dates start_date, end_date, recurrence et past_dates
 	 **/
     public static function getEventDates($event_id=0) {
 
@@ -160,13 +156,41 @@ class Kidzou_Events {
 			$event_id = $post->ID;
 		}
 
-		$start_date 		= get_post_meta($event_id, 'kz_event_start_date', TRUE);
-		$end_date   		= get_post_meta($event_id, 'kz_event_end_date', TRUE);
+		$start_date 		= get_post_meta($event_id, self::$meta_start_date, TRUE);
+		$end_date   		= get_post_meta($event_id, self::$meta_end_date, TRUE);
+		$recurrence   		= get_post_meta($event_id, self::$meta_recurring, TRUE);
+		$past_dates   		= get_post_meta($event_id, self::$meta_past_dates, TRUE);
 
 		return array(
-				"start_date" => $start_date,
-				"end_date" => $end_date,
+				"start_date" 	=> $start_date,
+				"end_date" 		=> $end_date,
+				"recurrence" 	=> $recurrence,
+				'past_dates'	=> $past_dates
 			);
+
+    }
+
+    /**
+	 * Il se peut que start_date ou end_date soient nuls, dans ce cas il n'y a pas de date de fin, l'eventment est géré par une récurrence
+	 *
+	 * @param $event_id int ID du post sur lequel on enregistre des dates
+	 * @param $recurrence Array tableau des params de récurrence, avec comme clé : model, repeatEach, repeatItems, endType, endValue 
+	 **/
+    public static function setEventDates($event_id=0, $start_date='', $end_date='', $recurrence=array()) {
+
+    	if ($event_id==0)
+			return new WP_Error('setEventDates', 'Aucune post spécifié');
+
+		$events_meta['start_date'] 	= $start_date;
+		$events_meta['end_date'] 	= $end_date;
+
+		//les options de récurrence
+		if (!empty($recurrence))
+		{
+			$events_meta['recurrence'] = $recurrence;
+		}
+
+		Kidzou_Utils::save_meta($event_id, $events_meta, "kz_event_");
 
     }
 
@@ -553,7 +577,7 @@ class Kidzou_Events {
 				{	
 					// la suppression via sc_GeodataStore ne fonctionne pas
 					// suppression manuelle
-					if (Kidzou_GeoHelper::has_post_location($event->ID)) {
+					if (Kidzou_Geoloc::has_post_location($event->ID)) {
 
 						Kidzou_Admin_Geo::delete_post_from_geo_ds($event->ID);
 						Kidzou_Utils::log( 'Remove Entry from Geo Data Store ['. $event->post_name .']' , true);

@@ -150,9 +150,9 @@ function kz_habillage() {
  * * soit l'URI en cours contient une métropole, elle est remplacée (ex: /lille/agenda -> /valenciennes/agenda)
  * * soit elle ne contient pas de métropole, le user est redirigé vers la home (ex: /ma-page -> /lille)
  *
- * @uses Kidzou_GeoHelper::get_metropoles($bool)
- * @uses Kidzou_GeoHelper::get_national_metropole()
- * @uses Kidzou_GeoHelper::get_metropole_uri_regexp()
+ * @uses Kidzou_Metropole::get_metropoles($bool)
+ * @uses Kidzou_Metropole::get_national_metropole()
+ * @uses Kidzou_Metropole::get_metropole_uri_regexp()
  * @uses Kidzou_Geolocator
  * 
  * @return HTML
@@ -163,7 +163,7 @@ function  kz_metropole_nav()
 	$active = Kidzou_Utils::get_option('geo_activate', false);
 	if ($active)
 	{
-		$metropoles = Kidzou_GeoHelper::get_metropoles(); //inclure la métropole "nationale" qui regroupe toutes les métropoles 
+		$metropoles = Kidzou_Metropole::get_metropoles(); //inclure la métropole "nationale" qui regroupe toutes les métropoles 
 
 		//Affichage par ordre Alpha
 		//Attention le tri se fait sur les libéllés (name) et pas les slugs (id technique) car le user ne voit que les libellés
@@ -173,7 +173,7 @@ function  kz_metropole_nav()
 		});
 
 		//ajouter en fin de tableau la ville à portée nationale
-		$metropoles[] = Kidzou_GeoHelper::get_national_metropole(array('fields'=>'all'));
+		$metropoles[] = Kidzou_Metropole::get_national_metropole(array('fields'=>'all'));
 			
 		$ttes_metros = '';
 
@@ -183,7 +183,7 @@ function  kz_metropole_nav()
 			$current_metropole = $locator->get_request_metropole();
 
 			$uri = $_SERVER['REQUEST_URI'];
-			$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
+			$regexp = Kidzou_Metropole::get_metropole_uri_regexp();
 
 			$ttes_metros .= '<select onchange="window.location = this.value;" class="selectBox">';
 
@@ -978,8 +978,8 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 	$output = '';
 
 	//les posts dont l'adresse est renseignée : on affiche la ville pour donner un repère rapide au user
-	if (Kidzou_GeoHelper::has_post_location()) {
-		$location = Kidzou_GeoHelper::get_post_location();
+	if (Kidzou_Geoloc::has_post_location()) {
+		$location = Kidzou_Geoloc::get_post_location();
 		$location_meta = '<div class="portfolio_meta"><i class="fa fa-map-marker"></i>'.$location['location_city'].'</div>'; 
 	}
 
