@@ -1,30 +1,14 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Admin_Geo', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_GeoDS', 'get_instance' ) );
 
 /**
- * Kidzou
- *
- * @package   Kidzou_Admin
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
- * Plugin class. This class should ideally be used to work with the
- * administrative side of the WordPress site.
- *
- * If you're interested in introducing public-facing
- * functionality, then refer to `class-plugin-name.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
+ * Synchronisation avec le plugin Geodatastore pour faciliter le requetage des contenus par lat/lng
  *
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_Admin_Geo {
+class Kidzou_GeoDS {
 
 	/**
 	 * Instance of this class.
@@ -50,13 +34,13 @@ class Kidzou_Admin_Geo {
 	 */
 	private function __construct() {
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
+		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 
 		//nettoyage des transients de geoloc lorsque la taxo "ville bouge"
 		//merci https://www.dougv.com/2014/06/25/hooking-wordpress-taxonomy-changes-with-the-plugins-api/
-		add_action('create_ville', 	array( $this, 'rebuild_geo_rules') );
-		add_action('edit_ville', 	array( $this, 'rebuild_geo_rules') );
-		add_action('delete_ville', 	array( $this, 'rebuild_geo_rules') );
+		// add_action('create_ville', 	array( $this, 'rebuild_geo_rules') );
+		// add_action('edit_ville', 	array( $this, 'rebuild_geo_rules') );
+		// add_action('delete_ville', 	array( $this, 'rebuild_geo_rules') );
 
 		//Plugin Geo Data Store
 		if (class_exists('sc_GeoDataStore')) {
@@ -104,41 +88,41 @@ class Kidzou_Admin_Geo {
 		return self::$instance;
 	}
 
-	/**
-	 * Ajout des librairies JS nécessaires sur les écrans d'admin 
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function enqueue_geo_scripts()
-	{
+	// /**
+	//  * Ajout des librairies JS nécessaires sur les écrans d'admin 
+	//  *
+	//  * @return void
+	//  * @author 
+	//  **/
+	// public function enqueue_geo_scripts()
+	// {
 
-		$screen = get_current_screen(); 
-		$events = Kidzou_Admin_Events::get_instance();
-		$customer = Kidzou_Admin_Customer::get_instance();
+	// 	$screen = get_current_screen(); 
+	// 	$events = Kidzou_Events_Metaboxes::get_instance();
+	// 	$customer = Kidzou_Customer_Metaboxes::get_instance();
 
-		if (in_array($screen->id , $events->screen_with_meta_event) || in_array($screen->id, $customer->customer_screen)) {
+	// 	if (in_array($screen->id , $events->screen_with_meta_event) || in_array($screen->id, $customer->customer_screen)) {
 
-			wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
+	// 		wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
 
-			$villes = Kidzou_GeoHelper::get_metropoles();
+	// 		$villes = Kidzou_Metropole::get_metropoles();
 
-			$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+	// 		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
 	  
-			$args = array(
-						// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
-						'geo_mapquest_key'			=> $key, 
-						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
-						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
-						// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
-						'geo_possible_metropoles'	=> $villes ,
-						// 'geo_coords'				=> $locator::COOKIE_COORDS,
-					);
+	// 		$args = array(
+	// 					// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+	// 					'geo_mapquest_key'			=> $key, 
+	// 					'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
+	// 					'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
+	// 					// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
+	// 					'geo_possible_metropoles'	=> $villes ,
+	// 					// 'geo_coords'				=> $locator::COOKIE_COORDS,
+	// 				);
 
-		    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
-		}
+	// 	    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+	// 	}
 		
-	}
+	// }
 
 	/**
 	 * Ajout d'une entrée dans le Geo Data Store
@@ -158,13 +142,13 @@ class Kidzou_Admin_Geo {
 		//on ne synchronise pas les events qui ne sont plus actifs
 		$syncable = (Kidzou_Events::isTypeEvent($id) ? Kidzou_Events::isEventActive($id) : true);
 
-		if ( Kidzou_GeoHelper::has_post_location($id) && $syncable )
+		if ( Kidzou_Geoloc::has_post_location($id) && $syncable )
 	   	{	
 	   		// Kidzou_Utils::log('add_post_to_geo_ds, suite');
 	   		// $post = get_post($id); 
    			// $type = $post->post_type;
-	   		$location = Kidzou_GeoHelper::get_post_location($id);
-	   		$meta_key = Kidzou_GeoHelper::$meta_latitude;
+	   		$location = Kidzou_Geoloc::get_post_location($id);
+	   		$meta_key = Kidzou_Geoloc::$meta_latitude;
 
 	   		$mid = $wpdb->get_var( 
 	   			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key'"
@@ -191,7 +175,7 @@ class Kidzou_Admin_Geo {
 	   		sc_GeoDataStore::after_post_meta( 
 	   			$mid, //hack : nécessaire de mettre un meta_id pour les opé de delete/update, donc on met celui de la lat
 	   			$id, 
-	   			Kidzou_GeoHelper::META_COORDS, 
+	   			Kidzou_Geoloc::META_COORDS, 
 	   			$lat.','.$lng
 	   		);
 	   		
@@ -219,13 +203,12 @@ class Kidzou_Admin_Geo {
    		// $post = get_post($id); 
 		// $type = $post->post_type;
  
-   		$meta_key_lat = Kidzou_GeoHelper::$meta_latitude;
+   		$meta_key_lat = Kidzou_Geoloc::$meta_latitude;
 
    		$deleted_meta_id = $wpdb->get_var( 
    			"SELECT meta_id FROM $wpdb->postmeta WHERE post_id = $id AND meta_key = '$meta_key_lat'"
    		);
    		$wpdb->query( "DELETE FROM `" . $wpdb->prefix . 'geodatastore' . "` WHERE `meta_id` = $deleted_meta_id" );
-
 	}
 
 	/**
@@ -240,7 +223,7 @@ class Kidzou_Admin_Geo {
 
 		global $wpdb;
 
-		$post_types_list = implode('\',\'', Kidzou_GeoHelper::get_supported_post_types() );
+		$post_types_list = implode('\',\'', Kidzou_Geoloc::get_supported_post_types() );
 
 		Kidzou_Utils::log('Synchronisation avec GeoDataStore les post types : '. $post_types_list, true);
 
@@ -272,7 +255,7 @@ class Kidzou_Admin_Geo {
 	{
 		global $post;
 
-		$keys[] = Kidzou_GeoHelper::META_COORDS;
+		$keys[] = Kidzou_Geoloc::META_COORDS;
 		// $keys[] = ""; //necessaire pour la suppression de meta 
     	return $keys;
 	}
@@ -295,8 +278,8 @@ class Kidzou_Admin_Geo {
     	$post = get_post($post_id); 
 	   	$type = $post->post_type;
 
-	   	$lat_meta = Kidzou_GeoHelper::$meta_latitude;//'kz_'.$type.'_location_latitude';
-	   	$lng_meta = Kidzou_GeoHelper::$meta_longitude;//'kz_'.$type.'_location_longitude';
+	   	$lat_meta = Kidzou_Geoloc::$meta_latitude;//'kz_'.$type.'_location_latitude';
+	   	$lng_meta = Kidzou_Geoloc::$meta_longitude;//'kz_'.$type.'_location_longitude';
 
     	switch ($meta_key) {
     		case $lat_meta:
@@ -316,7 +299,7 @@ class Kidzou_Admin_Geo {
     	{
     		//le type est supporté ?
 	    	//sinon on ne synchronise pas...
-	    	$should_sync = in_array($type, Kidzou_GeoHelper::get_supported_post_types());
+	    	$should_sync = in_array($type, Kidzou_Geoloc::get_supported_post_types());
 
 	    	//on continue les checks
 	    	//vérification que l'événement est actif s'il s'agit d'un event
@@ -332,7 +315,7 @@ class Kidzou_Admin_Geo {
 		    		//le post est-il géolocalisé
 			    	if ($should_sync) {
 			    		
-			    		$should_sync = Kidzou_GeoHelper::has_post_location($post_id);
+			    		$should_sync = Kidzou_Geoloc::has_post_location($post_id);
 			    		
 			    		if ($should_sync) {
 			    			//plus rien à checker
@@ -376,83 +359,82 @@ class Kidzou_Admin_Geo {
 	    		sc_GeoDataStore::after_post_meta( 
 					self::$coords['meta_id'], 
 					$post_id, 
-					Kidzou_GeoHelper::META_COORDS, 
+					Kidzou_Geoloc::META_COORDS, 
 					$lat.','. $lng
 				);
 	    	} 
     	}
-
 	}
 
 
-	/**
-	 * déclenchée à l'actication de la geoloc
-	 * Mise à jour de la structure des permaliens Category et Tag
-	 *
-	 * Mise à jour du .htaccess avec les règles de geoloc
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function set_permalink_rules () {
+	// /**
+	//  * déclenchée à l'actication de la geoloc
+	//  * Mise à jour de la structure des permaliens Category et Tag
+	//  *
+	//  * Mise à jour du .htaccess avec les règles de geoloc
+	//  *
+	//  * @return void
+	//  * @author 
+	//  **/
+	// public static function set_permalink_rules () {
 		
-		global $wp_rewrite;
+	// 	global $wp_rewrite;
 
-		$wp_rewrite->set_category_base( Kidzou_GeoHelper::REWRITE_TAG . '/rubrique/');
-		$wp_rewrite->set_tag_base( Kidzou_GeoHelper::REWRITE_TAG . '/tag/');
+	// 	$wp_rewrite->set_category_base( Kidzou_Metropole::REWRITE_TAG . '/rubrique/');
+	// 	$wp_rewrite->set_tag_base( Kidzou_Metropole::REWRITE_TAG . '/tag/');
 
-		flush_rewrite_rules();
+	// 	flush_rewrite_rules();
 		
-	}
+	// }
 
-	/**
-	 * déclenchée à la desactivation de la geoloc
-	 * Mise à jour de la structure des permaliens Category et Tag
-	 *
-	 * Mise à jour du .htaccess avec les règles de geoloc
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function unset_permalink_rules () {
+	// /**
+	//  * déclenchée à la desactivation de la geoloc
+	//  * Mise à jour de la structure des permaliens Category et Tag
+	//  *
+	//  * Mise à jour du .htaccess avec les règles de geoloc
+	//  *
+	//  * @return void
+	//  * @author 
+	//  **/
+	// public static function unset_permalink_rules () {
 		
-		global $wp_rewrite;
+	// 	global $wp_rewrite;
 
-		$wp_rewrite->set_category_base('rubrique/');
-		$wp_rewrite->set_tag_base('tag/');
+	// 	$wp_rewrite->set_category_base('rubrique/');
+	// 	$wp_rewrite->set_tag_base('tag/');
 
-		flush_rewrite_rules();
+	// 	flush_rewrite_rules();
 		
-	}
+	// }
 
-	/**
-	 * permet de reconstruire les regles de ré-ecriture de permaliens et de nettoyer les caches des metropoles
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public static function rebuild_geo_rules()
-	{
+	// /**
+	//  * permet de reconstruire les regles de ré-ecriture de permaliens et de nettoyer les caches des metropoles
+	//  *
+	//  * @return void
+	//  * @author 
+	//  **/
+	// public static function rebuild_geo_rules()
+	// {
 
-		//nettoyager les transients
-		delete_transient('kz_metropoles_incl_national'); //avec métropoles nationales
-		delete_transient('kz_metropoles_excl_national'); //sans métropoles nationales
-		delete_transient('kz_metropole_uri_regexp');
+	// 	//nettoyager les transients
+	// 	delete_transient('kz_metropoles_incl_national'); //avec métropoles nationales
+	// 	delete_transient('kz_metropoles_excl_national'); //sans métropoles nationales
+	// 	delete_transient('kz_metropole_uri_regexp');
 
-		//si la geoloc est active uniquement
-		if ((bool)Kidzou_Utils::get_option('geo_activate',false)) 
-		{
-			self::set_permalink_rules();
-		}
-		else
-		{
-			self::unset_permalink_rules();
-		}
+	// 	//si la geoloc est active uniquement
+	// 	if ((bool)Kidzou_Utils::get_option('geo_activate',false)) 
+	// 	{
+	// 		self::set_permalink_rules();
+	// 	}
+	// 	else
+	// 	{
+	// 		self::unset_permalink_rules();
+	// 	}
 
-        flush_rewrite_rules();
-		// Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
+ //        flush_rewrite_rules();
+	// 	// Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
 
-	}
+	// }
 
 	/**
 	 * <p>

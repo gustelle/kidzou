@@ -35,7 +35,7 @@ class JSON_API_Clients_Controller {
 				$json_api->error("Vous n'avez pas le droit de consulter les données de ce client.");
 		}
 
-		$location = Kidzou_GeoHelper::get_post_location($id, Kidzou_Customer::$post_type);
+		$location = Kidzou_Geoloc::get_post_location($id, Kidzou_Customer::$post_type);
 
 		return array('location'=> $location);
 	}

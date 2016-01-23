@@ -9,26 +9,11 @@ if( !wp_next_scheduled( 'kidzou_votes_scheduler' ) ) {
  
 add_action( 'kidzou_votes_scheduler', array( Kidzou_Vote::get_instance(), 'set_vote_meta') );
 
-/**
- * Kidzou
- *
- * @package   Kidzou_Vote
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
+ * Gestion des fonctions de Vote (recommandation) d'un post
  *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
- *
- * @package Kidzou_Vote
+ * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_Vote {

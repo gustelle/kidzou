@@ -3,26 +3,11 @@
 add_action( 'plugins_loaded', array( 'Kidzou_API', 'get_instance' ), 100);
 
 
-/**
- * Kidzou
- *
- * @package   Kidzou_API
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
+ * Gestion des accès aux API : droit, incrémentation du quota, ...
  *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
- *
- * @package Kidzou_API
+ * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_API {
@@ -217,7 +202,7 @@ class Kidzou_API {
 		
 		$meta[Kidzou_Customer::$meta_api_usage] = array( $api_name => $usages );
 
-		self::save_meta($customer->ID, $meta);
+		Kidzou_Utils::save_meta($customer->ID, $meta);
 
 	}
 
@@ -269,30 +254,30 @@ class Kidzou_API {
 	}
 
 
-	/**
-	 * fonction utilitaire
-	 */
-	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
+	// /**
+	//  * fonction utilitaire
+	//  */
+	// public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
 
-		if ($post_id==0)
-			return;
+	// 	if ($post_id==0)
+	// 		return;
 
-		// Add values of $events_meta as custom fields
-		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
+	// 	// Add values of $events_meta as custom fields
+	// 	foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
 
-			$pref_key = $prefix.$key; 
-			$prev = get_post_meta($post_id, $pref_key, TRUE);
+	// 		$pref_key = $prefix.$key; 
+	// 		$prev = get_post_meta($post_id, $pref_key, TRUE);
 
-			if ($prev!='') { // If the custom field already has a value
-				update_post_meta($post_id, $pref_key, $value);
-			} else { // If the custom field doesn't have a value
-				if ($prev=='') delete_post_meta($post_id, $pref_key);
-				add_post_meta($post_id, $pref_key, $value, TRUE);
-			}
-			if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
-		}
+	// 		if ($prev!='') { // If the custom field already has a value
+	// 			update_post_meta($post_id, $pref_key, $value);
+	// 		} else { // If the custom field doesn't have a value
+	// 			if ($prev=='') delete_post_meta($post_id, $pref_key);
+	// 			add_post_meta($post_id, $pref_key, $value, TRUE);
+	// 		}
+	// 		if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
+	// 	}
 
-	}
+	// }
 
 
 
