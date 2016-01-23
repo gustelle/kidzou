@@ -2,15 +2,6 @@
 
 add_action('plugins_loaded', array('Kidzou_GeoHelper', 'get_instance'), 100);
 
-/**
- * Kidzou_Geo
- *
- * @package   Kidzou_GeoHelper
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
 
 /**
  * Cette classe fournit des facilités d'accès aux meta de geoloc des posts ainsi
@@ -156,6 +147,33 @@ class Kidzou_GeoHelper {
 	        "location_web" => $location_web,
 	        "location_city" => $location_city
 	    );
+	}
+
+	/**
+	 * Enregistrement de la meta 'place'. Cette méthode est indépendant de la metabox pour pouvoir être attaquée depuis des API
+	 *
+	 * @param $post_id int le post sur lequel on vient attacher la meta  
+	 * @param $arr string les données de localisation (location_name, location_address, location_website, location_phone_number, location_city, location_latitude, location_longitude)
+	 **/
+	public function set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude )
+	{	
+		if ($location_name=='' || $location_address=='' || $location_city=='')
+			return new WP_Error('save_place', 'Certaines donnees sont manquantes');
+
+		$type = get_post_type($post_id);
+
+		$prefix = 'kz_' . $type . '_';
+
+		$meta['location_name'] 			= $location_name;
+		$meta['location_address'] 		= $location_address;
+		$meta['location_website'] 		= $location_website;
+		$meta['location_phone_number'] 	= $location_phone_number;
+		$meta['location_city'] 			= $location_city;
+		$meta['location_latitude'] 		= $location_latitude;
+		$meta['location_longitude'] 	= $location_longitude;
+
+		Kidzou_Utils::save_meta($post_id, $meta, $prefix);
+		
 	}
 
 	/**
@@ -315,7 +333,7 @@ class Kidzou_GeoHelper {
 		        }
 		       		
 	        } else {
-	        	Kidzou_Utils::log($villes, true);
+	        	// Kidzou_Utils::log($villes, true);
 	        }
 	    }
 

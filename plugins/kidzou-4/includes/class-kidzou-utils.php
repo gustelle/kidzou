@@ -427,6 +427,36 @@ class Kidzou_Utils {
 	  return md5( $ip . $ua );
 	}
 
+	/**
+	 * fonction generique de sauvegarde des meta d'un post, gere les cas de Update (meta existantes) / Delete (valeurs nulles) 
+	 *
+	 * @param int $post_id ID du post en cours d'édition
+	 * @param Array $arr un tableau de meta/valeurs
+	 * @param string $prefix Prefixe optionnel des meta à enregistrer (ex: kz_)
+	 * @return static
+	 */
+	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
+
+		if ($post_id==0)
+			return;
+
+		// Add values of $events_meta as custom fields
+		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
+
+			$pref_key = $prefix.$key; 
+			$prev = get_post_meta($post_id, $pref_key, TRUE);
+
+			if ($prev!='') { // If the custom field already has a value
+				update_post_meta($post_id, $pref_key, $value);
+			} else { // If the custom field doesn't have a value
+				if ($prev=='') delete_post_meta($post_id, $pref_key);
+				add_post_meta($post_id, $pref_key, $value, TRUE);
+			}
+			if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
+		}
+
+	}
+
 
 
 } //fin de classe

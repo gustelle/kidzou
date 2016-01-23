@@ -210,10 +210,10 @@ class Kidzou_GeoFilters {
 
 		$locator = self::$locator;
 
-		Kidzou_Utils::log(
-			array(	'REQUEST_URI'=>$_SERVER['REQUEST_URI'],
-					'request_metropole'=>$locator->get_request_metropole(),
-					'is_request_metro_filter' => $locator->is_request_metro_filter()), true);
+		// Kidzou_Utils::log(
+		// 	array(	'REQUEST_URI'=>$_SERVER['REQUEST_URI'],
+		// 			'request_metropole'=>$locator->get_request_metropole(),
+		// 			'is_request_metro_filter' => $locator->is_request_metro_filter()), true);
 
 		if ( $locator->is_request_metro_filter() )
 		{
