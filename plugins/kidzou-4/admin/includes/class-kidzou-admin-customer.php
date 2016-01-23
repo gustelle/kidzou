@@ -97,21 +97,8 @@ class Kidzou_Admin_Customer {
 			// ecran de gestion des clients
 			wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
 			wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
-				// 'api_getClients'				=> site_url()."/api/clients/getClients/",
-				// 'api_deleteClient'				=> site_url().'/api/clients/deleteClient',
-				// 'api_saveUsers' 				=> site_url().'/api/clients/saveUsers/',
-				// 'api_saveClient'				=> site_url().'/api/clients/saveClient/',
-				// 'api_getClientByID' 			=> site_url().'/api/clients/getClientByID/',
 				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
-				// 'api_get_userinfo'			 	=> site_url().'/api/user/get_userinfo/',
-				// 'api_queryAttachableEvents'		=> site_url().'/api/clients/queryAttachableContents/',
 				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-				// 'api_attachToClient'			=> site_url().'/api/clients/attachToClient/',
-				// 'api_detachFromClient' 			=> site_url().'/api/clients/detachFromClient/',
-				// 'api_getContentsByClientID' 	=> site_url()."/api/clients/getContentsByClientID/",
-				// 'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
-				// 'is_user_admin'					=> current_user_can('manage_options')
-
 				)
 			);
 
@@ -191,9 +178,6 @@ class Kidzou_Admin_Customer {
 		global $post; 
 
 		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-		//le customer_id sert à initialiser la selectBox pour le post qui a déjà un client affecté
-		// $customer_id =0;
 		
 		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
 	
@@ -208,28 +192,7 @@ class Kidzou_Admin_Customer {
 				'posts_per_page' => -1,
 			);
 
-		// $q = null;
-
-		//il faut que le client soit > contributeur pour voir tous els clients
-		// if ( !Kidzou_Utils::current_user_is('author') ) {
-
-		// 	$user_customers = Kidzou_Customer::getCustomersIDByUserID();
-		
-		// 	//si le user est affecté à au moins un client, on filtre la liste des clients
-		// 	if (count($user_customers)>0)
-		// 	{
-		// 		$q = new WP_Query(
-		// 			array_merge($args, array('post__in' => $user_customers))
-		// 		);
-		// 	} 
-
-		// 	//si le user n'est affecté à aucun client on ne fait rien
-		// 	//dans ce cas $q est null
-			
-		// } else {
 		$q = new WP_Query( $args );
-		// }
-			
 
 		if (null!=$q)
 		{
@@ -787,7 +750,7 @@ class Kidzou_Admin_Customer {
 
 		$customer_users = (isset($_POST['customer_users']) ? $_POST['customer_users'] : array());
 
-		Kidzou_Utils::log(array("_POST"=>$_POST ), true);
+		// Kidzou_Utils::log(array("_POST"=>$_POST ), true);
 
 		//sauvegarder également coté user pour donner les rôles
 		
@@ -902,10 +865,11 @@ class Kidzou_Admin_Customer {
 	}
 
 	/**
-	 * undocumented function
+	 * Permet d'associer une liste de posts à un customer identifié par $post_id
+	 * 
+	 * La liste des posts à associer est passée dans  $_POST['customer_posts'] comme un tableau de ID 
 	 *
-	 * @return void
-	 * @author 
+	 * @param  $post_id int identifiant du customer
 	 **/
 	function set_customer_posts ($post_id)
 	{
@@ -932,48 +896,12 @@ class Kidzou_Admin_Customer {
 		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
-		// OK, we're authenticated: we need to find and save the data
-		// We'll put it into an array to make it easier to loop though.
-
-		$posts = array();
-		$meta = array();
-
 		$posts = (isset($_POST['customer_posts']) ? $_POST['customer_posts'] : array());
 
-		$meta[Kidzou_Customer::$meta_customer] 	= $post_id;
-
-		foreach ($posts as $mypost) {
-			Kidzou_Admin::save_meta($mypost, $meta);
-		}
-
-
-		//ensuite faire un diff pour virer ceux qui ont la meta et qui ne devraient pas
-		$args = array(
-		   'meta_query' => array(
-		       array(
-		           'key' => Kidzou_Customer::$meta_customer,
-		           'value' => $post_id,
-		           'compare' => '=',
-		       )
-		   ),
-		   'post_per_page' => -1,
-		   'post_type' => Kidzou_Customer::$supported_post_types
-		);
-		$query = new WP_Query($args);
-
-		$old_posts = $query->get_posts();
-
-		foreach ($old_posts as $an_old_one) {
-			if (in_array($an_old_one->ID, $posts)) {
-				//c'est bon rien à faire
-			} else {
-				Kidzou_Utils::log( 'Post '.$an_old_one->ID.' n\'est plus affecte au client '. $post_id );
-				
-				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $post_id);
-			}
-		}
+		Kidzou_Customer::attach_posts($post_id, $posts);
 		
 	}
+
 
 	/**
 	 * Sauvegarde en base des Quota et de la clé du client, tels que définis dans la Metabox sur l'écran "customer"
@@ -1022,7 +950,7 @@ class Kidzou_Admin_Customer {
 
 		$meta[Kidzou_Customer::$meta_api_quota] = array($api_names[0] => $quota);
 
-		Kidzou_Admin::save_meta($post_id, $meta);
+		Kidzou_Utils::save_meta($post_id, $meta);
 	}
 
 	

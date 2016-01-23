@@ -403,6 +403,52 @@ class Kidzou_Customer {
 		return $meta;
 	}
 
+	/**
+	 * Enregistrement de la meta 'customer' sur les posts concernés. Cette méthode est indépendant de la metabox pour pouvoir être attaquée depuis des API
+	 *
+	 * @param $customer_id int le post sur lequel on vient attacher la meta  
+	 * @param $posts Array tableau des ID des posts à associer au customer
+	 **/
+	public function attach_posts($customer_id, $posts=array())
+	{	
+		if (empty($posts))
+			return new WP_Error('set_customer_for_posts', 'Aucun ID de post passé dans le tableau');
+
+		$meta = array();
+		$meta[Kidzou_Customer::$meta_customer] 	= $customer_id;
+		
+		foreach ($posts as $mypost) {
+			Kidzou_Utils::save_meta($mypost, $meta);
+		}
+
+		//ensuite faire un diff pour virer ceux qui ont la meta et qui ne devraient pas
+		$args = array(
+		   'meta_query' => array(
+		       array(
+		           'key' => Kidzou_Customer::$meta_customer,
+		           'value' => $customer_id,
+		           'compare' => '=',
+		       )
+		   ),
+		   'post_per_page' => -1,
+		   'post_type' => Kidzou_Customer::$supported_post_types
+		);
+		$query = new WP_Query($args);
+
+		$old_posts = $query->get_posts();
+
+		foreach ($old_posts as $an_old_one) {
+			if (in_array($an_old_one->ID, $posts)) {
+				//c'est bon rien à faire
+			} else {
+				// Kidzou_Utils::log( 'Post '.$an_old_one->ID.' n\'est plus affecte au client '. $post_id );
+				
+				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $customer_id);
+			}
+		}
+		
+	}
+
 
 
 } //fin de classe

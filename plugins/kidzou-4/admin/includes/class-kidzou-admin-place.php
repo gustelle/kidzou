@@ -3,16 +3,6 @@
 add_action( 'kidzou_admin_loaded', array( 'Kidzou_Admin_Place', 'get_instance' ) );
 
 /**
- * Kidzou
- *
- * @package   Kidzou_Admin
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
  * 
  * @todo Décharger la classe Admin dans cette class pour y voir clair dans le code
  * @package Kidzou_Admin
@@ -55,7 +45,6 @@ class Kidzou_Admin_Place {
 
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		add_action( 'add_meta_boxes', array( $this, 'place_metaboxes' ) );
 	}
@@ -328,10 +317,10 @@ class Kidzou_Admin_Place {
 
 
 	/**
-	 * kz_event_featured : stockage des valeurs A/B pour des problématiques de non stockage si valeur numérique à 0
+	 * Enregistrement de la metabox 'place'
 	 *
-	 * @return void
-	 * @author 
+	 * @uses self::save_place()
+	 * @param $post_id int le post sur lequel on vient attacher la meta  
 	 **/
 	private function save_place_meta($post_id)
 	{	
@@ -357,22 +346,20 @@ class Kidzou_Admin_Place {
 		if ( !Kidzou_Utils::current_user_is('contributor') )
 			return $post_id;
 
-		$type = get_post_type($post_id);
-
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
-		$events_meta['location_name'] 			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
-		$events_meta['location_address'] 		= (isset($_POST['kz_location_address']) ? $_POST['kz_location_address'] : '');
-		$events_meta['location_website'] 		= (isset($_POST['kz_location_website']) ? $_POST['kz_location_website'] : '');
-		$events_meta['location_phone_number'] 	= (isset($_POST['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
-		$events_meta['location_city'] 			= (isset($_POST['kz_location_city']) ? $_POST['kz_location_city'] : '');
-		$events_meta['location_latitude'] 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
-		$events_meta['location_longitude'] 		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
+		$location_name			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
+		$location_address 		= (isset($_POST['kz_location_address']) ? $_POST['kz_location_address'] : '');
+		$location_website 		= (isset($_POST['kz_location_website']) ? $_POST['kz_location_website'] : '');
+		$location_phone_number 	= (isset($_POST['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
+		$location_city			= (isset($_POST['kz_location_city']) ? $_POST['kz_location_city'] : '');
+		$location_latitude 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
+		$location_longitude		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
 
-		$prefix = 'kz_' . $type . '_';
-
-		Kidzou_Admin::save_meta($post_id, $events_meta, $prefix);
+		Kidzou_GeoHelper::set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude);
 		
 	}
+
+
 
 }
