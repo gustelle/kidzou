@@ -699,60 +699,12 @@ class Kidzou_Admin {
 	}
 
 	/**
-	 * NOTE:     Actions are points in the execution of a page or process
-	 *           lifecycle that WordPress fires.
-	 *
-	 *           Actions:    http://codex.wordpress.org/Plugin_API#Actions
-	 *           Reference:  http://codex.wordpress.org/Plugin_API/Action_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	// public function action_method_name() {
-	// 	// @TODO: Define your action hook callback here
-	// }
-
-	/**
-	 * NOTE:     Filters are points of execution in which WordPress modifies data
-	 *           before saving it or sending it to the browser.
-	 *
-	 *           Filters: http://codex.wordpress.org/Plugin_API#Filters
-	 *           Reference:  http://codex.wordpress.org/Plugin_API/Filter_Reference
-	 *
-	 * @since    1.0.0
-	 */
-	// public function filter_method_name() {
-	// 	// @TODO: Define your filter hook callback here
-	// }
-
-	/**
-	 * fonction generique de sauvegarde des meta d'un post, gere les cas de Update (meta existantes) / Delete (valeurs nulles) 
-	 *
-	 * @param int $post_id ID du post en cours d'édition
-	 * @param Array $arr un tableau de meta/valeurs
-	 * @param string $prefix Prefixe optionnel des meta à enregistrer (ex: kz_)
-	 * @return static
+	 * legacy method qui renvoit vers une classe Utilitaire
+	 * afin de partager cette methode avec des API qui ne doivent pas dépendre des composants d'admin
 	 */
 	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
 
-		if ($post_id==0)
-			return;
-
-		// Kidzou_Utils::log(array('save_meta'=> array('post_id'=>$post_id, "arr"=>$arr, "prefix"=>$prefix )), true);
-
-		// Add values of $events_meta as custom fields
-		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
-
-			$pref_key = $prefix.$key; 
-			$prev = get_post_meta($post_id, $pref_key, TRUE);
-
-			if ($prev!='') { // If the custom field already has a value
-				update_post_meta($post_id, $pref_key, $value);
-			} else { // If the custom field doesn't have a value
-				if ($prev=='') delete_post_meta($post_id, $pref_key);
-				add_post_meta($post_id, $pref_key, $value, TRUE);
-			}
-			if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
-		}
+		Kidzou_Utils::save_meta($post_id, $arr, $prefix);
 
 	}
 

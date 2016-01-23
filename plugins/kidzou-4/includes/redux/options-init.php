@@ -139,6 +139,9 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 set_transient( 'kz_mailchimp_lists', $lists, 0 ); //never expires ! 
             }
 
+            //pour selectionner un user dans les options d'import de contenu
+            $users_list = get_users_list('contributeur_pro');
+
             //intégration Gravity Forms
             $gf = false;
             if (class_exists('GFForms')) {
@@ -470,6 +473,38 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
                         'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
                         'default'  => '0',// 1 = on | 0 = off
+                    ),
+
+                )
+            );
+
+            $this->sections[] = array(
+                'title'     => __('Import de contenu', 'kidzou'),
+                'desc'      => __('Allofamille, Facebook', 'kidzou'),
+                'icon'      => 'el el-download',
+                'fields'    => array(
+
+                    //user auquel sont rattachés les contenus importés
+                    array(
+                        'id'       => 'import_author_id',
+                        'type'     => 'select',
+                        'title'    => __('Auteur des contenus import&eacute;s', 'kidzou'), 
+                        'subtitle' => __('Il est obligatoirement administrateur du site', 'kidzou'),
+                        // 'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
+                        // Must provide key => value pairs for select options
+                        'options'  => $users_list
+                    ),
+
+                    //Template de contenu (append)
+                    array(
+                        'id'        => 'import_content_append',
+                        'type'      => 'ace_editor',
+                        'title'     => __('Ajouter le contenu suivant en fin de contenu import&eacute;', 'kidzou'),
+                        'subtitle'  => __('Code HTML', 'kidzou'),
+                        'mode'      => 'html',
+                        'theme'     => 'monokai',
+                        // 'desc'      => 'Un javascript est attendu',
+                        'default'   => ''
                     ),
 
                 )
@@ -1150,15 +1185,34 @@ if (!function_exists('get_mailchimp_lists')):
 
         $mailchimp = new MailChimp( $key );
         $retval = $mailchimp->call('lists/list');
-        Kidzou_Utils::log($retval);
+        // Kidzou_Utils::log($retval);
         foreach ( $retval['data'] as $list ) {
             $lists[$list['id']] = $list['name'];
         }
 
-        Kidzou_Utils::log('MailChimp Lists : ');
-        Kidzou_Utils::log($lists);
+        // Kidzou_Utils::log('MailChimp Lists : ');
+        // Kidzou_Utils::log($lists);
         
         return $lists;
+    }
+ 
+endif;
+
+/**
+ * Options de selection d'un user
+ **/
+if (!function_exists('get_users_list')):
+ 
+    function get_users_list($role) {
+
+        $list = array();
+
+        $users= get_users( array('role'=>$role) );
+        foreach ( $users as $user ) {
+            $list[$user->ID] = $user->user_login.' ('.$user->display_name.')';
+        }
+        
+        return $list;
     }
  
 endif;

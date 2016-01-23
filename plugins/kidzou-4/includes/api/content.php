@@ -23,6 +23,113 @@ Controller Author: Kidzou
 class JSON_API_Content_Controller {
 
 	/**
+	 * Spécifique Kidzou pour créer un post en tenant compte de l'adresse, du client, et plus généralement de toutes les meta associées
+	 * Remarque : on pourrait utiliser la methode standard create_post de JSON API mais il faudrait créer séparément les méta
+	 *
+	 * Il faut avoir les droits admin pour utiliser cette méthode et passer :
+	 * * soit une clé d'API 
+	 * * soit un nonce
+	 * 
+	 *
+	 */
+	public function create_post() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('content', 'create_post');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+		
+		if ( !isset($_POST['data']) ) $json_api->error("l'élement 'data' est attendu en parametre POST");
+
+		$data 		= $_POST['data'];
+
+		$titre 			= $data['titre'];
+		$description 	= $data['description'];
+		$adresse 		= $data['adresse'];
+		$infos 			= $data['infos'];
+
+		$adresseRedresseeCorrecte = false;
+
+		if (isset($_POST['location'])) {
+
+			$location = $_POST['location'];
+
+			$street 	= $location['results'][0]['locations'][0]['street'];
+			$city 		= $location['results'][0]['locations'][0]['adminArea5'];
+			$postalCode = $location['results'][0]['locations'][0]['postalCode'];
+			$lat = $location['results'][0]['locations'][0]['latLng']['lat'];
+			$lng = $location['results'][0]['locations'][0]['latLng']['lng'];
+
+			//généralement quand l'adresse n'est pas bien redréssée le pays est 'US' 
+			//de toute facon sur Kidzou on utilise des adresses en 'FR'
+			$adresseRedresseeCorrecte = ($location['results'][0]['locations'][0]['adminArea1']=='FR');
+
+		}
+		
+		//recuperer le user "KidzouTeam"
+		$author_id 			= Kidzou_Utils::get_option('import_author_id');
+		$template_append 	= Kidzou_Utils::get_option('import_content_append');
+
+		//créer le post 
+		$post_id = wp_insert_post(
+			array(
+				'post_author'		=>	$author_id,
+				'post_title'		=>	wp_strip_all_tags($titre),
+				'post_content'		=>  $description.'<br/>'.$infos.'<br/>'.$template_append,
+				'post_status'		=>	'draft',
+				'post_type'			=>	'post',
+
+			)
+		);
+
+		//créer le customer
+		$customer_id = wp_insert_post(
+			array(
+				'post_author'		=>	$author_id,
+				'post_title'		=>	wp_strip_all_tags($titre),
+				'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
+				'post_type'			=>	'customer'
+			)
+		);
+
+		//associer l'adresse au customer, 
+		//elle sera transitive sur le post par association du client au post
+		if ($adresseRedresseeCorrecte) {
+
+			Kidzou_GeoHelper::set_location(
+				$customer_id, 
+				$titre, 
+				$street.', '.$postalCode.' '.$city, 
+				$adresse['web'], 
+				$adresse['tel'], 
+				$city, 
+				$lat, 
+				$lng );
+		}
+
+		//associer le post au customer
+		$ids = array();
+		$ids[] = $post_id;
+		Kidzou_Customer::attach_posts($customer_id, $ids);
+
+		return array(
+			'post_edit_url'=> admin_url( 'post.php?post='.$post_id.'&action=edit' ),
+			'customer_edit_url'=> admin_url( 'post.php?post='.$customer_id.'&action=edit' )
+		);
+	}
+
+	/**
 	 * tous les lieux référencés et toutes ses metadata
 	 *
 	 * @param key : la clé d'API publique 
