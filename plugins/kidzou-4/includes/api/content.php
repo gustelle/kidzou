@@ -107,7 +107,7 @@ class JSON_API_Content_Controller {
 		//elle sera transitive sur le post par association du client au post
 		if ($adresseRedresseeCorrecte) {
 
-			Kidzou_GeoHelper::set_location(
+			Kidzou_Geoloc::set_location(
 				$customer_id, 
 				$titre, 
 				$street.', '.$postalCode.' '.$city, 
@@ -182,7 +182,7 @@ class JSON_API_Content_Controller {
 		
 		$place = array(
 				'post'			=> $post,
-				'location'		=> Kidzou_GeoHelper::get_post_location($id),
+				'location'		=> Kidzou_Geoloc::get_post_location($id),
 				'votes'			=> Kidzou_Vote::getVoteCount($id),
 				'is_event' 		=> $is_event,
 				'event_dates' 	=> ($is_event ? Kidzou_Events::getEventDates($id) : array()),
@@ -271,7 +271,7 @@ class JSON_API_Content_Controller {
 				
 				array_push($places, array(
 						'post'			=> $post,
-						'location'		=> Kidzou_GeoHelper::get_post_location(get_the_ID()),
+						'location'		=> Kidzou_Geoloc::get_post_location(get_the_ID()),
 						'votes'			=> Kidzou_Vote::getVoteCount(get_the_ID()),
 						'is_event' 		=> $is_event,
 						'event_dates' 	=> ($is_event ? Kidzou_Events::getEventDates(get_the_ID()) : array()),
@@ -457,7 +457,7 @@ class JSON_API_Content_Controller {
 						'permalink' => get_the_permalink(),
 						'thumbnail' => Kidzou_Utils::get_post_thumbnail($value->post_id, 'large'),
 						'id'		=> $value->post_id,
-						'location'	=> Kidzou_GeoHelper::get_post_location($value->post_id),
+						'location'	=> Kidzou_Geoloc::get_post_location($value->post_id),
 						'distance'	=> $value->distance,
 						'votes'		=> Kidzou_Vote::getVoteCount($value->post_id),
 						'comments_count'	=> wp_count_comments($value->post_id)->approved,
@@ -542,7 +542,7 @@ class JSON_API_Content_Controller {
 
 			setup_postdata($post);
 			$dates = Kidzou_Events::getEventDates($post->ID);
-			$location = Kidzou_GeoHelper::get_post_location($post->ID);
+			$location = Kidzou_Geoloc::get_post_location($post->ID);
 			$author = get_the_author();
 			$publish_date = get_the_date('Y-m-d');
 			$excerpt = get_the_excerpt();

@@ -4,25 +4,9 @@ add_action( 'plugins_loaded', array( 'Kidzou_WebPerf', 'get_instance' ), 100 );
 
 
 /**
- * Kidzou
+ * Gestion des réglages de performance Web, optimisation JS et CSS
  *
- * @package   Kidzou_WebPerf
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
- *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
- *
- * @package Kidzou_WebPerf
+ * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
 class Kidzou_WebPerf {

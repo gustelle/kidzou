@@ -79,7 +79,7 @@ class Kidzou_Geolocator {
 		//d'abord on prend la ville dans l'URI
 		$uri = $_SERVER['REQUEST_URI'];
 
-		$regexp = Kidzou_GeoHelper::get_metropole_uri_regexp();
+		$regexp = Kidzou_Metropole::get_metropole_uri_regexp();
 
 		$cook_m = '';
 
@@ -120,14 +120,14 @@ class Kidzou_Geolocator {
 
 		//si rien ne match, on prend la ville par défaut
 		if ($cook_m=='')  {
-			$cook_m = Kidzou_GeoHelper::get_default_metropole();
+			$cook_m = Kidzou_Metropole::get_default_metropole();
 			// Kidzou_Utils::log('[get_request_metropole] ville par défaut : '. $cook_m);
 		} 
 
 	    $isCovered = false;
 
 	    if ($cook_m!='') 
-	    	$isCovered = Kidzou_GeoHelper::is_metropole($cook_m);
+	    	$isCovered = Kidzou_Metropole::is_metropole($cook_m);
 
 	    if ($isCovered) 
 	    	$this->request_metropole = $cook_m;
@@ -158,7 +158,7 @@ class Kidzou_Geolocator {
 		$is_bypass_url = preg_match( '#'.  $bypass_url .'#', $_SERVER['REQUEST_URI'] );
 
 		//Cas particulier de la métropole à portée nationale 
-		$is_national = ($this->request_metropole == Kidzou_GeoHelper::get_national_metropole());
+		$is_national = ($this->request_metropole == Kidzou_Metropole::get_national_metropole());
 
 		if ( Kidzou_Utils::is_really_admin() || 
 			$is_bypass_url || 
@@ -313,7 +313,7 @@ class Kidzou_Geolocator {
 	{
 		$join = ''; 
 
-		$metropole = Kidzou_GeoHelper::get_post_metropole(); //object
+		$metropole = Kidzou_Metropole::get_post_metropole(); //object
 
 		if ($metropole!=null) {
 			$join .= "
@@ -401,7 +401,7 @@ class Kidzou_Geolocator {
 
 		//par defaut
 		if (count($post_types)==0)
-			$post_types = Kidzou_GeoHelper::get_supported_post_types();
+			$post_types = Kidzou_Geoloc::get_supported_post_types();
 
 		$post_types_list = implode('\',\'', $post_types);
 

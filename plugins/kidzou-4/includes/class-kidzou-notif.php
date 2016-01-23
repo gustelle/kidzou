@@ -4,17 +4,7 @@ add_action( 'plugins_loaded', array( 'Kidzou_Notif', 'get_instance' ), 100 );
 
 
 /**
- * Kidzou
- *
- * @package   Kidzou_Notif
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
- * Classe mutualisée entre Front End et Admin (Back End)
+ * Classe de gestion les notifications dans le front
  *
  *
  * @package Kidzou_Notif

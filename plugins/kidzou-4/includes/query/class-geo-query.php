@@ -6,7 +6,7 @@ class Geo_Query extends WP_Query {
 
 
     $the_args = array_merge($args, array(
-          'meta_key' => Kidzou_GeoHelper::$meta_latitude , 
+          'meta_key' => Kidzou_Geoloc::$meta_latitude , 
           // 'orderby' => array('meta_value' => 'ASC'),
         )
       );

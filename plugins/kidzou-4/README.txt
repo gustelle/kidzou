@@ -1,5 +1,5 @@
-<h4>FEVRIER 2015</h4>
-<h5>2015</h5>
+<h4>Chrome Extention - Import de contenu</h4>
+<h5>Janvier 2015</h5>
 <ul>
 	<li>Refactoring des API et des classes Admin pour permettre l'import de contenu par API depuis une extension Chrome</li>
 </ul>

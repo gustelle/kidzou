@@ -1,29 +1,18 @@
 <?php
 
-add_action('plugins_loaded', array('Kidzou_GeoHelper', 'get_instance'), 100);
+add_action('plugins_loaded', array('Kidzou_Metropole', 'get_instance'), 100);
 
 
 /**
- * Cette classe fournit des facilités d'accès aux meta de geoloc des posts ainsi
- * qu'aux metropoles disponibles dans le système
+ * Cette classe gère les métropoles du système
  *
- * @package Kidzou_GeoHelper
+ * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_GeoHelper {
+class Kidzou_Metropole {
 	
 
 	const REWRITE_TAG = '%kz_metropole%';
-
-	/**
-	 *
-	 * @var      string
-	 */
-	const META_COORDS = 'kz_coords';
-
-	//utilisé en externe
-	public static $meta_latitude = 'kz_post_location_latitude';
-	public static $meta_longitude = 'kz_post_location_longitude';
 
 	/**
 	 * Instance of this class.
@@ -33,12 +22,12 @@ class Kidzou_GeoHelper {
 	 */
 	protected static $instance = null;
 
-	
 	/**
-	 * le tableau des post types qui supportent la geolocalisation$
-	 * ce tableay est complété à l'init par les post types additionnels ajoutés par l'admin
+	 * le tableau des post types qui supportent le rattachement d'un post à une metropole
+	 * ce tableau est complété à l'init par les post types additionnels ajoutés par l'admin
 	 */
 	protected static $supported_post_types = array('post', 'page'); //'offres'
+
 
 
 	/**
@@ -109,72 +98,72 @@ class Kidzou_GeoHelper {
 	}
 
 
-	/**
-	 * les infos d'emplacement géographique d'un post
-	 *
-	 * @return Tableau contenant les meta de Geoloc d'un post
-	 * @author 
-	 **/
-	public static function get_post_location($post_id=0)
-	{
+	// /**
+	//  * les infos d'emplacement géographique d'un post
+	//  *
+	//  * @return Tableau contenant les meta de Geoloc d'un post
+	//  * @author 
+	//  **/
+	// public static function get_post_location($post_id=0)
+	// {
 
-	    if ($post_id==0)
-	    {
-	        global $post; 
-	        $post_id = $post->ID; 
-	    }
+	//     if ($post_id==0)
+	//     {
+	//         global $post; 
+	//         $post_id = $post->ID; 
+	//     }
 
-	    //necessité de récupérer le post type
-	    //car les customers ont une adresse stockée sur la meta kz_customer_xxx
-	    //c'est du legacy...
-	    $post = get_post($post_id); 
-	   	$type = $post->post_type;
+	//     //necessité de récupérer le post type
+	//     //car les customers ont une adresse stockée sur la meta kz_customer_xxx
+	//     //c'est du legacy...
+	//     $post = get_post($post_id); 
+	//    	$type = $post->post_type;
 
-	    $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
-	    $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
-	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE); //'kz_'.$type.'_location_latitude'
-	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE); //'kz_'.$type.'_location_longitude'
-	    $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
-	    $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
-	    $location_city   = get_post_meta($post_id, 'kz_'.$type.'_location_city', TRUE);
+	//     $location_name      = get_post_meta($post_id, 'kz_'.$type.'_location_name', TRUE);
+	//     $location_address   = get_post_meta($post_id, 'kz_'.$type.'_location_address', TRUE);
+	//     $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE); //'kz_'.$type.'_location_latitude'
+	//     $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE); //'kz_'.$type.'_location_longitude'
+	//     $location_tel   = get_post_meta($post_id, 'kz_'.$type.'_location_phone_number', TRUE);
+	//     $location_web   = get_post_meta($post_id, 'kz_'.$type.'_location_website', TRUE);
+	//     $location_city   = get_post_meta($post_id, 'kz_'.$type.'_location_city', TRUE);
 
-	    return array(
-	        'location_name' => $location_name,
-	        "location_address" => $location_address,
-	        "location_latitude" => $location_latitude,
-	        "location_longitude" => $location_longitude,
-	        "location_tel" => $location_tel,
-	        "location_web" => $location_web,
-	        "location_city" => $location_city
-	    );
-	}
+	//     return array(
+	//         'location_name' => $location_name,
+	//         "location_address" => $location_address,
+	//         "location_latitude" => $location_latitude,
+	//         "location_longitude" => $location_longitude,
+	//         "location_tel" => $location_tel,
+	//         "location_web" => $location_web,
+	//         "location_city" => $location_city
+	//     );
+	// }
 
-	/**
-	 * Enregistrement de la meta 'place'. Cette méthode est indépendant de la metabox pour pouvoir être attaquée depuis des API
-	 *
-	 * @param $post_id int le post sur lequel on vient attacher la meta  
-	 * @param $arr string les données de localisation (location_name, location_address, location_website, location_phone_number, location_city, location_latitude, location_longitude)
-	 **/
-	public function set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude )
-	{	
-		if ($location_name=='' || $location_address=='' || $location_city=='')
-			return new WP_Error('save_place', 'Certaines donnees sont manquantes');
+	// /**
+	//  * Enregistrement de la meta 'place'. Cette méthode est indépendant de la metabox pour pouvoir être attaquée depuis des API
+	//  *
+	//  * @param $post_id int le post sur lequel on vient attacher la meta  
+	//  * @param $arr string les données de localisation (location_name, location_address, location_website, location_phone_number, location_city, location_latitude, location_longitude)
+	//  **/
+	// public function set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude )
+	// {	
+	// 	if ($location_name=='' || $location_address=='' || $location_city=='')
+	// 		return new WP_Error('save_place', 'Certaines donnees sont manquantes');
 
-		$type = get_post_type($post_id);
+	// 	$type = get_post_type($post_id);
 
-		$prefix = 'kz_' . $type . '_';
+	// 	$prefix = 'kz_' . $type . '_';
 
-		$meta['location_name'] 			= $location_name;
-		$meta['location_address'] 		= $location_address;
-		$meta['location_website'] 		= $location_website;
-		$meta['location_phone_number'] 	= $location_phone_number;
-		$meta['location_city'] 			= $location_city;
-		$meta['location_latitude'] 		= $location_latitude;
-		$meta['location_longitude'] 	= $location_longitude;
+	// 	$meta['location_name'] 			= $location_name;
+	// 	$meta['location_address'] 		= $location_address;
+	// 	$meta['location_website'] 		= $location_website;
+	// 	$meta['location_phone_number'] 	= $location_phone_number;
+	// 	$meta['location_city'] 			= $location_city;
+	// 	$meta['location_latitude'] 		= $location_latitude;
+	// 	$meta['location_longitude'] 	= $location_longitude;
 
-		Kidzou_Utils::save_meta($post_id, $meta, $prefix);
+	// 	Kidzou_Utils::save_meta($post_id, $meta, $prefix);
 		
-	}
+	// }
 
 	/**
 	 * True|False selon que le user choisisse d'injecter la metropole courante dans l'URL de la page
@@ -196,32 +185,32 @@ class Kidzou_GeoHelper {
 	    return get_post_meta($post_id, 'kz_rewrite_page', TRUE);
 	}
 
-	/**
-	 * le post est-il associé à un lieu ?
-	 *
-	 * @return Tableau contenant les meta de Geoloc d'un post
-	 * @author 
-	 **/
-	public static function has_post_location($post_id=0)
-	{
+	// /**
+	//  * le post est-il associé à un lieu ?
+	//  *
+	//  * @return Tableau contenant les meta de Geoloc d'un post
+	//  * @author 
+	//  **/
+	// public static function has_post_location($post_id=0)
+	// {
 
-	    if ($post_id==0)
-	    {
-	        global $post;
-	        $post_id = $post->ID;
-	    }
+	//     if ($post_id==0)
+	//     {
+	//         global $post;
+	//         $post_id = $post->ID;
+	//     }
 
-	    $post = get_post($post_id);
+	//     $post = get_post($post_id);
 
-	    $type = $post->post_type;
+	//     $type = $post->post_type;
 
-	    $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE);
-	    $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
+	//     $location_latitude  = get_post_meta($post_id, 'kz_'.$type.'_location_latitude', TRUE);
+	//     $location_longitude = get_post_meta($post_id, 'kz_'.$type.'_location_longitude', TRUE);
 
-	    $return = ($location_latitude!='' && $location_longitude!='');
+	//     $return = ($location_latitude!='' && $location_longitude!='');
 
-	    return $return;
-	}	
+	//     return $return;
+	// }	
 
 	/**
 	 * la metropole du post courant

@@ -3,23 +3,10 @@
 add_action( 'plugins_loaded', array( 'Kidzou_Customer', 'get_instance' ), 100 );
 
 /**
- * Kidzou
- *
- * @package   Kidzou_Customer
- * @author    Guillaume Patin <guillaume@kidzou.fr>
- * @license   GPL-2.0+
- * @link      http://www.kidzou.fr
- * @copyright 2014 Kidzou
- */
-
-/**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
- *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
+ * Cette classe enrigistre le post_type 'customer' et accède aux meta d'un Customer donné, à savoir :
+ * * ses API
+ * * Autorisation ou non de voir les analytics
+ * * ses articles
  *
  * @package Kidzou_Customer
  * @author  Guillaume Patin <guillaume@kidzou.fr>
@@ -409,7 +396,7 @@ class Kidzou_Customer {
 	 * @param $customer_id int le post sur lequel on vient attacher la meta  
 	 * @param $posts Array tableau des ID des posts à associer au customer
 	 **/
-	public function attach_posts($customer_id, $posts=array())
+	public static function attach_posts($customer_id, $posts=array())
 	{	
 		if (empty($posts))
 			return new WP_Error('set_customer_for_posts', 'Aucun ID de post passé dans le tableau');
@@ -449,6 +436,46 @@ class Kidzou_Customer {
 		
 	}
 
+	/**
+	 * Enregistrement de la meta 'analytics' sur le customer, ce qui permet aux users de ce customer de voir les analytics
+	 *
+	 * @param $is_analytics boolean true si les users du customer sont autorisés à voir les analytics 
+	 *
+	 **/
+	public static function set_analytics($customer_id, $is_analytics = false)
+	{	
+		$meta = array();
+
+		$meta[Kidzou_Customer::$meta_customer_analytics] = $is_analytics;
+
+		Kidzou_Utils::save_meta($customer_id, $meta);
+		
+	}
+
+	/**
+	 * Enregistrement de la meta 'API' sur le customer, ce qui fournit des indications sur les API et leurs quotas autorisés pour le customer
+	 *
+	 * @param $api_names Array tableau de noms de méthode dans les API customer
+	 * @param $key string Clé d'API pour le customer
+	 * @param $quota int nombre d'appels possibles pour le customer
+	 * @todo seul une API peut être gérée pour l'instant, autrement dit on ne considère que la premiere ligne du tableau $apis
+	 **/
+	public static function set_api($customer_id, $api_names=array(), $key='', $quota=0)
+	{	
+		if (empty($api_names))
+			return new WP_Error('set_api', 'Aucune API a configurer');
+
+		if ($key=='')
+			return new WP_Error('set_api', 'Aucune key pour les API');
+
+		$meta = array();
+
+		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
+		$meta[Kidzou_Customer::$meta_api_quota] = array($api_names[0] => $quota);
+
+		Kidzou_Utils::save_meta($customer_id, $meta);
+		
+	}
 
 
 } //fin de classe

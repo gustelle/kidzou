@@ -48,9 +48,9 @@
 
 							<?php
 
-							if (Kidzou_GeoHelper::has_post_location()) {
+							if (Kidzou_Geoloc::has_post_location()) {
 
-								$location = Kidzou_GeoHelper::get_post_location();
+								$location = Kidzou_Geoloc::get_post_location();
 							?>
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php if (isset($location['location_address']) && $location['location_address']<>'') echo '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>'; ?>
@@ -213,9 +213,9 @@
 
 					<?php 
 
-						if (Kidzou_GeoHelper::has_post_location()) { 
+						if (Kidzou_Geoloc::has_post_location()) { 
 
-							$location = Kidzou_GeoHelper::get_post_location();
+							$location = Kidzou_Geoloc::get_post_location();
 
 					?>
 
