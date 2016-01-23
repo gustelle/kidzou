@@ -101,6 +101,8 @@ var kidzouPlaceModule = (function() { //havre de paix
 		    //https://developers.google.com/places/documentation/details
 			self.completePlace = function(result) {
 
+				// console.debug('completePlace', result);
+
 				self.placeData().place(new Place(
 						result.name, 
 						result.address, 
@@ -128,7 +130,13 @@ var kidzouPlaceModule = (function() { //havre de paix
 			self.initPlace = function(name, address, website, phone_number, city, lat, lng, opening_hours) {
 
 				self.placeData().place(new Place(name, address, website, phone_number, city, lat, lng, opening_hours));
-
+				
+				//blocage de la surcharge d'adresse dans proposePlace
+				//si on reprend une adresse et qu'on en propose une autre
+				//Ex : 	j'utilise une adresse, le client n'est pas sélectionné
+				//		je reprend plus tard cette adresse, je sélectionne le client mais garde l'ancienne adresse..
+				self.isPlaceComplete(true);
+				
 				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')
 					self.customPlace(true); //l'adresse a commencé à etre renseignée
 
@@ -136,7 +144,6 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 			//Ajouter une adresse à la liste des propositions
 			self.proposePlace = function(type, place) {
-				
 				//si aucune place n'a été renseignée on peut directement mapper les champs
 				if (!self.isPlaceComplete()) {
 					self.completePlace(place);

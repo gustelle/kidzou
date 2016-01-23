@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'NOEL-2015';
+	const VERSION = 'HernieDiscale';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Introduction d'un Widget qui permet d'aspirer une page HTML et d'en extraire le contenu";
+	public static $version_description = "Refactoring majeur des classes, ajout d'une Extension Chrome pour importer les contenus";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
