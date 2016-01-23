@@ -1,3 +1,10 @@
+<h4>Hernie Discale</h4>
+<h5>Janvier 2015</h5>
+<ul>
+	<li>Validation de l'extension chrome</li>
+	<li>Validation du refactoring</li>
+</ul>
+
 <h4>Chrome Extention - Import de contenu</h4>
 <h5>Janvier 2015</h5>
 <ul>

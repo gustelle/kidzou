@@ -678,11 +678,6 @@ class Kidzou_Customer_Metaboxes {
 
 		$key = Kidzou_Customer::$meta_customer;
 
-		// Kidzou_Utils::log($_POST,true);
-
-		// $tmp_post = $_POST[$key];
-		// $tmp_arr = explode("#", $tmp_post );
-		// $events_meta[$key] 	= $tmp_arr[0];
 		$events_meta[$key] 	= $_POST['customer_select'];
 
 		//toujours s'assurer que si le client n'est pas positonné, la valeur 0 est enregistrée

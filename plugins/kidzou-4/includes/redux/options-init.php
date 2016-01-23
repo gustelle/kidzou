@@ -85,14 +85,14 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             Kidzou_Notif::cleanup_transients();
 
             //rebuild des regles de rewrite
-            kidzou_Admin_Geo::rebuild_geo_rules();
+            Kidzou_Taxonomies::rebuild_geo_rules();
 
             //si lu user le demande, on synchronise le Geo Data Store avec les meta kidzou
             if (isset($options['geo_sync_geods']) && intval($options['geo_sync_geods'])==1) {
 
                 Kidzou_Utils::log("Déclenchement de la synchro avec Geo Data Store ");
 
-                kidzou_Admin_Geo::sync_geo_data();
+                Kidzou_GeoDS::sync_geo_data();
 
             }
 
