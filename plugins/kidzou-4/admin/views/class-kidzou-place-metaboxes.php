@@ -382,6 +382,8 @@ class Kidzou_Place_Metaboxes {
 		if ( !Kidzou_Utils::current_user_is('contributor') )
 			return $post_id;
 
+		// Kidzou_Utils::log($_POST,true);
+
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 		$location_name			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
