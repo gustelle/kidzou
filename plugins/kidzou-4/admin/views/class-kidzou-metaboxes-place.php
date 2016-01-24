@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Place_Metaboxes', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Place', 'get_instance' ) );
 
 /**
  * Gestion des metadonnées de localisation d'un post, rattachement à un lieu 
@@ -9,7 +9,7 @@ add_action( 'kidzou_admin_loaded', array( 'Kidzou_Place_Metaboxes', 'get_instanc
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_Place_Metaboxes {
+class Kidzou_Metaboxes_Place {
 
 	/**
 	 * Instance of this class.

@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Customer_Metaboxes', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Customer', 'get_instance' ) );
 
 /**
  * Cette classe gère les Metaboxes utiles à la gestion des données Customer dans les écrans d'admin
@@ -8,7 +8,7 @@ add_action( 'kidzou_admin_loaded', array( 'Kidzou_Customer_Metaboxes', 'get_inst
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_Customer_Metaboxes {
+class Kidzou_Metaboxes_Customer {
 
 	/**
 	 * Instance of this class.

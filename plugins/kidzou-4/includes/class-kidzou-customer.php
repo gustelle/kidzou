@@ -254,7 +254,7 @@ class Kidzou_Customer {
 		if (!$customer || $customer=='')
 			$customer = 0;
 
-		Kidzou_Utils::log(array('method', __METHOD__, 'post_id' => $post_id, 'customer'=> $customer) , true);
+		// Kidzou_Utils::log(array('method', __METHOD__, 'post_id' => $post_id, 'customer'=> $customer) , true);
 
 		return intval($customer);
 	}
@@ -309,7 +309,7 @@ class Kidzou_Customer {
 		if ($customer_id==0) {
 
 			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
-
+			// Kidzou_Utils::log('getPostsByCustomerID '.$customer_id, true);
 			if ($customer_id==0)
 				return $posts;
 		}
@@ -318,7 +318,7 @@ class Kidzou_Customer {
 
 		$defaults = array(
 			'posts_per_page' => 4,
-			'post_type' => self::$supported_post_types,
+			// 'post_type' => self::$supported_post_types,
 			'post__not_in' => array( $post->ID ) //exclure le post courant 
 		);
 
@@ -337,18 +337,21 @@ class Kidzou_Customer {
 
 		$rd_args = array(
 			'posts_per_page' => $posts_per_page,
-			'post_type' => self::$supported_post_types,
+			'post_type' => 'post',
 			'meta_key' => self::$meta_customer,
 			'meta_value' => $customer_id,
-			'post__not_in'=> $post__not_in,
+			'exclude'=> implode(",",$post__not_in),
 	
 		);
 		 
-		$rd_query = new WP_Query( $rd_args );
+		// $query = new WP_Query( $rd_args );
+		// $list = $query->get_posts();
 
-		$list = 	$rd_query->get_posts(); 
+		$posts = get_posts( $rd_args );
 
-		return $list;
+		// Kidzou_Utils::log(array('getPostsByCustomerID'=>$posts), true);
+
+		return $posts;
 
 	}
 
@@ -365,8 +368,6 @@ class Kidzou_Customer {
 			$user_id = get_current_user_id();
 
 		$customer_ids = get_user_meta($user_id, self::$meta_customer, false); 
-
-		// Kidzou_Utils::log( 'getCustomersIDByUserID -> ' . count($customer_ids) );
 
 		//supprimer les révisions et autrs
 		return array_filter($customer_ids, function($item) {

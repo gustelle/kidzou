@@ -89,9 +89,7 @@ class CustomerPostsWidget extends WP_Widget
 			$title = apply_filters( 'widget_title', empty( $instance['title'] ) ? strip_tags( "Contenus associ&eacute;" ) : $instance['title'] ); //str_replace( "%postname%", $post->post_title, $crp_settings['title'] )
 			$limit = $instance['limit'];
 			if ( empty( $limit ) ) $limit = 5;//$crp_settings['limit'];
-
-			
-
+		
 			$posts = Kidzou_Customer::getPostsByCustomerID();
 
 			/**
@@ -101,10 +99,7 @@ class CustomerPostsWidget extends WP_Widget
 				global $post;
 			    $is_active = Kidzou_Events::isTypeEvent($entry->ID) ? Kidzou_Events::isEventActive($entry->ID) : true;
 			    $is_self = ($post->ID == $entry->ID);
-			    // Kidzou_Utils::log(
-			    // 	array('widget filter'=> 
-			    // 			array('is_self'=> $is_self, 'is_active'=> $is_active, 'is_type_event'=>  Kidzou_Events::isTypeEvent($entry->ID), 'is_event_active'=>Kidzou_Events::isEventActive($entry->ID) )
-			    // 		), true);
+			    // Kidzou_Utils::log(array('filtering widget'=>array( 'post' => array( 'id'=> $entry->ID, 'is_active'=>$is_active,'is_self'=>$is_self) )),true);
 			    return !$is_self && $is_active;
 			}); 
 
@@ -117,10 +112,13 @@ class CustomerPostsWidget extends WP_Widget
 			}
 
 			foreach ($filtered as $_post) {
-				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', $_post->post_title, $_post->post_title, false, 'thumbnail' );
+				Kidzou_Utils::log(array('filtered widget'=>get_permalink($_post->ID)),true);
+										  //100, 100, $class='', 								$alttext='', 		$titletext='', 	$fullpath=false, $custom_field='', $post=''
+				$thumbnail = get_thumbnail( 50, 50, 'attachment-shop_thumbnail wp-post-image', $_post->post_title, $_post->post_title, false, 'thumbnail', $_post );
 				$thumb = $thumbnail["thumb"];
 				$output .= "<li class='sidebar_post_item'><a href='".get_permalink($_post->ID)."'>";
-				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"], $_post->post_title, '', '', '', false); 
+											//$thumbnail = '', $use_timthumb = true, $alttext = '',    $width = 100, $height = 100, $class = '', $echoout = true, $forstyle = false, $resize = true, $post='', $et_post_id = ''
+				$output .= print_thumbnail( $thumb, $thumbnail["use_timthumb"],     $_post->post_title, '', '', '', false, false, true, $_post ); 
 				$output .= $_post->post_title."</a></li>";
 			}
 

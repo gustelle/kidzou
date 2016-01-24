@@ -429,7 +429,7 @@ class Kidzou_Utils {
 
 			$pref_key = $prefix.$key; 
 			$prev = get_post_meta($post_id, $pref_key, TRUE);
-
+			// Kidzou_Utils::log('save_meta ' . $pref_key. ' / prev = '. $prev . ' / new = '. $value,true);
 			if ($prev!='') { // If the custom field already has a value
 				update_post_meta($post_id, $pref_key, $value);
 			} else { // If the custom field doesn't have a value

@@ -184,11 +184,9 @@ class Kidzou_Events {
 		$events_meta['start_date'] 	= $start_date;
 		$events_meta['end_date'] 	= $end_date;
 
-		//les options de récurrence
-		if (!empty($recurrence))
-		{
-			$events_meta['recurrence'] = $recurrence;
-		}
+		//sauver la récurrence meme si elle est vide
+		//pour éviter pb de 'avant c'était recurrent, maintenant on ne veut plus que ce le soit
+		$events_meta['recurrence'] = $recurrence;
 
 		Kidzou_Utils::save_meta($event_id, $events_meta, "kz_event_");
 
