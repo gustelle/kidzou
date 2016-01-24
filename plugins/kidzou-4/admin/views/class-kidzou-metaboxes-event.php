@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Events_Metaboxes', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Event', 'get_instance' ) );
 
 
 /**
@@ -9,7 +9,7 @@ add_action( 'kidzou_admin_loaded', array( 'Kidzou_Events_Metaboxes', 'get_instan
  * @package Kidzou_Admin
  * @author  Guillaume Patin <guillaume@kidzou.fr>
  */
-class Kidzou_Events_Metaboxes {
+class Kidzou_Metaboxes_Event {
 
 	/**
 	 * Instance of this class.
@@ -205,6 +205,8 @@ class Kidzou_Events_Metaboxes {
 		$recurrence		= $event_meta['recurrence'];
 		$past_dates		= $event_meta['past_dates'];
 
+		// Kidzou_Utils::log('recurrence,'.$recurrence,true);
+
 		$facebook_appId = Kidzou_Utils::get_option('fb_app_id','');
 		$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
 
@@ -265,10 +267,10 @@ class Kidzou_Events_Metaboxes {
 				echo '<h4>Fonctions client</h4>
 						<ul>';
 				$checkbox = Kidzou_Featured::isFeatured($post->ID);
-				Kidzou_Utils::log('checkbox '.$checkbox, true);
+				// Kidzou_Utils::log('checkbox '.$checkbox, true);
 				echo '	<li>
 							<label for="kz_event_featured">Mise en avant:</label>
-							<input type="checkbox" name="kz_event_featured"'. ( $checkbox ? 'checked="checked"' : '' ).'/>  
+							<input type="checkbox" name="kz_event_featured"'. ( ($checkbox==1 || $checkbox==true)   ? 'checked="checked"' : '' ).'/>  
 						</li>
 						</ul>';
 			} 
@@ -445,6 +447,7 @@ class Kidzou_Events_Metaboxes {
 		$end_date	= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
 
 		//les options de récurrence
+		// Kidzou_Utils::log('******* kz_event_is_reccuring '. $_POST['kz_event_is_reccuring'], true);
 		if (isset($_POST['kz_event_is_reccuring']) && $_POST['kz_event_is_reccuring']=='on')
 		{
 			$recurrence = array(
@@ -454,14 +457,16 @@ class Kidzou_Events_Metaboxes {
 					"endType" 		=> $_POST['kz_event_reccurence_end_type'],
 					"endValue"		=> ($_POST['kz_event_reccurence_end_type']=='date' ? $_POST['kz_event_reccurence_end_date'] : $_POST['kz_event_reccurence_end_after_occurences'])
 				);
-		}
+		} 
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
-		if ( Kidzou_Utils::current_user_is('administrator') ) 
-			$featured 			= (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on');
-		else {
-			$featured = Kidzou_Featured::isFeatured($post_id);	
+		if ( Kidzou_Utils::current_user_is('administrator') ) {
+			// Kidzou_Utils::log('****** featured ? '.$_POST['kz_event_featured'],true);
+			$featured = (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on');
+		} else {
+			$featured = Kidzou_Featured::isFeatured($post_id);
+			// Kidzou_Utils::log('****** featured : '.$featured,true);	
 		}
 
 		Kidzou_Events::setEventDates($post_id, $start_date, $end_date, $recurrence);
