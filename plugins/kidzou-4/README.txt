@@ -6,9 +6,9 @@
 	<li>Import d'événements Facebook par l'extension chrome</li>
 	<li>Correction d'un bug qui empeche la mise à jour de la checkbox 'recurrence' dans l'admin</li>
 
-	<li>Correction d'un bug d'affichage des thumbnail dans le widget des customer related posts</li>
-	<li>Correction d'un bug qui double les clients à la créatio d'un nouveau client depuis un post</li>
-	<li>Correction d'un bug affecte le même clients à tous les posts dan le widget des customer related posts</li>
+	<li>TODO : Correction d'un bug d'affichage des thumbnail dans le widget des customer related posts</li>
+	<li>TODO : Correction d'un bug qui double les clients à la créatio d'un nouveau client depuis un post</li>
+	<li>TODO : Correction d'un bug affecte le même clients à tous les posts dan le widget des customer related posts</li>
 
 </ul>
 
