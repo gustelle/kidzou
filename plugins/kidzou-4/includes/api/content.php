@@ -58,6 +58,15 @@ class JSON_API_Content_Controller {
 		$description 	= $data['description'];
 		$adresse 		= $data['adresse'];
 		$infos 			= $data['infos'];
+		$name 			= $titre; 
+
+		//contact info
+		$tel 	=	$data['contact']['tel'];
+		$web 	=	$data['contact']['web'];
+
+		//dates d'évenement
+		$start_date = $data['dates']['start_date'];
+		$end_date = $data['dates']['end_date'];
 
 		$adresseRedresseeCorrecte = false;
 
@@ -65,16 +74,18 @@ class JSON_API_Content_Controller {
 
 			$location = $_POST['location'];
 
-			$street 	= $location['results'][0]['locations'][0]['street'];
-			$city 		= $location['results'][0]['locations'][0]['adminArea5'];
-			$postalCode = $location['results'][0]['locations'][0]['postalCode'];
-			$lat = $location['results'][0]['locations'][0]['latLng']['lat'];
-			$lng = $location['results'][0]['locations'][0]['latLng']['lng'];
+			$street 	= $location['street'];
+			$city 		= $location['city'];
+			$postalCode = $location['zip'];
+			$lat = $location['lat'];
+			$lng = $location['lng'];
+
+			//on va surcharger le nom du customer
+			$name = $location['name'];
 
 			//généralement quand l'adresse n'est pas bien redréssée le pays est 'US' 
 			//de toute facon sur Kidzou on utilise des adresses en 'FR'
-			$adresseRedresseeCorrecte = ($location['results'][0]['locations'][0]['adminArea1']=='FR');
-
+			$adresseRedresseeCorrecte = ($location['country']=='FR');
 		}
 		
 		//recuperer le user "KidzouTeam"
@@ -89,15 +100,26 @@ class JSON_API_Content_Controller {
 				'post_content'		=>  $description.'<br/>'.$infos.'<br/>'.$template_append,
 				'post_status'		=>	'draft',
 				'post_type'			=>	'post',
-
 			)
 		);
+
+		//positionner les dates
+		if ($start_date!==null && $start_date!=='' ) { //end_date peut être nulle on s'en fout
+			// Kidzou_Utils::log(array('start_date'=>$start_date, 'end_date'=>$end_date), true);
+			//check du format 
+			$date_s = DateTime::createFromFormat('Y-m-d H:i:s', $start_date);
+			$date_e = DateTime::createFromFormat('Y-m-d H:i:s', $end_date);
+			if ($date_s && $date_e) {
+				// Kidzou_Utils::log('setEventDates todo', true);
+			    Kidzou_Events::setEventDates($post_id, $start_date, $end_date); //on ne gere pas encore les récurrences
+			}
+		}
 
 		//créer le customer
 		$customer_id = wp_insert_post(
 			array(
 				'post_author'		=>	$author_id,
-				'post_title'		=>	wp_strip_all_tags($titre),
+				'post_title'		=>	wp_strip_all_tags($name),
 				'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
 				'post_type'			=>	'customer'
 			)
@@ -109,10 +131,10 @@ class JSON_API_Content_Controller {
 
 			Kidzou_Geoloc::set_location(
 				$customer_id, 
-				$titre, 
+				$name, 
 				$street.', '.$postalCode.' '.$city, 
-				$adresse['web'], 
-				$adresse['tel'], 
+				$web, 
+				$tel, 
 				$city, 
 				$lat, 
 				$lng );

@@ -424,7 +424,7 @@ var kidzouEventsModule = (function() { //havre de paix
 			//recuperation au format 2014-12-03 23:59:59 et mise au format JS date
 			self.initDates = function(start, end, reccurenceData ) {
 
-				// console.debug('initDates', start,end, reccurenceData);
+				// console.debug('initDates', start, end, reccurenceData);
 
 				var start_mom, end_mom;
 

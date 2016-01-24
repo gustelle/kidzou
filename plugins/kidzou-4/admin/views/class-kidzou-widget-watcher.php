@@ -1,11 +1,10 @@
 <?php 
 
-add_action( 'kidzou_loaded', array( 'Kidzou_Watcher_Widget', 'get_instance' ) );
+add_action( 'kidzou_loaded', array( 'Kidzou_Widget_Watcher', 'get_instance' ) );
 
 /**
  *
- * permet d'ajouter le Widget de "Benchmark" de sites concurrents afin de monitorer
- * depuis le dashboard le contenu concurrent
+ * Widget de "Benchmark" de sites concurrents sur le dashboard pour les admin
  *
  * @package   Kidzou_Admin
  * @author    Guillaume Patin <guillaume@kidzou.fr>
@@ -14,7 +13,7 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Watcher_Widget', 'get_instance' ) );
  * @copyright 2014 Kidzou
  */
 
-class Kidzou_Watcher_Widget {
+class Kidzou_Widget_Watcher {
 
 	/**
 	 * Instance of this class.

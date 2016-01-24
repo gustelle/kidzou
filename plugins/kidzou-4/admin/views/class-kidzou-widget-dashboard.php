@@ -1,9 +1,9 @@
 <?php 
 
-add_action( 'kidzou_loaded', array( 'Kidzou_Dashboard_Widgets', 'get_instance' ) );
+add_action( 'kidzou_loaded', array( 'Kidzou_Widget_Dashboard', 'get_instance' ) );
 
 /**
- * Ajout du Widget de "Bienvenue sur Kidzou" sur le dashboard d'Admin
+ * Widget de "Bienvenue sur Kidzou" sur le dashboard d'Admin à destination des contributeurs pro
  *
  * @package   Kidzou_Admin
  * @author    Guillaume Patin <guillaume@kidzou.fr>
@@ -12,7 +12,7 @@ add_action( 'kidzou_loaded', array( 'Kidzou_Dashboard_Widgets', 'get_instance' )
  * @copyright 2014 Kidzou
  */
 
-class Kidzou_Dashboard_Widgets {
+class Kidzou_Widget_Dashboard {
 
 	/**
 	 * Instance of this class.
