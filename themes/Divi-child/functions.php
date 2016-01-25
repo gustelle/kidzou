@@ -179,7 +179,7 @@ function  kz_metropole_nav()
 
 		if (count($metropoles)>1) 
 		{
-			$locator = new Kidzou_Geolocator();
+			$locator = Kidzou_Metropole::get_instance();
 			$current_metropole = $locator->get_request_metropole();
 
 			$uri = $_SERVER['REQUEST_URI'];
@@ -301,7 +301,7 @@ function kz_mailchimp_key()
  **/
 function get_post_footer()
 {
-	$locator = new Kidzou_Geolocator();
+	$locator = Kidzou_Metropole::get_instance();
 	// $lists = et_pb_get_mailchimp_lists();
 	$key = kz_mailchimp_key();
 
@@ -1650,7 +1650,7 @@ function kz_pb_user_favs( $atts ) {
  */
 function kz_pb_proximite( $atts ) {
 
-	$locator = new Kidzou_Geolocator();
+	$locator = Kidzou_Geoloc::get_instance();
 	
 	extract( shortcode_atts( array(
 			'module_id' => '',
@@ -1851,7 +1851,7 @@ function kz_pb_proximite( $atts ) {
  */
 function kz_pb_proximite_content() {
 
-	$locator = new Kidzou_Geolocator();
+	$locator = Kidzou_Geoloc::get_instance();
 
 	if ( !wp_verify_nonce( $_REQUEST['nonce'], "kz_pb_proximite")) {
 		exit("...<i class='fa pull-left fa-exclamation-circle'></i> Nous ne pouvons rafraichir les r&eacute;sultats");
@@ -2233,7 +2233,7 @@ function kz_pb_fullwidth_map( $atts, $content = '' ) {
 		), $atts
 	) );
 
-	$locator = new Kidzou_Geolocator();
+	$locator = Kidzou_Geoloc::get_instance();
 
 	$radius = 1000; //on simule l'infini...
 

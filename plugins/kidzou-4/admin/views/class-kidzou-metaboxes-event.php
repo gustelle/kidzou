@@ -205,7 +205,7 @@ class Kidzou_Metaboxes_Event {
 		$recurrence		= $event_meta['recurrence'];
 		$past_dates		= $event_meta['past_dates'];
 
-		// Kidzou_Utils::log('recurrence,'.$recurrence,true);
+		// Kidzou_Utils::log(array('past_dates'=>$past_dates),true);
 
 		$facebook_appId = Kidzou_Utils::get_option('fb_app_id','');
 		$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
@@ -361,7 +361,7 @@ class Kidzou_Metaboxes_Event {
 			if (!empty($past_dates) && count($past_dates[0])>0)
 			{
 				echo '<ul><h4>Ev&eacute;nements pass&eacute;s :</h4>';
-				foreach ($past_dates[0] as  $value) {
+				foreach ($past_dates as  $value) {
 					// Kidzou_Utils::log($value);
 					$past_start_date=date_create($value['start_date']);
 					$past_end_date=date_create($value['end_date']);
