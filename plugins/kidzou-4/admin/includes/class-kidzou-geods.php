@@ -167,7 +167,7 @@ class Kidzou_GeoDS {
 			if (is_string($lng))
 				$lng = str_replace(",",".",$lng);
 
-			Kidzou_Utils::log('Kidzou_Geolocator [getPostsNearToMeInRadius] number_format(number) ' . $lat.'/' . $lng, true);
+			Kidzou_Utils::log('[getPostsNearToMeInRadius] number_format(number) ' . $lat.'/' . $lng, true);
 
 			$lat = floatval($lat);
 			$lng = floatval($lng);
