@@ -124,7 +124,7 @@ class Kidzou_Notif {
 				//seulement si les notifs sont activées pour le type de post courant
 				if (isset($notification_types[$post_type]) && $notification_types[$post_type]) {
 
-					$locator = new Kidzou_Geolocator();
+					$locator = Kidzou_Metropole::get_instance();
 					$current_metropole = $locator->get_request_metropole();
 					$transient_name = 'kz_notifications_content_' .$post_type. '_' . $current_metropole;
 

@@ -77,7 +77,7 @@ class Kidzou_Featured {
 		$featured_index		= get_post_meta($post_id, self::$meta_featured, TRUE);
 		$featured 			= ($featured_index == 'A');
 
-		Kidzou_Utils::log('isFeatured '.$featured_index, true);
+		// Kidzou_Utils::log('isFeatured '.$featured_index, true);
 
 		return $featured;
 	}

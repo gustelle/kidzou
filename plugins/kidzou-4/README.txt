@@ -5,10 +5,13 @@
 	<li>Refactoring du code d'import pour etre plus flexible par rapport aux différentes sources de données</li>
 	<li>Import d'événements Facebook par l'extension chrome</li>
 	<li>Correction d'un bug qui empeche la mise à jour de la checkbox 'recurrence' dans l'admin</li>
+	<li>Refactoring de Kidzou_Geolocator et Kidzou_Geofilter pour réinjecter le code dans Kidzou_Metropole et Kidzou_Geoloc</li>
+	<li>Correction d'un bug qui n'affiche pas les bons contenus pour la métropole régionale</li>
+	<li>Correction d'un bug lorsque l'on change de métropole et qu'on l'on navigue, on revient à l'ancienne métropole</li>
+	<li>Correction d'un bug qui ne retrouve pas les cutomer related posts</li>
+	<li>Correction d'un bug qui affiche toujours le même thumbnail dans le widget des customer related posts</li>
 
-	<li>TODO : Correction d'un bug d'affichage des thumbnail dans le widget des customer related posts</li>
 	<li>TODO : Correction d'un bug qui double les clients à la créatio d'un nouveau client depuis un post</li>
-	<li>TODO : Correction d'un bug affecte le même clients à tous les posts dan le widget des customer related posts</li>
 
 </ul>
 

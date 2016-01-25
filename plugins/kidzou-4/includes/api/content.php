@@ -450,7 +450,7 @@ class JSON_API_Content_Controller {
 		if ( !is_numeric($radius) || floatval($radius)<0 ) 
 			$json_api->error("Rayon de recherche invalide");
 		
-		$locator = new Kidzou_Geolocator();
+		$locator = Kidzou_Geoloc::get_instance();
 
 		$ids = $locator->getPostsNearToMeInRadius($latitude, $longitude, $radius, array('post'));
 
