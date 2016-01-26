@@ -46,7 +46,6 @@ class Kidzou_Metropole {
 	protected static $supported_post_types = array('post', 'page'); //'offres'
 
 
-
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
 	 * and styles.
@@ -193,8 +192,6 @@ class Kidzou_Metropole {
 	 **/
 	public function get_request_metropole()
 	{
-		// Kidzou_Utils::log('Kidzou_Geolocator [get_request_metropole] '. $this->request_metropole, true);
-
 		if ($this->request_metropole=='' && !Kidzou_Utils::is_really_admin())
 			$this->set_request_metropole();
 
@@ -265,10 +262,6 @@ class Kidzou_Metropole {
 	    	$this->request_metropole = $cook_m;
 	    else
 	    	$this->request_metropole = ''; //on désactive meme la geoloc en laissant la metropole à ''
-
-	    // Kidzou_Utils::log('set_request_metropole : '. $this->request_metropole,true);
-	    // $path = substr(Kidzou_Utils::get_request_path(), 0, 20) ;
-		// Kidzou_Utils::log('Kidzou_Geolocator -> set_request_metropole [' . $path  .'] -> '. $this->request_metropole, true);
 	}
 
 	/**
@@ -292,22 +285,12 @@ class Kidzou_Metropole {
 		//Cas particulier de la métropole à portée nationale 
 		$is_national = ($this->get_request_metropole() == self::get_national_metropole());
 
-		// Kidzou_Utils::log(array('set_request_filter'=>
-		// 				array(
-		// 					'is_national'=>$is_national,
-		// 					'this->request_metropole'=>$this->request_metropole,
-		// 					'self::get_national_metropole()'=>self::get_national_metropole()
-		// 					)
-		// 				),true);
-
 		if ( Kidzou_Utils::is_really_admin() || 
 			$is_bypass_url || 
 			$is_bypass_param  ||
 			$is_national ) {
 
 			$this->is_request_filter = false;
-
-			// Kidzou_Utils::log($_SERVER['REQUEST_URI'] . ' set is_request_filter to false', true);
 
 		} else {
 
@@ -334,7 +317,6 @@ class Kidzou_Metropole {
 
 			}
 		}
-			
 	}
 
 		/**
@@ -658,13 +640,6 @@ class Kidzou_Metropole {
 	 */
 	public function geo_filter_query( $query ) {
 
-		// $this = self::$locator;
-
-		// Kidzou_Utils::log(
-		// 	array(	'REQUEST_URI'=>$_SERVER['REQUEST_URI'],
-		// 			'request_metropole'=>$locator->get_request_metropole(),
-		// 			'is_request_metro_filter' => $locator->is_request_metro_filter()), true);
-
 		if ( $this->is_request_metro_filter() )
 		{
 			$post_type = $query->get('post_type');
@@ -679,8 +654,7 @@ class Kidzou_Metropole {
 						break;
 					}
 				}
-			}
-			else
+			} else 
 				$supported_query = in_array($post_type, self::get_supported_post_types() ) ;
 
 			//cas spécial des archives : le post type n'est pas spécifié

@@ -43,8 +43,12 @@
 					
 					if (self.customerName()=='' || self.creationFailure()) return;
 
-					if (self.createdCustomerId>0)
+					//on ouvre la page d'édition du client créé
+					if (self.createdCustomerId>0) {
 						window.open('/wp-admin/post.php?post='+ self.createdCustomerId +'&action=edit', "_blank");
+						//ne pas re-créer un nouveau client, sortir du script
+						return;
+					}
 
 					self.creationStatus('Cr&eacute;ation en cours...');
 					$.ajax({
@@ -58,11 +62,7 @@
 								type: 'POST',
 								data: {nonce: data.nonce, status:'publish',title: self.customerName(), type: 'customer'},
 								success: function  (data) {
-									// console.debug('clients, pushing ', {"id":data.post.id,"text":data.post.title});
-									// clients.push({"id":data.post.id,"text":data.post.title});
-									// console.debug('clients', clients);
-									// self.customerSelection(data.post.id + '#' + data.post.title);
-									// console.debug('self.customerSelection', self.customerSelection());
+									// console.debug('customer created', data);
 									$("select[name='customer_select']").selectize()[0].selectize.addOption({ id: data.post.id , name: data.post.title });
 									$("select[name='customer_select']").selectize()[0].selectize.addItem( data.post.id , false);
 									self.creationStatus('Continuer l\'edition du client');
@@ -87,7 +87,6 @@
 						}
 					});
 				};
-
 			}
 
 			return { 
@@ -102,7 +101,7 @@
 			setTimeout(function(){
 				document.querySelector("#customer_form").classList.remove('hide');
 				document.querySelector("#customer_form").classList.add('pop-in');
-				console.debug('customer_form', document.querySelector("#customer_form").classList);
+				// console.debug('customer_form', document.querySelector("#customer_form").classList);
 			}, 300);
 		});
 

@@ -58,6 +58,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 		var model = new PlaceEditorModel();
 
 		function Place(_venue, _address, _website, _phone_number, _city, lat, lng, opening_hours) {
+			
 			this.venue 			= ko.observable(_venue).extend({ required: { message: 'Il faut nous indiquer où ca se passe !' }, notify: 'always' });
 			this.address 		= ko.observable(_address).extend({ required: { message: 'Et ca se trouve ou ?' }, notify: 'always' });
 			this.website 		= ko.observable(_website).extend({ notify: 'always', pattern: "(http|ftp|https)://[a-z0-9\-_]+(\.[a-z0-9\-_]+)+([a-z0-9\-\.,@\?^=%&;:/~\+#]*[a-z0-9\-@\?^=%&;/~\+#])?" }); //http://stackoverflow.com/questions/8188645/javascript-regex-to-match-a-url-in-a-field-of-text
@@ -66,6 +67,32 @@ var kidzouPlaceModule = (function() { //havre de paix
 			this.lat 			= ko.observable(lat);
 			this.lng 			= ko.observable(lng);
 			this.opening_hours 	= ko.observableArray(opening_hours);
+
+			this.isEmpty = function() {
+				// console.debug('isEmpty', (typeof this.venue()), this.venue()=='undefined');
+				var empty = (	(this.venue()=='' || this.venue()=='undefined' || typeof this.venue()=='undefined')  && 
+								(this.address() == ''|| this.address()=='undefined' || typeof this.address()=='undefined' ) &&
+								(this.website() == ''|| this.website()=='undefined' || typeof this.website()=='undefined') &&
+								(this.phone_number() == '' || this.phone_number()=='undefined' || typeof this.phone_number()=='undefined') &&
+								(this.city() == '' || this.city()=='undefined' || typeof this.city()=='undefined') &&
+								(this.lat() == '' || this.lat()=='undefined' || typeof this.lat()=='undefined') &&
+								(this.lng() == '' || this.lng()=='undefined' || typeof this.lng()=='undefined')
+							);
+				return empty;
+			};
+
+			//fonction de comparaison de places
+			this.equals = function(_venue, _address, _website, _phone_number, _city, _lat, _lng, _opening_hours) {
+				var eq = (	this.venue() == _venue && 
+							this.address() == _address &&
+							this.website() == _website &&
+							this.phone_number().replace(/\s/gi, "") == _phone_number.replace(/\s/gi, "") &&
+							this.city() == _city &&
+							this.lat() == _lat &&
+							this.lng() == _lng //&&
+						);
+				return eq;
+			};
 		}
 
 		function PlaceModel() {
@@ -131,11 +158,14 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 				self.placeData().place(new Place(name, address, website, phone_number, city, lat, lng, opening_hours));
 				
-				//blocage de la surcharge d'adresse dans proposePlace
-				//si on reprend une adresse et qu'on en propose une autre
-				//Ex : 	j'utilise une adresse, le client n'est pas sélectionné
-				//		je reprend plus tard cette adresse, je sélectionne le client mais garde l'ancienne adresse..
+				//ici on bloque la surcharge d'adresse dans proposePlace() si on reprend une adresse et qu'on en propose une autre
+				//Ex : 	je selectionne une place dans l'édition d'un post, je ne sélectionne pas de client
+				//		je reprend plus tard cette adresse, je sélectionne le client mais souhaite garder l'ancienne adresse..
+				//		cas par exemple des evenements qui ne se déroulent pas à l'adresse du client
+
+				// if (!wasEmpty && !wasEqual) {
 				self.isPlaceComplete(true);
+				// }	
 				
 				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')
 					self.customPlace(true); //l'adresse a commencé à etre renseignée
@@ -144,8 +174,19 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 			//Ajouter une adresse à la liste des propositions
 			self.proposePlace = function(type, place) {
+				console.debug('proposePlace', place);
+
+				//dans le case ou il n'y avait aucune donnée renseignée, on l'impose
+				var wasEmpty 	= self.placeData().place().isEmpty();
+				//sinon on fait un diff avant d'imposer
+				var wasEqual	= self.placeData().place().equals(place.name,place.address,place.website, place.phone, place.city, place.latitude, place.longitude, place.opening_hours);
+				
+				// console.debug('wasEmpty', wasEmpty);
+				// console.debug('wasEqual', wasEqual);
+				// console.debug('isPlaceComplete()', self.isPlaceComplete());
+
 				//si aucune place n'a été renseignée on peut directement mapper les champs
-				if (!self.isPlaceComplete()) {
+				if (!self.isPlaceComplete() || wasEmpty || wasEqual) {
 					self.completePlace(place);
 				} else {
 					self.isProposal(true);
