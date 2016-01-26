@@ -111,9 +111,17 @@ class JSON_API_Clients_Controller {
 		if (!Kidzou_Utils::current_user_is('admin'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
-		$id 		= $json_api->query->id; 	//ID du client
+		$id 		= $json_api->query->id; //ID du client
+		$limit 		= 10; //Default value
+		
+		if (!$json_api->query->limit || is_int($json_api->query->limit)) {
+	     	$limit = 10;
+	    } else {
+	    	$limit = intval($json_api->query->limit);	
+	    }
 
 		$posts = $json_api->introspector->get_posts(array(
+				'posts_per_page'=> $limit,
 				'post_type' => Kidzou_Customer::$supported_post_types, 
 				'post_status' => 'publish' ,
 				'meta_key' => Kidzou_Customer::$meta_customer,

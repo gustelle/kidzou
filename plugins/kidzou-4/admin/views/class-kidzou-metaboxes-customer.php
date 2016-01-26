@@ -61,41 +61,6 @@ class Kidzou_Metaboxes_Customer {
 		
 	}
 
-	// /**
-	//  * Recherche de la metropole la plus proche du lieu de rattachement
-	//  *
-	//  * @return void
-	//  * @author 
-	//  **/
-	// public function enqueue_geo_scripts()
-	// {
-
-	// 	$screen = get_current_screen(); 
-	// 	$events = Kidzou_Events_Metaboxes::get_instance();
-	// 	$customer = Kidzou_Customer_Metaboxes::get_instance();
-
-	// 	if (in_array($screen->id , $events->screen_with_meta_event) || in_array($screen->id, $customer->customer_screen)) {
-
-	// 		wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
-
-	// 		$villes = Kidzou_Metropole::get_metropoles();
-
-	// 		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
-	  
-	// 		$args = array(
-	// 					// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
-	// 					'geo_mapquest_key'			=> $key, 
-	// 					'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
-	// 					'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
-	// 					// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
-	// 					'geo_possible_metropoles'	=> $villes ,
-	// 					// 'geo_coords'				=> $locator::COOKIE_COORDS,
-	// 				);
-
-	// 	    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
-	// 	}
-		
-	// }
 
 	/**
 	 * Register and enqueue admin-specific style sheet & scripts.
@@ -108,22 +73,6 @@ class Kidzou_Metaboxes_Customer {
 
 		$screen = get_current_screen(); 
 
-		// if ( in_array($screen->id, $this->customer_screen) ) { 
-
-		// 	// requis par placecomplete
-		// 	wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
-		// 	wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
-
-		// 	// ecran de gestion des clients
-		// 	wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-		// 	wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
-		// 		'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
-		// 		'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-		// 		)
-		// 	);
-
-
-		// } else
 		if ( in_array($screen->id , $this->screen_with_meta_client) || in_array($screen->id, $this->customer_screen) ) { 
 
 			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
@@ -133,6 +82,7 @@ class Kidzou_Metaboxes_Customer {
 			wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
 			wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
 				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
+				'api_getCustomerPosts'			=> site_url()."/api/clients/getContentsByClientID",
 				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
 				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
 				)
@@ -191,9 +141,8 @@ class Kidzou_Metaboxes_Customer {
 	}
 
 	/**
-	 * undocumented function
+	 * Sélection / création d'un client depuis l'écran d'édition d'un post
 	 *
-	 * @return void
 	 * @author 
 	 **/
 	public function client_metabox()
@@ -264,6 +213,21 @@ class Kidzou_Metaboxes_Customer {
 							},
 							onItemAdd : function(value, item) {
 
+								// console.debug("onItemAdd", value, item);
+
+								function addEditCustomerButton(e) {
+									e.preventDefault(); //stop the event, ne pas valider cette page
+									window.open("post.php?post="+value+"&action=edit", "_blank");
+									return false;
+								}
+
+								if (document.querySelector("#editCustomerButton")!==null) {
+									document.querySelector("#editCustomerButton").removeEventListener("click", addEditCustomerButton);
+									document.querySelector("#editCustomerButton").parentNode.removeChild(document.querySelector("#editCustomerButton"));
+								}
+								if (document.querySelector("#customerPosts")!==null)
+									document.querySelector("#customerPosts").parentNode.removeChild(document.querySelector("#customerPosts"));
+								
 								if (window.kidzouPlaceModule) {
 
 									jQuery.get(client_jsvars.api_getCustomerPlace, { 
@@ -283,8 +247,32 @@ class Kidzou_Metaboxes_Customer {
 												});
 										} 
 									});
-
 								}
+
+								//Charger la liste des posts du même client pour permettre une navigation
+								jQuery.get(client_jsvars.api_getCustomerPosts, { 
+				   					id 	: value
+								}).done(function(data) {
+	
+									if (data.status===\'ok\' && data.posts!=\'\') {
+										// console.log("customer posts",data.posts);
+										document.querySelector("#editCustomerButton").insertAdjacentHTML(\'beforeBegin\', \'<p id="customerPosts">Autres articles pour ce client:<br/></p>\');
+										var list = "";//"<br/>";
+										for (i = 0; i < data.posts.length; i++) { 
+										    var slug = data.posts[i].slug;
+										    if (i>0)
+										    	list += "&nbsp;,&nbsp;";
+										    list += "<a href=\'post.php?post=" + data.posts[i].id + "&action=edit" + "\' target=\'_blank\'>" + data.posts[i].title + "</a>";
+										}
+										list += "";//"<br/>";
+										document.querySelector("#customerPosts").insertAdjacentHTML(\'beforeEnd\', list);
+										document.querySelector("#editCustomerButton").addEventListener("click", addEditCustomerButton);
+									} 
+								});
+
+								//afficher le bouton edition du client
+								document.querySelector(".selectize-control").insertAdjacentHTML(\'afterEnd\', \'<br/><button id="editCustomerButton" class="button button-large">Editer ce client</button>\');
+
 							
 							}
 						});
@@ -294,12 +282,21 @@ class Kidzou_Metaboxes_Customer {
 	
 		//le post a déjà un customer 
 		if ($customer_id>0) {
+			// $customer_edit_url = admin_url('post.php?post='. $customer_id .'&action=edit');
+			// $customer_posts = Kidzou_Customer::getPostsByCustomerID($customer_id);
+			// $posts_links = '';
+			// foreach ($customer_posts as $_post) {
+			// 	$post_edit_url = admin_url('post.php?post='. $_post->ID .'&action=edit');
+			// 	$posts_links .= '<a href="'.$post_edit_url.'" target="_blank">'.$_post->post_title.'</a>&nbsp;,&nbsp;';
+			// }
+			// Kidzou_Utils::log($posts_links,true);
 			echo '
 				<script>
 					jQuery(document).ready(function() {
 						//Charger la select avec le client du post
 						//ne pas déclencher le onItemAdd...
 						jQuery("select[name=\'customer_select\']").selectize()[0].selectize.addItem('.$customer_id.', true);
+				
 					});
 				</script>
 				';

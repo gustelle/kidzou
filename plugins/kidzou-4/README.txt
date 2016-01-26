@@ -1,3 +1,15 @@
+<h4>Améliorations admin</h4>
+<h5>Janvier 2015</h5>
+<ul>
+
+	<li>Correction d'un bug qui double les clients à la créatio d'un nouveau client depuis un post</li>
+	<li>Correction d'un bug qui propose le lieu alors qu'il est déjà renseigné dans la saisie d'un event</li>
+	<li>Possibilité d'éditer le client depuis un lien dans l'écran d'édition d'un post</li>
+	<li>Affichage des posts du même client dans l'écran d'édition d'un post</li>
+	<li>TODO : possibilité de naviguer vers les posts du client depuis l'écran d'édition d'un client</li>
+
+</ul>
+
 <h4>Hernie Discale V2</h4>
 <h5>Janvier 2015</h5>
 <ul>
@@ -12,6 +24,7 @@
 	<li>Correction d'un bug qui affiche toujours le même thumbnail dans le widget des customer related posts</li>
 
 	<li>TODO : Correction d'un bug qui double les clients à la créatio d'un nouveau client depuis un post</li>
+	<li>TODO : Correction d'un bug qui propose le lieu alors qu'il est déjà renseigné dans la saisie d'un event</li>
 
 </ul>
 

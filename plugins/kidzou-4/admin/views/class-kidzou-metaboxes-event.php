@@ -447,7 +447,7 @@ class Kidzou_Metaboxes_Event {
 		$end_date	= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
 
 		//les options de récurrence
-		// Kidzou_Utils::log('******* kz_event_is_reccuring '. $_POST['kz_event_is_reccuring'], true);
+		$recurrence = array();
 		if (isset($_POST['kz_event_is_reccuring']) && $_POST['kz_event_is_reccuring']=='on')
 		{
 			$recurrence = array(
@@ -457,7 +457,7 @@ class Kidzou_Metaboxes_Event {
 					"endType" 		=> $_POST['kz_event_reccurence_end_type'],
 					"endValue"		=> ($_POST['kz_event_reccurence_end_type']=='date' ? $_POST['kz_event_reccurence_end_date'] : $_POST['kz_event_reccurence_end_after_occurences'])
 				);
-		} 
+		}  
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
