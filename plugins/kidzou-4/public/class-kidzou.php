@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'HernieDiscale-V2';
+	const VERSION = 'amad';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Refactoring majeur des classes, ajout d'une Extension Chrome pour importer les contenus";
+	public static $version_description = "Améliorations mineures des écrans d'admin";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
