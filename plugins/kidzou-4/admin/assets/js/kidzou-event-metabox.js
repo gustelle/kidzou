@@ -329,8 +329,10 @@ var kidzouEventsModule = (function() { //havre de paix
 		    		if (matches!=null) {
 		    			var eventId = matches[1];
 					    FB.api(
-						    "/" + eventId + '?access_token=' + document.querySelector('input[name="access_token"]').value + '&fields=cover,name,description,place,end_time,start_time',
+						    "/" + eventId + '?access_token=' + events_jsvars.facebook_token + '&fields=cover,name,description,place,end_time,start_time',
 						    function (response) {
+
+						    	console.debug('FB.api', response);
 
 						      if (response && !response.error && typeof response.start_time!='undefined') {
 
@@ -355,15 +357,23 @@ var kidzouEventsModule = (function() { //havre de paix
 						        }
 						        
 						        //fixer le contenu dans l'editor
-						        if (window.kidzouPlaceModule) {
+						        if (window.kidzouPlaceModule && typeof response.place!=='undefined' ) {
+
+						        	var _locationName 	= (typeof response.place.name!=='undefined' ? response.place.name : '');
+						        	var _address 	= (typeof response.place.location!=='undefined' && typeof response.place.location.street!=='undefined' ? response.place.location.street : '');
+						        	var _phone 		= (typeof response.place.location!=='undefined' && typeof response.place.location.phone!=='undefined' ? response.place.location.phone : '');
+						        	var _city 		= (typeof response.place.location!=='undefined' && typeof response.place.location.city!=='undefined' ? response.place.location.city : '');
+						        	var _latitude 	= (typeof response.place.location!=='undefined' && typeof response.place.location.latitude!=='undefined' ? response.place.location.latitude : '');
+						        	var _longitude 	= (typeof response.place.location!=='undefined' && typeof response.place.location.longitude!=='undefined' ? response.place.location.longitude : '');
+	
 						        	kidzouPlaceModule.model.proposePlace('facebook', {
-						        			name 	: response.place.name,
-						        			address : response.place.location.street,
-						        			website 	: value, //website
-						        			phone	: response.place.location.phone, //phone
-						        			city 	: response.place.location.city,
-						        			latitude	: response.place.location.latitude,
-						        			longitude 	: response.place.location.longitude,
+						        			name 	: _locationName,
+						        			address : _address,
+						        			website : value, //website
+						        			phone	: _phone, //phone
+						        			city 	: _city,
+						        			latitude	: _latitude,
+						        			longitude 	: _longitude,
 						        			opening_hours : '' //opening hours
 						        		});
 						        }
@@ -521,4 +531,75 @@ var kidzouEventsModule = (function() { //havre de paix
 	};
 
 }());  //kidzouEventsModule
+
+(function($){
+
+	/**
+	 * Recuperation d'un token pour le Graph Facebook et desactivation du champ input si probleme
+	 */
+	function enableFacebookImport(e) {
+
+		if (events_jsvars.facebook_token=='') {
+
+			var token_url = "https://graph.facebook.com/oauth/access_token?" +
+	          "client_id=" + events_jsvars.facebook_appId +
+	          "&client_secret=" + events_jsvars.facebook_appSecret +
+	          "&grant_type=client_credentials";
+
+	        //avant d'appeler l'API facebook, il faut un access token
+	      	$.ajax({
+	            url: token_url,
+	            error: function() {
+	                console.error('impossible de recuperer un token facebook');
+	                document.querySelector('#fb_input').setAttribute('disabled','disabled');
+	                document.querySelector('#fb_input').setAttribute('placeholder','Import impossible');
+	                document.querySelector('#fb_input').style.border = '1px solid red' ;
+	            },
+	            success: function(data) {
+	            	var patt = /access_token=(.+)/;
+			        var matches = patt.exec(data);
+			        events_jsvars.facebook_token = matches[1];
+			        // console.info('token facebook', events_jsvars.facebook_token);
+	            }
+	        });
+		}
+	}
+
+	$(document).ready(function() {
+
+		kidzouEventsModule.model.initDates(
+			events_jsvars.start_date,
+			events_jsvars.end_date, 
+			events_jsvars.recurrence);
+
+		/**
+		 * Init de l'import facebook sur l'event 'focus' (récupération d'un token pour le graph API)
+		 * Tous les utilisateurs ne peuvent pas importer d'événement facebook, seuls les auteurs+
+		 * Dans ce cas, Si le champ input n'est pas dans le DOM, addEventListener jete une erreur
+		 *
+		 */
+		if (document.querySelector('#fb_input')!==null)
+			document.querySelector('#fb_input').addEventListener("focus", enableFacebookImport);
+
+	});
+
+})(jQuery);
+
+//initialisation des scripts facebook pour import d'événement par le Graph
+window.fbAsyncInit = function() {
+	FB.init({
+	  appId      : events_jsvars.facebook_appId,
+	  xfbml      : true,
+	  version    : 'v2.4'
+	});
+};
+
+(function(d, s, id){
+ var js, fjs = d.getElementsByTagName(s)[0];
+ if (d.getElementById(id)) {return;}
+ js = d.createElement(s); js.id = id;
+ js.src = '//connect.facebook.net/en_US/sdk.js';
+ fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+
 

@@ -31,18 +31,6 @@ class Kidzou_Metaboxes_Event {
 	 */
 	public $screen_with_meta_event = array('post'); // typiquement pas les "customer"
 
-	/**
-	 * les ecrans qui meritent qu'on y ajoute des meta  place
-	 *
-	 * Cette variable est public, est est utlisée dans <code>Kidzou_Admin_geo->enqueue_geo_scripts()</code>
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      string
-	 */
-	// public $screen_with_meta_place = array('post', 'customer'); 
-
-
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
@@ -56,48 +44,13 @@ class Kidzou_Metaboxes_Event {
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
 		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
+		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		add_action( 'add_meta_boxes', array( $this, 'event_metaboxes' ) );
 	}
 
-	/**
-	 * Recherche de la metropole la plus proche du lieu de rattachement
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function enqueue_geo_scripts()
-	{
-
-		$screen = get_current_screen(); 
-		// $events = Kidzou_Events_Metaboxes::get_instance();
-		// $customer = Kidzou_Customer_Metaboxes::get_instance();
-
-		if (in_array($screen->id , $this->screen_with_meta_event)) {
-
-			wp_enqueue_script('kidzou-admin-geo', plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery','kidzou-storage'), Kidzou::VERSION, true);
-
-			$villes = Kidzou_Metropole::get_metropoles();
-
-			$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
-	  
-			$args = array(
-						// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
-						'geo_mapquest_key'			=> $key, 
-						'geo_mapquest_reverse_url'	=> "http://open.mapquestapi.com/geocoding/v1/reverse",
-						'geo_mapquest_address_url'	=> "http://open.mapquestapi.com/geocoding/v1/address",
-						// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
-						'geo_possible_metropoles'	=> $villes ,
-						// 'geo_coords'				=> $locator::COOKIE_COORDS,
-					);
-
-		    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
-		}
-		
-	}
 
 	/**
 	 * Register and enqueue admin-specific style sheet & scripts.
@@ -130,24 +83,43 @@ class Kidzou_Metaboxes_Event {
 			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
 
 			//gestion des events
-			wp_enqueue_script('kidzou-event', plugins_url( 'assets/js/kidzou-event.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'moment'), Kidzou::VERSION, true);
+			wp_enqueue_script('kidzou-event-metabox', plugins_url( 'assets/js/kidzou-event-metabox.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'moment'), Kidzou::VERSION, true);
 			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
 			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
 			wp_enqueue_script('jquery-ui-core');
 			wp_enqueue_script('jquery-ui-datepicker');
 			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', dirname(__FILE__) ), array('jquery-ui-datepicker'),'1.0', true);
 
+			//insertion des metabox et initialisation des JS
+			global $post;
+			$event_meta 	= Kidzou_Events::getEventDates($post->ID);
+		
+			$start_date		= $event_meta['start_date'];
+			$end_date 		= $event_meta['end_date'];
+			$recurrence		= $event_meta['recurrence'];
+			$past_dates		= $event_meta['past_dates'];
+
+			$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
+			$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
+
 			// wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-event', 'events_jsvars', array(
-				'api_getClients'				=> site_url()."/api/clients/getClients/",
-				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
-				'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/"
+			wp_localize_script('kidzou-event-metabox', 'events_jsvars', array(
+					'api_getClients'				=> site_url()."/api/clients/getClients/",
+					'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
+					'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
+					'facebook_appId'				=> $facebook_appId,
+					'facebook_appSecret'			=> $facebook_appSecret,
+					'start_date'					=> $start_date,
+					'end_date'						=> $end_date,
+					'recurrence'					=> $recurrence,
+					'past_dates'					=> $past_dates,
+					'facebook_token'				=> '' //sera mis à jour en ajax
 				)
 			);
 
+
+
 		} 
-
-
 	}
 
 
@@ -178,7 +150,6 @@ class Kidzou_Metaboxes_Event {
 			// add_meta_box('kz_facebook_metabox', 'Importer un &eacute;v&eacute;nement Facebook', array($this, 'facebook_event_metabox'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 		} 
-
 	}
 
 	/**
@@ -193,63 +164,18 @@ class Kidzou_Metaboxes_Event {
 
 		////////////////////////////////
 
-		$checkbox = false;
-
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'event_metabox', 'event_metabox_nonce' );
 
-		$event_meta = Kidzou_Events::getEventDates($post->ID);
-		
-		$start_date		= $event_meta['start_date'];
-		$end_date 		= $event_meta['end_date'];
-		$recurrence		= $event_meta['recurrence'];
-		$past_dates		= $event_meta['past_dates'];
-
-		// Kidzou_Utils::log(array('past_dates'=>$past_dates),true);
-
-		$facebook_appId = Kidzou_Utils::get_option('fb_app_id','');
-		$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
-
-		echo '<script>
-		jQuery(document).ready(function() {
-			kidzouEventsModule.model.initDates("'.$start_date.'","'.$end_date.'", '.json_encode($recurrence).');
-		});
-		</script>
-
+		echo '
 		<div class="kz_form hide" id="event_form">';
 
 			if (Kidzou_Utils::current_user_is('author')) {
 
+				$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
+				$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
+
 				if ($facebook_appId!='' && $facebook_appSecret!='') {
-
-					echo "
-						<script>
-						  window.fbAsyncInit = function() {
-						    FB.init({
-						      appId      : '".$facebook_appId."',
-						      xfbml      : true,
-						      version    : 'v2.4'
-						    });
-						  };
-
-						  (function(d, s, id){
-						     var js, fjs = d.getElementsByTagName(s)[0];
-						     if (d.getElementById(id)) {return;}
-						     js = d.createElement(s); js.id = id;
-						     js.src = '//connect.facebook.net/en_US/sdk.js';
-						     fjs.parentNode.insertBefore(js, fjs);
-						   }(document, 'script', 'facebook-jssdk'));
-						</script>
-					";
-
-					$token_url =	"https://graph.facebook.com/oauth/access_token?" .
-									"client_id=" . $facebook_appId .
-									"&client_secret=" . $facebook_appSecret .
-									"&grant_type=client_credentials";
-
-					$resp = file_get_contents($token_url);
-					$pattern = '/access_token=(.+)/';
-					preg_match($pattern, $resp, $matches);
 
 					echo '
 						<h4>Importer un &eacute;v&eacute;nement Facebook</h4>
@@ -257,22 +183,12 @@ class Kidzou_Metaboxes_Event {
 						<ul>
 							<li>
 								<label for="facebook_url">URL de l&apos;&eacute;v&eacute;nement Facebook:</label>
-						    	<input type="text" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
-								<input type="hidden" name="access_token"  value="'.$matches[1].'" />
+						    	<input type="text" id="fb_input" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
 							</li>
 						</ul>
 					';
 				}
 
-				echo '<h4>Fonctions client</h4>
-						<ul>';
-				$checkbox = Kidzou_Featured::isFeatured($post->ID);
-				// Kidzou_Utils::log('checkbox '.$checkbox, true);
-				echo '	<li>
-							<label for="kz_event_featured">Mise en avant:</label>
-							<input type="checkbox" name="kz_event_featured"'. ( ($checkbox==1 || $checkbox==true)   ? 'checked="checked"' : '' ).'/>  
-						</li>
-						</ul>';
 			} 
 
 			echo '<h4>Dates de l&apos;&eacute;v&eacute;nement</h4>
@@ -358,7 +274,7 @@ class Kidzou_Metaboxes_Event {
 			</ul>
 			<!-- /ko -->';
 
-			if (!empty($past_dates) && count($past_dates[0])>0)
+			if (!empty($past_dates) && count(reset($past_dates))>0)
 			{
 				echo '<ul><h4>Ev&eacute;nements pass&eacute;s :</h4>';
 				foreach ($past_dates as  $value) {
@@ -413,7 +329,6 @@ class Kidzou_Metaboxes_Event {
 	}
 
 	/**
-	 * kz_event_featured : stockage des valeurs A/B pour des problématiques de non stockage si valeur numérique à 0
 	 *
 	 * @return void
 	 * @author 
@@ -461,16 +376,16 @@ class Kidzou_Metaboxes_Event {
 		
 		//cette metadonnée n'est pas mise à jour dans tous les cas
 		//uniquement si le user est admi
-		if ( Kidzou_Utils::current_user_is('administrator') ) {
-			// Kidzou_Utils::log('****** featured ? '.$_POST['kz_event_featured'],true);
-			$featured = (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on');
-		} else {
-			$featured = Kidzou_Featured::isFeatured($post_id);
-			// Kidzou_Utils::log('****** featured : '.$featured,true);	
-		}
+		// if ( Kidzou_Utils::current_user_is('administrator') ) {
+		// 	// Kidzou_Utils::log('****** featured ? '.$_POST['kz_event_featured'],true);
+		// 	$featured = (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on');
+		// } else {
+		// 	$featured = Kidzou_Featured::isFeatured($post_id);
+		// 	// Kidzou_Utils::log('****** featured : '.$featured,true);	
+		// }
 
 		Kidzou_Events::setEventDates($post_id, $start_date, $end_date, $recurrence);
-		Kidzou_Featured::setFeatured($post_id, $featured);
+		// Kidzou_Featured::setFeatured($post_id, $featured);
 
 
 	}
