@@ -83,10 +83,20 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 			//fonction de comparaison de places
 			this.equals = function(_venue, _address, _website, _phone_number, _city, _lat, _lng, _opening_hours) {
+
+				//redressement du telephone
+				var phoneEquals = (_phone_number==this.phone_number());
+				if (!phoneEquals) {
+					if (typeof _phone_number!=='undefined') {
+						if (typeof this.phone_number()!=='undefined')
+							phoneEquals = ( this.phone_number().replace(/\s/gi, "") == _phone_number.replace(/\s/gi, "") );
+					}
+				}
+
 				var eq = (	this.venue() == _venue && 
 							this.address() == _address &&
 							this.website() == _website &&
-							this.phone_number().replace(/\s/gi, "") == _phone_number.replace(/\s/gi, "") &&
+							phoneEquals &&
 							this.city() == _city &&
 							this.lat() == _lat &&
 							this.lng() == _lng //&&
@@ -128,13 +138,11 @@ var kidzouPlaceModule = (function() { //havre de paix
 		    //https://developers.google.com/places/documentation/details
 			self.completePlace = function(result) {
 
-				// console.debug('completePlace', result);
-
 				self.placeData().place(new Place(
 						result.name, 
 						result.address, 
 						result.website, 
-						result.phone, 
+						result.phone_number, 
 						result.city, //city 
 						result.latitude, //latitude
 						result.longitude, //longitude
@@ -163,9 +171,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 				//		je reprend plus tard cette adresse, je sélectionne le client mais souhaite garder l'ancienne adresse..
 				//		cas par exemple des evenements qui ne se déroulent pas à l'adresse du client
 
-				// if (!wasEmpty && !wasEqual) {
 				self.isPlaceComplete(true);
-				// }	
 				
 				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')
 					self.customPlace(true); //l'adresse a commencé à etre renseignée
@@ -174,17 +180,15 @@ var kidzouPlaceModule = (function() { //havre de paix
 
 			//Ajouter une adresse à la liste des propositions
 			self.proposePlace = function(type, place) {
-				console.debug('proposePlace', place);
+
+				console.debug('proposePlace', type);
 
 				//dans le case ou il n'y avait aucune donnée renseignée, on l'impose
 				var wasEmpty 	= self.placeData().place().isEmpty();
+	
 				//sinon on fait un diff avant d'imposer
-				var wasEqual	= self.placeData().place().equals(place.name,place.address,place.website, place.phone, place.city, place.latitude, place.longitude, place.opening_hours);
-				
-				// console.debug('wasEmpty', wasEmpty);
-				// console.debug('wasEqual', wasEqual);
-				// console.debug('isPlaceComplete()', self.isPlaceComplete());
-
+				var wasEqual	= self.placeData().place().equals(place.name,place.address,place.website, place.phone_number, place.city, place.latitude, place.longitude, place.opening_hours);
+			
 				//si aucune place n'a été renseignée on peut directement mapper les champs
 				if (!self.isPlaceComplete() || wasEmpty || wasEqual) {
 					self.completePlace(place);
@@ -211,30 +215,113 @@ var kidzouPlaceModule = (function() { //havre de paix
 				self.customPlace(false);
 				self.isPlaceComplete(false);
 			};
-
-
 			
 		} //EventsEditorModel
 
 		return { 
-			model 		: model //EventsEditorModel
+			model 		: model, //EventsEditorModel
 		};
 
 	}();  //kidzouEventsEditor
 
-	jQuery(document).ready(function() {
-		ko.applyBindings( kidzouPlaceEditor.model, document.querySelector("#place_form") ); //retourne un EventsEditorModel
+	return {
+		model : kidzouPlaceEditor.model, //necessaire de fournir un acces pour interaction avec Google Maps ??
+	};
+}());  //kidzouPlaceModule
+
+(function($){
+	
+	$(document).ready(function() {
+
+		/**
+		 * Amorcage du formulaire de place
+		 *
+		 */
+		if (document.querySelector("#place_form")!==null) {
+
+			ko.applyBindings( kidzouPlaceModule.model, document.querySelector("#place_form") ); //retourne un EventsEditorModel
 		
-		//maintenant que le binding est fait, faire apparaitre le form
-		setTimeout(function(){
-			document.querySelector("#place_form").classList.remove('hide');
-			document.querySelector("#place_form").classList.add('pop-in');
-		}, 300);
+			//maintenant que le binding est fait, faire apparaitre le form
+			setTimeout(function(){
+				document.querySelector("#place_form").classList.remove('hide');
+				document.querySelector("#place_form").classList.add('pop-in');
+			}, 300);
+
+			// console.debug(place_jsvars.customer_location_name)
+
+			if (place_jsvars.location_name!='' && typeof place_jsvars.location_name!='undefined') {
+				kidzouPlaceModule.model.proposePlace('Adresse par defaut',{
+					name 	: place_jsvars.location_name ,
+					address : place_jsvars.location_address,
+					website : place_jsvars.location_website,
+					phone_number : place_jsvars.location_phone_number,
+					city 		: place_jsvars.location_city,
+					latitude 	: place_jsvars.location_latitude,
+					longitude 	: place_jsvars.location_longitude,
+					opening_hours : []
+				});
+			}
+
+			if (place_jsvars.customer_location_name!='' && typeof place_jsvars.customer_location_name!='undefined') {
+				// console.debug('quoi ?')
+				kidzouPlaceModule.model.proposePlace('Adresse client',{
+					name 	: place_jsvars.customer_location_name ,
+					address : place_jsvars.customer_location_address,
+					website : place_jsvars.customer_location_website,
+					phone_number : place_jsvars.customer_location_phone_number,
+					city 		: place_jsvars.customer_location_city,
+					latitude 	: place_jsvars.customer_location_latitude,
+					longitude 	: place_jsvars.customer_location_longitude,
+					opening_hours : []
+				});
+			}
+		}
+
+		/**
+		 * Boite de selection de la place, utilisation de Selectize PlaceComplete
+		 * Tous le monde ne voit pas forcément cette boite, d'ou l'interet de verifier le selecteur
+		 *
+		 */
+		if (document.querySelector("select[name='place']")!==null) {
+
+			//selection GooglePlace/PlaceComplete depuis selectize
+			$("select[name='place']").selectize({
+			  mode: "single",
+			  openOnFocus: false,
+			  delimiter: null,
+			  plugins: {
+			    'placecomplete': {
+			      selectDetails: function(placeResult) { 
+		
+			      	var city = placeResult.display_text;
+					//tentative de retrouver la ville de manière plus précise
+					//voir https://developers.google.com/maps/documentation/geocoding/?hl=FR#Types
+					placeResult.address_components.forEach(function(entry) {
+					    if (entry.types[0]=='locality') {
+					    	city = entry.long_name;
+					    }
+					});
+			      	//Alimenter les champs Kidzou
+			        kidzouPlaceModule.model.proposePlace('Autre adresse', {
+			        		name 	: placeResult.name, 
+							address : placeResult.formatted_address, 
+							website : placeResult.website, 
+							phone_number 	: placeResult.formatted_phone_number, 
+							city 	: city,
+							latitude 	: placeResult.geometry.location.lat(), //latitude
+							longitude 	: placeResult.geometry.location.lng(), //longitude
+							opening_hours : (placeResult.opening_hours ? placeResult.opening_hours.periods : [])
+			        });
+
+			        // la valeur que prend le <select>
+			        return placeResult.name + ", " + placeResult.formatted_address;
+			      }
+			    }
+			  }
+			});
+		}
+		
 	});
 
-	return {
-		model : kidzouPlaceEditor.model //necessaire de fournir un acces pour interaction avec Google Maps ??
-	};
-
-}());  //kidzouPlaceModule
+})(jQuery);
 

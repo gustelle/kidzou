@@ -61,8 +61,6 @@ class Kidzou_Metaboxes_Place {
 	{
 
 		$screen = get_current_screen(); 
-		// $events = Kidzou_Events_Metaboxes::get_instance();
-		// $customer = Kidzou_Customer_Metaboxes::get_instance();
 
 		if (in_array($screen->id , $this->screen_with_meta_place)) {
 
@@ -103,9 +101,49 @@ class Kidzou_Metaboxes_Place {
 
 		if ( in_array($screen->id , $this->screen_with_meta_place)  ) {
 
+			$args = array();
+			global $post;
+			$location = Kidzou_Geoloc::get_post_location($post->ID); 
+
+			$args['location_name'] 		= $location['location_name'];
+			$args['location_address'] 	= $location['location_address'];
+			$args['location_website'] 	= $location['location_website'];
+			$args['location_phone_number'] 	= $location['location_phone_number'];
+			$args['location_city'] 		= $location['location_city'];
+			$args['location_latitude'] 	= $location['location_latitude'];
+			$args['location_longitude'] = $location['location_longitude'];
+
+			//recuperation de l'adresse du client associé pour la proposer
+			//A condition qu'il ne s'agisse pas d'un ecran "customer" et que le user n'ait pas le droit de selectionner un client
+			//sinon, cette proposition d'adresse client viendra de la metabox customer
+			if ($screen->id!='customer' && !Kidzou_Utils::current_user_is('administrator')) {
+
+				$id = 0;
+				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
+	
+				//on prend le premier 
+				if ( is_array($res) ) { //&& count($res)==1
+					$vals =array_values($res);
+					$id = reset($vals);//[0];
+
+					$customer_location = Kidzou_Geoloc::get_post_location($id);
+
+					if (isset($customer_location['location_name']) && $customer_location['location_name']!='') {
+
+						$args['customer_location_name'] 	= $customer_location['location_name'];
+						$args['customer_location_address'] 	= $customer_location['location_address'];
+						$args['customer_location_website'] 		= $customer_location['location_website'];
+						$args['customer_location_phone_number'] = $customer_location['location_phone_number'];
+						$args['customer_location_city'] 	= $customer_location['location_city'];
+						$args['customer_location_latitude'] = $customer_location['location_latitude'];
+						$args['customer_location_longitude'] = $customer_location['location_longitude'];
+						Kidzou_Utils::log(array('args'=>$args),true);
+					}
+				}		
+				
+			}
 		
 			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
-
 
 			wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
 			wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
@@ -125,7 +163,8 @@ class Kidzou_Metaboxes_Place {
 			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 
 			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-place', plugins_url( 'assets/js/kidzou-place.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'kidzou-admin-geo'), Kidzou::VERSION, true);
+			wp_enqueue_script('kidzou-place-metabox', plugins_url( 'assets/js/kidzou-place-metabox.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'kidzou-admin-geo'), Kidzou::VERSION, true);
+			wp_localize_script('kidzou-place-metabox', 'place_jsvars', $args);
 
 		} 
 
@@ -161,7 +200,6 @@ class Kidzou_Metaboxes_Place {
 	}
 
 
-
 	/**
 	 * undocumented function
 	 *
@@ -170,103 +208,8 @@ class Kidzou_Metaboxes_Place {
 	 **/
 	public function place_metabox()
 	{
-		$screen = get_current_screen(); 
-
-		global $post;
-		// Noncename needed to verify where the data originated
-		echo '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-
-		$location = Kidzou_Geoloc::get_post_location($post->ID); 
-
-		// Get the location data if its already been entered
-		$location_name 		= $location['location_name'];
-		$location_address 	= $location['location_address'];
-		$location_website 	= $location['location_web'];
-		$location_phone_number 	= $location['location_tel'];
-		$location_city 			= $location['location_city'];
-		$location_latitude 		= $location['location_latitude'];
-		$location_longitude 	= $location['location_longitude'];
-
-		//si aucune méta de lieu n'est pré-existante, on prend celle du client associé au post
-		//A condition qu'il ne s'agisse pas d'un ecran "customer"
-		if ($location_name=='' && $screen->id!='customer') {
-
-			$id = 0;
-
-			if (!Kidzou_Utils::current_user_is('administrator') ) {
-
-				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
-
-				//on prend le premier s'il n'y en a qu'un
-				if (is_array($res) && count($res)==1) {
-					$vals =array_values($res);
-					$id = $vals[0];
-				}
-					
-			} else {
-				
-				$id = Kidzou_Customer::getCustomerIDByPostID();
-				if (is_wp_error($id))
-					$id=0;
-			}
-
-			$location = Kidzou_Geoloc::get_post_location($id);
-
-			if (isset($location['location_name']) && $location['location_name']!='') {
-
-				$location_name 		= $location['location_name'];
-				$location_address 	= $location['location_address'];
-				$location_website 	= $location['location_web'];
-				$location_phone_number 	= $location['location_tel'];
-				$location_city 			= $location['location_city'];
-				$location_latitude 		= $location['location_latitude'];
-				$location_longitude 	= $location['location_longitude'];
-			}
-		}
-
-		echo '
-		<script>
-		jQuery(document).ready(function() {
-
-			kidzouPlaceModule.model.initPlace("'.$location_name.'","'.$location_address.'","'.$location_website.'","'.$location_phone_number.'","'.$location_city.'","'.$location_latitude.'","'.$location_longitude.'");
-			
-			//selection GooglePlace/PlaceComplete depuis selectize
-			jQuery("select[name=\'place\']").selectize({
-			  mode: "single",
-			  openOnFocus: false,
-			  delimiter: null,
-			  plugins: {
-			    \'placecomplete\': {
-			      selectDetails: function(placeResult) { 
-		
-			      	var city = placeResult.display_text;
-					//tentative de retrouver la ville de manière plus précise
-					//voir https://developers.google.com/maps/documentation/geocoding/?hl=FR#Types
-					placeResult.address_components.forEach(function(entry) {
-					    if (entry.types[0]==\'locality\') {
-					    	city = entry.long_name;
-					    }
-					});
-			      	//Alimenter les champs Kidzou
-			        kidzouPlaceModule.model.completePlace({
-			        		name 	: placeResult.name, 
-							address : placeResult.formatted_address, 
-							website : placeResult.website, 
-							phone 	: placeResult.formatted_phone_number, 
-							city 	: city,
-							latitude 	: placeResult.geometry.location.lat(), //latitude
-							longitude 	: placeResult.geometry.location.lng(), //longitude
-							opening_hours : (placeResult.opening_hours ? placeResult.opening_hours.periods : [])
-			        	});
-			        // la valeur que prend le <select>
-			        return placeResult.name + ", " + placeResult.formatted_address;
-			      }
-			    }
-			  }
-			});
-
-		});
-		</script>
+		echo 
+		'<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />
 
 		<div class="kz_form hide" id="place_form">
 
@@ -280,9 +223,13 @@ class Kidzou_Metaboxes_Place {
 				<h5>Autre adresse possible : </h5>
 				<div data-bind="foreach: placeProposals">
 					<div class="address_proposal">
+						<strong><em data-bind="text: $data.type"></em></strong><br/>
 						<span data-bind="text: $data.place.name"></span><br/>
 						<span data-bind="text: $data.place.address"></span><br/>
 						<span data-bind="text: $data.place.city"></span><br/>
+						<span data-bind="text: $data.place.website"></span><br/>
+						<span data-bind="text: $data.place.phone_number"></span><br/>
+						<span data-bind="text: $data.place.latitude"></span> / <span data-bind="text: $data.place.longitude"></span><br/>
 						<em><a href="#" data-bind="click: $parent.useAddress">Utiliser cette adresse</a></em>
 					</div>
 				</div>

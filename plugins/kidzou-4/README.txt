@@ -1,3 +1,15 @@
+<h4>Refactoring</h4>
+<h5>Fevrier 2015</h5>
+<ul>
+
+	<li>refactoring pour mieux isoler les metaboxes dans l'admin</li>
+	<li>Nettoyage des classes PHP pour isoler les JS dans des fichiers</li>
+
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+
+</ul>
+
 <h4>Améliorations admin</h4>
 <h5>Janvier 2015</h5>
 <ul>

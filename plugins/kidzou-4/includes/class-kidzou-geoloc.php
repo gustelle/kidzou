@@ -153,8 +153,8 @@ class Kidzou_Geoloc {
 	        "location_address" => $location_address,
 	        "location_latitude" => $location_latitude,
 	        "location_longitude" => $location_longitude,
-	        "location_tel" => $location_tel,
-	        "location_web" => $location_web,
+	        "location_phone_number" => $location_tel,
+	        "location_website" => $location_web,
 	        "location_city" => $location_city
 	    );
 	}
@@ -181,6 +181,8 @@ class Kidzou_Geoloc {
 		$meta['location_city'] 			= $location_city;
 		$meta['location_latitude'] 		= $location_latitude;
 		$meta['location_longitude'] 	= $location_longitude;
+
+		// Kidzou_Utils::log($meta, true);
 
 		Kidzou_Utils::save_meta($post_id, $meta, $prefix);
 		

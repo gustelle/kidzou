@@ -215,6 +215,6 @@ input:required:valid + .form_hint::before {color:#28921f;}
   font-size: smaller;
   display: inline-block;
   width: 27%;
-  height: 8em;
+  height: 11em;
   overflow: auto;
 }

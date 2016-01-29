@@ -302,14 +302,13 @@ class Kidzou_Customer {
 	 * @return array of posts
 	 * @author 
 	 **/
-	public static function getPostsByCustomerID($customer_id = 0, $args= array()) {
+	public static function getPostsByCustomerID($customer_id = 0, $settings= array()) {
 
 		$posts = array();
 
 		if ($customer_id==0) {
 
 			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
-			// Kidzou_Utils::log('getPostsByCustomerID '.$customer_id, true);
 			if ($customer_id==0)
 				return $posts;
 		}
@@ -318,38 +317,26 @@ class Kidzou_Customer {
 
 		$defaults = array(
 			'posts_per_page' => 4,
-			// 'post_type' => self::$supported_post_types,
-			'post__not_in' => array( $post->ID ) //exclure le post courant 
+			'post_status'=> 'publish',
+			'post__not_in' => array( $post->ID ) //exclure le post courant si on est sur un article
 		);
 
-		$settings = array(); //todo
-
-		$defaults = array_merge( $defaults, $settings );
-
 		// Parse incomming $args into an array and merge it with $defaults
-		$args = wp_parse_args( $args, $defaults );
+		$args = wp_parse_args( $settings, $defaults );
 
 		// Declare each item in $args as its own variable i.e. $type, $before.
 		extract( $args, EXTR_SKIP );
 
-		//Est-ce vraiment une bonne chose de filtrer ici par metropole ?
-		// $metropole = Kidzou_Geo::get_request_metropole();
-
 		$rd_args = array(
 			'posts_per_page' => $posts_per_page,
-			'post_type' => 'post',
-			'meta_key' => self::$meta_customer,
-			'meta_value' => $customer_id,
-			'exclude'=> implode(",",$post__not_in),
-	
+			'post_type' 	=> 'post',
+			'meta_key' 		=> self::$meta_customer,
+			'meta_value' 	=> $customer_id,
+			'exclude'		=> implode(",",$post__not_in),
+			'post_status'	=> $post_status
 		);
-		 
-		// $query = new WP_Query( $rd_args );
-		// $list = $query->get_posts();
 
 		$posts = get_posts( $rd_args );
-
-		// Kidzou_Utils::log(array('getPostsByCustomerID'=>$posts), true);
 
 		return $posts;
 
@@ -433,8 +420,7 @@ class Kidzou_Customer {
 				
 				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $customer_id);
 			}
-		}
-		
+		}		
 	}
 
 	/**
@@ -449,8 +435,7 @@ class Kidzou_Customer {
 
 		$meta[Kidzou_Customer::$meta_customer_analytics] = $is_analytics;
 
-		Kidzou_Utils::save_meta($customer_id, $meta);
-		
+		Kidzou_Utils::save_meta($customer_id, $meta);	
 	}
 
 	/**
@@ -472,7 +457,7 @@ class Kidzou_Customer {
 		$meta = array();
 
 		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
-		$meta[Kidzou_Customer::$meta_api_quota] = array($api_names[0] => $quota);
+		$meta[Kidzou_Customer::$meta_api_quota] = array(reset($api_names) => $quota);
 
 		Kidzou_Utils::save_meta($customer_id, $meta);
 		

@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'amad';
+	const VERSION = 'refactor-metabox';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Améliorations mineures des écrans d'admin";
+	public static $version_description = "Refactoring des metabox, séparation des JS";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
