@@ -83,6 +83,7 @@ class Kidzou_Featured {
 	}
 
 	/**
+	 * stockage des valeurs A/B pour des problématiques de non stockage si valeur numérique à 0
 	 *
 	 * @param $post_id int le ID du post 
      * @param $featured boolean 

@@ -75,18 +75,43 @@ class Kidzou_Metaboxes_Customer {
 
 		if ( in_array($screen->id , $this->screen_with_meta_client) || in_array($screen->id, $this->customer_screen) ) { 
 
-			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
+			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array('jquery'), '0.12.1', true);
 			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
+			// wp_enqueue_script('selectize-link', plugins_url( 'assets/js/selectize-link.js', dirname(__FILE__)), array( 'selectize' ), Kidzou::VERSION );
 			
+			$args = array(
+					'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
+					'api_getCustomerPosts'			=> site_url()."/api/clients/getContentsByClientID",
+					'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
+					'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/');
+
+			//populer la liste des clients pour les écrans qui utilisent la sélection de clients
+			if (in_array($screen->id , $this->screen_with_meta_client)) {
+
+				$customer_id = Kidzou_Customer::getCustomerIDByPostID();
+				if (is_wp_error($customer_id))
+					$customer_id=0;
+
+				$clients = self::getClients();
+				$args['clients_list'] =  $clients;
+				if (count($clients)==1) {
+					//on prend le premier element
+					$customer_id = reset($clients)['id'];
+				}
+
+				//pour preselection du client 
+				$args['customer_id'] =  $customer_id;
+			} 
+
+			//selection de users et de posts sur l'écran customer
+			if (in_array($screen->id , $this->customer_screen)) {
+				wp_enqueue_script('customer-posts-select', 	plugins_url( '../assets/js/kidzou-customer-posts-metabox.js', __FILE__ ) ,array('selectize'), Kidzou::VERSION, true);
+				wp_enqueue_script('customer-users-select', 	plugins_url( '../assets/js/kidzou-customer-users-metabox.js', __FILE__ ) ,array('selectize'), Kidzou::VERSION, true);
+			}
+
 			//sur les post on a besoin d'une meta client
-			wp_enqueue_script( 'kidzou-customer-script', plugins_url( 'assets/js/kidzou-customer.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-customer-script', 'client_jsvars', array(
-				'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
-				'api_getCustomerPosts'			=> site_url()."/api/clients/getContentsByClientID",
-				'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
-				'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/',
-				)
-			);
+			wp_enqueue_script( 'kidzou-customer-metabox', plugins_url( '/assets/js/kidzou-customer-metabox.js', dirname(__FILE__) ), array( 'jquery', 'selectize' ), Kidzou::VERSION, true);
+			wp_localize_script('kidzou-customer-metabox', 'client_jsvars', $args);
 
 		}
 
@@ -110,51 +135,13 @@ class Kidzou_Metaboxes_Customer {
 	}
 
 	/**
-	 * Ajout des metabox supplémnetaires à celles gérées par Kidzou_Admin
+	 * Internal usage only, returrns an array of clients passed to JS scripts
 	 *
-	 * @return void
-	 * @since customer-analytics
-	 * @author 
-	 **/
-	public function add_metaboxes()
-	{
-		// Kidzou_Utils::log('Kidzou_Admin_Customer [add_metaboxes]', true);
-		$screen = get_current_screen(); 
-
-		if ($screen->id =='customer' ) {
-
-			add_meta_box('kz_customer_analytics_metabox', 'Google Analytics', array($this, 'add_analytics_metabox'), $screen->id, 'normal', 'high'); 
-			
-			add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
-			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
-			add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
-		
-		} elseif ( in_array($screen->id , $this->screen_with_meta_client) ) { 
-
-			if (Kidzou_Utils::current_user_is('author')) {
-				//par sécu, les users qui sont contributeurs ne voient même pas la metabox de sélection du client
-				add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
-			}
-		
-		} 
-
-	}
-
-	/**
-	 * Sélection / création d'un client depuis l'écran d'édition d'un post
+	 * @since     1.0.0
 	 *
-	 * @author 
-	 **/
-	public function client_metabox()
-	{ 
-		global $post; 
-
-		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
-		
-		$customer_id = Kidzou_Customer::getCustomerIDByPostID();
-	
-		if (is_wp_error($customer_id))
-			$customer_id=0;
+	 * @return    object    A single instance of this class.
+	 */
+	private static function getClients() {
 
 		$clients = array();
 		$args = array(
@@ -180,130 +167,49 @@ class Kidzou_Metaboxes_Customer {
 
 			wp_reset_query();
 		}
+		return $clients;
+	}
+
+
+
+	/**
+	 * Ajout des metabox supplémnetaires à celles gérées par Kidzou_Admin
+	 *
+	 * @return void
+	 * @since customer-analytics
+	 * @author 
+	 **/
+	public function add_metaboxes()
+	{
+		// Kidzou_Utils::log('Kidzou_Admin_Customer [add_metaboxes]', true);
+		$screen = get_current_screen(); 
+
+		if ($screen->id =='customer' ) {
+
+			add_meta_box('kz_customer_analytics_metabox', 'Google Analytics', array($this, 'add_analytics_metabox'), $screen->id, 'normal', 'high'); 
+			
+			add_meta_box('kz_customer_posts_metabox', 'Articles associés', array($this, 'customer_posts_metabox'), $screen->id, 'normal', 'high');
+			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
+			add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
 		
+		} elseif ( in_array($screen->id , $this->screen_with_meta_client) && Kidzou_Utils::current_user_is('author') ) { 
 
-		//pre-selection s'il n'y en a qu'un
-		if (count($clients)==1) {
-			$customer_id = $clients[0]['id'];
-		}
-
-		echo sprintf('
-				<script>
-					jQuery(document).ready(function() {
-						jQuery("select[name=\'customer_select\']").selectize({
-							mode: "single",
-							options : %1$s,
-							valueField: \'id\',
-							labelField: \'name\',
-							sortField: [
-								{field: \'name\', direction: \'asc\'},
-							],
-							searchField : [
-								\'name\'
-							],
-							render: {
-								item: function(item, escape) {
-									return \'<div>\' + escape(item.name) + \'</div>\';
-								},
-								option: function(item, escape) {
-									if (typeof item.location==\'undefined\' || typeof item.location.location_address==\'undefined\' || item.location.location_address==\'\') 
-										return \'<div>\' + escape(item.name) + \'</div>\';
-									return \'<div>\' + escape(item.name) + \'<br/><em style="font-size:smaller">\' + escape(item.location.location_address) + \', \' + escape(item.location.location_city) + \'</em></div>\';
-								}
-							},
-							onItemAdd : function(value, item) {
-
-								// console.debug("onItemAdd", value, item);
-
-								function addEditCustomerButton(e) {
-									e.preventDefault(); //stop the event, ne pas valider cette page
-									window.open("post.php?post="+value+"&action=edit", "_blank");
-									return false;
-								}
-
-								if (document.querySelector("#editCustomerButton")!==null) {
-									document.querySelector("#editCustomerButton").removeEventListener("click", addEditCustomerButton);
-									document.querySelector("#editCustomerButton").parentNode.removeChild(document.querySelector("#editCustomerButton"));
-								}
-								if (document.querySelector("#customerPosts")!==null)
-									document.querySelector("#customerPosts").parentNode.removeChild(document.querySelector("#customerPosts"));
-								
-								if (window.kidzouPlaceModule) {
-
-									jQuery.get(client_jsvars.api_getCustomerPlace, { 
-					   					id 	: value
-									}).done(function(data) {
-										// console.log(data);
-										if (data.status===\'ok\' && data.location.location_name!=\'\') {
-											kidzouPlaceModule.model.proposePlace(\'customer\', {
-													name 		: data.location.location_name,
-								        			address 	: data.location.location_address,
-								        			website 	: data.location.location_web, //website
-								        			phone		: data.location.location_tel, //phone
-								        			city 		: data.location.location_city,
-								        			latitude	: data.location.location_latitude,
-								        			longitude 	: data.location.location_longitude,
-								        			opening_hours : \'\' //opening hours
-												});
-										} 
-									});
-								}
-
-								//Charger la liste des posts du même client pour permettre une navigation
-								jQuery.get(client_jsvars.api_getCustomerPosts, { 
-				   					id 	: value
-								}).done(function(data) {
-	
-									if (data.status===\'ok\' && data.posts!=\'\') {
-										// console.log("customer posts",data.posts);
-										document.querySelector("#editCustomerButton").insertAdjacentHTML(\'beforeBegin\', \'<p id="customerPosts">Autres articles pour ce client:<br/></p>\');
-										var list = "";//"<br/>";
-										for (i = 0; i < data.posts.length; i++) { 
-										    var slug = data.posts[i].slug;
-										    if (i>0)
-										    	list += "&nbsp;,&nbsp;";
-										    list += "<a href=\'post.php?post=" + data.posts[i].id + "&action=edit" + "\' target=\'_blank\'>" + data.posts[i].title + "</a>";
-										}
-										list += "";//"<br/>";
-										document.querySelector("#customerPosts").insertAdjacentHTML(\'beforeEnd\', list);
-										document.querySelector("#editCustomerButton").addEventListener("click", addEditCustomerButton);
-									} 
-								});
-
-								//afficher le bouton edition du client
-								document.querySelector(".selectize-control").insertAdjacentHTML(\'afterEnd\', \'<br/><button id="editCustomerButton" class="button button-large">Editer ce client</button>\');
-
-							
-							}
-						});
-					});
-				</script>
-			', json_encode($clients));
-	
-		//le post a déjà un customer 
-		if ($customer_id>0) {
-			// $customer_edit_url = admin_url('post.php?post='. $customer_id .'&action=edit');
-			// $customer_posts = Kidzou_Customer::getPostsByCustomerID($customer_id);
-			// $posts_links = '';
-			// foreach ($customer_posts as $_post) {
-			// 	$post_edit_url = admin_url('post.php?post='. $_post->ID .'&action=edit');
-			// 	$posts_links .= '<a href="'.$post_edit_url.'" target="_blank">'.$_post->post_title.'</a>&nbsp;,&nbsp;';
-			// }
-			// Kidzou_Utils::log($posts_links,true);
-			echo '
-				<script>
-					jQuery(document).ready(function() {
-						//Charger la select avec le client du post
-						//ne pas déclencher le onItemAdd...
-						jQuery("select[name=\'customer_select\']").selectize()[0].selectize.addItem('.$customer_id.', true);
-				
-					});
-				</script>
-				';
-		}
+			//par sécu, les users qui sont contributeurs ne voient même pas la metabox de sélection du client
+			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
 		
+		} 
 
+	}
+
+	/**
+	 * Sélection / création d'un client depuis l'écran d'édition d'un post
+	 *
+	 * @author 
+	 **/
+	public function client_metabox()
+	{ 
 		echo '
+			<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />
 			<div class="kz_form hide" id="customer_form">
 				<ul>
 				<!-- selectize ne fonctionne que si l\'element est dans le DOM , il faut donc utiliser un bind "visible" et non "if" -->
@@ -352,37 +258,28 @@ class Kidzou_Metaboxes_Customer {
 	}
 
 	/**
-	 * les posts rattachés au client
+	 * les posts rattachés au client dans l'écran customer
 	 *
 	 * @return void
 	 * @author 
 	 **/
 	public function customer_posts_metabox()
 	{
-		// Kidzou_Utils::log( 'Kidzou_Admin [customer_posts_metabox]',true);
-
+	
 		global $post;
 
-		$args = array(
-			'post_type' => Kidzou_Customer::$supported_post_types,
-		   	'meta_query' => array(
-		       array(
-		           'key' => Kidzou_Customer::$meta_customer,
-		           'value' => $post->ID,
-		           'compare' => '=',
-		       )
-		   ),
-		   'post_per_page' => -1
-		);
-		$query = new WP_Query($args);
-
-		$posts = $query->get_posts();
+		$posts = Kidzou_Customer::getPostsByCustomerID(
+						$post->ID, 
+						array(
+							'posts_per_page' => -1,
+							 'post_status' => 'any'
+						)
+					);
+		
 		$init_options = '';
 		foreach ($posts as $init_post){
 		    $init_options .= '<option value="'.$init_post->ID.'" selected>'.$init_post->post_title.'</option>';
 		}
-
-		// Kidzou_Utils::log(array('init_posts'=>$init_posts),true);
 
 		wp_reset_query();
 
@@ -390,46 +287,6 @@ class Kidzou_Metaboxes_Customer {
 		wp_nonce_field( 'customer_posts_metabox', 'customer_posts_metabox_nonce' );
 
 		$output = sprintf('
-				<script>
-					jQuery(document).ready(function() {
-
-						jQuery("#customer_posts").selectize({
-						    options : [],
-						    create: false,
-						    hideSelected : true,
-						    valueField: \'id\',
-						    labelField: \'title\',
-						    searchField: \'title\',
-						    delimiter: \',\',
-						    plugins: [\'remove_button\'],
-						    render: {
-						    	item: function(item, escape) {
-						            return \'<div><span class="name">\' + escape(item.title) + \'</span></div>\';
-						        },
-						        option: function(item, escape) {
-						            return 	\'<div><span class="title"><span class="name">\' + escape(item.title) +
-						            		 \'</span></span></div>\';
-						        }
-						    },
-						    load: function(query, callback) {
-						        if (!query.length) return callback();
-						        jQuery.ajax({
-						            url: client_jsvars.api_queryAttachablePosts ,
-						            data: {
-						                term: query,
-						            },
-						            error: function() {
-						                callback();
-						            },
-						            success: function(data) { 
-						            	console.debug(data);
-						                callback(data.posts);
-						            }
-						        });
-						    }
-						});
-					});
-				</script>
 				<label for="customer_posts[]" style="display:block;">
 					Articles appartenant au client :
 				</label>
@@ -474,56 +331,12 @@ class Kidzou_Metaboxes_Customer {
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
 
 		$output = sprintf('
-				<script>
-					jQuery(document).ready(function() {
-
-						jQuery("#customer_users").selectize({
-						    options : [],
-						    hideSelected : true,
-						    create: false,
-						    valueField: \'ID\',
-						    labelField: \'display_name\',
-						    searchField: [\'display_name\',\'user_email\'],
-						    delimiter: \',\',
-						    plugins: [\'remove_button\'],
-						    render: {
-						    	item: function(item, escape) { 
-						            return \'<div><span class="name">\' + escape(item.display_name) + \'</span><span class="email">\' + escape(item.user_email) + \'</span></div>\';
-						        },
-						        option: function(item, escape) {
-						            return 	\'<div><span class="label">\' + escape(item.display_name) + \'</span><span class="caption">\' + escape(item.user_email) + \'</span></div>\';
-						        }
-						    },
-						    load: function(query, callback) {
-						        if (!query.length) return callback();
-						        jQuery.ajax({
-						            url: client_jsvars.api_get_userinfo ,
-						            data: {
-						                term: query,
-						            },
-						            error: function() {
-						                callback();
-						            },
-						            success: function(data) {
-						            	callback(data.status.map(function(item) {
-										    return {
-										        ID: item.data.ID,
-										        display_name : item.data.display_name,
-										        user_email : item.data.user_email
-										    };
-										}));
-						            }
-						        });
-						    }
-						});
-					});
-				</script>
-				<label for="customer_users[]" style="display:block;">
-					Utilisateurs autoris&eacute;s &agrave; saisir des contenus<br/>
-					<strong>La recherche se fait par login ou email</strong>
-				</label>
-				<br/>
-				<select multiple="multiple" name="customer_users[]" id="customer_users" class="contacts" placeholder="rechercher par email ou login..." style="width:80%;">%1$s</select>
+			<label for="customer_users[]" style="display:block;">
+				Utilisateurs autoris&eacute;s &agrave; saisir des contenus<br/>
+				<strong>La recherche se fait par login ou email</strong>
+			</label>
+			<br/>
+			<select multiple="multiple" name="customer_users[]" id="customer_users" class="contacts" placeholder="rechercher par email ou login..." style="width:80%;">%1$s</select>
 			',
 			$main_users
 		);
@@ -654,12 +467,13 @@ class Kidzou_Metaboxes_Customer {
 			//le user ne voit pas la meta client s'il n'est pas au moins auteur
 			//dans ce cas on rattache le post au client du user
 
-			$current_user_customers = Kidzou_Customer::getCustomersIDByUserID(); //c'est un tableau
+			$current_customers = Kidzou_Customer::getCustomersIDByUserID(); //c'est un tableau
 
-			if (count($current_user_customers)>0)
+			if (count($current_customers)>0)
 			{
-				Kidzou_Admin::save_meta($post_id, array(
-					Kidzou_Customer::$meta_customer => $current_user_customers[0] //on prend le premier client du user courant
+				// Kidzou_Utils::log(reset($current_customers), true);
+				Kidzou_Utils::save_meta($post_id, array(
+					Kidzou_Customer::$meta_customer => reset($current_customers) //on prend le premier client du user courant
 					)
 				); 
 			}
