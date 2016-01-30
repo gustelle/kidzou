@@ -25,19 +25,7 @@ module.exports = function(grunt) {
 				  ] 
 		},
 
-		//quality reports pour les JS
-		// plato: {
-		// 	options : {
-		//       jshint : false //deja fait par ailleurs
-		//     },
-		//     front: {
-		//       files: {
-		//         'reports': ['<%= cfg.kidzou_path %>/assets/js/*.js', '<%= cfg.kidzou_path %>/public/assets/js/*.js','<%= cfg.kidzou_path %>/admin/assets/js/*.js', '<%= cfg.theme_path %>/js/custom.js'],
-		//       }
-		//     },
-		//   },
-
-
+		//déploiement des fichiers sur le serveur Apache
 		copy: {
 
 			//tache de déploiement du thème enfant
@@ -56,7 +44,6 @@ module.exports = function(grunt) {
 					{expand:true, cwd: '<%= cfg.kidzou_path %>', src: ['**'], dest: '<%= cfg.wp_kidzou_root %>'}, // includes files in path and its subdirs,
 				]
 			},
-
 		},
 
 		//generation de documentation PHP
@@ -69,9 +56,9 @@ module.exports = function(grunt) {
 	                target : 'docs/'
 	            }
 	        },
-
 	    },
 
+	    //tests de performance avec les API WebPageTest.org
 	    perfbudget: {
 		  default: {
 		    options: {
@@ -80,86 +67,56 @@ module.exports = function(grunt) {
 		      location : 'ec2-eu-central-1:Chrome'
 		    }
 		  }
+		},
+
+		//compilation des JSX React
+		babel: {
+		  options: {
+		    plugins: ['transform-react-jsx'],
+		    presets: ['es2015', 'react']
+		  },
+		  jsx: {
+		    files: [{
+		      expand: true,
+		      cwd: '<%= cfg.kidzou_path %>/admin/assets/js/jsx/', // Custom folder
+		      src: ['*.jsx'],
+		      dest: '<%= cfg.kidzou_path %>/admin/assets/js', // Custom folder
+		      ext: '.js'
+		    }]
+		  }
 		}
 		
-
 	});
+
+	///////////////////////////////////////
+	// Modules
+	//
 
 	grunt.loadNpmTasks('grunt-contrib-jshint'); //
 	grunt.loadNpmTasks('grunt-contrib-copy'); //
-	// grunt.loadNpmTasks('grunt-plato');
 
 	//nettoyage des fichiers
 	grunt.loadNpmTasks('grunt-contrib-clean');
 
 	//Documentation
 	grunt.loadNpmTasks('grunt-phpdocumentor');
+	grunt.loadNpmTasks('grunt-babel');
 	// grunt.loadNpmTasks('grunt-css-docs');
 
 	//Perf tests avec les API de WebPageTest.org
 	//API key is A.3a80d0143024fccd375b277d90f0a07c
-	//The following browser/location combinations are available:
-	// Dulles_IE9
-	// Dulles_IE10
-	// Dulles_IE11
-	// Dulles:Chrome
-	// Dulles:Canary
-	// Dulles:Firefox
-	// Dulles:Firefox Nightly
-	// Dulles:Safari
-	// Dulles_MotoG:Motorola G - Chrome
-	// Dulles_MotoG:Motorola G - Chrome Beta
-	// Dulles_MotoG:Motorola G - Chrome Dev
-	// ec2-us-east-1:Chrome
-	// ec2-us-east-1:IE 11
-	// ec2-us-east-1:Firefox
-	// ec2-us-east-1:Safari
-	// ec2-us-west-1:Chrome
-	// ec2-us-west-1:IE 11
-	// ec2-us-west-1:Firefox
-	// ec2-us-west-1:Safari
-	// ec2-us-west-2:Chrome
-	// ec2-us-west-2:IE 11
-	// ec2-us-west-2:Firefox
-	// ec2-us-west-2:Safari
-	// ec2-eu-west-1:Chrome
-	// ec2-eu-west-1:IE 11
-	// ec2-eu-west-1:Firefox
-	// ec2-eu-west-1:Safari
-	// ec2-eu-central-1:Chrome
-	// ec2-eu-central-1:IE 11
-	// ec2-eu-central-1:Firefox
-	// ec2-eu-central-1:Safari
-	// ec2-ap-northeast-1:Chrome
-	// ec2-ap-northeast-1:IE 11
-	// ec2-ap-northeast-1:Firefox
-	// ec2-ap-northeast-1:Safari
-	// ec2-ap-southeast-1:Chrome
-	// ec2-ap-southeast-1:IE 11
-	// ec2-ap-southeast-1:Firefox
-	// ec2-ap-southeast-1:Safari
-	// ec2-ap-southeast-2:Chrome
-	// ec2-ap-southeast-2:IE 11
-	// ec2-ap-southeast-2:Firefox
-	// ec2-ap-southeast-2:Safari
-	// ec2-sa-east-1:Chrome
-	// ec2-sa-east-1:IE 11
-	// ec2-sa-east-1:Firefox
-	// ec2-sa-east-1:Safari
 	grunt.loadNpmTasks('grunt-perfbudget');
 
-	//lancement de grunt par defaut
-	grunt.registerTask('default', ['prepjs','theme', 'plugins']);
+	///////////////////////////////////////
+	// Tasks
+	//
 
-	//mise en recette
-	grunt.registerTask('recette', ['prepjs','theme', 'plugins', 'http:recette']);
-
-	grunt.registerTask('prepjs', ['jshint']); //'plato'
-	grunt.registerTask('theme',  ['copy:divi']); //csslint
-	grunt.registerTask('plugins',['copy:k4']); 
 	grunt.registerTask('doc',['phpdocumentor:plugin_kidzou']);
-
-	//execution de tests de perf sur WebPageTest.org
 	grunt.registerTask('perf',['perfbudget']);
+
+	//lancement de grunt par defaut
+	grunt.registerTask('default', ['jshint','copy:divi', 'copy:k4']);
+	grunt.registerTask('deploy', ['babel','copy:divi', 'copy:k4']);
+
 
 };
