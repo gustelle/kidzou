@@ -70,7 +70,7 @@ class JSON_API_Content_Controller {
 
 		$adresseRedresseeCorrecte = false;
 
-		if (isset($_POST['location'])) {
+		if ( isset($_POST['location']) ) {
 
 			$location = $_POST['location'];
 
@@ -88,8 +88,16 @@ class JSON_API_Content_Controller {
 			$adresseRedresseeCorrecte = ($location['country']=='FR');
 		}
 		
+		$author_id = -1;
+		if ( isset($_POST['author_id']) ) {
+			$author_id = intval($_POST['author_id']);
+		}
+
 		//recuperer le user "KidzouTeam"
-		$author_id 			= Kidzou_Utils::get_option('import_author_id');
+		if ($author_id<0)
+			$author_id 			= Kidzou_Utils::get_option('import_author_id');
+		
+		//récupérer le template de contenu à ajouter
 		$template_append 	= Kidzou_Utils::get_option('import_content_append');
 
 		//créer le post 
@@ -115,15 +123,22 @@ class JSON_API_Content_Controller {
 			}
 		}
 
-		//créer le customer
-		$customer_id = wp_insert_post(
-			array(
-				'post_author'		=>	$author_id,
-				'post_title'		=>	wp_strip_all_tags($name),
-				'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
-				'post_type'			=>	'customer'
-			)
-		);
+		$customer_id = -1;
+		//créer le customer si le user à les bons droits
+		if (Kidzou_Utils::current_user_is('author')) {
+			$customer_id = wp_insert_post(
+				array(
+					'post_author'		=>	$author_id,
+					'post_title'		=>	wp_strip_all_tags($name),
+					'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
+					'post_type'			=>	'customer'
+				)
+			);
+			//associer le post au customer
+			$ids = array();
+			$ids[] = $post_id;
+			Kidzou_Customer::attach_posts($customer_id, $ids);
+		}
 
 		//associer l'adresse au customer, 
 		//elle sera transitive sur le post par association du client au post
@@ -140,16 +155,14 @@ class JSON_API_Content_Controller {
 				$lng );
 		}
 
-		//associer le post au customer
-		$ids = array();
-		$ids[] = $post_id;
-		Kidzou_Customer::attach_posts($customer_id, $ids);
-
 		return array(
+			'post_id'	=> $post_id,
+			'customer_id'=> $customer_id,
 			'post_edit_url'=> admin_url( 'post.php?post='.$post_id.'&action=edit' ),
 			'customer_edit_url'=> admin_url( 'post.php?post='.$customer_id.'&action=edit' )
 		);
 	}
+
 
 	/**
 	 * tous les lieux référencés et toutes ses metadata

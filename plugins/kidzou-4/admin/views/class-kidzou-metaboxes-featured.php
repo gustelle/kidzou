@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Featured', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Featured', 'get_instance' ), 11 );
 
 
 /**
