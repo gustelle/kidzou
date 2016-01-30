@@ -315,111 +315,8 @@ var kidzouEventsModule = (function() { //havre de paix
 			});
 
 			//si l'URL d'un evenement facebook est renseignée, on déclenche la mise à jour des autres champs
-			self.facebookImportMessage 	= ko.observable("");
-			self.facebookUrl 	= ko.computed({
-				read: function() {
-		    		return '';
-		    	},
-		    	write: function(value) {
-
-		    		self.facebookImportMessage("<span class='import-progress'>Import en cours...</span>");
-
-		    		var patt = /https?:\/\/www.facebook.com\/events\/([0-9]*)\/?/i;
-					var matches = patt.exec(value);
-		    		if (matches!=null) {
-		    			var eventId = matches[1];
-					    FB.api(
-						    "/" + eventId + '?access_token=' + events_jsvars.facebook_token + '&fields=cover,name,description,place,end_time,start_time',
-						    function (response) {
-
-						    	console.debug('FB.api', response);
-
-						      if (response && !response.error && typeof response.start_time!='undefined') {
-
-						        self.start_date(moment(response.start_time).startOf("day").format("YYYY-MM-DD HH:mm:ss"));
-														        
-						        //il arrive que la date de fin ne soit pas renseignée
-						        if (typeof response.end_time=='undefined')
-						        	self.end_date(moment(response.start_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
-						        else 
-						        	self.end_date(moment(response.end_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
-
-						        document.querySelector('input[name="post_title"]').value  = response.name;
-						        
-						        //remplacer les CR LF par des <br>
-						        if (typeof response.description!='undefined' && window.tinyMCE) {
-						        	var content = response.description.replace(/(\r\n|\n|\r)/gm,"<br/>");
-						        	//le contenu de Facebook est ajouté à la fin du contenu pré-existant
-						        	//il faut donc récupérer le contenu existant 
-						        	var previousContent = tinyMCE.activeEditor.getContent({format : 'raw'});
-
-						       		tinyMCE.execCommand('mceSetContent', false, previousContent+content); 
-						        }
-						        
-						        //fixer le contenu dans l'editor
-						        if (window.kidzouPlaceModule && typeof response.place!=='undefined' ) {
-
-						        	var _locationName 	= (typeof response.place.name!=='undefined' ? response.place.name : '');
-						        	var _address 	= (typeof response.place.location!=='undefined' && typeof response.place.location.street!=='undefined' ? response.place.location.street : '');
-						        	var _phone 		= (typeof response.place.location!=='undefined' && typeof response.place.location.phone!=='undefined' ? response.place.location.phone : '');
-						        	var _city 		= (typeof response.place.location!=='undefined' && typeof response.place.location.city!=='undefined' ? response.place.location.city : '');
-						        	var _latitude 	= (typeof response.place.location!=='undefined' && typeof response.place.location.latitude!=='undefined' ? response.place.location.latitude : '');
-						        	var _longitude 	= (typeof response.place.location!=='undefined' && typeof response.place.location.longitude!=='undefined' ? response.place.location.longitude : '');
-	
-						        	kidzouPlaceModule.model.proposePlace('facebook', {
-						        			name 	: _locationName,
-						        			address : _address,
-						        			website : value, //website
-						        			phone	: _phone, //phone
-						        			city 	: _city,
-						        			latitude	: _latitude,
-						        			longitude 	: _longitude,
-						        			opening_hours : '' //opening hours
-						        		});
-						        }
-
-						        //inserer le cover comme featured image
-						        if (typeof response.cover!='undefined') {
-						        	self.facebookImportMessage("<span class='import-progress'>T&eacute;l&eacute;chargement de l&apos;image...</span>");
-						        	
-						        	jQuery.post(events_jsvars.api_addMediaFromURL,{
-										url : response.cover.source,
-										title : response.name,
-										post_id : document.querySelector('#post_ID').value //c'est un champ caché de la page
-									}).done(function(resp) {
-										
-										if (document.querySelector('#postimagediv img')) {
-									  		document.querySelector('#postimagediv img').src = resp.src;
-									  	} else {
-									  		var node = document.createElement("IMG");    
-									  		node.setAttribute('src', resp.src);             
-											document.querySelector("#set-post-thumbnail").appendChild(node);  
-									  	} 
-									  	self.facebookImportMessage ("<span class='import-success'>T&eacute;l&eacute;chargement Termin&eacute;</span>");
-
-									}).fail(function(err) {
-										console.error('erreur lors de l\'import de la photo', err);
-									   	self.facebookImportMessage("<span class='import-failure'>La photo n&apos;a pas pu &ecirc;tre import&eacute;e :-/</span>");
-									});
-						        }  else {
-						        	self.facebookImportMessage ('');
-						        }
-
-						        //c'est fini, plus besoin de message si ce n'est un message OK 
-						        //@todo confirmer la fin du process
-						        
-
-						      } else {
-						      	self.facebookImportMessage ("<span class='import-failure'>L'import a &eacute;chou&eacute; :-(</span>");
-						      }
-						    }
-						);
-		    			
-		    		}
-		    	},
-		    	owner:self
-			});
-		    
+			// self.facebookImportMessage 	= ko.observable("");
+			    
 		}
 
 
@@ -434,7 +331,7 @@ var kidzouEventsModule = (function() { //havre de paix
 			//recuperation au format 2014-12-03 23:59:59 et mise au format JS date
 			self.initDates = function(start, end, reccurenceData ) {
 
-				// console.debug('initDates', start, end, reccurenceData);
+				console.debug('initDates', start, end, reccurenceData);
 
 				var start_mom, end_mom;
 
@@ -534,37 +431,6 @@ var kidzouEventsModule = (function() { //havre de paix
 
 (function($){
 
-	/**
-	 * Recuperation d'un token pour le Graph Facebook et desactivation du champ input si probleme
-	 */
-	function enableFacebookImport(e) {
-
-		if (events_jsvars.facebook_token=='') {
-
-			var token_url = "https://graph.facebook.com/oauth/access_token?" +
-	          "client_id=" + events_jsvars.facebook_appId +
-	          "&client_secret=" + events_jsvars.facebook_appSecret +
-	          "&grant_type=client_credentials";
-
-	        //avant d'appeler l'API facebook, il faut un access token
-	      	$.ajax({
-	            url: token_url,
-	            error: function() {
-	                console.error('impossible de recuperer un token facebook');
-	                document.querySelector('#fb_input').setAttribute('disabled','disabled');
-	                document.querySelector('#fb_input').setAttribute('placeholder','Import impossible');
-	                document.querySelector('#fb_input').style.border = '1px solid red' ;
-	            },
-	            success: function(data) {
-	            	var patt = /access_token=(.+)/;
-			        var matches = patt.exec(data);
-			        events_jsvars.facebook_token = matches[1];
-			        // console.info('token facebook', events_jsvars.facebook_token);
-	            }
-	        });
-		}
-	}
-
 	$(document).ready(function() {
 
 		kidzouEventsModule.model.initDates(
@@ -572,34 +438,8 @@ var kidzouEventsModule = (function() { //havre de paix
 			events_jsvars.end_date, 
 			events_jsvars.recurrence);
 
-		/**
-		 * Init de l'import facebook sur l'event 'focus' (récupération d'un token pour le graph API)
-		 * Tous les utilisateurs ne peuvent pas importer d'événement facebook, seuls les auteurs+
-		 * Dans ce cas, Si le champ input n'est pas dans le DOM, addEventListener jete une erreur
-		 *
-		 */
-		if (document.querySelector('#fb_input')!==null)
-			document.querySelector('#fb_input').addEventListener("focus", enableFacebookImport);
-
 	});
 
 })(jQuery);
-
-//initialisation des scripts facebook pour import d'événement par le Graph
-window.fbAsyncInit = function() {
-	FB.init({
-	  appId      : events_jsvars.facebook_appId,
-	  xfbml      : true,
-	  version    : 'v2.4'
-	});
-};
-
-(function(d, s, id){
- var js, fjs = d.getElementsByTagName(s)[0];
- if (d.getElementById(id)) {return;}
- js = d.createElement(s); js.id = id;
- js.src = '//connect.facebook.net/en_US/sdk.js';
- fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
 
 

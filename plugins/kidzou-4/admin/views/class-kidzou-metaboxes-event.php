@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Event', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Event', 'get_instance' ), 13);
 
 
 /**
@@ -44,9 +44,7 @@ class Kidzou_Metaboxes_Event {
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
 		// Load admin style sheet and JavaScript.
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		add_action( 'add_meta_boxes', array( $this, 'event_metaboxes' ) );
 	}
@@ -99,21 +97,21 @@ class Kidzou_Metaboxes_Event {
 			$recurrence		= $event_meta['recurrence'];
 			$past_dates		= $event_meta['past_dates'];
 
-			$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
-			$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
+			// $facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
+			// $facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
 
 			// wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
 			wp_localize_script('kidzou-event-metabox', 'events_jsvars', array(
 					'api_getClients'				=> site_url()."/api/clients/getClients/",
 					'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
-					'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
-					'facebook_appId'				=> $facebook_appId,
-					'facebook_appSecret'			=> $facebook_appSecret,
+					// 'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
+					// 'facebook_appId'				=> $facebook_appId,
+					// 'facebook_appSecret'			=> $facebook_appSecret,
 					'start_date'					=> $start_date,
 					'end_date'						=> $end_date,
 					'recurrence'					=> $recurrence,
 					'past_dates'					=> $past_dates,
-					'facebook_token'				=> '' //sera mis à jour en ajax
+					// 'facebook_token'				=> '' //sera mis à jour en ajax
 				)
 			);
 
@@ -168,30 +166,9 @@ class Kidzou_Metaboxes_Event {
 		wp_nonce_field( 'event_metabox', 'event_metabox_nonce' );
 
 		echo '
-		<div class="kz_form hide" id="event_form">';
+		<div class="kz_form hide" id="event_form">
 
-			if (Kidzou_Utils::current_user_is('author')) {
-
-				$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
-				$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
-
-				if ($facebook_appId!='' && $facebook_appSecret!='') {
-
-					echo '
-						<h4>Importer un &eacute;v&eacute;nement Facebook</h4>
-						<div data-bind="html: eventData().facebookImportMessage" style="display:inline;"></div>
-						<ul>
-							<li>
-								<label for="facebook_url">URL de l&apos;&eacute;v&eacute;nement Facebook:</label>
-						    	<input type="text" id="fb_input" placeholder="Ex : https://www.facebook.com/events/1028586230505678/"   data-bind="value: eventData().facebookUrl" /> 
-							</li>
-						</ul>
-					';
-				}
-
-			} 
-
-			echo '<h4>Dates de l&apos;&eacute;v&eacute;nement</h4>
+			<h4>Dates de l&apos;&eacute;v&eacute;nement</h4>
 
 			<ul>
 				<li>
@@ -374,19 +351,7 @@ class Kidzou_Metaboxes_Event {
 				);
 		}  
 		
-		//cette metadonnée n'est pas mise à jour dans tous les cas
-		//uniquement si le user est admi
-		// if ( Kidzou_Utils::current_user_is('administrator') ) {
-		// 	// Kidzou_Utils::log('****** featured ? '.$_POST['kz_event_featured'],true);
-		// 	$featured = (isset($_POST['kz_event_featured']) && $_POST['kz_event_featured']=='on');
-		// } else {
-		// 	$featured = Kidzou_Featured::isFeatured($post_id);
-		// 	// Kidzou_Utils::log('****** featured : '.$featured,true);	
-		// }
-
 		Kidzou_Events::setEventDates($post_id, $start_date, $end_date, $recurrence);
-		// Kidzou_Featured::setFeatured($post_id, $featured);
-
 
 	}
 

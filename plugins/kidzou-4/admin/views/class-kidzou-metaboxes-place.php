@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Place', 'get_instance' ) );
+add_action( 'kidzou_admin_loaded', array( 'Kidzou_Metaboxes_Place', 'get_instance' ) , 14);
 
 /**
  * Gestion des metadonnées de localisation d'un post, rattachement à un lieu 
