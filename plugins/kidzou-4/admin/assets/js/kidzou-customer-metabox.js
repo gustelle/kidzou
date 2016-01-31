@@ -56,7 +56,7 @@
 						}).done(function(data) {
 							// console.log(data);
 							if (data.status==='ok' && data.location.location_name!='') {
-								kidzouPlaceModule.model.proposePlace('Adresse Client', {
+								kidzouPlaceModule.proposePlace('Adresse Client', {
 										name 		: data.location.location_name,
 					        			address 	: data.location.location_address,
 					        			website 	: data.location.location_website, //website

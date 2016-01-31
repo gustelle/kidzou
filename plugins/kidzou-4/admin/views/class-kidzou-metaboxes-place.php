@@ -105,6 +105,8 @@ class Kidzou_Metaboxes_Place {
 			global $post;
 			$location = Kidzou_Geoloc::get_post_location($post->ID); 
 
+			Kidzou_Utils::log($location,true);
+
 			$args['location_name'] 		= $location['location_name'];
 			$args['location_address'] 	= $location['location_address'];
 			$args['location_website'] 	= $location['location_website'];
@@ -112,6 +114,9 @@ class Kidzou_Metaboxes_Place {
 			$args['location_city'] 		= $location['location_city'];
 			$args['location_latitude'] 	= $location['location_latitude'];
 			$args['location_longitude'] = $location['location_longitude'];
+
+			$args['api_save_place'] 	= site_url()."/api/content/place/";
+			$args['api_base'] 			= site_url();
 
 			//recuperation de l'adresse du client associé pour la proposer
 			//A condition qu'il ne s'agisse pas d'un ecran "customer" et que le user n'ait pas le droit de selectionner un client
@@ -144,26 +149,16 @@ class Kidzou_Metaboxes_Place {
 			}
 		
 			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
-
-			wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
-			wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
 			
-			//validation des champs du formulaire de saisie des events
-			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
-			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', dirname(__FILE__) ),array("ko-validation"), '1.0', true);
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array(), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
+			wp_enqueue_script('google-maps', 	"https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 			
-			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array(), '0.12.1', true);
-			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
-			wp_enqueue_script('selectize-placecomplete', plugins_url( 'assets/js/selectize-placecomplete.js', dirname(__FILE__) ),array('placecomplete'), '0.12.1', true);
-
-
-			//selection des places dans Google Places
-			wp_enqueue_script('placecomplete', plugins_url( 'assets/js/jquery.placecomplete.js', dirname(__FILE__) ),array('google-maps'), '1.0', true);
-
-			wp_enqueue_script('google-maps', "https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
-
-			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-place-metabox', plugins_url( 'assets/js/kidzou-place-metabox.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'kidzou-admin-geo'), Kidzou::VERSION, true);
+			wp_enqueue_script('react-geosuggest', 		plugins_url( 'assets/js/lib/react-geosuggest.min.js', dirname(__FILE__) ), array('react','google-maps'), '1.0', true);
+			wp_enqueue_script('react-content-editable', plugins_url( 'assets/js/lib/react-inline-edit.js', dirname(__FILE__) ), array('react'), '1.0', true);
+			wp_enqueue_style( 'react-geosuggest', 		plugins_url( 'assets/css/lib/geosuggest.css', dirname(__FILE__) )  );
+			
+			wp_enqueue_script('kidzou-place-metabox', 	plugins_url( 'assets/js/kidzou-geosuggest-metabox.js', dirname(__FILE__) ) ,array('react-geosuggest'), Kidzou::VERSION, true);
 			wp_localize_script('kidzou-place-metabox', 'place_jsvars', $args);
 
 		} 
@@ -208,82 +203,8 @@ class Kidzou_Metaboxes_Place {
 	 **/
 	public function place_metabox()
 	{
-		echo 
-		'<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />
-
-		<div class="kz_form hide" id="place_form">
-
-			<input type="hidden" name="kz_location_latitude" id="kz_location_latitude" data-bind="value: placeData().place().lat" />
-			<input type="hidden" name="kz_location_longitude" id="kz_location_longitude" data-bind="value: placeData().place().lng" />
-
-			<h4>Cela se passe o&ugrave; ?</h4>
-			<ul>
-			<!-- ko if: isProposal() -->
-			<li>
-				<h5>Autre adresse possible : </h5>
-				<div data-bind="foreach: placeProposals">
-					<div class="address_proposal">
-						<strong><em data-bind="text: $data.type"></em></strong><br/>
-						<span data-bind="text: $data.place.name"></span><br/>
-						<span data-bind="text: $data.place.address"></span><br/>
-						<span data-bind="text: $data.place.city"></span><br/>
-						<span data-bind="text: $data.place.website"></span><br/>
-						<span data-bind="text: $data.place.phone_number"></span><br/>
-						<span data-bind="text: $data.place.latitude"></span> / <span data-bind="text: $data.place.longitude"></span><br/>
-						<em><a href="#" data-bind="click: $parent.useAddress">Utiliser cette adresse</a></em>
-					</div>
-				</div>
-			</li>
-			<!-- /ko -->
-			<!-- selectize ne fonctionne que si l\'element est dans le DOM , il faut donc utiliser un bind "visible" et non "if" -->
-			<li data-bind="visible: !customPlace()">
-				<select name="place" style="width:80%"></select>
-				<br/><br/>
-				<em>
-					<a href="#" data-bind="click: displayCustomPlaceForm">Vous ne trouvez pas votre bonheur dans cette liste?</a><br/>
-				</em>
-			</li>
-			<!-- ko if: customPlace() -->
-			<li class="fade-in">
-				<label for="kz_location_name">Nom du lieu:</label>
-				<input type="text" name="kz_location_name" placeholder="Ex: chez Gaspard" data-bind="value: placeData().place().venue" required>
-
-			</li>
-			<li class="fade-in">
-				<label for="kz_location_address">Adresse:</label>
-				<input type="text" name="kz_location_address" placeholder="Ex: 13 Boulevard Louis XIV 59800 Lille" data-bind="value: placeData().place().address" required>
-			</li>
-			<li class="fade-in">
-				<label for="kz_location_city">Quartier / Ville:</label>
-				<input type="text" name="kz_location_city" placeholder="Ex: Lille Sud" data-bind="value: placeData().place().city" required>
-
-			</li>
-			<li class="fade-in">
-				<label for="kz_location_latitude">Latitude:</label>
-				<input type="text" name="kz_location_latitude" placeholder="Ex : 50.625935" data-bind="value: placeData().place().lat" >
-			</li>
-			<li class="fade-in">
-				<label for="kz_location_longitude">Longitude:</label>
-				<input type="text" name="kz_location_longitude" placeholder="Ex : 3.0462689999999384" data-bind="value: placeData().place().lng" >
-			</li>
-			<li class="fade-in">
-				<label for="kz_location_website">Site web:</label>
-				<input type="text" name="kz_location_website" placeholder="Ex: http://www.kidzou.fr" data-bind="value: placeData().place().website" >
-			</li>
-			<li class="fade-in">
-				<label for="kz_location_phone_number">Tel:</label>
-				<input type="text" name="kz_location_phone_number" placeholder="Ex : 03 20 30 40 50" data-bind="value: placeData().place().phone_number" >
-			</li>
-
-			<li>
-				
-			</li>
-			<li><button data-bind="click: displayGooglePlaceForm" class="button button-primary button-large">Changer de lieu</button></li>	
-			<!-- /ko -->
-
-			</ul>
-
-		</div>';
+		// echo 
+		// '<input type="hidden" name="placemeta_noncename" id="placemeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
 	}
 
 
@@ -307,41 +228,41 @@ class Kidzou_Metaboxes_Place {
 	 **/
 	private function save_place_meta($post_id)
 	{	
-		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
-			return ;
+		// if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+		// 	return ;
 
-		$slugs = array('post', 'customer');
+		// $slugs = array('post', 'customer');
 
-	    // If this isn't a 'book' post, don't update it.
-	    if ( !isset($_POST['post_type']) || !in_array($_POST['post_type'] , $slugs) ) {
-	        return;
-	    }
+	 //    // If this isn't a 'book' post, don't update it.
+	 //    if ( !isset($_POST['post_type']) || !in_array($_POST['post_type'] , $slugs) ) {
+	 //        return;
+	 //    }
 
-		if ( ! isset( $_POST['placemeta_noncename'] ) )
-			return $post_id;
+		// if ( ! isset( $_POST['placemeta_noncename'] ) )
+		// 	return $post_id;
 
-		// verify this came from the our screen and with proper authorization,
-		// because save_post can be triggered at other times
-		if ( !wp_verify_nonce( $_POST['placemeta_noncename'], plugin_basename(__FILE__) )) {
-			return $post_id;
-		}
-		// Is the user allowed to edit the post or page?
-		if ( !Kidzou_Utils::current_user_is('contributor') )
-			return $post_id;
+		// // verify this came from the our screen and with proper authorization,
+		// // because save_post can be triggered at other times
+		// if ( !wp_verify_nonce( $_POST['placemeta_noncename'], plugin_basename(__FILE__) )) {
+		// 	return $post_id;
+		// }
+		// // Is the user allowed to edit the post or page?
+		// if ( !Kidzou_Utils::current_user_is('contributor') )
+		// 	return $post_id;
 
-		// Kidzou_Utils::log($_POST,true);
+		// // Kidzou_Utils::log($_POST,true);
 
-		// OK, we're authenticated: we need to find and save the data
-		// We'll put it into an array to make it easier to loop though.
-		$location_name			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
-		$location_address 		= (isset($_POST['kz_location_address']) ? $_POST['kz_location_address'] : '');
-		$location_website 		= (isset($_POST['kz_location_website']) ? $_POST['kz_location_website'] : '');
-		$location_phone_number 	= (isset($_POST['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
-		$location_city			= (isset($_POST['kz_location_city']) ? $_POST['kz_location_city'] : '');
-		$location_latitude 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
-		$location_longitude		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
+		// // OK, we're authenticated: we need to find and save the data
+		// // We'll put it into an array to make it easier to loop though.
+		// $location_name			= (isset($_POST['kz_location_name']) ? $_POST['kz_location_name'] : '');
+		// $location_address 		= (isset($_POST['kz_location_address']) ? $_POST['kz_location_address'] : '');
+		// $location_website 		= (isset($_POST['kz_location_website']) ? $_POST['kz_location_website'] : '');
+		// $location_phone_number 	= (isset($_POST['kz_location_phone_number']) ? $_POST['kz_location_phone_number'] : '');
+		// $location_city			= (isset($_POST['kz_location_city']) ? $_POST['kz_location_city'] : '');
+		// $location_latitude 		= (isset($_POST['kz_location_latitude']) ? $_POST['kz_location_latitude'] : '');
+		// $location_longitude		= (isset($_POST['kz_location_longitude']) ? $_POST['kz_location_longitude'] : '');
 
-		Kidzou_Geoloc::set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude);
+		// Kidzou_Geoloc::set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude);
 		
 	}
 

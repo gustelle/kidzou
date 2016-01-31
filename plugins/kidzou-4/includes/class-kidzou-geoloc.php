@@ -167,6 +167,8 @@ class Kidzou_Geoloc {
 	 **/
 	public static function set_location($post_id, $location_name, $location_address, $location_website, $location_phone_number, $location_city, $location_latitude, $location_longitude )
 	{	
+		// Kidzou_Utils::log('set_location '.$post_id.' '.$location_name.'|'.$location_address.'|'.$location_city, true);
+
 		if ($location_name=='' || $location_address=='' || $location_city=='')
 			return new WP_Error('save_place', 'Certaines donnees sont manquantes');
 
@@ -182,7 +184,7 @@ class Kidzou_Geoloc {
 		$meta['location_latitude'] 		= $location_latitude;
 		$meta['location_longitude'] 	= $location_longitude;
 
-		// Kidzou_Utils::log($meta, true);
+		Kidzou_Utils::log(array('post_id'=>$post_id, 'meta'=>$meta), true);
 
 		Kidzou_Utils::save_meta($post_id, $meta, $prefix);
 		
