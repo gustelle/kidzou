@@ -236,6 +236,77 @@ class JSON_API_Content_Controller {
 		);
 	}
 
+	/**
+	 * enreigistrement de la metadonnée "place" pour un contenu
+	 */
+	public function place() {
+
+		global $json_api;
+
+		// Kidzou_Utils::log('post_id '.$_POST['post_id'].' ? '.is_int($_POST['post_id']), true);
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('content', 'place');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+		
+		if ( !isset($_POST['location']) ) $json_api->error("l'élement 'location' est attendu en parametre POST");
+
+		if ( !isset($_POST['post_id']) || !intval($_POST['post_id'])==1 ) $json_api->error("l'élement 'post_id' n'est pas reconnu");
+
+		$tel  = '';
+		$web = '';
+
+		if (isset($_POST['contact'])) {
+			$contact 		= $_POST['contact'];
+			$tel 	=	$contact['tel'];
+			$web 	=	$contact['web'];
+		}
+		
+		$post_id 	=	intval($_POST['post_id']);
+
+		$location = $_POST['location'];
+
+		$address 	= $location['address'];
+		$city 		= $location['city'];
+		$lat = $location['lat'];
+		$lng = $location['lng'];
+
+		//on va surcharger le nom du customer
+		$name = $location['name'];
+
+		//généralement quand l'adresse n'est pas bien redréssée le pays est 'US' 
+		//de toute facon sur Kidzou on utilise des adresses en 'FR'
+		$adresseRedresseeCorrecte = ($location['country']=='FR');
+		$res = '';
+
+		//associer l'adresse au customer, 
+		//elle sera transitive sur le post par association du client au post
+		if ($adresseRedresseeCorrecte) {
+
+			$res = Kidzou_Geoloc::set_location(
+				$post_id, 
+				$name, 
+				$address, 
+				$web, 
+				$tel, 
+				$city, 
+				$lat, 
+				$lng );
+		}
+
+		return array('result'=>$res);
+	}
+
 
 	/**
 	 * tous les lieux référencés et toutes ses metadata

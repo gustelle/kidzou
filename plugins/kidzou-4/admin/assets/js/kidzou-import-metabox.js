@@ -102,7 +102,7 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 							var _latitude = typeof response.place.location !== 'undefined' && typeof response.place.location.latitude !== 'undefined' ? response.place.location.latitude : '';
 							var _longitude = typeof response.place.location !== 'undefined' && typeof response.place.location.longitude !== 'undefined' ? response.place.location.longitude : '';
 
-							kidzouPlaceModule.model.proposePlace('facebook', {
+							kidzouPlaceModule.proposePlace('facebook', {
 								name: _locationName,
 								address: _address,
 								website: value, //website
@@ -191,55 +191,51 @@ var ImportForm = React.createClass({
 	handleChange: function handleChange(e) {
 
 		var self = this;
+		var value = e.target.value;
 
 		self.setState({
-			statusClass: '',
-			statusMessage: '',
-			inputClass: '',
+			statusClass: 'fa fa-spinner fa-spin',
+			statusMessage: 'Import en cours...',
+			inputClass: 'valid',
 			hintStyle: {
-				display: 'none'
+				display: 'inline'
 			},
 			content_edit_url: ''
 		});
 
 		////////////////////////////////////////////
-		applyChange(e.target.value, self.state.token, function (response) {
-			//progress
-			self.setState({
-				statusClass: 'fa fa-spinner fa-spin',
-				statusMessage: 'Import en cours...',
-				inputClass: 'valid',
-				hintStyle: {
-					display: 'inline'
-				},
-				content_edit_url: ''
-			});
-		}, function (response) {
+		//petit Timeout pour assurer que le token a bien eu le temps d'etre récupéré
+		setTimeout(function () {
 
-			console.debug('received', response);
-			//success
-			self.setState({
-				statusClass: 'fa fa-check',
-				statusMessage: 'Import terminé',
-				inputClass: 'valid',
-				hintStyle: {
-					display: 'inline'
-				},
-				content_edit_url: response.post_edit_url
+			applyChange(value, self.state.token, function (response) {
+				//progress
+			}, function (response) {
+
+				console.debug('received', response);
+				//success
+				self.setState({
+					statusClass: 'fa fa-check',
+					statusMessage: 'Import terminé',
+					inputClass: 'valid',
+					hintStyle: {
+						display: 'inline'
+					},
+					content_edit_url: response.post_edit_url
+				});
+			}, function (response) {
+				console.error('received', response);
+				//error
+				self.setState({
+					statusClass: 'fa fa-exclamation-circle',
+					statusMessage: 'L\'import a échoué',
+					inputClass: 'invalid',
+					hintStyle: {
+						display: 'inline'
+					},
+					content_edit_url: ''
+				});
 			});
-		}, function (response) {
-			console.error('received', response);
-			//error
-			self.setState({
-				statusClass: 'fa fa-exclamation-circle',
-				statusMessage: 'L\'import a échoué',
-				inputClass: 'invalid',
-				hintStyle: {
-					display: 'inline'
-				},
-				content_edit_url: ''
-			});
-		});
+		}, 1000);
 	},
 	render: function render() {
 		return React.createElement(

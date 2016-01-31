@@ -70,7 +70,6 @@ class Kidzou_Metaboxes_Import {
 			wp_enqueue_script('react',				"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array(), '0.14.7', true);
 
 			wp_enqueue_script('kidzou-import-metabox', plugins_url( 'assets/js/kidzou-import-metabox.js', dirname(__FILE__) ) ,array('jquery', 'moment'), Kidzou::VERSION, true);
-			// wp_enqueue_script('kidzou-import-metabox', plugins_url( 'assets/js/jsx/kidzou-import-metabox.jsx', dirname(__FILE__) ) ,array('jsx-transformer', 'jquery', 'moment'), Kidzou::VERSION, true);
 
 			$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
 			$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
@@ -83,8 +82,6 @@ class Kidzou_Metaboxes_Import {
 					'background_import'				=> false
 				)
 			);
-
-			// add_filter( 'script_loader_tag', array($this, 'jsx_tag'), 10, 3 );
 
 		} 
 	}
@@ -123,19 +120,6 @@ class Kidzou_Metaboxes_Import {
 
 			add_meta_box('kz_import_metabox', 'Import de contenu', array($this, 'import_metabox'), $screen->id, 'normal', 'high');
 		} 
-	}
-
-	/**
-	 * Changement du type de la balise <script> pour indiquer qu'il s'agit d'un template JSX de ReactJS
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function jsx_tag($tag, $handle, $src ) {
-	  if ( 'kidzou-import-metabox' == $handle ) {
-	    $tag = str_replace( "<script type='text/javascript'", "<script type='text/jsx'", $tag );
-	  }
-	  return $tag;
 	}
 
 	/**

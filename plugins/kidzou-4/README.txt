@@ -4,8 +4,9 @@
 	
 	<li>Refactoring / modularisation de Kidzou_Metaboxes_Event pour isoler un composant d'import</li>
 	<li>Migration du composant d'import Facebook en ReactJS et modularisation pour utilisation dans un Widget</li>
+	<li>Migration de la Metabox "Place" vers ReactJS</li>	
 
-	<li>TODO : Migration des Metabox vers ReactJS</li>	
+	<li>TODO : Migration des Metabox Customer et Event vers ReactJS</li>	
 	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 
 </ul>
