@@ -190,15 +190,21 @@ input.date {
   left:-6px;
 }
 input:focus + .form_hint {display: inline;}
-input:required:valid + .form_hint, input.valid + .form_hint {background: #28921f;}
-input:required:valid + .form_hint::before, input.valid + .form_hint::before {color:#28921f;}
+
+input:required:valid + .form_hint, 
+input.valid + .form_hint,
+.form_hint.valid {background: #28921f;}
+
+input:required:valid + .form_hint::before, 
+input.valid + .form_hint::before,
+.form_hint.valid::before {color:#28921f;}
 
 
 /**
  * Messages et propositions
  */
 
-.import-success {
+/*.import-success {
   color:#28921f;
 }
 .import-progress {
@@ -206,7 +212,7 @@ input:required:valid + .form_hint::before, input.valid + .form_hint::before {col
 }
 .import-error {
   color:#b03535;
-}
+}*/
 
 .address_proposal {
   margin-right: 0.4em;
@@ -219,3 +225,34 @@ input:required:valid + .form_hint::before, input.valid + .form_hint::before {col
   height: 11em;
   overflow: auto;
 }
+
+
+/*
+ * InlineEdit via React
+ */
+.editable {
+  width: 50%;
+  padding: 0.4em;
+  font-size: 0.9em;
+  display: inline-block;
+  min-height: 1.2em; /* quand ils sont vides */
+}
+
+.editable:hover{
+  background-color: yellow;
+}
+
+.editableLabel {
+  width: 20%;
+  margin-top: 3px;
+  display: inline-block;
+  padding: 3px;
+  font-weight: bold;
+}
+
+.editing {
+  width: 50%;
+  padding: 0.4em;
+  font-size: 0.9em;
+}
+
