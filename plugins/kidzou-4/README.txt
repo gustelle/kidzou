@@ -14,12 +14,13 @@
 <h4>Refactoring</h4>
 <h5>Fevrier 2015</h5>
 <ul>
-
-	<li>refactoring pour mieux isoler les metaboxes dans l'admin</li>
-	<li>Nettoyage des classes PHP pour isoler les JS dans des fichiers</li>
+	
+	<li>Passage à React pour toutes les metabox Kidzou</li>
+	<li>Refactoring pour mieux isoler les metaboxes les unes des autres, les rendre plus modulaires</li>
 
 	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
 	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+	<li>TODO : Paramétrisation des permissions</li>
 
 </ul>
 

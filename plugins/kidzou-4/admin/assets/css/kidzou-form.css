@@ -69,23 +69,7 @@
   border-color: #b03535;
 }
 /* === Form hints === */
-./*kz_form_hint {
-  background: #d45252;
-  border-radius: 3px 3px 3px 3px;
-  color: white;
-  margin-left: 1em;
-  padding: 1px 1em;
-  z-index: 999;
-  position: absolute;
-  display: none;
-}
-.kz_form_hint::before {
-  content: "\25C0";
-  color: #d45252;
-  position: absolute;
-  top: 1px;
-  left: -6px;
-}*/
+
 .kz_form input:focus + .kz_form_hint,
 .kz_form textarea:focus + .kz_form_hint {
   display: inline;
@@ -102,67 +86,45 @@
 .kz_form textarea:required:valid + .kz_form_hint::before {
   color: #28921f;
 }
-/*.kz_form_hint,
-.kz_form_required_notification {
-  font-size: 0.9em;
-}
-.kz_form_required_notification {
-  color: #d45252;
-  margin: 5px 0 0 0;
-  display: inline;
-}*/
+
 .kz_form textarea {
   padding: 8px;
   width: 50%;
 }
 .kz_form button {
   margin-left: 20%;
-}
-.kz_form button {
-  background-color: #68b12f;
-  background: -webkit-gradient(linear, left top, left bottom, from(#68b12f), to(#50911e));
-  background: -webkit-linear-gradient(top, #68b12f, #50911e);
-  background: -moz-linear-gradient(top, #68b12f, #50911e);
-  background: -ms-linear-gradient(top, #68b12f, #50911e);
-  background: -o-linear-gradient(top, #68b12f, #50911e);
-  background: linear-gradient(top, #68b12f, #50911e);
-  border: 1px solid #509111;
-  border-bottom: 1px solid #5b992b;
-  border-radius: 3px;
-  -webkit-border-radius: 3px;
-  -moz-border-radius: 3px;
-  -ms-border-radius: 3px;
-  -o-border-radius: 3px;
-  box-shadow: inset 0 1px 0 0 #9fd574;
-  -webkit-box-shadow: 0 1px 0 0 #9fd574 inset ;
-  -moz-box-shadow: 0 1px 0 0 #9fd574 inset;
-  -ms-box-shadow: 0 1px 0 0 #9fd574 inset;
-  -o-box-shadow: 0 1px 0 0 #9fd574 inset;
-  color: white;
   font-weight: bold;
-  padding: 6px 20px;
-  text-align: center;
-  text-shadow: 0 -1px 0 #396715;
-}
-.kz_form button:hover {
-  opacity: .85;
-  cursor: pointer;
-}
-.kz_form button:active {
-  border: 1px solid #20911e;
-  box-shadow: 0 0 10px 5px #356b0b inset;
-  -webkit-box-shadow: 0 0 10px 5px #356b0b inset ;
-  -moz-box-shadow: 0 0 10px 5px #356b0b inset;
-  -ms-box-shadow: 0 0 10px 5px #356b0b inset;
-  -o-box-shadow: 0 0 10px 5px #356b0b inset;
-}
-.kz_form button.sending {
-  background-color: #fff;
-  color: #68b12f;
-  padding: 6px 20px;
-  text-shadow: 0 -1px 0 #68b12f;
 }
 
+.kz_grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.kz_grid > * {
+  flex: 0 0 auto;
+}
+
+.kz_grid_2_1 > *:first-child {
+  width: 66%;
+}
+.kz_grid_2_1 > *:nth-child(2) {
+  width: 33%;
+}
+
+
+@media only screen and (max-width: 960px) {
+  .kz_grid {
+    display: block;
+  }
+  .kz_grid_2_1 > *:first-child {
+    width: auto;
+  }
+  .kz_grid_2_1 > *:nth-child(2) {
+    width: auto;
+  }
+}
 /*
  * Spécifiques Date
  * Laisser plus de place pour afficher les Hints (messages)
@@ -200,46 +162,38 @@ input.valid + .form_hint::before,
 .form_hint.valid::before {color:#28921f;}
 
 
-/**
- * Messages et propositions
- */
-
-/*.import-success {
-  color:#28921f;
-}
-.import-progress {
-  color:#ff9e02;
-}
-.import-error {
-  color:#b03535;
-}*/
-
-.address_proposal {
-  margin-right: 0.4em;
-  margin-bottom: 0.4em;
-  padding: 1em;
-  border: 1px solid #C6c6c6;
-  font-size: smaller;
+.proposal {
+  background-color: lightblue;
+  padding: 6px;
+  border-radius: 3px;
+  margin-top: 0.5em;
   display: inline-block;
-  width: 27%;
-  height: 11em;
-  overflow: auto;
+  margin-right: 1em;
 }
 
+/* navigation transverse */
+.linked-item {
+  color : lightblue;
+  padding: 6px;
+  display: inline-block;
+  margin-right: 1em;
+}
 
 /*
  * InlineEdit via React
  */
 .editable {
   width: 50%;
-  padding: 0.4em;
+  padding: 0.3em;
   font-size: 0.9em;
   display: inline-block;
   min-height: 1.2em; /* quand ils sont vides */
+  background-color: #FAFAFA;
+  border-radius: 2px;
 }
 
 .editable:hover{
-  background-color: yellow;
+  background-color: #CEECF5;
 }
 
 .editableLabel {
@@ -252,7 +206,7 @@ input.valid + .form_hint::before,
 
 .editing {
   width: 50%;
-  padding: 0.4em;
+  padding: 0.3em;
   font-size: 0.9em;
 }
 

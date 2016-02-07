@@ -68,25 +68,22 @@ class Kidzou_Metaboxes_Event {
 		
 			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 
-			//datepicker pour les events
-			wp_enqueue_style( 'jquery-ui-custom', plugins_url( 'assets/css/jquery-ui-1.10.3.custom.min.css', dirname(__FILE__) ) );	
-
-			wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/3.0.0/knockout-min.js",array(), '2.2.1', true);
-			wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
-			
-			//validation des champs du formulaire de saisie des events
-			wp_enqueue_script('ko-validation',			plugins_url( 'assets/js/knockout.validation.min.js', dirname(__FILE__) ),array("ko"), '1.0', true);
-			wp_enqueue_script('ko-validation-locale',	plugins_url( 'assets/js/ko-validation-locales/fr-FR.js', dirname(__FILE__) ),array("ko-validation"), '1.0', true);
-			
-			wp_enqueue_script('kidzou-storage', plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-
 			//gestion des events
-			wp_enqueue_script('kidzou-event-metabox', plugins_url( 'assets/js/kidzou-event-metabox.js', dirname(__FILE__) ) ,array('jquery','ko-mapping', 'moment'), Kidzou::VERSION, true);
-			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
-			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
-			wp_enqueue_script('jquery-ui-core');
-			wp_enqueue_script('jquery-ui-datepicker');
-			wp_enqueue_script('jquery-ui-datepicker-fr', plugins_url( 'assets/js/jquery.ui.datepicker-fr.js', dirname(__FILE__) ), array('jquery-ui-datepicker'),'1.0', true);
+			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
+			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
+
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
+			
+			wp_enqueue_script( 'daypicker-locale-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-LocaleUtils.js', dirname(__FILE__) ), array('moment' ), '1.0', true);
+			wp_enqueue_script( 'daypicker-date-utils', 		plugins_url( '/assets/js/lib/react-DayPicker-DateUtils.js', dirname(__FILE__) ), array( ), '1.0', true);
+			wp_enqueue_script( 'daypicker', 	plugins_url( '/assets/js/lib/react-DayPicker.js', dirname(__FILE__) ), array( 'daypicker-locale-utils', 'daypicker-date-utils', 'react-dom'), '1.0', true);
+			wp_enqueue_style( 'daypicker', 		plugins_url( 'assets/css/lib/react-DayPicker.css', dirname(__FILE__) )  );
+
+			wp_enqueue_script( 'radio-group', 	plugins_url( '/assets/js/lib/react-radio-group.js', dirname(__FILE__) ), array(  'react-dom'), '1.0', true);
+
+			wp_enqueue_script('kidzou-react', 	plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+			wp_enqueue_script('kidzou-event-metabox', plugins_url( 'assets/js/kidzou-event-metabox.js', dirname(__FILE__) ) ,array('kidzou-react', 'daypicker'), Kidzou::VERSION, true);
 
 			//insertion des metabox et initialisation des JS
 			global $post;
@@ -97,21 +94,15 @@ class Kidzou_Metaboxes_Event {
 			$recurrence		= $event_meta['recurrence'];
 			$past_dates		= $event_meta['past_dates'];
 
-			// $facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
-			// $facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
-
-			// wp_enqueue_script( 'kidzou-admin-script', plugins_url( 'assets/js/admin.js', dirname(__FILE__) ), array( 'jquery' ), Kidzou::VERSION );
-			wp_localize_script('kidzou-event-metabox', 'events_jsvars', array(
-					'api_getClients'				=> site_url()."/api/clients/getClients/",
-					'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
-					// 'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
-					// 'facebook_appId'				=> $facebook_appId,
-					// 'facebook_appSecret'			=> $facebook_appSecret,
+			wp_localize_script('kidzou-event-metabox', 'event_jsvars', array(
+					// 'api_getClients'				=> site_url()."/api/clients/getClients/",
+					// 'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
 					'start_date'					=> $start_date,
 					'end_date'						=> $end_date,
 					'recurrence'					=> $recurrence,
 					'past_dates'					=> $past_dates,
-					// 'facebook_token'				=> '' //sera mis à jour en ajax
+					'api_base'						=> site_url(),
+					'api_save_event'				=> site_url()."/api/content/eventData/"
 				)
 			);
 
@@ -158,114 +149,9 @@ class Kidzou_Metaboxes_Event {
 	 **/
 	public function event_metabox()
 	{
-		global $post; 
-
-		////////////////////////////////
-
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'event_metabox', 'event_metabox_nonce' );
-
-		echo '
-		<div class="kz_form hide" id="event_form">
-
-			<h4>Dates de l&apos;&eacute;v&eacute;nement</h4>
-
-			<ul>
-				<li>
-					<label for="start_date">Date de d&eacute;but:</label>
-			    	<input type="text" placeholder="Ex : 30 Janvier" class="date" data-bind="datepicker: eventData().start_date, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> <!-- required -->
-			    	<input type="hidden" name="kz_event_start_date"  data-bind="value: eventData().formattedStartDate" />
-			    	<span data-bind="validationMessage: eventData().formattedStartDate" class="form_hint"></span>
-				</li>
-				<li>
-					<label for="end_date">Date de fin</label>
-			    	<input type="text" placeholder="Ex : 30 Janvier" class="date" data-bind="datepicker: eventData().end_date, datepickerOptions: { dateFormat: \'dd MM yy\' }" />
-					<input type="hidden" name="kz_event_end_date"  data-bind="value: eventData().formattedEndDate" />
-					<em data-bind="if: eventData().eventDuration()!==\'\'">(<span data-bind="text: eventData().eventDuration"></span>)</em>
-					<span data-bind="validationMessage: eventData().formattedEndDate" class="form_hint"></span>
-				</li>';
-
-				if (Kidzou_Utils::current_user_is('author')) {
-					echo
-					'<li>
-						<label for="kz_event_is_reccuring">Cet &eacute;v&eacute;nement est r&eacute;current </label>
-						<input type="checkbox" name="kz_event_is_reccuring" data-bind="enable: eventData().isReccurenceEnabled, checked: eventData().recurrenceModel().isReccuring" />
-					</li>';
-				}
-
-			echo '</ul>
-
-			<!-- ko if: eventData().recurrenceModel().isReccuring -->
-			<h4>R&eacute;p&eacute;tition de L&apos;&eacute;v&eacute;nement</h4>
-			<ul>	
-		    	<li data-bind="visible: $root.eventData().recurrenceModel().showSelectRepeat">
-		    		<label for="kz_event_reccurence_mod">R&eacute;ccurence:</label>
-					<select name="kz_event_reccurence_mod" data-bind="options: $root.eventData().recurrenceModel().repeatOptions,
-																		optionsText: \'label\',
-												                       	value: $root.eventData().recurrenceModel().selectedRepeat" ></select>
-					<input type="hidden" name="kz_event_reccurence_model" data-bind="value: eventData().recurrenceModel().selectedRepeat().value" />
-
-		    	</li>
-		    	<li>
-		    		<label for="kz_event_reccurence_repeat_select">R&eacute;p&eacute;ter tous les :</label>
-					<select name="kz_event_reccurence_repeat_select" data-bind="options: $root.eventData().recurrenceModel().selectedRepeat().repeatEvery,
-																		value: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery" ></select>
-
-		    	</li>
-		    	
-		    	<li>
-		    		<label for="kz_event_reccurence_repeat_choices">R&eacute;p&eacute;ter le :</label>
-		    		<!-- ko if: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
-			    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
-			    			<input type="checkbox" name="kz_event_reccurence_repeat_choices"  data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
-			    			<input type="hidden" name="kz_event_reccurence_repeat_weekly_items" data-bind="value: $root.eventData().recurrenceModel().repeatItemsValue()" />
-			    		</span>
-			    	<!-- /ko -->
-		    		<!-- ko ifnot: $root.eventData().recurrenceModel().selectedRepeat().multipleChoice -->
-			    		<span data-bind="foreach:  $root.eventData().recurrenceModel().selectedRepeat().repeatEach">
-			    			<input type="radio" name="kz_event_reccurence_repeat_choices" data-bind="checked: $root.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems, checkedValue: $data" /><span data-bind="text: $data.label" style="padding-right:6px;"></span>
-			    			<input type="hidden" name="kz_event_reccurence_repeat_monthly_items" data-bind="value: $root.eventData().recurrenceModel().repeatItemsValue()" />
-			    		</span>
-		    		<!-- /ko -->
-		    	</li>
-
-			</ul>
-			<ul>	
-				<li>
-					<label for="kz_event_reccurence_end_type">L&apos;&eacute;v&eacute;nement prend fin :</label>
-		    		<input type="radio" name="kz_event_reccurence_end_type" value="never" data-bind="checked: eventData().recurrenceModel().endType" /> never
-		    	</li>
-		    	<li>
-		    		<label> </label>
-		    		<input type="radio" name="kz_event_reccurence_end_type" value="date" data-bind="checked: eventData().recurrenceModel().endType" /> Le
-		    		<input type="text" placeholder="Ex : 30 Janvier" data-bind="datepicker: eventData().recurrenceModel().reccurenceEndDate, datepickerOptions: { dateFormat: \'dd MM yy\' }"  /> 
-			    	<input type="hidden" name="kz_event_reccurence_end_date" data-bind="value: eventData().recurrenceModel().formattedReccurenceEndDate" />
-		    	</li>
-			   	<li>
-			   		<label> </label>
-			    	<input type="radio" name="kz_event_reccurence_end_type" value="occurences" data-bind="checked: eventData().recurrenceModel().endType" /> Apr&egrave;s <input type="text" name="kz_event_reccurence_end_after_occurences" data-bind="value: eventData().recurrenceModel().occurencesNumber" /> occurences
-			    </li>
-			</ul>
-			<ul>	
-		    	<li><b>R&eacute;sum&eacute; : <span data-bind="text: eventData().recurrenceModel().recurrenceSummary()" /></b></li>
-			</ul>
-			<!-- /ko -->';
-
-			if (!empty($past_dates) && count(reset($past_dates))>0)
-			{
-				echo '<ul><h4>Ev&eacute;nements pass&eacute;s :</h4>';
-				foreach ($past_dates as  $value) {
-					// Kidzou_Utils::log($value);
-					$past_start_date=date_create($value['start_date']);
-					$past_end_date=date_create($value['end_date']);
-					echo '<li>Du '.date_format($past_start_date,"d/m/Y").' au '.date_format($past_end_date,"d/m/Y").'</li>';
-				}
-				echo '</ul>';
-
-			}
-
-		echo 
-		'</div>';
+		echo '<div class="react-content"></div>';
 
 	}
 
@@ -333,7 +219,7 @@ class Kidzou_Metaboxes_Event {
 		if ( ! wp_verify_nonce( $nonce, 'event_metabox' ) )
 			return $post_id;
 
-		// Kidzou_Utils::log($_POST, true);
+		// Kidzou_Utils::log(array('POST'=>$_POST), true);
 
 		$start_date = (isset($_POST['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
 		$end_date	= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');
@@ -345,9 +231,9 @@ class Kidzou_Metaboxes_Event {
 			$recurrence = array(
 					"model" 		=> $_POST['kz_event_reccurence_model'],
 					"repeatEach" 	=> $_POST['kz_event_reccurence_repeat_select'],
-					"repeatItems" 	=> (isset($_POST['kz_event_reccurence_repeat_monthly_items']) ? $_POST['kz_event_reccurence_repeat_monthly_items'] : json_decode($_POST['kz_event_reccurence_repeat_weekly_items'])), 
+					"repeatItems" 	=> $_POST['kz_event_reccurence_repeat_items'], 
 					"endType" 		=> $_POST['kz_event_reccurence_end_type'],
-					"endValue"		=> ($_POST['kz_event_reccurence_end_type']=='date' ? $_POST['kz_event_reccurence_end_date'] : $_POST['kz_event_reccurence_end_after_occurences'])
+					"endValue"		=> $_POST['kz_event_reccurence_end_value']
 				);
 		}  
 		

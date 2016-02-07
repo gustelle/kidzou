@@ -135,6 +135,147 @@ class JSON_API_Clients_Controller {
 	
 	}
 
+	/**
+	* Attache un ensemble de posts a un client
+	* 
+	* @param $_POST['posts'] Array un tableau contenant des ID de posts
+	**/
+	public function posts() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('clients', 'posts');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+
+		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		
+		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1 ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
+		if ( !isset($_POST['posts']) || !is_array($_POST['posts']) ) $json_api->error("l'élement 'posts' n'est pas reconnu");
+
+		Kidzou_Customer::attach_posts($_POST['customer_id'], $_POST['posts']);
+
+		return array();
+	
+	}
+
+	/**
+	* Attache un ensemble de users a un client, afin de les rendre contributeurs pour ce client
+	* 
+	* @param $_POST['users'] Array un tableau contenant des ID de users
+	**/
+	public function users() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('clients', 'users');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+
+		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		
+		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1 ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
+		if ( !isset($_POST['users']) || !is_array($_POST['users']) ) $json_api->error("l'élement 'users' n'est pas reconnu");
+
+		Kidzou_Customer::set_users($_POST['customer_id'], $_POST['users']);
+
+		return array();
+	
+	}
+
+	/**
+	* Quota d'accès aux API pour le client
+	* 
+	* @param $_POST Array un tableau contenant le quota par méthode d'API
+	**/
+	public function quota() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('clients', 'quota');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+
+		if ( !Kidzou_Utils::current_user_is('administrator') ) $json_api->error("Vous n'avez pas les droits suffisants");
+
+		if ( !isset($_POST['quota']) || !is_array($_POST['quota']) ) $json_api->error("l'élement 'quota' n'est pas reconnu");
+		
+		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
+
+		$name 	= reset(array_keys($_POST['quota'])); //premiere clé du tableau
+		$quota 	= $_POST['quota'][$name];
+		Kidzou_Customer::setQuota($_POST['customer_id'], $name, $quota);
+
+		return array();
+	
+	}
+
+	/**
+	* Enregistre le fait que le client ait le droit ou non de consulter ses analytics
+	* 
+	* @param $_POST Array un tableau contenant 
+	**/
+	public function analytics() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('clients', 'analytics');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+
+		if ( !Kidzou_Utils::current_user_is('administrator') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		
+		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
+
+		if ( !isset($_POST['analytics']) ) $json_api->error("l'élement 'analytics' n'est pas reconnu");
+
+		// Kidzou_Utils::log('_POST[analytics]='.$_POST['analytics'], true);
+
+		Kidzou_Customer::set_analytics($_POST['customer_id'], ($_POST['analytics']=='true' ? true : false) );
+
+		return array();
+	
+	}
 	
 }	
 

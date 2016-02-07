@@ -49,7 +49,8 @@ class JSON_API_Content_Controller {
 	    }
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
-		
+		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+
 		if ( !isset($_POST['data']) ) $json_api->error("l'élement 'data' est attendu en parametre POST");
 
 		$data 		= $_POST['data'];
@@ -125,20 +126,20 @@ class JSON_API_Content_Controller {
 
 		$customer_id = -1;
 		//créer le customer si le user à les bons droits
-		if (Kidzou_Utils::current_user_is('author')) {
-			$customer_id = wp_insert_post(
-				array(
-					'post_author'		=>	$author_id,
-					'post_title'		=>	wp_strip_all_tags($name),
-					'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
-					'post_type'			=>	'customer'
-				)
-			);
-			//associer le post au customer
-			$ids = array();
-			$ids[] = $post_id;
-			Kidzou_Customer::attach_posts($customer_id, $ids);
-		}
+		// if (Kidzou_Utils::current_user_is('author')) {
+		$customer_id = wp_insert_post(
+			array(
+				'post_author'		=>	$author_id,
+				'post_title'		=>	wp_strip_all_tags($name),
+				'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
+				'post_type'			=>	'customer'
+			)
+		);
+		//associer le post au customer
+		$ids = array();
+		$ids[] = $post_id;
+		Kidzou_Customer::attach_posts($customer_id, $ids);
+		// }
 
 		//associer l'adresse au customer, 
 		//elle sera transitive sur le post par association du client au post
@@ -258,10 +259,11 @@ class JSON_API_Content_Controller {
 	    }
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
-		
+		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+
 		if ( !isset($_POST['location']) ) $json_api->error("l'élement 'location' est attendu en parametre POST");
 
-		if ( !isset($_POST['post_id']) || !intval($_POST['post_id'])==1 ) $json_api->error("l'élement 'post_id' n'est pas reconnu");
+		if ( !isset($_POST['post_id']) || intval($_POST['post_id'])==1 ) $json_api->error("l'élement 'post_id' n'est pas reconnu");
 
 		$tel  = '';
 		$web = '';
@@ -676,6 +678,92 @@ class JSON_API_Content_Controller {
 		return array(
 			'posts' => $results	,
 		);
+	}
+
+	/**
+	* Enregistre le fait que le contenu soit featured
+	* 
+	* @param $_POST Array 
+	**/
+	public function featured() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('content', 'featured');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+
+		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		
+		if ( !isset($_POST['post_id']) || intval($_POST['post_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
+
+		if ( !isset($_POST['featured']) ) $json_api->error("l'élement 'featured' n'est pas reconnu");
+
+		Kidzou_Featured::setFeatured($_POST['post_id'], ($_POST['featured']=='true' ? true : false));
+
+		return array();
+	}
+
+	/**
+	* Enregistre le fait que le contenu soit featured
+	* 
+	* @param $_POST Array 
+	**/
+	public function eventData() {
+
+		global $json_api;
+
+		$key = $json_api->query->key;
+		$nonce = $json_api->query->nonce;
+
+		if (!$json_api->query->nonce && !Kidzou_API::isPublicKey($key)) {
+	      $json_api->error("You must pass either the nonce or a public API Key for this operation");
+	    }
+
+	    $nonce_id = $json_api->get_nonce_id('content', 'eventData');
+		if ($json_api->query->nonce && !wp_verify_nonce($nonce, $nonce_id)) {
+	    	$json_api->error("Your 'nonce' value was incorrect. Use the 'get_nonce' API method.");
+	    }
+
+		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
+
+		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		
+		if ( !isset($_POST['post_id']) || intval($_POST['post_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
+
+		if ( !isset($_POST['start_date']) ) $json_api->error("l'élement 'start_date' n'est pas reconnu");
+
+		$post_id 	= $_POST['post_id'];
+		$start_date = $_POST['start_date'];
+		$end_date	= (isset($_POST['end_date']) ? $_POST['end_date'] : '');
+
+		//les options de récurrence
+		$recurrence = array();
+		if (isset($_POST['recurrence']) && $_POST['recurrence']=='true')
+		{
+			
+			$recurrence = array(
+					"model" 		=> $_POST['model'],
+					"repeatEach" 	=> $_POST['repeatEach'],
+					"repeatItems" 	=> $_POST['repeatItems'], 
+					"endType" 		=> $_POST['endType'],
+					"endValue"		=> $_POST['endValue']
+				);
+		}  
+		
+		$return = Kidzou_Events::setEventDates($post_id, $start_date, $end_date, $recurrence);
+
+		return array('result'=>$return);
 	}
 
 	public static function validateDate($date, $format = 'Y-m-d H:i:s') {
