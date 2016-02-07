@@ -56,7 +56,6 @@ class Kidzou_Metaboxes_Customer {
 		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes') );
 		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes'), 10, 1);
 
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 		
 	}
@@ -72,46 +71,136 @@ class Kidzou_Metaboxes_Customer {
 	public function enqueue_styles_scripts() {
 
 		$screen = get_current_screen(); 
+		global $post;
 
 		if ( in_array($screen->id , $this->screen_with_meta_client) || in_array($screen->id, $this->customer_screen) ) { 
 
-			wp_enqueue_script('selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/js/standalone/selectize.js",array('jquery'), '0.12.1', true);
-			wp_enqueue_style( 'selectize', 	"https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.1/css/selectize.default.min.css" );
-			// wp_enqueue_script('selectize-link', plugins_url( 'assets/js/selectize-link.js', dirname(__FILE__)), array( 'selectize' ), Kidzou::VERSION );
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+
+			//inline edit
+			wp_enqueue_script('react-inline-edit', plugins_url( 'assets/js/lib/react-inline-edit.js', dirname(__FILE__) ), array('react'), '1.0', true);
+
+			//dependances pour ReactSelect
+			wp_enqueue_script( 'classNames', 			plugins_url( '/assets/js/lib/classNames.js', dirname(__FILE__) ), array( ), '1.0', true);
+			wp_enqueue_script( 'react-input-autosize', 	plugins_url( '/assets/js/lib/react-input-autosize.min.js', dirname(__FILE__) ), array( 'react'), '1.0', true);
+			wp_enqueue_script( 'react-select', 			plugins_url( '/assets/js/lib/react-select.js', dirname(__FILE__) ), array( 'react', 'react-input-autosize', 'classNames'), '1.0', true);
+
+			wp_enqueue_style( 'react-select', 	plugins_url( 'assets/css/lib/react-select.css', dirname(__FILE__) )  );
+			wp_enqueue_style( 'kidzou-form', 	plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
+
+			wp_enqueue_script('kidzou-react', 	plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+
+			//////////////////////////////////////////////////
+			$customer_id = 0;
+			if (in_array($screen->id , $this->screen_with_meta_client))
+				$customer_id = Kidzou_Customer::getCustomerIDByPostID();
 			
-			$args = array(
-					'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace",
-					'api_getCustomerPosts'			=> site_url()."/api/clients/getContentsByClientID",
-					'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/',
-					'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/');
+			if (in_array($screen->id , $this->customer_screen))
+				$customer_id = $post->ID;
+			
+			if (is_wp_error($customer_id))
+				$customer_id=0;
+
+			$posts = array();
+			if ($customer_id>0) {
+				$posts = Kidzou_Customer::getPostsByCustomerID($customer_id, array('posts_per_page'=> -1, 'post_status'=>'any'));
+			}
 
 			//populer la liste des clients pour les écrans qui utilisent la sélection de clients
 			if (in_array($screen->id , $this->screen_with_meta_client)) {
 
-				$customer_id = Kidzou_Customer::getCustomerIDByPostID();
-				if (is_wp_error($customer_id))
-					$customer_id=0;
+				$args = array();
 
-				$clients = self::getClients();
-				$args['clients_list'] =  $clients;
-				if (count($clients)==1) {
-					//on prend le premier element
-					$customer_id = reset($clients)['id'];
-				}
+				$args['api_save_place'] 	= site_url()."/api/content/place/";
+				$args['api_create_post'] 	= site_url()."/api/posts/create_post/";
+				$args['api_getCustomerPlace']	= site_url()."/api/clients/getCustomerPlace/";
 
+				$args['customer_posts'] = array_map(function($item){
+					return array('id'=>$item->ID, 'title'=>$item->post_title);
+				}, $posts);
+				
 				//pour preselection du client 
-				$args['customer_id'] =  $customer_id;
+				$args['customer_id'] 		=  $customer_id;
+				$args['clients_list'] 		=  self::getClients();
+				$args['api_attach_posts'] 	= site_url()."/api/clients/posts/";
+				$args['api_base'] 			= site_url();
+				$args['admin_url'] 			= admin_url();
 			} 
 
 			//selection de users et de posts sur l'écran customer
 			if (in_array($screen->id , $this->customer_screen)) {
-				wp_enqueue_script('customer-posts-select', 	plugins_url( '../assets/js/kidzou-customer-posts-metabox.js', __FILE__ ) ,array('selectize'), Kidzou::VERSION, true);
-				wp_enqueue_script('customer-users-select', 	plugins_url( '../assets/js/kidzou-customer-users-metabox.js', __FILE__ ) ,array('selectize'), Kidzou::VERSION, true);
-			}
 
+				//partie users
+				$users = array(
+					'api_get_userinfo'			 	=> site_url().'/api/search/getUsersBy/');
+
+				$customer_users = Kidzou_Customer::getUsersByCustomerID($customer_id);
+				$users['customer_users'] = array_map(function($item){
+					return array('id'=>$item->ID, 'title'=> $item->display_name.' ('.$item->user_email.') ');
+				}, $customer_users);
+				$users['api_base'] 			= site_url();
+				$users['api_attach_users'] 	= site_url()."/api/clients/users/";
+
+				//////////////////////////////////////////////////////////////
+				//partie "posts"
+				$customer_posts = array(
+					'api_queryAttachablePosts'		=> site_url().'/api/clients/queryAttachablePosts/');
+
+				$customer_posts['customer_posts'] = array_map(function($item){
+					return array('id'=>$item->ID, 'title'=>$item->post_title);
+				}, $posts);
+				$customer_posts['api_base'] 			= site_url();
+				$customer_posts['api_attach_posts'] 	= site_url()."/api/clients/posts/";
+
+				//////////////////////////////////////////////////////////////			
+				//partie API
+				$key = Kidzou_Customer::getKey($post->ID);
+
+				//actuellement $api_names ne sert à rien dans le code
+				//C'est pour ouvrir la voie vers une généralisation de la gestion des API
+				$api_names = Kidzou_API::getAPINames();
+		 		
+		 		//todo : c'est ici qu'on fait référence en dur à l'API excerpts
+		 		//pour généraliser cette fonction, il faudrait boucler sur toutes les API 
+		 		//il faudrait gérer dans les options la liste des API ouvertes puis les récupérer ici par un get_option()
+				$open_apis = array();
+				$open_apis[0] = 'excerpts';
+
+				$quota = Kidzou_API::getQuotaByAPIName($key, $open_apis[0]); //$api_names[i]
+				$usage = Kidzou_API::getCurrentUsage($key, $open_apis[0]); //$api_names[i]
+
+				$customer_api = array();
+				$customer_api['quota'] 	= array($open_apis[0] => $quota);
+				$customer_api['usage']	= $usage;
+				$customer_api['key']	= $key;
+				$customer_api['api_base'] 			= site_url();
+				$customer_api['api_save_quota'] 	= site_url()."/api/clients/quota/";
+
+				//////////////////////////////////////////////////////////////			
+				//partie Analytics
+				$customer_ana = array();
+				$customer_ana['is_analytics'] 		= Kidzou_Customer::isAnalyticsAuthorizedForCustomer($customer_id);
+				$customer_ana['api_base'] 			= site_url();
+				$customer_ana['api_save_analytics'] = site_url()."/api/clients/analytics/";
+
+				wp_enqueue_script( 'kidzou-customer-posts-metabox', plugins_url( '/assets/js/kidzou-customer-posts-metabox.js', dirname(__FILE__) ), array( 'jquery', 'react-select', 'kidzou-react' ), Kidzou::VERSION, true);
+				wp_enqueue_script( 'kidzou-customer-users-metabox', plugins_url( '/assets/js/kidzou-customer-users-metabox.js', dirname(__FILE__) ), array( 'jquery', 'react-select', 'kidzou-react' ), Kidzou::VERSION, true);
+				wp_enqueue_script( 'kidzou-customer-api-metabox', 	plugins_url( '/assets/js/kidzou-customer-api-metabox.js', dirname(__FILE__) ), array( 'jquery', 'kidzou-react', 'react-inline-edit' ), Kidzou::VERSION, true);
+				wp_enqueue_script( 'kidzou-customer-analytics-metabox', 	plugins_url( '/assets/js/kidzou-customer-analytics-metabox.js', dirname(__FILE__) ), array( 'jquery', 'kidzou-react' ), Kidzou::VERSION, true);
+				
+				wp_localize_script('kidzou-customer-posts-metabox', 'customer_posts_jsvars', 	$customer_posts);
+				wp_localize_script('kidzou-customer-users-metabox', 'customer_users_jsvars', 	$users);
+				wp_localize_script('kidzou-customer-api-metabox', 	'customer_api_jsvars', 		$customer_api);
+				wp_localize_script('kidzou-customer-analytics-metabox', 'customer_analytics_jsvars', 	$customer_ana);
+			}
+		
 			//sur les post on a besoin d'une meta client
-			wp_enqueue_script( 'kidzou-customer-metabox', plugins_url( '/assets/js/kidzou-customer-metabox.js', dirname(__FILE__) ), array( 'jquery', 'selectize' ), Kidzou::VERSION, true);
-			wp_localize_script('kidzou-customer-metabox', 'client_jsvars', $args);
+			//selection de users et de posts sur l'écran customer
+			if (in_array($screen->id , $this->screen_with_meta_client)) {
+				wp_enqueue_script( 'kidzou-customer-metabox', plugins_url( '/assets/js/kidzou-customer-metabox.js', dirname(__FILE__) ), array( 'jquery', 'react-select', 'kidzou-react' ), Kidzou::VERSION, true);
+				wp_localize_script('kidzou-customer-metabox', 'client_jsvars', $args);
+			}
 
 		}
 
@@ -208,29 +297,8 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function client_metabox()
 	{ 
-		echo '
-			<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />
-			<div class="kz_form hide" id="customer_form">
-				<ul>
-				<!-- selectize ne fonctionne que si l\'element est dans le DOM , il faut donc utiliser un bind "visible" et non "if" -->
-				<li data-bind="visible: !editMode()">
-					<label for="customer_select">Nom du client:</label>
-					<select name="customer_select"></select>
-					<br/><br/>
-					<em><a href="#" data-bind="click: displayEditCustomerForm">Cr&eacute;er un nouveau client</a></em>
-				</li>
-				<!-- ko if: editMode() -->
-				<li>
-					<label for="customer_input">Nom du client:</label> 
-					<input type="text" name="customer_input" placeholder="Le nom du client" data-bind="value: customerName" required>
-				</li>
-				<li>
-					<button data-bind="click: displayCustomerSelect" class="button button-large">Choisir un client existant</button>
-					<button data-bind="click: createCustomer, html: creationStatus, disable: creationFailure" class="button button-primary button-large"></button>
-				</li>
-				<!-- /ko -->
-				</ul>
-			</div>';
+		echo '<input type="hidden" name="clientmeta_noncename" id="clientmeta_noncename" value="' . wp_create_nonce( plugin_basename(__FILE__) ) . '" />';
+		echo '<div class="react-content"></div>';
 	}
 
 	/**
@@ -242,19 +310,9 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function add_analytics_metabox()
 	{
-		global $post;
-
 		// Add an nonce field so we can check for it later.
 		wp_nonce_field( 'analytics_metabox', 'analytics_metabox_nonce' );
-
-		$checkbox = get_post_meta($post->ID, Kidzou_Customer::$meta_customer_analytics , TRUE);
-
-		echo 	'<ul>
-					<li>
-						<label for="kz_customer_analytics">Autoriser les utilisateurs de ce client &agrave; visualiser les analytics:</label>
-						<input type="checkbox" name="'.Kidzou_Customer::$meta_customer_analytics.'"'. ( $checkbox ? 'checked="checked"' : '' ).'/>  
-					</li>
-				</ul>';
+		echo '<div class="react-content"></div>';
 	}
 
 	/**
@@ -265,38 +323,9 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function customer_posts_metabox()
 	{
-	
-		global $post;
-
-		$posts = Kidzou_Customer::getPostsByCustomerID(
-						$post->ID, 
-						array(
-							'posts_per_page' => -1,
-							 'post_status' => 'any'
-						)
-					);
-		
-		$init_options = '';
-		foreach ($posts as $init_post){
-		    $init_options .= '<option value="'.$init_post->ID.'" selected>'.$init_post->post_title.'</option>';
-		}
-
-		wp_reset_query();
-
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_posts_metabox', 'customer_posts_metabox_nonce' );
-
-		$output = sprintf('
-				<label for="customer_posts[]" style="display:block;">
-					Articles appartenant au client :
-				</label>
-				<br/>
-				<select multiple="multiple" name="customer_posts[]" id="customer_posts" placeholder="rechercher par titre..." style="width:80%;">%1$s</select>
-					',
-				$init_options
-			);
-
-		echo $output;	
+		echo '<div class="react-content"></div>';
 	}
 
 	/**
@@ -309,40 +338,10 @@ class Kidzou_Metaboxes_Customer {
 	public function customer_users_metabox()
 	{	
 		
-		global $post;
-
-		$post_id = $post->ID; //echo $post_id;
-
-		$user_query = new WP_User_Query( array( 
-			'meta_key' => Kidzou_Customer::$meta_customer, 
-			'meta_value' => $post_id , 
-			'fields' => array('ID', 'display_name', 'user_email') 
-			) 
-		);
-		$main_users = '';
-		if ( !empty($user_query->results) ) {
-			foreach ($user_query->results as $main) {
-				$main_users .= '<option value="'.$main->ID.'" data-data=\''.json_encode($main).'\' selected>'.$main->display_name.'</option>';
-			}
-		}
-
-
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_users_metabox', 'customer_users_metabox_nonce' );
+		echo '<div class="react-content"></div>';
 
-		$output = sprintf('
-			<label for="customer_users[]" style="display:block;">
-				Utilisateurs autoris&eacute;s &agrave; saisir des contenus<br/>
-				<strong>La recherche se fait par login ou email</strong>
-			</label>
-			<br/>
-			<select multiple="multiple" name="customer_users[]" id="customer_users" class="contacts" placeholder="rechercher par email ou login..." style="width:80%;">%1$s</select>
-			',
-			$main_users
-		);
-
-
-		echo $output;
 	}
 
 	/**
@@ -360,66 +359,10 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function customer_apis()
 	{
-		// Kidzou_Utils::log('Kidzou_Admin [customer_apis]',true);
-		global $post;
-
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'customer_apis_metabox', 'customer_apis_metabox_nonce' );
+		echo '<div class="react-content"></div>';
 
-		//La clé d'API d'un client est unique pour toutes les API
-		$key	 	= get_post_meta($post->ID, Kidzou_Customer::$meta_api_key, TRUE);
-
-		if ($key == '') {
-			$key = md5(uniqid());
-		}
-
-		//actuellement $api_names ne sert à rien dans le code
-		//C'est pour ouvrir la voie vers une généralisation de la gestion des API
-		$api_names = Kidzou_API::getAPINames();
-		// Kidzou_Utils::log(array('api_names' => $api_names),true);
- 		
- 		//todo : c'est ici qu'on fait référence en dur à l'API excerpts
- 		//pour généraliser cette fonction, il faudrait boucler sur toutes les API 
- 		//il faudrait gérer dans les options la liste des API ouvertes puis les récupérer ici par un get_option()
-		$open_apis = array();
-		$open_apis[0] = 'excerpts';
-
-		$quota = Kidzou_API::getQuota($key, $open_apis[0]); //$api_names[i]
-		$usage = Kidzou_API::getCurrentUsage($key, $open_apis[0]); //$api_names[i]
-
-		$output = sprintf('
-			<h4>API d&apos;acc&egrave;s au r&eacute;sum&eacute; des contenus</h4>
-			<input type="hidden" name="api_name_0" value="%1$s"  />
-			<ul>
-				<li>
-					<label for="customer_api_key_text">Cl&eacute; de s&eacute;curit&eacute;:</label>
-					<input type="hidden" name="customer_api_key" value="%2$s"  />
-			  		%3$s
-				</li>
-				<li>
-					<label for="customer_api_quota">Quota d&apos;appel par jour:</label>
-			  		<input type="text" name="customer_api_quota" value="%4$s"  />
-				</li>
-				<li>
-					Utilisation en cours: %5$s
-				</li>
-			</ul>
-			<ul>
-				<li>
-					<strong>URL &agrave; communiquer au client:</strong><br/>
-					<a target="_blank" href="%6$s">%6$s</a>
-				</li>
-			</ul>
-		',
-		$open_apis[0],
-		$key,
-		$key,
-		$quota,
-		$usage,
-		site_url().'/api/content/excerpts/?key='.$key.'&date_from=YYYY-MM-DD'
-		);
-
-		echo $output;
 	}
 
 	/**
@@ -509,9 +452,11 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function save_analytics_metabox($post_id)
 	{
+
 		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
 			return ;
 
+		// Kidzou_Utils::log(array('POST'=> $_POST),true);
 
 		$slug = 'customer';
 
@@ -530,15 +475,10 @@ class Kidzou_Metaboxes_Customer {
 		if ( ! wp_verify_nonce( $nonce, 'analytics_metabox' ) )
 			return $post_id;
 
-		// $meta = array();
 
-		// if ( !isset($_POST[Kidzou_Customer::$meta_customer_analytics]) )
-		// 	$meta[Kidzou_Customer::$meta_customer_analytics] = false;
-		// else
-		// 	$meta[Kidzou_Customer::$meta_customer_analytics] = ($_POST[Kidzou_Customer::$meta_customer_analytics]=='on');
 		$is_analytics = false;
-		if ( isset($_POST[Kidzou_Customer::$meta_customer_analytics]) ) {
-			$is_analytics = ($_POST[Kidzou_Customer::$meta_customer_analytics]=='on');
+		if ( isset($_POST['kz_customer_analytics']) ) {
+			$is_analytics = ($_POST['kz_customer_analytics']=='true');
 		}
 
 		Kidzou_Customer::set_analytics($post_id, $is_analytics);
@@ -578,123 +518,12 @@ class Kidzou_Metaboxes_Customer {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		// $main = array();
 		$meta = array();
 
-		$customer_users = (isset($_POST['customer_users']) ? $_POST['customer_users'] : array());
+		$customer_users = (isset($_POST['customer_users']) ? explode(",", $_POST['customer_users']) : array());
 
-		// Kidzou_Utils::log(array("_POST"=>$_POST ), true);
+		Kidzou_Customer::set_users($post_id, $customer_users);
 
-		//sauvegarder également coté user pour donner les rôles
-		
-		//il faut faire un DIFF :
-		//recolter la liste des users existants sur ce client
-		//comparer à la liste des users passés dans le POST
-		//supprimer, ajouter selon les cas
-
-
-		//boucle primaire
-		//si les users passés dans la req étaient déjà présents en base
-		//	si il n'avaient pas capacité edit_others_events, -
-		//	sinon -
-		//si non
-		// 	on ajoute le user à la liste des users du client
-		//		si il n'a pas la capacité edit_others_events, -
-		foreach ($customer_users as $a_user) {
-
-			//toujours s'assurer qu'il est contrib, ca ne mange pas de pain
-			//mais ne pas dégrader son role s'il est éditeur ou admin
-			$u = new WP_User( $a_user );
-			$better = false;
-
-			$better_roles = array('administrator','editor','author');
-
-			if ( !empty( $u->roles )  ) {
-				foreach ( $u->roles as $role )
-					if (in_array($role, $better_roles)) {
-						$better = true;
-						break;
-					}
-			}
-
-			if (!$better) {
-
-				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
-
-				Kidzou_Utils::log( 'User ' . $a_user . ' updated' );
-
-			}
-
-			 //ajouter la meta qui va bien
-			Kidzou_Utils::log(  'User ' . $a_user . ' : add_user_meta'   );
-
-		    // add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
-		    $prev_customers = get_user_meta($a_user, Kidzou_Customer::$meta_customer, false);   //plusieurs meta customer par user
-
-		    if ( empty($prev_customers) )
-		     	$prev_customers = array();
-
-		     if (!in_array($post_id, $prev_customers))
-		     	add_user_meta($a_user, Kidzou_Customer::$meta_customer, $post_id, false); //pas unique !
-	        
-		}
-
-		//boucle secondaire
-		//si la base contenait une liste d'utilisateurs pour le client
-		//	si le user a été repassé en requette 
-		// 		on supprime le role du user user 
-		// 		ainsi que la meta client
-
-		$args = array(
-			'meta_key'     => Kidzou_Customer::$meta_customer,
-			'meta_value'   => $post_id,
-			'fields' => 'id' //retourne un array(id)
-		 );
-
-		$old_users = get_users($args); 
-
-		if (!is_null($old_users)) {
-
-			//boucle complémentaire:
-			foreach ($old_users as $a_user) {
-
-				Kidzou_Utils::log( 'Boucle secondaire, User ' . $a_user. ', provient de la requete ? '.in_array($a_user, $customer_users) );
-
-				//l'utilisateur n'a pas été repassé dans la requete
-				//il n'est pas donc plus attaché au client
-				if (!in_array($a_user, $customer_users)) {
-
-					$u = new WP_User( $a_user );
-
-					$better = false;
-
-					$better_roles = array('administrator','editor','author');
-
-					if ( !empty( $u->roles ) && is_array( $u->roles ) ) {
-						foreach ( $u->roles as $role )
-							if (in_array($role, $better_roles)) {
-								$better = true;
-								break;
-							}
-					}
-
-					//ne pas dégrader automatiquement le role
-					//faire confirmer au user qu'il souhaite dégrader le role
-					if (!$better) {
-						//privé de gateau
-				        // $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
-					}
-
-			        //suppression de la meta du client dans tous les cas
-			        Kidzou_Utils::log( $a_user . ' : suppression de la meta' );
-
-			        delete_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id );
-
-				}
-				
-			}
-
-		}
 	}
 
 	/**
@@ -729,7 +558,7 @@ class Kidzou_Metaboxes_Customer {
 		if ( !Kidzou_Utils::current_user_is('author') )
 			return $post_id;
 
-		$posts = (isset($_POST['customer_posts']) ? $_POST['customer_posts'] : array());
+		$posts = (isset($_POST['customer_posts']) ? explode(",", $_POST['customer_posts']) : array());
 
 		Kidzou_Customer::attach_posts($post_id, $posts);
 		
@@ -772,12 +601,12 @@ class Kidzou_Metaboxes_Customer {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		$key = $_POST['customer_api_key'];
-		$quota = $_POST['customer_api_quota'];
+		// $key = $_POST['kz_q'];
+		$quota = $_POST['kz_quota'];
 
 		// //todo : actuellement seule une API est gérée
 		$api_names = array();
-		$api_names[0] = $_POST['api_name_0'];
+		$api_names[0] = 'excerpts';//$_POST['api_name_0'];
 
 		Kidzou_Customer::set_api($post_id, $api_names, $key, $quota);
 	}

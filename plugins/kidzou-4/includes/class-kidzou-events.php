@@ -174,21 +174,69 @@ class Kidzou_Events {
 	 * Il se peut que start_date ou end_date soient nuls, dans ce cas il n'y a pas de date de fin, l'eventment est géré par une récurrence
 	 *
 	 * @param $event_id int ID du post sur lequel on enregistre des dates
-	 * @param $recurrence Array tableau des params de récurrence, avec comme clé : model, repeatEach, repeatItems, endType, endValue 
+	 * @param $recurrence Array tableau des params de récurrence, avec comme clé : model, repeatEach, repeatItems, endType, endValue
+	 * *repeatItems est un tableau avec :
+	 *		* le numéro des jours [1=lundi...7=dimanche] si model='weekly' 
+	 *		* 'day_of_week' ou 'day_of_month' si model='monthly'
+	 * 
+	 * @todo controle de cohérnece des données, format des dates, etc...
 	 **/
     public static function setEventDates($event_id=0, $start_date='', $end_date='', $recurrence=array()) {
 
     	if ($event_id==0)
-			return new WP_Error('setEventDates', 'Aucune post spécifié');
+			return new WP_Error('setEventDates_1', 'Aucune post spécifié');
+
+		if (!is_array($recurrence))
+			return new WP_Error('setEventDates_2', 'recurrence doit être un tableau');
+
+		//todo : checker le format des dates
 
 		$events_meta['start_date'] 	= $start_date;
 		$events_meta['end_date'] 	= $end_date;
 
 		//sauver la récurrence meme si elle est vide
 		//pour éviter pb de 'avant c'était recurrent, maintenant on ne veut plus que ce le soit
-		$events_meta['recurrence'] = $recurrence;
+		$events_meta['recurrence'] = $recurrence;	
 
-		Kidzou_Utils::save_meta($event_id, $events_meta, "kz_event_");
+		// Kidzou_Utils::log(array('setEventDates'=>$events_meta), true);
+
+		//todo faire l controle sur repeatEach
+		if (!empty($recurrence)) {
+
+			//controle sur endType
+			if (!isset($recurrence['endType']) || !in_array($recurrence['endType'], array('never','date','occurences')))
+				return new WP_Error('setEventDates_8', 'Les donnees de recurrence sont incorrectes');
+
+			//controle sur endValue en fonction du endType
+			if (!isset($recurrence['endValue']) || $recurrence['endValue']=='' )
+				return new WP_Error('setEventDates_9', 'Complétez la date de fin de récurrence');
+
+			$dateOK = preg_match("#^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$#", $recurrence['endValue']);
+			if ($recurrence['endType']=='date' && !$dateOK )
+				return new WP_Error('setEventDates_10', 'La date de fin de recurrence est incorrecte');
+
+			if ($recurrence['model']=='monthly') {
+
+				if ( isset($recurrence['repeatItems']) ) {
+					// Kidzou_Utils::log('repeatItems '. ($recurrence['repeatItems']!=='day_of_week').' '.($recurrence['repeatItems']!=='day_of_month'), true);
+					if ( $recurrence['repeatItems']!=='day_of_week' && $recurrence['repeatItems']!=='day_of_month' )
+						return new WP_Error('setEventDates_3', 'Les donnees de recurrence sont incorrectes');
+				
+				} else {
+					return new WP_Error('setEventDates_4', 'Les donnees de recurrence sont incorrectes');
+				}
+			
+			} else if ($recurrence['model']=='weekly') {
+				
+				if ( !isset($recurrence['repeatItems']) || !is_array( $recurrence['repeatItems'] ) )
+					return new WP_Error('setEventDates_5', 'Les donnees de recurrence sont incorrectes');
+			
+			} else {
+				return new WP_Error('setEventDates_6', 'Le modele de recurrence est inconnu');
+			}
+		}
+
+		return Kidzou_Utils::save_meta($event_id, $events_meta, "kz_event_");
 
     }
 

@@ -1,327 +1,568 @@
-var kidzouPlaceModule = (function() { //havre de paix
+'use strict';
 
-	var windowURL = window.URL || window.webkitURL;
-	
-	//voir http://jsfiddle.net/3LT9d/
-	ko.extenders.debug = function(target, option) {
-	    target.subscribe(function(newValue) {
-	       console.debug(option + ": " + newValue);
-	    });
-	    return target;
-	};
+var kidzouPlaceModule = function () {
+  //havre de paix
 
-	ko.extenders.updateVilleTaxonomy = function(target, option) {
-	    target.subscribe(function(newValue) {
+  function Place(_venue, _address, _website, _phone_number, _city, _lat, _lng, _opening_hours) {
 
-	       //la ville est stockée dans newValue
-	       //Faire un MapQuest avec la ville et appeler 
+    this.venue = _venue;
+    this.address = _address;
+    this.website = _website;
+    this.phone_number = _phone_number;
+    this.city = _city; //quartier ou ville, rapidement identifiable par l'internaute
+    this.lat = _lat;
+    this.lng = _lng;
+    this.opening_hours = _opening_hours;
 
-	       //1er webservice pour recuperer lat et lng
-	       kidzouAdminGeo.getLatLng(newValue, function(pos) {
+    this.isEmpty = function () {
+      return (this.venue == '' || typeof this.venue == 'undefined') && (this.address == '' || typeof this.address == 'undefined') && (this.website == '' || typeof this.website == 'undefined') && (this.phone_number == '' || typeof this.phone_number == 'undefined') && (this.city == '' || typeof this.city == 'undefined') && (this.lat == '' || typeof this.lat == 'undefined') && (this.lng == '' || typeof this.lng == 'undefined');
+    };
 
-	       		//2eme webservice pour la metropole
-				kidzouAdminGeo.getMetropole(pos.lat,pos.lng, function(metropole) {
-					updateVilleTaxonomy(null, metropole);
-				});
+    this.isValid = function () {
+      return this.venue !== '' && this.address !== '' && this.city !== '';
+    };
 
+    //fonction de comparaison de places
+    this.equals = function (__venue, __address, __website, __phone_number, __city, __lat, __lng, __opening_hours) {
 
-	       });
+      //redressement du telephone
+      var phoneEquals = __phone_number == this.phone_number;
+      if (!phoneEquals) {
+        if (typeof _phone_number !== 'undefined') {
+          if (typeof this.phone_number !== 'undefined') phoneEquals = this.phone_number.replace(/\s/gi, "") == __phone_number.replace(/\s/gi, "");
+        }
+      }
 
+      var eq = this.venue == __venue && this.address == __address && this.website == __website && phoneEquals && this.city == __city && this.lat == __lat && this.lng == __lng //&&
+      ;
+      return eq;
+    };
+  }
 
-	    });
-	    return target;
-	};
+  var kidzouPlaceEditor = function () {
 
+    var editorModel = new PlaceEditorModel();
 
-	ko.validation.registerExtenders();
-	ko.validation.init({ 
-		insertMessages : true,
-		decorateElement : true,
-		errorsAsTitle : false,
-		parseInputAttributes : true,
-	    errorMessageClass : 'form_hint',
-	    errorElementClass : 'input_hint',
-	    messagesOnModified:true, //verifier tout le temps, meme au chargement 
-	    grouping : { deep: true, observable: true },
-	    decorateElementOnModified : false,
-	});
+    //sur l'écran d'édition d'un post, ce champ est toujours rempli
+    var postID = document.querySelector('#post_ID') !== null ? document.querySelector('#post_ID').value : '';
 
-	function updateVilleTaxonomy(post_id, value) {
+    function PlaceEditorModel() {
 
-		if(value!==null && "undefined"!==value && jQuery('#kz_event_metropole_' + value.toLowerCase() ).length) {
-			jQuery('#kz_event_metropole_' + value.toLowerCase() ).attr('checked','checked');
-		}
-	}
+      var self = this;
 
-	var kidzouPlaceEditor = function() { 
+      self.placeData = new Place();
 
-		var model = new PlaceEditorModel();
+      /**
+       * Mise à jour de la Metabox Taxonomy 'ville' avec la valeur de la ville 
+       *
+       */
+      self.updateVilleTaxonomy = function (post_id, ville, progressCallback, successCallback, errorCallback) {
 
-		function Place(_venue, _address, _website, _phone_number, _city, lat, lng, opening_hours) {
-			
-			this.venue 			= ko.observable(_venue).extend({ required: { message: 'Il faut nous indiquer où ca se passe !' }, notify: 'always' });
-			this.address 		= ko.observable(_address).extend({ required: { message: 'Et ca se trouve ou ?' }, notify: 'always' });
-			this.website 		= ko.observable(_website).extend({ notify: 'always', pattern: "(http|ftp|https)://[a-z0-9\-_]+(\.[a-z0-9\-_]+)+([a-z0-9\-\.,@\?^=%&;:/~\+#]*[a-z0-9\-@\?^=%&;/~\+#])?" }); //http://stackoverflow.com/questions/8188645/javascript-regex-to-match-a-url-in-a-field-of-text
-			this.phone_number 	= ko.observable(_phone_number).extend({ notify: 'always', pattern: "^0[1-9]([-. ]?[0-9]{2}){4}$" }); //http://fr.openclassrooms.com/forum/sujet/mettre-une-regex-de-numero-de-telephone-en-javascript-93444
-			this.city 			= ko.observable(_city).extend({ required: { message: 'Precisez le quartier ou la ville, cela facilitera la lecture rapide de cet evenement !' }, updateVilleTaxonomy: {}, notify: 'always' }); //quartier ou ville, rapidement identifiable par l'internaute
-			this.lat 			= ko.observable(lat);
-			this.lng 			= ko.observable(lng);
-			this.opening_hours 	= ko.observableArray(opening_hours);
+        //mise à jour de la ville
+        jQuery.get(place_jsvars.api_base + '/api/taxonomy/getTermBy/', {
+          field: 'name',
+          taxonomy: 'ville',
+          value: ville
+        }, function (n) {
 
-			this.isEmpty = function() {
-				// console.debug('isEmpty', (typeof this.venue()), this.venue()=='undefined');
-				var empty = (	(this.venue()=='' || this.venue()=='undefined' || typeof this.venue()=='undefined')  && 
-								(this.address() == ''|| this.address()=='undefined' || typeof this.address()=='undefined' ) &&
-								(this.website() == ''|| this.website()=='undefined' || typeof this.website()=='undefined') &&
-								(this.phone_number() == '' || this.phone_number()=='undefined' || typeof this.phone_number()=='undefined') &&
-								(this.city() == '' || this.city()=='undefined' || typeof this.city()=='undefined') &&
-								(this.lat() == '' || this.lat()=='undefined' || typeof this.lat()=='undefined') &&
-								(this.lng() == '' || this.lng()=='undefined' || typeof this.lng()=='undefined')
-							);
-				return empty;
-			};
+          var term_id = n.term.term_id;
+          var node = document.querySelector('#in-ville-' + term_id);
 
-			//fonction de comparaison de places
-			this.equals = function(_venue, _address, _website, _phone_number, _city, _lat, _lng, _opening_hours) {
+          if (node !== null) {
+            node.setAttribute('checked', 'checked');
 
-				//redressement du telephone
-				var phoneEquals = (_phone_number==this.phone_number());
-				if (!phoneEquals) {
-					if (typeof _phone_number!=='undefined') {
-						if (typeof this.phone_number()!=='undefined')
-							phoneEquals = ( this.phone_number().replace(/\s/gi, "") == _phone_number.replace(/\s/gi, "") );
-					}
-				}
+            jQuery.get(place_jsvars.api_base + '/api/get_nonce/?controller=taxonomy&method=setPostTerms', {}, function (n) {
 
-				var eq = (	this.venue() == _venue && 
-							this.address() == _address &&
-							this.website() == _website &&
-							phoneEquals &&
-							this.city() == _city &&
-							this.lat() == _lat &&
-							this.lng() == _lng //&&
-						);
-				return eq;
-			};
-		}
+              jQuery.post(place_jsvars.api_set_post_terms + '?nonce=' + n.nonce, {
+                post_id: postID,
+                taxonomy: 'ville',
+                terms: [term_id]
+              }).done(function (r) {
+                if (r.status == 'ok' && typeof r.result !== 'undefined' && r.result !== null && (typeof r.result.errors !== 'undefined' || r.result == 'false') && typeof errorCallback === "function") errorCallback(r);else if (typeof successCallback === "function") successCallback(r);
+              }).fail(function (err) {
+                if (typeof errorCallback === "function") errorCallback(err);
+              });
+            });
+          }
+        });
+      };
 
-		function PlaceModel() {
+      //Resultats en provenance de Google PlaceComplete
+      //https://developers.google.com/places/documentation/details
+      self.completePlace = function (result, progress, success, error) {
 
-			var self = this;
-			self.place 				= ko.observable(new Place());	
-		    
-		}
+        self.placeData = new Place(result.name, result.address, result.website, result.phone_number, result.city, //city
+        result.latitude, //latitude
+        result.longitude, //longitude
+        result.opening_hours);
 
+        //check de la ville
+        if (typeof result.city !== 'undefined' && result.city !== '') self.updateVilleTaxonomy(postID, result.city, function () {
+          if (typeof progress === 'function') progress({ msg: 'Enregistrement...' });
+        }, function () {
+          if (typeof success === 'function') success({ msg: 'Ville mise a jour' });
+        }, function () {
+          if (typeof error === 'function') error({ msg: 'Erreur de mise a jour de la Taxonomie \'ville\'' });
+        });
 
-		function PlaceEditorModel() {
+        if (window.kidzouAdminGeo && postID !== '') {
 
+          if (typeof progress === 'function') progress({ msg: 'Détermination de la métropole' });
 
-		    var self = this;
+          kidzouAdminGeo.getMetropole(result.latitude, result.longitude, function (metropole) {
+            //check de la metropole
+            self.updateVilleTaxonomy(postID, metropole, function () {
+              if (typeof progress === 'function') progress({ msg: 'Enregistrement...' });
+            }, function () {
+              if (typeof success === 'function') success({ msg: 'Metropole mise a jour' });
+            }, function () {
+              if (typeof error === 'function') error({ msg: 'Erreur de mise a jour de la Metropole' });
+            });
+          });
+        }
 
-		    self.placeData 			= ko.observable(new PlaceModel());
+        if (self.placeData.isValid()) {
+          //sauvegarder les data
+          self.savePlace(progress, success, error);
+        } else {
+          if (typeof error === "function") error({ msg: 'Continuez a remplir les champs, la sauvegarde sera automatique lorsque Nom, adresse et ville seront remplis' });
+        }
+      };
 
-		    //si l'utilisateur ne trouve pas son bonheur dans Google Places
-		    //ce flag permet d'afficher le formulaire d'adresse custom
-		    self.customPlace 		= ko.observable(false);
+      self.savePlace = function (progressCallback, successCallback, errorCallback) {
+        if (postID == '') {
+          if (typeof errorCallback === "function") errorCallback();
+          return;
+        }
 
-		    //les propositions faites au user, en provenance de l'adresse client, de l'import facebook
-		    self.placeProposals 	= ko.observableArray([]);
-		    //une proposition a-t-elle été faite au user ?
-		    self.isProposal 		= ko.observable(false);
+        if (typeof progressCallback === "function") progressCallback();
 
-		    //marker : les champs sont ils remplis ?
-		    //si oui : on propose des places; on ne remplit plus les champs si une nouvelle adresse arrive
-		    //si non : on peut remplir les champs
-		    self.isPlaceComplete 	= ko.observable(false);
+        jQuery.get(place_jsvars.api_base + '/api/get_nonce/?controller=content&method=place', {}, function (n) {
 
-		    //Resultats en provenance de Google PlaceComplete
-		    //https://developers.google.com/places/documentation/details
-			self.completePlace = function(result) {
+          jQuery.post(place_jsvars.api_save_place + '?nonce=' + n.nonce, {
+            contact: {
+              tel: self.placeData.phone_number,
+              web: self.placeData.website
+            },
+            location: {
+              name: self.placeData.venue,
+              address: self.placeData.address,
+              city: self.placeData.city,
+              lat: self.placeData.lat,
+              lng: self.placeData.lng,
+              country: 'FR'
+            },
+            post_id: postID
+          }).done(function (r) {
 
-				self.placeData().place(new Place(
-						result.name, 
-						result.address, 
-						result.website, 
-						result.phone_number, 
-						result.city, //city 
-						result.latitude, //latitude
-						result.longitude, //longitude
-						result.opening_hours
-					)
-				); 
+            if (r.status == 'ok' && typeof r.result !== 'undefined' && r.result !== null && typeof r.result.errors !== 'undefined' && typeof errorCallback === "function") errorCallback(r);else if (typeof successCallback === "function") successCallback(r);
+          }).fail(function (err) {
+            console.error(err);
+            if (typeof errorCallback === "function") errorCallback(err);
+          });
+        });
+      };
+    } //PlaceEditorModel
 
-				kidzouAdminGeo.getMetropole(
-					result.latitude, 
-					result.longitude, function(metropole) {
-												updateVilleTaxonomy(jQuery("#post_ID").val(),metropole);
-											}); 
+    return {
+      model: editorModel };
+  }(); //kidzouPlaceEditor
 
-				self.customPlace(true); //make custom place from google place
-				self.isPlaceComplete(true);
-			};
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /////////////// React UI
 
-			//reprise d'une adresse qui a commencé a étre renseignée
-			//ou d'une adresse précédemment complètement renseignée et reprise au chargement de l'écran
-			self.initPlace = function(name, address, website, phone_number, city, lat, lng, opening_hours) {
+  //PlaceEditorModel
+  var PlaceEditor = React.createClass({
+    displayName: 'PlaceEditor',
 
-				self.placeData().place(new Place(name, address, website, phone_number, city, lat, lng, opening_hours));
-				
-				//ici on bloque la surcharge d'adresse dans proposePlace() si on reprend une adresse et qu'on en propose une autre
-				//Ex : 	je selectionne une place dans l'édition d'un post, je ne sélectionne pas de client
-				//		je reprend plus tard cette adresse, je sélectionne le client mais souhaite garder l'ancienne adresse..
-				//		cas par exemple des evenements qui ne se déroulent pas à l'adresse du client
+    getInitialState: function getInitialState() {
+      return {
+        manualMode: false, //saisie manuelle d'une adresse c'est à dire sans Google PlacesService
+        place: {
+          name: place_jsvars.location_name,
+          address: place_jsvars.location_address,
+          website: place_jsvars.location_website,
+          phone_number: place_jsvars.location_phone_number,
+          city: place_jsvars.location_city,
+          latitude: place_jsvars.location_latitude, //latitude
+          longitude: place_jsvars.location_longitude, //longitude
+          opening_hours: []
+        },
+        resultsStyle: { display: 'none' },
+        placesProposals: [],
+        hint: {
+          select: {
+            valid: false,
+            show: false,
+            icon: '',
+            message: ''
+          }
+        }
+      };
+    },
+    componentWillMount: function componentWillMount() {
+      var _this = this;
 
-				self.isPlaceComplete(true);
-				
-				if (name!=='' || address!=='' || website!=='' || phone_number!=='' || city!=='' || lat!=='' || lng!=='')
-					self.customPlace(true); //l'adresse a commencé à etre renseignée
+      var self = this;
+      //remplissage automatique si aucun lieu n'est renseigné, sinon enrichissement des propositiosn
+      proposePlace = function proposePlace(type, _place) {
+        var maPlace = new Place(_this.state.place.name, _this.state.place.address, _this.state.place.website, _this.state.place.phone_number, _this.state.place.city, _this.state.place.latitude, _this.state.place.longitude, _this.state.place.opening_hours);
+        // console.debug('proposePlace', maPlace, maPlace.isEmpty());
+        if (maPlace.isEmpty()) {
+          self.setState({
+            place: _place
+          });
+        } else if (!maPlace.equals(_place.name, _place.address, _place.website, _place.phone_number, _place.city, _place.latitude, _place.longitude, _place.opening_hours)) {
 
-			};
+          var proposals = _this.state.placesProposals;
+          proposals.push(_place);
+          self.setState({
+            placesProposals: proposals
+          });
+        }
+      };
 
-			//Ajouter une adresse à la liste des propositions
-			self.proposePlace = function(type, place) {
+      //choix explicite d'une place depuis l'exterieur
+      _changePlace = function changePlace(_place, _index) {
+        var proposals = _this.state.placesProposals;
+        proposals.splice(_index, 1);
+        self.setState({
+          place: _place,
+          placesProposals: proposals
+        }, function () {
+          self.savePlace();
+          self._suggest.clear();
+        });
+      };
+    },
 
-				console.debug('proposePlace', type);
+    /**
+     * Render the example app
+     */
+    render: function render() {
+      var _this2 = this;
 
-				//dans le case ou il n'y avait aucune donnée renseignée, on l'impose
-				var wasEmpty 	= self.placeData().place().isEmpty();
-	
-				//sinon on fait un diff avant d'imposer
-				var wasEqual	= self.placeData().place().equals(place.name,place.address,place.website, place.phone_number, place.city, place.latitude, place.longitude, place.opening_hours);
-			
-				//si aucune place n'a été renseignée on peut directement mapper les champs
-				if (!self.isPlaceComplete() || wasEmpty || wasEqual) {
-					self.completePlace(place);
-				} else {
-					self.isProposal(true);
-					self.placeProposals.push({type : type, place : place});
-				}
-			};
+      var types = ['establishment'];
+      var displayForm = this.state.place.name !== '' || this.state.place.address !== '' || this.state.place.city !== '' || this.state.place.latitude !== '' || this.state.place.longitude !== '' || this.state.place.website !== '' || this.state.place.phone_number !== '';
+      var pointer = { cursor: 'pointer' };
 
-			//utiliser une proposition d'adresse selectionnée par le user
-			self.useAddress = function() {
-				self.completePlace(this.place);
-				//plus besoin de cette adresse dans la liste des propositions
-				self.placeProposals.remove(this);
-			};
+      return React.createElement(
+        'div',
+        null,
+        React.createElement(
+          'p',
+          null,
+          'Commencez à taper quelques lettres et des propositions apparaitront. Les propositions sont issues de ',
+          React.createElement(
+            'strong',
+            null,
+            'Google Maps'
+          )
+        ),
+        React.createElement(
+          'div',
+          null,
+          React.createElement(Geosuggest, {
+            className: 'kz_form',
+            placeholder: 'Nom d\'un lieu, d\'une ville...',
+            onSuggestSelect: this.onSuggestSelect,
+            types: types,
+            autoActivateFirstSuggest: 'true',
+            onFocus: this.onFocus,
+            ref: function ref(c) {
+              return _this2._suggest = c;
+            } }),
+          React.createElement(HintMessage, { ref: function ref(c) {
+              return _this2._hintMessage = c;
+            } })
+        ),
+        !this.state.manualMode && !displayForm && React.createElement(
+          'p',
+          null,
+          React.createElement(
+            'a',
+            { onClick: this.onManualMode, style: { cursor: 'pointer' }, className: 'button' },
+            'Saisir une adresse manuellement'
+          )
+        ),
+        (this.state.manualMode || displayForm) && React.createElement(
+          'div',
+          null,
+          React.createElement(
+            'p',
+            null,
+            'Vous pouvez modifier l\'adresse a tout moment, pour cela ',
+            React.createElement(
+              'strong',
+              null,
+              'cliquez sur le champ à modifier'
+            ),
+            '. Par exemple, pour corriger le numéro de téléphone, survolez le champ téléphone et cliquez dessus'
+          ),
+          React.createElement(
+            'ul',
+            null,
+            React.createElement(Field, { tabIndex: 0, inputPrefix: 'kz_location_', change: this.onEdit, label: 'Nom du lieu:', text: this.state.place.name, updateParam: 'name' }),
+            React.createElement(Field, { tabIndex: 1, inputPrefix: 'kz_location_', change: this.onEdit, label: 'Adresse:', text: this.state.place.address, updateParam: 'address' }),
+            React.createElement(Field, { tabIndex: 2, inputPrefix: 'kz_location_', change: this.onEdit, label: 'Quartier / Ville:', text: this.state.place.city, updateParam: 'city' }),
+            React.createElement(Field, { tabIndex: 3, inputPrefix: 'kz_location_', validate: this.validateFloat, change: this.onEdit, label: 'Latitude:', text: this.state.place.latitude, updateParam: 'latitude' }),
+            React.createElement(Field, { tabIndex: 4, inputPrefix: 'kz_location_', validate: this.validateFloat, change: this.onEdit, label: 'Longitude:', text: this.state.place.longitude, updateParam: 'longitude' }),
+            React.createElement(Field, { tabIndex: 5, inputPrefix: 'kz_location_', validate: this.validateURL, change: this.onEdit, label: 'Site Web:', text: this.state.place.website, updateParam: 'website' }),
+            React.createElement(Field, { tabIndex: 6, inputPrefix: 'kz_location_', validate: this.validatePhone, change: this.onEdit, label: 'Téléphone:', text: this.state.place.phone_number, updateParam: 'phone_number' })
+          )
+        ),
+        displayForm && React.createElement(
+          'p',
+          null,
+          React.createElement(
+            'a',
+            { onClick: this.onResetForm, style: { cursor: 'pointer' }, className: 'button' },
+            React.createElement('i', { className: 'fa fa-eraser' }),
+            ' Remettre à zero'
+          ),
+          React.createElement(
+            'a',
+            { onClick: this.onUseForCustomer, style: { cursor: 'pointer', marginLeft: '0.4em' }, className: 'button' },
+            React.createElement('i', { className: 'fa fa-mail-forward' }),
+            ' Utiliser cette adresse pour le client'
+          )
+        ),
+        React.createElement(PlacesProposals, { proposals: this.state.placesProposals }),
+        React.createElement('div', { id: 'place_results', style: this.state.resultsStyle })
+      );
+    },
 
-			self.displayCustomPlaceForm = function() {
-				self.placeData().place(new Place()); //remise à zero si éventuellement existante
-				self.customPlace(true);
-				self.isPlaceComplete(false);
-			};
+    /**
+     * validation of input field as float value
+     */
+    validateFloat: function validateFloat(value) {
+      var patt = /^[+-]?((\.\d+)|(\d+(\.\d+)?))$/;
+      var matches = patt.exec(value);
+      return matches != null;
+    },
 
-			self.displayGooglePlaceForm = function() {
-				self.customPlace(false);
-				self.isPlaceComplete(false);
-			};
-			
-		} //EventsEditorModel
+    /**
+     * validation of input field as URL
+     */
+    validateURL: function validateURL(value) {
+      var patt = /^(https?:\/\/)?((([a-z\d]([a-z\d-]*[a-z\d])*)\.)+[a-z]{2,}|((\d{1,3}\.){3}\d{1,3}))(\:\d+)?(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
+      var matches = patt.exec(value);
+      return matches != null;
+    },
 
-		return { 
-			model 		: model, //EventsEditorModel
-		};
+    /**
+     * validation of input field as Phone format
+     */
+    validatePhone: function validatePhone(value) {
+      var patt = /^(?:(?:\(?(?:00|\+)([1-4]\d\d|[1-9]\d?)\)?)?[\-\.\ \\\/]?)?((?:\(?\d{1,}\)?[\-\.\ \\\/]?){0,})(?:[\-\.\ \\\/]?(?:#|ext\.?|extension|x)[\-\.\ \\\/]?(\d+))?$/;
+      var matches = patt.exec(value);
+      return matches != null;
+    },
 
-	}();  //kidzouEventsEditor
+    /**
+     * When user clicks on the input field
+     * @param  {Object} suggest The suggest
+     */
+    onFocus: function onFocus() {
+      var self = this;
+      // console.debug('state', self._suggest);
+      self._suggest.clear();
+    },
 
-	return {
-		model : kidzouPlaceEditor.model, //necessaire de fournir un acces pour interaction avec Google Maps ??
-	};
-}());  //kidzouPlaceModule
+    /**
+     * When a suggest got selected
+     * @param  {Object} suggest The suggest
+     */
+    onSuggestSelect: function onSuggestSelect(suggest) {
+      // console.log(suggest);
+      var self = this;
 
-(function($){
-	
-	$(document).ready(function() {
+      //recuperer google maps et demander les details
+      var service = new google.maps.places.PlacesService(document.querySelector('#place_results'));
+      var request = {
+        placeId: suggest.placeId
+      };
+      service.getDetails(request, function (placeResult, status) {
 
-		/**
-		 * Amorcage du formulaire de place
-		 *
-		 */
-		if (document.querySelector("#place_form")!==null) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
 
-			ko.applyBindings( kidzouPlaceModule.model, document.querySelector("#place_form") ); //retourne un EventsEditorModel
-		
-			//maintenant que le binding est fait, faire apparaitre le form
-			setTimeout(function(){
-				document.querySelector("#place_form").classList.remove('hide');
-				document.querySelector("#place_form").classList.add('pop-in');
-			}, 300);
+          var city = placeResult.display_text;
+          //tentative de retrouver la ville de manière plus précise
+          //voir https://developers.google.com/maps/documentation/geocoding/?hl=FR#Types
+          placeResult.address_components.forEach(function (entry) {
+            if (entry.types[0] == 'locality') {
+              city = entry.long_name;
+            }
+          });
 
-			// console.debug(place_jsvars.customer_location_name)
+          self.setState({
+            place: {
+              name: placeResult.name,
+              address: placeResult.formatted_address,
+              website: placeResult.website,
+              phone_number: placeResult.formatted_phone_number,
+              city: city,
+              latitude: placeResult.geometry.location.lat(), //latitude
+              longitude: placeResult.geometry.location.lng(), //longitude
+              opening_hours: placeResult.opening_hours ? placeResult.opening_hours.periods : []
+            }
+          });
 
-			if (place_jsvars.location_name!='' && typeof place_jsvars.location_name!='undefined') {
-				kidzouPlaceModule.model.proposePlace('Adresse par defaut',{
-					name 	: place_jsvars.location_name ,
-					address : place_jsvars.location_address,
-					website : place_jsvars.location_website,
-					phone_number : place_jsvars.location_phone_number,
-					city 		: place_jsvars.location_city,
-					latitude 	: place_jsvars.location_latitude,
-					longitude 	: place_jsvars.location_longitude,
-					opening_hours : []
-				});
-			}
+          //save address
+          self.savePlace();
+        }
+      });
+    },
 
-			if (place_jsvars.customer_location_name!='' && typeof place_jsvars.customer_location_name!='undefined') {
-				// console.debug('quoi ?')
-				kidzouPlaceModule.model.proposePlace('Adresse client',{
-					name 	: place_jsvars.customer_location_name ,
-					address : place_jsvars.customer_location_address,
-					website : place_jsvars.customer_location_website,
-					phone_number : place_jsvars.customer_location_phone_number,
-					city 		: place_jsvars.customer_location_city,
-					latitude 	: place_jsvars.customer_location_latitude,
-					longitude 	: place_jsvars.customer_location_longitude,
-					opening_hours : []
-				});
-			}
-		}
+    /**
+     * Sauvegarde de l'adresse et messages de confirmation
+     *
+     */
+    savePlace: function savePlace() {
+      var self = this;
+      kidzouPlaceEditor.model.completePlace(self.state.place, function (data) {
+        var msg = data ? data.msg || 'Enregistrement' : 'Enregistrement';
+        self._hintMessage.onProgress(msg);
+      }, //progress
+      function (data) {
+        var msg = data ? data.msg || 'Enregistré' : 'Enregistré';
+        self._hintMessage.onSuccess(msg);
+      }, //success
+      function (err) {
+        var msg = err ? err.msg || 'Impossible d\'enregistrer' : 'Impossible d\'enregistrer';
+        self._hintMessage.onError(msg);
+      } //error
+      );
+    },
 
-		/**
-		 * Boite de selection de la place, utilisation de Selectize PlaceComplete
-		 * Tous le monde ne voit pas forcément cette boite, d'ou l'interet de verifier le selecteur
-		 *
-		 */
-		if (document.querySelector("select[name='place']")!==null) {
+    /**
+     * When user clicks on Manual mode
+     */
+    onManualMode: function onManualMode() {
+      this.setState({ manualMode: true });
+    },
 
-			//selection GooglePlace/PlaceComplete depuis selectize
-			$("select[name='place']").selectize({
-			  mode: "single",
-			  openOnFocus: false,
-			  delimiter: null,
-			  plugins: {
-			    'placecomplete': {
-			      selectDetails: function(placeResult) { 
-		
-			      	var city = placeResult.display_text;
-					//tentative de retrouver la ville de manière plus précise
-					//voir https://developers.google.com/maps/documentation/geocoding/?hl=FR#Types
-					placeResult.address_components.forEach(function(entry) {
-					    if (entry.types[0]=='locality') {
-					    	city = entry.long_name;
-					    }
-					});
-			      	//Alimenter les champs Kidzou
-			        kidzouPlaceModule.model.proposePlace('Autre adresse', {
-			        		name 	: placeResult.name, 
-							address : placeResult.formatted_address, 
-							website : placeResult.website, 
-							phone_number 	: placeResult.formatted_phone_number, 
-							city 	: city,
-							latitude 	: placeResult.geometry.location.lat(), //latitude
-							longitude 	: placeResult.geometry.location.lng(), //longitude
-							opening_hours : (placeResult.opening_hours ? placeResult.opening_hours.periods : [])
-			        });
+    /**
+     * When user resets the form
+     */
+    onResetForm: function onResetForm() {
+      this.setState({
+        place: {
+          name: '',
+          address: '',
+          website: '',
+          phone_number: '',
+          city: '',
+          latitude: '', //latitude
+          longitude: '', //longitude
+          opening_hours: []
+        },
+        manualMode: true
+      });
+      this._suggest.clear();
+    },
 
-			        // la valeur que prend le <select>
-			        return placeResult.name + ", " + placeResult.formatted_address;
-			      }
-			    }
-			  }
-			});
-		}
-		
-	});
+    /**
+     * To use this adress for the customer
+     */
+    onUseForCustomer: function onUseForCustomer() {
+      if (window.kidzouCustomerModule) {
+        kidzouCustomerModule.setPlace(this.state.place);
+      }
+    },
 
-})(jQuery);
+    /**
+     * When user edits inline
+     * @param  {Object} edited data
+     */
+    onEdit: function onEdit(data, progress, success, error) {
+      // console.debug('onEdit', data, this.state);
 
+      var self = this;
+      var keys = Object.keys(data);
+      var _place = self.state.place;
+      _place[keys[0]] = data[keys[0]];
+      self.setState(_place);
+
+      kidzouPlaceEditor.model.completePlace(_place, function (msg) {
+        if (typeof progress === 'function') progress(msg);
+      }, function (data) {
+        if (typeof success === 'function') success(data);
+      }, function (err) {
+        if (typeof error === 'function') error(err);
+      });
+    }
+
+  });
+
+  var PlacesProposals = React.createClass({
+    displayName: 'PlacesProposals',
+
+    render: function render() {
+      var rows = [];
+      this.props.proposals.forEach(function (proposal, index) {
+        // console.debug('proposal', proposal);
+        var key = 'proposal_' + index;
+        rows.push(React.createElement(PlaceProposal, { place: proposal, index: index, key: key }));
+      });
+      // var isProposal = (this.props.proposals.length>0);
+      return React.createElement(
+        'div',
+        null,
+        this.props.proposals.length > 0 && React.createElement(
+          'div',
+          null,
+          React.createElement(
+            'h4',
+            null,
+            'Lieux proposés : '
+          ),
+          React.createElement(
+            'p',
+            null,
+            rows
+          )
+        )
+      );
+    }
+  });
+
+  var PlaceProposal = React.createClass({
+    displayName: 'PlaceProposal',
+
+    render: function render() {
+      return React.createElement(
+        'span',
+        { className: 'proposal' },
+        React.createElement(
+          'a',
+          { onClick: this.changePlace, style: { cursor: 'pointer' } },
+          React.createElement('i', { className: 'fa fa-bookmark-o' }),
+          ' ',
+          this.props.place.name,
+          React.createElement('br', null),
+          this.props.place.address
+        )
+      );
+    },
+    changePlace: function changePlace() {
+      _changePlace(this.props.place, this.props.index);
+    }
+  });
+
+  ReactDOM.render(React.createElement(PlaceEditor, null), document.querySelector('#kz_place_metabox .react-content'));
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //global vars accessible de l'extérieur
+  var proposePlace;
+  var _changePlace;
+  // var removeProposal;
+
+  return {
+    model: kidzouPlaceEditor.model, //necessaire de fournir un acces pour interaction avec Google Maps ??
+    proposePlace: proposePlace //propositions de places depuis l'exterieur, mis à jour lors de componentWillMount
+  };
+}(); //kidzouPlaceModule

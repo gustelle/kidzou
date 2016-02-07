@@ -50,15 +50,6 @@ var kidzouPlaceModule = (function() { //havre de paix
     };
   }
 
-  function updateVilleTaxonomy(post_id, value) {
-
-    if(value!==null && "undefined"!==value && document.querySelector('#kz_event_metropole_' + value.toLowerCase() )!==null ) {
-      document.querySelector('#kz_event_metropole_' + value.toLowerCase() ).setAttribute('checked','checked');
-
-      //todo : save in ajax
-    }
-  }
-
   var kidzouPlaceEditor = function() { 
 
     var editorModel = new PlaceEditorModel();
@@ -71,6 +62,48 @@ var kidzouPlaceModule = (function() { //havre de paix
       var self = this;
 
       self.placeData      = new Place();
+
+      /**
+       * Mise à jour de la Metabox Taxonomy 'ville' avec la valeur de la ville 
+       *
+       */
+      self.updateVilleTaxonomy = function(post_id, ville, progressCallback, successCallback, errorCallback) {
+
+        //mise à jour de la ville
+        jQuery.get(place_jsvars.api_base + '/api/taxonomy/getTermBy/', {
+          field : 'name',
+          taxonomy : 'ville',
+          value : ville
+        }, function (n) {
+
+          var term_id = n.term.term_id;
+          var node = document.querySelector( '#in-ville-' + term_id );
+        
+          if(node!==null ) {
+            node.setAttribute('checked','checked');
+
+            jQuery.get(place_jsvars.api_base + '/api/get_nonce/?controller=taxonomy&method=setPostTerms', {}, function (n) {
+
+              jQuery.post(place_jsvars.api_set_post_terms + '?nonce=' + n.nonce, {
+                post_id : postID,
+                taxonomy : 'ville',
+                terms : [term_id]
+              }).done(function (r) {
+                if (r.status=='ok' && typeof r.result!=='undefined' && r.result!==null && (typeof r.result.errors!=='undefined' || r.result=='false') && typeof errorCallback === "function")
+                  errorCallback(r);
+
+                else if (typeof successCallback === "function")
+                  successCallback(r);
+              }).fail(function (err) {
+                if (typeof errorCallback === "function")
+                    errorCallback(err);
+              });
+
+            });
+          }
+
+        });
+      }
 
       //Resultats en provenance de Google PlaceComplete
       //https://developers.google.com/places/documentation/details
@@ -87,12 +120,30 @@ var kidzouPlaceModule = (function() { //havre de paix
             result.opening_hours
           ); 
 
-        if (window.kidzouAdminGeo && document.querySelector('#post_ID')!==null)
+        //check de la ville
+        if (typeof result.city!=='undefined' && result.city!=='')
+          self.updateVilleTaxonomy(postID, result.city, 
+              function(){if (typeof progress==='function') progress({msg:'Enregistrement...'});}, 
+              function(){if (typeof success==='function') success({msg:'Ville mise a jour'});}, 
+              function(){if (typeof error==='function') error({msg:'Erreur de mise a jour de la Taxonomie \'ville\''});}
+            );
+
+        if (window.kidzouAdminGeo && postID!=='') {
+
+          if (typeof progress==='function') progress({msg:'Détermination de la métropole'});
+
           kidzouAdminGeo.getMetropole(
             result.latitude, 
-            result.longitude, function(metropole) {
-                          updateVilleTaxonomy(document.querySelector('#post_ID').value,metropole);
-                        }); 
+            result.longitude, 
+            function(metropole) {
+              //check de la metropole
+              self.updateVilleTaxonomy(postID, metropole, 
+                  function(){if (typeof progress==='function') progress({msg:'Enregistrement...'});}, 
+                  function(){if (typeof success==='function') success({msg:'Metropole mise a jour'});}, 
+                  function(){if (typeof error==='function') error({msg:'Erreur de mise a jour de la Metropole'});}
+                );
+            }); 
+        }
 
 
         if (self.placeData.isValid()){
@@ -117,7 +168,7 @@ var kidzouPlaceModule = (function() { //havre de paix
 
         jQuery.get(place_jsvars.api_base + '/api/get_nonce/?controller=content&method=place', {}, function (n) {
 
-            jQuery.post(place_jsvars.api_save_place, {
+            jQuery.post(place_jsvars.api_save_place + '?nonce=' + n.nonce, {
               contact : {
                 tel : self.placeData.phone_number,
                 web : self.placeData.website
@@ -130,7 +181,6 @@ var kidzouPlaceModule = (function() { //havre de paix
                 lng : self.placeData.lng,
                 country : 'FR'
               },
-              nonce: n.nonce,
               post_id: postID
             }).done(function (r) {
               
@@ -175,54 +225,52 @@ var kidzouPlaceModule = (function() { //havre de paix
           longitude     : place_jsvars.location_longitude, //longitude
           opening_hours : []
         },
-        resultsStyle: {
-          display : 'none'
-        },
-        hintClasses :{
-          name : 'form_hint',
-        },
-        hintStyles : {
-          name : {
-            display : 'none'
+        resultsStyle: {display : 'none'},
+        placesProposals : [],
+        hint : {
+          select : {
+            valid : false,
+            show : false,
+            icon : '',
+            message : ''
           }
-        },
-        statusClasses : {
-          name : ''
-        },
-        statusMessages : {
-          name : ''
-        },
-        placesProposals : []
+        }
       };
     },
     componentWillMount: function() {
-
+      var self = this;
       //remplissage automatique si aucun lieu n'est renseigné, sinon enrichissement des propositiosn
       proposePlace = (type, _place) => {
-
           var maPlace = new Place(this.state.place.name, this.state.place.address, this.state.place.website, this.state.place.phone_number, this.state.place.city, this.state.place.latitude, this.state.place.longitude, this.state.place.opening_hours);
           // console.debug('proposePlace', maPlace, maPlace.isEmpty());
           if (maPlace.isEmpty()){
-            this.setState({
+            self.setState({
               place : _place
             })
-          } else {
+
+          } else if (!maPlace.equals(_place.name, _place.address, _place.website, _place.phone_number, _place.city, _place.latitude, _place.longitude, _place.opening_hours) ) {
+
             var proposals = this.state.placesProposals;
             proposals.push(_place);
-            this.setState({
+            self.setState({
               placesProposals : proposals
             }); 
-          }
-          
+          }      
       };
 
       //choix explicite d'une place depuis l'exterieur
-      changePlace = (_place) => {
-        this.setState({
-          place : _place
+      changePlace = (_place, _index) => {
+        var proposals = this.state.placesProposals;
+        proposals.splice(_index, 1);
+        self.setState({
+          place : _place,
+          placesProposals : proposals
+        }, function(){
+          self.savePlace();
+          self._suggest.clear();
         });
       };
-
+      
     },
     
     /**
@@ -237,121 +285,43 @@ var kidzouPlaceModule = (function() { //havre de paix
       return (
         <div>
           <p>Commencez &agrave; taper quelques lettres et des propositions apparaitront. Les propositions sont issues de <strong>Google Maps</strong></p>
-          
-          <Geosuggest
-            className="kz_form"
-            placeholder="Nom d'un lieu, d'une ville..."
-            onSuggestSelect={this.onSuggestSelect}
-            types={types}
-            autoActivateFirstSuggest='true'
-            onFocus={this.onFocus} 
-            ref={(c) => this._suggest = c}  />
+          <div>
+            <Geosuggest
+              className="kz_form"
+              placeholder="Nom d'un lieu, d'une ville..."
+              onSuggestSelect={this.onSuggestSelect}
+              types={types}
+              autoActivateFirstSuggest='true'
+              onFocus={this.onFocus} 
+              ref={(c) => this._suggest = c}  />
+              <HintMessage ref={(c) => this._hintMessage = c} />
+          </div>
+
 
             { (!this.state.manualMode && !displayForm) &&
-              <a onClick={this.onManualMode} style={{cursor:'pointer'}}>Saisir une adresse moi-m&ecirc;me</a>
+              <p><a onClick={this.onManualMode} style={{cursor:'pointer'}} className="button">Saisir une adresse manuellement</a></p>
             }
 
             { (this.state.manualMode || displayForm) &&
               <div>
                 <p>Vous pouvez modifier l&apos;adresse a tout moment, pour cela <strong>cliquez sur le champ &agrave; modifier</strong>. Par exemple, pour corriger le num&eacute;ro de t&eacute;l&eacute;phone, survolez le champ t&eacute;l&eacute;phone et cliquez dessus</p>
                 <ul>
-                  <li>
-                   <span className="editableLabel">Nom du lieu:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.name}
-                        paramName="name"
-                        change={this.onEdit}
-                        className="editable"
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.name} style={this.state.hintStyles.name}>
-                      <i className={this.state.statusClasses.name}></i>{this.state.statusMessages.name}
-                    </span>
-                  </li>
-                  <li>
-                   <span className="editableLabel">Adresse:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.address}
-                        paramName="address"
-                        change={this.onEdit}
-                        className="editable"
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.address} style={this.state.hintStyles.address}>
-                      <i className={this.state.statusClasses.address}></i>{this.state.statusMessages.address}
-                    </span>
-                  </li>
-                  <li>
-                   <span className="editableLabel">Quartier / Ville:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.city}
-                        paramName="city"
-                        change={this.onEdit}
-                        className="editable" 
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.city} style={this.state.hintStyles.city}>
-                      <i className={this.state.statusClasses.city}></i>{this.state.statusMessages.city}
-                    </span>
-                  </li>
-                  <li>
-                   <span className="editableLabel">Latitude:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.latitude}
-                        paramName="latitude"
-                        change={this.onEdit}
-                        className="editable"
-                        validate={this.validateFloat}
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.latitude} style={this.state.hintStyles.latitude}>
-                      <i className={this.state.statusClasses.latitude}></i>{this.state.statusMessages.latitude}
-                    </span>
-                  </li>
-                  <li>
-                   <span className="editableLabel">Longitude:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.longitude}
-                        paramName="longitude"
-                        change={this.onEdit}
-                        className="editable"
-                        validate={this.validateFloat} 
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.longitude} style={this.state.hintStyles.longitude}>
-                      <i className={this.state.statusClasses.longitude}></i>{this.state.statusMessages.longitude}
-                    </span>
-                  </li>
-                  <li>
-                   <span className="editableLabel">Site web:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.website}
-                        paramName="website"
-                        change={this.onEdit}
-                        className="editable"
-                        validate={this.validateURL} 
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.website} style={this.state.hintStyles.website}>
-                      <i className={this.state.statusClasses.website}></i>{this.state.statusMessages.website}
-                    </span>
-                  </li>
-                  <li>
-                   <span className="editableLabel">T&eacute;l&eacute;phone:</span>
-                    <InlineEdit
-                        activeClassName="editing"
-                        text={this.state.place.phone_number}
-                        paramName="phone_number"
-                        change={this.onEdit}
-                        className="editable"
-                        validate={this.validatePhone} 
-                        staticElement="div" />
-                    <span className={this.state.hintClasses.phone_number} style={this.state.hintStyles.phone_number}>
-                      <i className={this.state.statusClasses.phone_number}></i>{this.state.statusMessages.phone_number}
-                    </span>
-                  </li>
+                  <Field tabIndex={0} inputPrefix="kz_location_" change={this.onEdit} label="Nom du lieu:"  text={this.state.place.name}    updateParam="name" />
+                  <Field tabIndex={1} inputPrefix="kz_location_" change={this.onEdit} label="Adresse:"      text={this.state.place.address} updateParam="address" />
+                  <Field tabIndex={2} inputPrefix="kz_location_" change={this.onEdit} label="Quartier / Ville:" text={this.state.place.city} updateParam="city" />
+                  <Field tabIndex={3} inputPrefix="kz_location_" validate={this.validateFloat} change={this.onEdit} label="Latitude:" text={this.state.place.latitude} updateParam="latitude" />
+                  <Field tabIndex={4} inputPrefix="kz_location_" validate={this.validateFloat} change={this.onEdit} label="Longitude:" text={this.state.place.longitude} updateParam="longitude" />
+                  <Field tabIndex={5} inputPrefix="kz_location_" validate={this.validateURL} change={this.onEdit} label="Site Web:" text={this.state.place.website} updateParam="website" />
+                  <Field tabIndex={6} inputPrefix="kz_location_" validate={this.validatePhone} change={this.onEdit} label="T&eacute;l&eacute;phone:" text={this.state.place.phone_number} updateParam="phone_number" />
                 </ul>
               </div>
+            }
+
+            { displayForm &&
+              <p>
+                <a onClick={this.onResetForm} style={{cursor:'pointer'}} className="button"><i className="fa fa-eraser"></i>&nbsp;Remettre &agrave; zero</a>
+                <a onClick={this.onUseForCustomer} style={{cursor:'pointer', marginLeft:'0.4em'}} className="button"><i className="fa fa-mail-forward"></i>&nbsp;Utiliser cette adresse pour le client</a>
+              </p>
             }
             
             <PlacesProposals proposals={this.state.placesProposals} />
@@ -412,6 +382,7 @@ var kidzouPlaceModule = (function() { //havre de paix
         placeId: suggest.placeId
       };
       service.getDetails(request, function(placeResult, status){
+
         if (status == google.maps.places.PlacesServiceStatus.OK) {
 
           var city = placeResult.display_text;
@@ -437,88 +408,114 @@ var kidzouPlaceModule = (function() { //havre de paix
           });
 
           //save address
-          kidzouPlaceEditor.model.completePlace(self.state.place);
+          self.savePlace();
+
         }
       });
+    },
+
+    /**
+     * Sauvegarde de l'adresse et messages de confirmation
+     *
+     */
+    savePlace: function() {
+      var self = this;
+      kidzouPlaceEditor.model.completePlace(self.state.place, 
+        function(data){
+          var msg = (data ? data.msg || 'Enregistrement' : 'Enregistrement');
+          self._hintMessage.onProgress(msg);
+        }, //progress
+        function(data){
+          var msg = (data ? data.msg || 'Enregistré' : 'Enregistré');
+          self._hintMessage.onSuccess(msg);
+        }, //success
+        function(err){
+          var msg  = (err ? err.msg || 'Impossible d\'enregistrer' : 'Impossible d\'enregistrer');
+          self._hintMessage.onError(msg);
+        }  //error
+      );
+    },
+
+    /**
+     * When user clicks on Manual mode
+     */
+    onManualMode: function() {
+      this.setState({manualMode:true});
+    },
+
+    /**
+     * When user resets the form
+     */
+    onResetForm: function() {
+      this.setState({
+        place : {
+          name     : '', 
+          address  : '', 
+          website  : '', 
+          phone_number  : '', 
+          city          : '',
+          latitude      : '', //latitude
+          longitude     : '', //longitude
+          opening_hours : []
+        },
+        manualMode:true
+      });
+      this._suggest.clear();
+    },
+
+    /**
+     * To use this adress for the customer
+     */
+    onUseForCustomer: function() {
+      if (window.kidzouCustomerModule) {
+        kidzouCustomerModule.setPlace(this.state.place);
+      }
     },
 
     /**
      * When user edits inline
      * @param  {Object} edited data
      */
-    onEdit: function(data) {
+    onEdit: function(data, progress, success, error) {
+      // console.debug('onEdit', data, this.state);
 
       var self = this;
       var keys = Object.keys(data);
       var _place = self.state.place;
       _place[keys[0]] = data[keys[0]];
-      
-      //save address
-      self.setState({ place : _place });
+      self.setState(_place);
 
-      kidzouPlaceEditor.model.completePlace(this.state.place, 
+      kidzouPlaceEditor.model.completePlace(_place, 
         function(msg){
-          //progress
-          var obj = {hintClasses:{},hintStyles:{},statusClasses:{},statusMessages:{}};
-          obj.hintClasses[keys[0]]      = 'form_hint valid' ;
-          obj.hintStyles[keys[0]]       = { display : 'inline' } ;
-          obj.statusClasses[keys[0]]    = 'fa fa-spinner fa-spin' ;
-          obj.statusMessages[keys[0]]   = 'Enregistrement...';
-          self.setState(obj);
+          if (typeof progress==='function') progress(msg);
         },
         function(data) {
-          //success
-          var obj = {hintClasses:{},hintStyles:{},statusClasses:{},statusMessages:{}};
-          obj.hintClasses[keys[0]]      = 'form_hint valid' ;
-          obj.statusClasses[keys[0]]    = 'fa fa-check' ;
-          obj.statusMessages[keys[0]]   = 'Enregistré';
-          self.setState(obj);
-          
-          setTimeout(function(){
-            var obj = {hintClasses:{},hintStyles:{},statusClasses:{},statusMessages:{}};
-            obj.hintClasses[keys[0]]      = 'form_hint' ;
-            obj.hintStyles[keys[0]]       = { display : 'none' } ;
-            obj.statusClasses[keys[0]]    = '' ;
-            obj.statusMessages[keys[0]]   = '';
-            self.setState(obj);
-          }, 1500)
+          if (typeof success==='function') success(data);
         },
         function(err) {
-          //error
-          var msg  = (err.msg || 'Impossible d\'enregistrer');
-          var icon = (err.msg ? '' : 'fa fa-exclamation-circle');
-          var obj = {hintClasses:{},hintStyles:{},statusClasses:{},statusMessages:{}};
-          obj.hintClasses[keys[0]]      = 'form_hint invalid' ;
-          obj.statusClasses[keys[0]]    = icon ;
-          obj.statusMessages[keys[0]]   = msg;
-          self.setState(obj);
+          if (typeof error==='function') error(err);
         }
       );
-    },
+    }, 
 
-    /**
-     * When user clicks on Manual mode
-     * @param  {Object} edited data
-     */
-    onManualMode: function() {
-      this.setState({manualMode:true});
-    },
   });
 
   var PlacesProposals = React.createClass({
     render: function() {
       var rows = [];
-      this.props.proposals.forEach(function(proposal) {
-        rows.push(<PlaceProposal place={proposal} />);
+      this.props.proposals.forEach(function(proposal, index) {
+        // console.debug('proposal', proposal);
+        var key = 'proposal_' + index;
+        rows.push(<PlaceProposal place={proposal} index={index} key={key} />);
       });
       // var isProposal = (this.props.proposals.length>0);
       return (
         <div>
           { this.props.proposals.length>0 &&
-            <p>
-              <strong>Lieux propos&eacute;s : </strong><br/>
-              {rows}
-            </p>
+            <div>
+              <h4>Lieux propos&eacute;s : </h4>
+              <p>{rows}</p>
+            </div>
           }
         </div>
       );
@@ -528,19 +525,19 @@ var kidzouPlaceModule = (function() { //havre de paix
   var PlaceProposal = React.createClass({
     render: function() {
       return (
-        <span>
-          <a onClick={this.changePlace} style={{cursor:'pointer'}}>{this.props.place.name}</a>&nbsp;&nbsp;&nbsp;
+        <span className="proposal">
+          <a onClick={this.changePlace} style={{cursor:'pointer'}}><i className="fa fa-bookmark-o"></i>&nbsp;{this.props.place.name}<br/>{this.props.place.address}</a>
         </span>
       );
     },
     changePlace: function(){
-      changePlace(this.props.place);
+      changePlace(this.props.place, this.props.index);
     }
   });
 
   ReactDOM.render(
     <PlaceEditor />, 
-    document.querySelector('#kz_place_metabox .inside')
+    document.querySelector('#kz_place_metabox .react-content')
   );
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -549,6 +546,7 @@ var kidzouPlaceModule = (function() { //havre de paix
   //global vars accessible de l'extérieur
   var proposePlace;
   var changePlace;
+  // var removeProposal;
 
   return {
     model : kidzouPlaceEditor.model, //necessaire de fournir un acces pour interaction avec Google Maps ??

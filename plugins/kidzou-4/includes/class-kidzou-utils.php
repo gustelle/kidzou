@@ -424,6 +424,8 @@ class Kidzou_Utils {
 		if ($post_id==0)
 			return;
 
+		Kidzou_Utils::log(array('post_id'=>$post_id,'save_meta'=>$arr, 'prefix'=>$prefix), true);
+
 		// Add values of $events_meta as custom fields
 		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
 
@@ -438,7 +440,7 @@ class Kidzou_Utils {
 			}
 			if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
 		}
-
+		return true;
 	}
 
 
