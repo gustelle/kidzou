@@ -1,445 +1,576 @@
-var kidzouEventsModule = (function() { //havre de paix
+'use strict';
 
-	var windowURL = window.URL || window.webkitURL;
-	
-	//voir http://jsfiddle.net/3LT9d/
-	ko.extenders.debug = function(target, option) {
-	    target.subscribe(function(newValue) {
-	       console.debug(option + ": " + newValue);
-	    });
-	    return target;
-	};
+var kidzouEventModule = function ($) {
+	//havre de paix
 
+	var postID = document.querySelector('#post_ID') !== null ? document.querySelector('#post_ID').value : '';
 
-	ko.bindingHandlers.date = {
-        update: function (element, valueAccessor, allBindingsAccessor, viewModel) {
-            var value = valueAccessor();
-            var formString = allBindingsAccessor().stringFormat;
-            var dateFormat = allBindingsAccessor().dateFormat;
-            var mom = moment( value, dateFormat);
-            jQuery(element).text(mom.format(formString));
-       }
-  	};
+	var Event = React.createClass({
+		displayName: 'Event',
 
-  	ko.bindingHandlers.logger = {
-        update: function(element, valueAccessor, allBindings) {
-            //store a counter with this element
-            var count = ko.utils.domData.get(element, "_ko_logger") || 0,
-                data = ko.toJS(valueAccessor() || allBindings());
+		getDefaultProps: function getDefaultProps() {
+			var wdg = {
+				name: "kz_event_reccurence_repeat_weekly_items",
+				items: [{
+					label: "Lundi",
+					value: "1",
+					checked: false
+				}, {
+					label: "Mardi",
+					value: "2",
+					checked: false
+				}, {
+					label: "Mercredi",
+					value: "3",
+					checked: false
+				}, {
+					label: "Jeudi",
+					value: "4",
+					checked: false
+				}, {
+					label: "Vendredi",
+					value: "5",
+					checked: false
+				}, {
+					label: "Samedi",
+					value: "6",
+					checked: false
+				}, {
+					label: "Dimanche",
+					value: "7",
+					checked: false
+				}]
+			};
 
-            ko.utils.domData.set(element, "_ko_logger", ++count);
+			if (typeof event_jsvars.recurrence !== 'undefined' && event_jsvars.recurrence.model !== 'undefined' && event_jsvars.recurrence.model == 'weekly') {
 
-            if (window.console && console.log) {
-                console.log(count, element, data);
-            }
-        }
-    };
+				if (Object.prototype.toString.call(event_jsvars.recurrence.repeatItems) === '[object Array]') {
 
+					var repeatItems = event_jsvars.recurrence.repeatItems;
 
-	ko.bindingHandlers.datepicker = {
-	    init: function(element, valueAccessor, allBindingsAccessor) {
-	        var $el = jQuery(element);
-	        
-	        //initialize datepicker with some optional options
-	        var options = allBindingsAccessor().datepickerOptions || {};
-	        $el.datepicker(options);
-	        jQuery.datepicker.setDefaults(jQuery.datepicker.regional.fr);
-
-	        //handle the field changing
-	        ko.utils.registerEventHandler(element, "change", function() {
-	            var observable = valueAccessor();
-	            observable($el.datepicker("getDate"));
-	            jQuery(element).blur();
-	        });
-
-	        //handle disposal (if KO removes by the template binding)
-	        ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-	            $el.datepicker("destroy");
-	        });
-
-	    },
-	    update: function(element, valueAccessor) {
-	        var value = ko.utils.unwrapObservable(valueAccessor()),
-	            $el = jQuery(element),
-	            current = $el.datepicker("getDate");
-	        // console.log("current " + current);
-	        if (value - current !== 0) {
-	            $el.datepicker("setDate", value);   
-	        }
-	    }
-	};
-
-	//verification qu'une date est postérieure à une autre
-	//extension ko-validation
-	ko.validation.rules.dateAfter = {
-	    validator: function (val, other) {
-	    	
-	    	//prevenir les champs vides ou invalides
-	    	if (!moment(val).isValid() || !moment(val).isValid(other))
-	    		return true;
-
-	        return moment(val).isAfter(moment(other)); // true
-	    },
-	    message: 'La date doit être postérieure à la date de début'
-	};
-
-	ko.validation.registerExtenders();
-	ko.validation.init({ 
-		insertMessages : true,
-		decorateElement : true,
-		errorsAsTitle : false,
-		parseInputAttributes : true,
-	    errorMessageClass : 'form_hint',
-	    errorElementClass : 'input_hint',
-	    messagesOnModified:true, //verifier tout le temps, meme au chargement 
-	    grouping : { deep: true, observable: true },
-	    decorateElementOnModified : false,
-	});
-
-
-	var kidzouEventsEditor = function() { 
-
-		var model = new EventsEditorModel();
-
-		function RecurrenceModel() {
-
-			var self = this;
-			
-			//utilisé également à l'init des RepeatOptions
-			self.days = [{ label:'Lundi', value: 1}, {label:'Mardi', value:2}, {label:'Mercredi', value:3}, {label:'Jeudi', value:4}, {label:'Vendredi', value:5}, {label:'Samedi', value:6}, {label:'Dimanche', value:7}];
-			self.day_of_month = {label:'Jour du mois', value: 'day_of_month'};
-			self.day_of_week = {label:'Jour de la semaine', value : 'day_of_week'};
-
-			self.isReccuring = ko.observable(false);
-
-			function RepeatOption( label, value, repeatEach, multipleChoice) {
-
-				this.label = label;
-				this.value = value;
-
-				this.repeatEvery = [1,2,3,4];  //les options possibles
-				this.selectedRepeatEvery = ko.observable(1);  //l'option choisie
-
-				this.repeatEach = repeatEach;  // les options possibles
-				this.selectedRepeatEachItems = ko.observableArray();  // les options sélectionnées
-
-				//est-ce qu'on peut sélectionner dans le UI plusieurs "repeatEach"
-				//Ex : répéter le lundi, le mardi
-				this.multipleChoice = multipleChoice; 
+					//initialisation des weekDaysGroup
+					repeatItems.forEach(function (item, index) {
+						wdg.items.forEach(function (day, i) {
+							if (item == day.value) {
+								// console.debug('setting item ' + day.label + ' checked');
+								wdg.items[i] = {
+									label: day.label,
+									value: item,
+									checked: true
+								};
+							}
+						});
+					});
+				}
 			}
 
-			self.weeklyModel = new RepeatOption('Toutes les semaines','weekly', self.days, true);
-			self.monthlyModel = new RepeatOption('Tous les mois' , 'monthly', [self.day_of_month, self.day_of_week], false) ;
-			
-			//quelles sont les spossibilités de récurrence ?
-			self.repeatOptions = [
-			 	self.weeklyModel,
-			 	self.monthlyModel
-			];
+			return {
+				weekDaysGroup: wdg
+			};
+		},
 
-			//et celle choisie par le User?
-			self.selectedRepeat = ko.observable(self.weeklyModel);
-			
-			//la valeur qui est transmise au serveur
-			//pas utilisée dans le UI
-			self.repeatItemsValue = ko.computed(function() {
-				var _r = '';
-				if (self.selectedRepeat().value=='weekly') {
-					var _o = [];
-					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
-				        _o.push(item.value);
-				    });
-					_r = ko.toJSON(_o);
-				} else {
-					_r = self.selectedRepeat().selectedRepeatEachItems().value;
-				}
-				return _r;
-			});
+		getInitialState: function getInitialState() {
+			var self = this;
 
+			var recurrence = event_jsvars.recurrence || {};
+			var repeatEach = typeof recurrence.repeatEach !== 'undefined' ? parseInt(recurrence.repeatEach) : 1;
+			var endType = recurrence.endType || 'never';
+			var endValue = recurrence.endType == 'date' ? moment(recurrence.endValue).toDate() : recurrence.endValue;
+			var repeatModel = recurrence.model || 'weekly';
+			var repeatItems = recurrence.repeatItems || [];
+			var startDate = typeof event_jsvars.start_date !== 'undefined' ? moment(event_jsvars.start_date).toDate() : null;
+			var endDate = typeof event_jsvars.end_date !== 'undefined' ? moment(event_jsvars.end_date).toDate() : null;
+			var pastDates = event_jsvars.past_dates || [];
 
-			//la selection du modele de repetition est-elle visible ?
-			self.showSelectRepeat = ko.observable(true);
+			return {
+				from: startDate,
+				to: endDate,
+				pastDates: pastDates,
+				isRecurrence: Object.keys(recurrence).length > 0 ? true : false,
+				repeatEach: repeatEach,
+				endType: endType,
+				endValue: endValue,
+				repeatModel: repeatModel,
+				repeatItems: repeatItems
+			};
+		},
+		/**
+   * Eviter les boucles infinies d'update causées par l'interaction avec le ChecboxGroup
+   * Pas reussi à trouver le bug
+   */
+		shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
+			// You can access `this.props` and `this.state` here
+			// This function should return a boolean, whether the component should re-render.
+			var diff = JSON.stringify(this.state) !== JSON.stringify(nextState);
+			// console.debug('shouldComponentUpdate', diff);
+			return diff;
+		},
 
-			self.endType = ko.observable('never');  
-
-			//si la recurrence se termine au bout d'un certain nombre de fois
-			self.occurencesNumber = ko.observable(0).extend({ number: true });
-
-			//si la recurrence se termine à une date donnée
-			self.reccurenceEndDate = ko.observable("");
-
-			//utilisée pour renvoyer au serveur uniquement, pas dans le UI
-			self.formattedReccurenceEndDate = ko.computed({
-		    	read: function() {
-		    		if ( moment( self.reccurenceEndDate() ).isValid() ) {
-		    			self.endType('date');
-		    			return moment(self.reccurenceEndDate()).endOf("day").format("YYYY-MM-DD HH:mm:ss");
-		    		}
-		    		//si la date n'est pas valide et que le endType est positionné sur date
-		    		//on force le repositionnement à never
-		    		//paer contre si le endType est déjà sur "occurences", on n'y touche pas
-		    		if (self.endType()=='date') self.endType('never');
-		    		return '';
-		    	},
-		    	write: function(value) {
-		    		if ( moment(value).isValid() ) {
-						self.reccurenceEndDate(moment(value).endOf("day").format("YYYY-MM-DD HH:mm:ss"));
-		    			self.reccurenceEndDate.notifySubscribers();
-					} else {
-						self.reccurenceEndDate("");
-					}
-		    	},
-		    	owner:self
-			});
-			
-
-			//résumé présenté au user 
-			//c'est purement du display
-			self.recurrenceSummary = ko.computed(function() {
-				
-				var day= '';
-				var occ = ''; 
-
-				if (self.endType() == 'occurences') 
-					occ = ', ' + self.occurencesNumber() + ' fois ';
-				else if (self.endType() == 'date' &&  moment( self.reccurenceEndDate() ).isValid())
-					occ = ', jusqu\'au ' + moment(self.reccurenceEndDate()).format("DD/MM/YYYY");
-				
-				if (self.selectedRepeat().value=='weekly') {
-					ko.utils.arrayForEach(self.selectedRepeat().selectedRepeatEachItems(), function(item) {
-				        if (day=='') day += ', le ';
-				        else day+= ' - '
-				        day += item.label ;
-				    });
-					return 'Toutes les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'semaines ' :  self.selectedRepeat().selectedRepeatEvery() + ' semaines ' )  + day + occ;
-				} else {
-					if (self.selectedRepeat().selectedRepeatEachItems().value=='day_of_month') {
-						day += ', le ' + moment(model.eventData().start_date()).date();
-					} else if (self.selectedRepeat().selectedRepeatEachItems().value=='day_of_week') {
-
-						//obtention du numéro de semaine dans le mois
-						//@see http://stackoverflow.com/questions/21737974/moment-js-how-to-get-week-of-month-google-calendar-style
-						var prefixes = [1,2,3,4,5];
-    					var week_number = prefixes[0 | moment(model.eventData().start_date()).date() / 7] ;
-    					var week_number_suffix = (week_number===1 ? 'er' : 'eme') ;
-
-						//obtention du jour dans la semaine
-						day += ', le ' + week_number + week_number_suffix + ' ' + moment(model.eventData().start_date()).format('dddd');
-					}
-					return 'Tous les ' + ( self.selectedRepeat().selectedRepeatEvery() == 1 ? 'mois ' :  self.selectedRepeat().selectedRepeatEvery() + ' mois ' ) + day + occ ;
-				}
-		        	
-		    }, self);
-			
-		}
-
-		
-		function EventModel() {
+		render: function render() {
+			var _this = this;
 
 			var self = this;
-			
-			//les dates sont des JS dates
-		    self.start_date 	 	= ko.observable("");//= ko.observable(moment().startOf("day").toDate());
-		    self.end_date 			= ko.observable("");//= ko.observable(moment().endOf("day").toDate()); //controler que n'est pas inférieure à eventStartDate 
-   		    
-		    self.formattedStartDate 	= ko.computed({
-		    	read: function() {
-		    		if ( moment( self.start_date() ).isValid() )
-		    			return moment(self.start_date()).startOf("day").format("YYYY-MM-DD HH:mm:ss");
-		    		return '';
-		    	},
-		    	write: function(value) {
-		    		if ( moment(value).isValid() ) {
-						self.start_date(moment(value).startOf("day").format("YYYY-MM-DD HH:mm:ss"));
-		    			self.start_date.notifySubscribers();
-					} else {
-						self.start_date("");
-					}
-		    	},
-		    	owner:self
+			var modifiers = {
+				selected: function selected(day) {
+					return DateUtils.isDayInRange(day, self.state);
+				}
+			};
+
+			//passer les hidden pour soumission backend de la page (récupération par WP par secu)
+			return React.createElement(
+				'div',
+				{ className: 'kz_form' },
+				React.createElement(
+					'ul',
+					null,
+					React.createElement(
+						'li',
+						{ className: 'kz_grid kz_grid_2_1' },
+						React.createElement(DayPicker, {
+							localeUtils: DayPickerLocaleUtils, locale: 'fr',
+							numberOfMonths: 2,
+							onDayClick: this.handleDayClick,
+							modifiers: modifiers }),
+						React.createElement('input', { type: 'hidden', name: 'kz_event_start_date', value: moment(this.state.from).format("YYYY-MM-DD 00:00:00") }),
+						React.createElement('input', { type: 'hidden', name: 'kz_event_end_date', value: moment(this.state.to).format("YYYY-MM-DD 23:59:59") }),
+						React.createElement(
+							'div',
+							null,
+							this.state.from == null && this.state.to == null && React.createElement(
+								'p',
+								null,
+								'Sélectionnez le ',
+								React.createElement(
+									'strong',
+									null,
+									'jour de début'
+								),
+								'.'
+							),
+							this.state.from != null && this.state.to == null && React.createElement(
+								'p',
+								null,
+								'Sélectionnez le ',
+								React.createElement(
+									'strong',
+									null,
+									'jour de fin'
+								),
+								', ',
+								React.createElement(
+									'strong',
+									null,
+									'ou laissez tel quel si l\'événement se déroule sur un seul jour'
+								),
+								'.'
+							),
+							this.state.from !== null && this.state.to !== null && React.createElement(
+								'p',
+								null,
+								'L\'événement se déroule du ',
+								moment(this.state.from).format("L"),
+								' au ',
+								moment(this.state.to).format("L"),
+								'.'
+							),
+							this.state.from !== null && this.state.to == null && React.createElement(
+								'p',
+								null,
+								'L\'événement se déroule le ',
+								moment(this.state.from).format("L")
+							),
+							this.state.from !== null && this.state.isRecurrence && React.createElement(
+								'p',
+								null,
+								this.summary()
+							),
+							this.state.from !== null && React.createElement(
+								'p',
+								null,
+								React.createElement(
+									'a',
+									{ style: { cursor: 'pointer' }, onClick: this.onResetDay, className: 'button' },
+									React.createElement('i', { className: 'fa fa-undo' }),
+									' Annuler'
+								)
+							),
+							React.createElement(HintMessage, { ref: function ref(c) {
+									return _this._hintMessage = c;
+								} })
+						)
+					),
+					this.state.from !== null && React.createElement(Checkbox, { change: this.handleRecurrenceClick, isChecked: this.state.isRecurrence, label: 'Evénement récurrent :', name: 'kz_event_is_reccuring' })
+				),
+				this.state.isRecurrence && React.createElement(
+					'ul',
+					null,
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'label',
+							{ htmlFor: 'kz_event_reccurence_model' },
+							'Type de récurrence:'
+						),
+						React.createElement(
+							RadioGroup,
+							{ style: { display: 'inline' }, name: 'kz_event_reccurence_model', value: this.state.repeatModel, onChange: this.onRepeatModel },
+							React.createElement('input', { type: 'radio', value: 'weekly' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'Hebdomadaire'
+							),
+							React.createElement('input', { type: 'radio', value: 'monthly' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'Mensuelle'
+							)
+						)
+					),
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'label',
+							{ htmlFor: 'kz_event_reccurence_repeat_select' },
+							'Répéter tous les :'
+						),
+						React.createElement(
+							'select',
+							{ name: 'kz_event_reccurence_repeat_select', onChange: this.onRecurrenceFreq, value: this.state.repeatEach },
+							React.createElement(
+								'option',
+								{ value: '1' },
+								'1'
+							),
+							React.createElement(
+								'option',
+								{ value: '2' },
+								'2'
+							),
+							React.createElement(
+								'option',
+								{ value: '3' },
+								'3'
+							),
+							React.createElement(
+								'option',
+								{ value: '4' },
+								'4'
+							)
+						)
+					),
+					this.state.repeatModel == 'weekly' && React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'label',
+							{ htmlFor: 'kz_event_reccurence_repeat_items' },
+							'Répéter le :'
+						),
+						React.createElement(CheckboxGroup, {
+							values: this.props.weekDaysGroup,
+							name: 'kz_event_reccurence_repeat_items',
+							onUpdate: this.onRepeatDays })
+					),
+					this.state.repeatModel == 'monthly' && React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'label',
+							{ htmlFor: 'kz_event_reccurence_repeat_items' },
+							'Répéter le :'
+						),
+						React.createElement(
+							RadioGroup,
+							{ style: { display: 'inline' }, name: 'kz_event_reccurence_repeat_items', value: this.state.repeatItems, onChange: this.onRepeatItems },
+							React.createElement('input', { type: 'radio', value: 'day_of_month' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'Jour du mois'
+							),
+							React.createElement('input', { type: 'radio', value: 'day_of_week' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'Jour de la semaine'
+							)
+						)
+					),
+					React.createElement(
+						'li',
+						null,
+						React.createElement(
+							'label',
+							{ htmlFor: 'kz_event_reccurence_end_type' },
+							'L\'événement prend fin :'
+						),
+						React.createElement(
+							RadioGroup,
+							{ style: { display: 'inline' }, name: 'kz_event_reccurence_end_type', value: this.state.endType, onChange: this.onEndType },
+							React.createElement('input', { type: 'radio', value: 'never' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'Jamais'
+							),
+							React.createElement('input', { type: 'radio', value: 'occurences' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'Au bout d\'un nombre de fois'
+							),
+							React.createElement('input', { type: 'radio', value: 'date' }),
+							React.createElement(
+								'span',
+								{ style: { marginRight: '1em' } },
+								'A une date précise'
+							)
+						)
+					),
+					React.createElement(
+						'li',
+						null,
+						this.state.endType == 'date' && React.createElement(
+							'div',
+							null,
+							React.createElement(
+								'strong',
+								null,
+								'Date de fin de récurrence : '
+							),
+							this.state.endValue !== null && React.createElement(
+								'span',
+								null,
+								moment(this.state.endValue).format("L")
+							),
+							React.createElement(DayPicker, { localeUtils: DayPickerLocaleUtils, locale: 'fr', numberOfMonths: 1, onDayClick: this.onEndDateValue, modifiers: { selected: function selected(day) {
+										return DateUtils.isSameDay(_this.state.endValue, day);
+									} } }),
+							React.createElement('input', { type: 'hidden', name: 'kz_event_reccurence_end_value', value: moment(this.state.endValue).format("YYYY-MM-DD 23:59:59") })
+						),
+						this.state.endType == 'occurences' && React.createElement(
+							'div',
+							null,
+							React.createElement(
+								'label',
+								{ htmlFor: 'kz_event_reccurence_end_value' },
+								'Nombre d\'occurences à répéter :'
+							),
+							React.createElement('input', { type: 'text', name: 'kz_event_reccurence_end_value', value: this.state.endValue, onChange: this.onEndValue })
+						)
+					)
+				),
+				this.state.pastDates.length > 0 && React.createElement(List, { items: this.getPastDates(), title: 'Evenements passés' })
+			);
+		},
+
+		getPastDates: function getPastDates() {
+			var list = [];
+			this.state.pastDates.forEach(function (item, i) {
+				list.push('Du ' + moment(item.start_date).format("L") + ' au ' + moment(item.end_date).format("L"));
 			});
-			self.formattedStartDate.extend({ required: false, notify: 'always'}); 
+			return list;
+		},
 
-		    self.formattedEndDate 	= ko.computed({
-		    	read: function() {
-		    		if ( moment( self.end_date() ).isValid() )
-		    			return moment(self.end_date()).endOf('day').format("YYYY-MM-DD HH:mm:ss");
-		    		return '';
-		    	},
-		    	write: function(value) {
-		    		if ( moment(value).isValid() ) {
-		    			self.end_date(moment(value).endOf('day').format("YYYY-MM-DD HH:mm:ss"));
-		    			self.end_date.notifySubscribers();
-		    		} else {
-						self.end_date("");
-					}
-		    	},
-		    	owner:self
-		    });
-		    self.formattedEndDate.extend({ required: false, dateAfter : self.formattedStartDate, notify: 'always' });
+		/** 
+      * Résumé de la recurrence pour aider le user à bien comprendre le formulaire
+      *
+      */
+		summary: function summary() {
+			var self = this;
+			var day = '';
+			var occ = '';
 
-		    self.eventDuration = ko.computed(function() {				
+			if (self.state.endType == 'occurences') occ = ', ' + self.state.endValue + ' fois ';else if (self.state.endType == 'date' && moment(self.state.endValue).isValid()) occ = ', jusqu\'au ' + moment(self.state.endValue).format("DD/MM/YYYY");
 
-		    	var start = moment(self.formattedStartDate(), "YYYY-MM-DD HH:mm:ss");
-		    	var end = moment(self.formattedEndDate(), "YYYY-MM-DD HH:mm:ss");
-		    	var diff = end.diff(start, 'hours');
-		    	if (moment.duration(diff, "hours")>0) {
+			if (self.state.repeatModel == 'weekly' && Object.prototype.toString.call(self.state.repeatItems) === '[object Array]') {
+				var selected = self.props.weekDaysGroup.items.filter(function (day) {
+					var isSelected = false;
 
-		    		//si la durée n'est pas de 1 jour, on force le modele de recurrence mensuel
-		    		//le modele de recurrence hebdo n'a pas de sens
-		    		if (moment.duration(diff, "hours").days()>=1)  {
-		    			self.recurrenceModel().selectedRepeat(self.recurrenceModel().monthlyModel);
-		    			self.recurrenceModel().showSelectRepeat(false);
-		    		} else {
-		    			self.recurrenceModel().showSelectRepeat(true);
-		    		}
+					self.state.repeatItems.forEach(function (item, index) {
+						if (day.value == item) isSelected = true;
+					});
 
-		    		return moment.duration(diff, "hours").humanize();
-		    	}
-		 
-		    	return "";
-		    });
+					return isSelected;
+				});
 
-		    //recurrence d'événement
-		    self.recurrenceModel = ko.observable(new RecurrenceModel());
+				selected.forEach(function (item, index) {
+					// console.debug('selected.forEach', item);
+					if (day == '') day += ', le ';else day += ' - ';
+					day += item.label;
+				});
+				return 'Toutes les ' + (self.state.repeatEach == 1 ? 'semaines ' : self.state.repeatEach + ' semaines ') + day + occ;
+			} else {
 
-		    //seulement si les dates sont renseignées
-		    self.isReccurenceEnabled = ko.computed(function() {
-		    	if (self.formattedStartDate()=='' || self.formattedEndDate()=='')
-		    	{
-		    		//désactivation des récurrences
-		    		self.recurrenceModel().isReccuring(false);
-		    		return false;
-		    	}
-				return true;
+				if (self.state.repeatItems == 'day_of_month') {
+					day += ', le ' + moment(self.state.from).date();
+				} else if (self.state.repeatItems == 'day_of_week') {
+
+					//obtention du numéro de semaine dans le mois
+					//@see http://stackoverflow.com/questions/21737974/moment-js-how-to-get-week-of-month-google-calendar-style
+					var prefixes = [1, 2, 3, 4, 5];
+					var week_number = prefixes[0 | moment(self.state.from).date() / 7];
+					var week_number_suffix = week_number === 1 ? 'er' : 'eme';
+
+					//obtention du jour dans la semaine
+					day += ', le ' + week_number + week_number_suffix + ' ' + moment(self.state.from).format('dddd');
+				}
+				return 'Tous les ' + self.state.repeatEach + ' mois ' + day + occ;
+			}
+		},
+
+		/**
+   * Choix du range de dates de l'evenement
+   */
+		handleDayClick: function handleDayClick(e, day) {
+			// console.debug('day', day)
+			var self = this;
+			var range = DateUtils.addDayToRange(day, self.state);
+			self.setState(range, function () {
+				self.saveEvent();
 			});
+		},
 
-			//si l'URL d'un evenement facebook est renseignée, on déclenche la mise à jour des autres champs
-			// self.facebookImportMessage 	= ko.observable("");
-			    
+		/**
+   * Check de la Box "l'evenement est recurrent"
+   */
+		handleRecurrenceClick: function handleRecurrenceClick(data) {
+			// console.debug('_checkRecurrence', data);
+			this.setState({ isRecurrence: !this.state.isRecurrence }, function () {
+				this.saveEvent();
+			});
+		},
+
+		/** 
+   * Remise à zeo du range de date
+   */
+		onResetDay: function onResetDay(e) {
+			e.preventDefault();
+			this.setState({
+				from: null,
+				to: null,
+				isRecurrence: false
+
+			}, function () {
+				this.saveEvent();
+			});
+		},
+
+		/**
+   * Choix du Modèle de recurrence hebdo ou mensuelle
+   */
+		onRepeatModel: function onRepeatModel(value, event) {
+			// remettre en cohérence les repeatItems
+			this.setState({ repeatModel: value, repeatItems: 'day_of_month' }, function () {
+				this.saveEvent();
+			});
+		},
+
+		/** 
+   * Reception des valeurs selectionnées dans le <CheckboxGroup />
+   * @param values Array
+   */
+		onRepeatDays: function onRepeatDays(values) {
+			// console.debug('onRepeatDays');
+			this.setState({ repeatItems: values }, function () {
+				this.saveEvent();
+			});
+		},
+
+		/**
+   * Pour une recurrence de type "nombre d'occurence"
+   */
+		onEndValue: function onEndValue(event) {
+			// console.debug('onEndValue', event.target.value);
+			this.setState({ endValue: event.target.value }, function () {
+				this.saveEvent();
+			});
+		},
+
+		/**
+   * Pour une recurrence de type "date"
+   */
+		onEndDateValue: function onEndDateValue(event, day) {
+			// console.debug('onEndValue', day);
+			this.setState({ endValue: day }, function () {
+				this.saveEvent();
+			});
+		},
+
+		/** 
+   * Choix du type de fin de recurrence
+   */
+		onEndType: function onEndType(value, event) {
+			// console.debug('onEndType', value);
+			//remettre à zero endValue qui dépend de endType
+			//sinon on risque de retomber sur un formattage de date alors que endValue avait été rempli en tant que nombre d'occurences
+			this.setState({ endType: value, endValue: null }, function () {
+				this.saveEvent();
+			});
+		},
+
+		onRecurrenceFreq: function onRecurrenceFreq(event) {
+			// console.debug('onRecurrenceFreq', event.target.value);
+			this.setState({ repeatEach: event.target.value }, function () {
+				this.saveEvent();
+			});
+		},
+
+		onRepeatItems: function onRepeatItems(value, event) {
+			// console.debug('onRepeatPeriod', value);
+			this.setState({ repeatItems: value }, function () {
+				this.saveEvent();
+			});
+		},
+
+		saveEvent: function saveEvent() {
+			var self = this;
+
+			if (self.state.from == null) {
+				self._hintMessage.onError('Renseignez une date');
+				return;
+			} else if (self.state.isRecurrence) {
+				if (self.state.repeatModel == 'weekly' && self.state.repeatItems.length == 0) {
+					self._hintMessage.onError('Choisissez les jours de récurrence');
+					return;
+				}
+				if (self.state.endType == 'date' && (self.state.endValue == '' || self.state.endValue == null)) {
+					self._hintMessage.onError('Renseignez la date de fin de récurrence');
+					return;
+				}
+			}
+
+			self._hintMessage.onProgress('Enregistrement');
+			jQuery.get(event_jsvars.api_base + '/api/get_nonce/?controller=content&method=eventData', {}, function (n) {
+
+				jQuery.post(event_jsvars.api_save_event + '?nonce=' + n.nonce, {
+					start_date: moment(self.state.from).format('YYYY-MM-DD 00:00:00'),
+					end_date: moment(self.state.to).format('YYYY-MM-DD 23:59:59'),
+					recurrence: self.state.isRecurrence,
+					model: self.state.repeatModel,
+					repeatEach: self.state.repeatEach,
+					repeatItems: self.state.repeatItems,
+					endType: self.state.endType,
+					endValue: self.state.endType == 'date' ? moment(self.state.endValue).format('YYYY-MM-DD 23:59:59') : self.state.endValue,
+					post_id: postID
+				}).done(function (r) {
+
+					if (r.status == 'ok' && typeof r.result !== 'undefined' && r.result !== null && typeof r.result.errors !== 'undefined') {
+						var key = Object.keys(r.result.errors)[0];
+						self._hintMessage.onError(r.result.errors[key][0]);
+					} else self._hintMessage.onSuccess('Enregistré');
+				}).fail(function (err) {
+					console.error(err);
+					self._hintMessage.onError('Enregistrement impossible');
+				});
+			});
 		}
 
-
-		function EventsEditorModel() {
-
-
-		    var self = this;
-
-		    self.eventData 			= ko.observable(new EventModel());
-
-
-			//recuperation au format 2014-12-03 23:59:59 et mise au format JS date
-			self.initDates = function(start, end, reccurenceData ) {
-
-				console.debug('initDates', start, end, reccurenceData);
-
-				var start_mom, end_mom;
-
-				if (start!=='' && moment(start).isValid()) {
-					start_mom = moment(start);
-					self.eventData().start_date(start_mom.toDate());
-				}
-
-				if (end!=='' && moment(end).isValid()) {
-					end_mom = moment(end);
-					self.eventData().end_date(end_mom.toDate());
-				}
-
-				//si l'objet est correctement formatté et pas vide
-				if (typeof reccurenceData!='undefined' && typeof reccurenceData.model!='undefined') { //&& reccurenceData.hasOwnProperty(0)
-
-					//c'est plus simple a manipuler
-					// var data = reccurenceData[0]; 
-					// console.debug(reccurenceData);
-
-					//activation de la checkbox
-					self.eventData().recurrenceModel().isReccuring(true);
-
-					//activation de la selectbox
-					if (reccurenceData.model=='weekly') {
-
-						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().weeklyModel);
-						ko.utils.arrayForEach(reccurenceData.repeatItems, function(item) {
-					        var v = parseInt(item);
-					        if (!isNaN(v)) {
-					            self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems.push(self.eventData().recurrenceModel().days[v-1]);
-					        }
-					    });
-					} else {
-
-						//modele monthly
-						self.eventData().recurrenceModel().selectedRepeat(self.eventData().recurrenceModel().monthlyModel);
-						if (reccurenceData.repeatItems=='day_of_month')
-							self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems(self.eventData().recurrenceModel().day_of_month);
-						else
-							self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEachItems(self.eventData().recurrenceModel().day_of_week);
-					}	
-
-					//l'evenement se repete tous les ...
-					self.eventData().recurrenceModel().selectedRepeat().selectedRepeatEvery(reccurenceData.repeatEach);
-
-					//et se termine : à une date fixe ? au bout d'un nombre de repetitions ? jamais ?
-					self.eventData().recurrenceModel().endType(reccurenceData.endType);
-
-					if (reccurenceData.endType=='date')
-						self.eventData().recurrenceModel().reccurenceEndDate(reccurenceData.endValue);
-					else if (reccurenceData.endType=='occurences')
-						self.eventData().recurrenceModel().occurencesNumber(reccurenceData.endValue);
-						
-				}
-				
-			};
-
-
-
-			//utilisé pour le formattage des evenements dans la liste eventsList()
-			self.eventDatesFormatter = function(ev) {
-				var start_moment	= moment(ev.start_date(),"YYYY-MM-DD HH:mm:ss");
-				var end_moment		= moment(ev.end_date(), "YYYY-MM-DD HH:mm:ss");
-				var format_start = start_moment.format("DD/MM");
-				var format_end 	= end_moment.format("DD/MM");
-				if (format_start!== format_end)
-					return "Du " + format_start + " au " + format_end;
-				else
-					return "Le " + format_start;
-			};
-
-			
-		} //EventsEditorModel
-
-		return { 
-			model 		: model //EventsEditorModel
-		};
-
-	}();  //kidzouEventsEditor
-
-	jQuery(document).ready(function() { 
-		ko.applyBindings( kidzouEventsEditor.model, document.querySelector("#event_form") ); //retourne un EventsEditorModel
-	
-		//maintenant que le binding est fait, faire apparaitre le form
-		setTimeout(function(){
-			document.querySelector("#event_form").classList.remove('hide');
-			document.querySelector("#event_form").classList.add('pop-in');
-		}, 300);
 	});
 
-	return {
-		model : kidzouEventsEditor.model //necessaire de fournir un acces pour interaction avec Google Maps ??
-	};
-
-}());  //kidzouEventsModule
-
-(function($){
-
-	$(document).ready(function() {
-
-		kidzouEventsModule.model.initDates(
-			events_jsvars.start_date,
-			events_jsvars.end_date, 
-			events_jsvars.recurrence);
-
-	});
-
-})(jQuery);
-
-
+	ReactDOM.render(React.createElement(Event, null), document.querySelector('#kz_event_metabox .react-content'));
+}(jQuery);

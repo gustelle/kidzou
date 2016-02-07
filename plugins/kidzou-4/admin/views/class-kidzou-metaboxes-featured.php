@@ -39,6 +39,8 @@ class Kidzou_Metaboxes_Featured {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 		
 		//sauvegarde des meta à l'enregistrement
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
@@ -62,6 +64,39 @@ class Kidzou_Metaboxes_Featured {
 		}
 
 		return self::$instance;
+	}
+
+	/**
+	 * Register and enqueue admin-specific style sheet & scripts.
+	 *
+	 * @since     1.0.0
+	 *
+	 * @return    null    Return early if no settings page is registered.
+	 */
+	public function enqueue_styles_scripts() {
+
+		global $post;
+		$screen = get_current_screen(); 
+
+		if ( in_array($screen->id , $this->screen_with_meta)  ) { 
+
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+
+			wp_enqueue_style( 'kidzou-form', 	plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
+
+			wp_enqueue_script('kidzou-react', 	plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+
+			$featured_vars = array();
+			$featured_vars['is_featured'] 		= Kidzou_Featured::isFeatured($post->ID);
+			$featured_vars['api_base'] 			= site_url();
+			$featured_vars['api_save_featured'] 	= site_url()."/api/content/featured/";
+
+			wp_enqueue_script( 'kidzou-featured-metabox', plugins_url( '/assets/js/kidzou-featured-metabox.js', dirname(__FILE__) ), array( 'jquery', 'kidzou-react'), Kidzou::VERSION, true);
+			wp_localize_script('kidzou-featured-metabox', 'featured_jsvars', 	$featured_vars);
+
+		}
+
 	}
 
 	/**
@@ -95,11 +130,8 @@ class Kidzou_Metaboxes_Featured {
 
 		// Noncename needed to verify where the data originated
 		wp_nonce_field( 'featured_metabox', 'featured_metabox_nonce' );
-			
-		$checkbox = Kidzou_Featured::isFeatured($post->ID);
-		echo '	<label for="kz_featured">Mise en avant:</label>
-				<input type="checkbox" name="kz_featured"'. ( ($checkbox==1 || $checkbox==true)   ? 'checked="checked"' : '' ).'/>  
-				';
+		echo '<div class="react-content"></div>';
+
 	}
 
 
@@ -143,6 +175,8 @@ class Kidzou_Metaboxes_Featured {
 		// Verify that the nonce is valid.
 		if ( ! wp_verify_nonce( $nonce, 'featured_metabox' ) )
 			return $post_id;
+
+		// Kidzou_Utils::log('save_featured_meta '.$_POST['kz_featured'],true );
 
 		$featured = (isset($_POST['kz_featured']) && $_POST['kz_featured']=='on');
 

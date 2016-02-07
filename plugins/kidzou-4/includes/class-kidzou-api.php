@@ -122,7 +122,7 @@ class Kidzou_API {
 	 * @param api_name
 	 *
 	 */
-	public static function getQuota($key='', $api_name='') {
+	public static function getQuotaByAPIName($key='', $api_name='') {
 
 		$customer = self::getCustomerByKey($key);
 
@@ -155,6 +155,8 @@ class Kidzou_API {
 		return $quota;
 
 	}
+
+	
 
 	public static function isQuotaOK($key='', $api_name='') {
 
@@ -253,31 +255,6 @@ class Kidzou_API {
 
 	}
 
-
-	// /**
-	//  * fonction utilitaire
-	//  */
-	// public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
-
-	// 	if ($post_id==0)
-	// 		return;
-
-	// 	// Add values of $events_meta as custom fields
-	// 	foreach ($arr as $key => $value) { // Cycle through the $events_meta array!
-
-	// 		$pref_key = $prefix.$key; 
-	// 		$prev = get_post_meta($post_id, $pref_key, TRUE);
-
-	// 		if ($prev!='') { // If the custom field already has a value
-	// 			update_post_meta($post_id, $pref_key, $value);
-	// 		} else { // If the custom field doesn't have a value
-	// 			if ($prev=='') delete_post_meta($post_id, $pref_key);
-	// 			add_post_meta($post_id, $pref_key, $value, TRUE);
-	// 		}
-	// 		if(!$value) delete_post_meta($post_id, $pref_key); // Delete if blank
-	// 	}
-
-	// }
 
 
 

@@ -64,8 +64,8 @@ class Kidzou_Metaboxes_Import {
 
 		if ( in_array($screen->id , $this->supported_screens)  ) {
 
-			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/moment.min.js",	array('jquery'), '2.4.0', true);
-			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.4.0/lang/fr.js",	array('moment'), '2.4.0', true);
+			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
+			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
 
 			wp_enqueue_script('react',				"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array(), '0.14.7', true);
 
@@ -78,7 +78,7 @@ class Kidzou_Metaboxes_Import {
 					'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
 					'facebook_appId'				=> $facebook_appId,
 					'facebook_appSecret'			=> $facebook_appSecret,
-					'import_form_parent'			=> '#kz_import_metabox .inside', //noeud DOM dans lequel injecter le form
+					'import_form_parent'			=> '#kz_import_metabox .react-content', //noeud DOM dans lequel injecter le form
 					'background_import'				=> false
 				)
 			);
@@ -131,6 +131,7 @@ class Kidzou_Metaboxes_Import {
 	public function import_metabox()
 	{
 		//tout est fait par React
+		echo '<div class="react-content"></div>';
 	}
 
 

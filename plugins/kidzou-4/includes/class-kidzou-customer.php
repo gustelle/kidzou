@@ -243,6 +243,8 @@ class Kidzou_Customer {
 			$post_id = $post->ID; 
 		}
 
+		// Kidzou_Utils::log('getCustomerIDByPostID '.$post_id, true);
+
 		//si le post est un customer on jette une erreur
 		$post = get_post($post_id);
 
@@ -297,7 +299,7 @@ class Kidzou_Customer {
 
 
 	/**
-	 * les posts d'un customer (géolocalisé)
+	 * les posts d'un customer 
 	 *
 	 * @return array of posts
 	 * @author 
@@ -305,9 +307,7 @@ class Kidzou_Customer {
 	public static function getPostsByCustomerID($customer_id = 0, $settings= array()) {
 
 		$posts = array();
-
 		if ($customer_id==0) {
-
 			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
 			if ($customer_id==0)
 				return $posts;
@@ -322,7 +322,7 @@ class Kidzou_Customer {
 		);
 
 		// Parse incomming $args into an array and merge it with $defaults
-		$args = wp_parse_args( $settings, $defaults );
+		$args = wp_parse_args( $settings, $defaults ); 
 
 		// Declare each item in $args as its own variable i.e. $type, $before.
 		extract( $args, EXTR_SKIP );
@@ -330,16 +330,45 @@ class Kidzou_Customer {
 		$rd_args = array(
 			'posts_per_page' => $posts_per_page,
 			'post_type' 	=> 'post',
-			'meta_key' 		=> self::$meta_customer,
-			'meta_value' 	=> $customer_id,
-			'exclude'		=> implode(",",$post__not_in),
+			'meta_query' => array(
+				array(
+					'key'     => self::$meta_customer,
+					'value'   => $customer_id
+				),
+			),
+			'post__not_in'	=> $post__not_in,
 			'post_status'	=> $post_status
 		);
 
-		$posts = get_posts( $rd_args );
-
+		$the_query = new WP_Query( $rd_args ); 
+		$posts = $the_query->get_posts();
+		
 		return $posts;
+	}
 
+	/**
+	 * les users d'un customer 
+	 *
+	 * @return array of posts
+	 * @author 
+	 **/
+	public static function getUsersByCustomerID($customer_id = 0) {
+
+		$users = array();
+		if ($customer_id==0) {
+			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
+			if ($customer_id==0)
+				return $users;
+		}
+
+		$user_query = new WP_User_Query( array( 
+			'meta_key' => self::$meta_customer, 
+			'meta_value' => $customer_id , 
+			'fields' => 'all' 
+			) 
+		);
+		
+		return $user_query->results;
 	}
 
 	/**
@@ -366,6 +395,29 @@ class Kidzou_Customer {
 	}
 
 	/**
+	 * retourne la clé d'API du client
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getKey($customer_id = 0)
+	{
+
+		if ($customer_id==0) {
+			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
+			if ($customer_id==0)
+				return new WP_Error('getKey', 'Aucun client identifié');
+		}
+
+		$key	 	= get_post_meta($customer_id, self::$meta_api_key, TRUE);
+		if ($key == '') {
+			$key = md5(uniqid());
+		}
+
+		return $key;
+	}
+
+	/**
 	 * undocumented function
 	 *
 	 * @return void
@@ -374,7 +426,7 @@ class Kidzou_Customer {
 	public static function isAnalyticsAuthorizedForCustomer($customer_id = 0)
 	{
 		$meta = get_post_meta($customer_id, self::$meta_customer_analytics , TRUE);
-		Kidzou_Utils::log( array('method' => __METHOD__ , 'customer_id' => $customer_id, 'meta' => $meta), true);
+		// Kidzou_Utils::log( array('method' => __METHOD__ , 'customer_id' => $customer_id, 'meta' => $meta), true);
 		return $meta;
 	}
 
@@ -386,6 +438,8 @@ class Kidzou_Customer {
 	 **/
 	public static function attach_posts($customer_id, $posts=array())
 	{	
+		// Kidzou_Utils::log(array('attach_posts'=>$customer_id, 'posts'=>$posts),true);
+		
 		if (empty($posts))
 			return new WP_Error('set_customer_for_posts', 'Aucun ID de post passé dans le tableau');
 
@@ -424,6 +478,137 @@ class Kidzou_Customer {
 	}
 
 	/**
+	 * Enregistrement de la meta 'customer' sur les users concernés. Un user client est en fait un contributeur pour le client
+	 * Cette méthode est indépendant de la metabox pour pouvoir être attaquée depuis des API
+	 *
+	 * @param $customer_id int le post sur lequel on vient attacher la meta  
+	 * @param $users Array tableau des ID des users à associer au customer
+	 **/
+	public static function set_users($customer_id, $users=array())
+	{	
+		// Kidzou_Utils::log(array('attach_posts'=>$customer_id, 'posts'=>$posts),true);
+		
+		if (empty($users))
+			return new WP_Error('set_customer_for_posts', 'Aucun ID de user passé dans le tableau');
+
+				$meta = array();
+		
+		//il faut faire un DIFF :
+		//recolter la liste des users existants sur ce client
+		//comparer à la liste des users passés dans le POST
+		//supprimer, ajouter selon les cas
+
+
+		//boucle primaire
+		//si les users passés dans la req étaient déjà présents en base
+		//	si il n'avaient pas capacité edit_others_events, -
+		//	sinon -
+		//si non
+		// 	on ajoute le user à la liste des users du client
+		//		si il n'a pas la capacité edit_others_events, -
+		foreach ($users as $a_user) {
+
+			//toujours s'assurer qu'il est contrib, ca ne mange pas de pain
+			//mais ne pas dégrader son role s'il est éditeur ou admin
+			$u = new WP_User( $a_user );
+			$better = false;
+
+			$better_roles = array('administrator','editor','author');
+
+			if ( !empty( $u->roles )  ) {
+				foreach ( $u->roles as $role )
+					if (in_array($role, $better_roles)) {
+						$better = true;
+						break;
+					}
+			}
+
+			if (!$better) {
+
+				$a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'contributor' ) );
+
+				Kidzou_Utils::log( 'User ' . $a_user . ' updated' , true);
+
+			}
+
+		    // add_user_meta( $a_user, Kidzou_Customer::$meta_customer, $post_id, TRUE ); //cette meta est unique
+		    $prev_customers = get_user_meta($a_user, self::$meta_customer, false);   //plusieurs meta customer par user
+
+		    Kidzou_Utils::log(  array('prev_customers'=>$prev_customers) ,true );
+
+
+		    if ( empty($prev_customers) )
+		     	$prev_customers = array();
+
+		     if (!in_array($customer_id, $prev_customers)) {
+		     	//ajouter la meta qui va bien
+				Kidzou_Utils::log(  'User ' . $a_user . ' : add_user_meta'  ,true );
+		     	add_user_meta($a_user, self::$meta_customer, $customer_id, false); //pas unique !
+		     }
+	        
+		}
+
+		//boucle secondaire
+		//si la base contenait une liste d'utilisateurs pour le client
+		//	si le user a été repassé en requette 
+		// 		on supprime le role du user user 
+		// 		ainsi que la meta client
+
+		$args = array(
+			'meta_key'     => self::$meta_customer,
+			'meta_value'   => $customer_id,
+			'fields' => 'id' //retourne un array(id)
+		 );
+
+		$old_users = get_users($args); 
+
+		if (!is_null($old_users)) {
+
+			//boucle complémentaire:
+			foreach ($old_users as $a_user) {
+
+				Kidzou_Utils::log( 'Boucle secondaire, User ' . $a_user. ', provient de la requete ? '.in_array($a_user, $users), true );
+
+				//l'utilisateur n'a pas été repassé dans la requete
+				//il n'est pas donc plus attaché au client
+				if (!in_array($a_user, $users)) {
+
+					$u = new WP_User( $a_user );
+
+					$better = false;
+
+					$better_roles = array('administrator','editor','author');
+
+					if ( !empty( $u->roles ) && is_array( $u->roles ) ) {
+						foreach ( $u->roles as $role )
+							if (in_array($role, $better_roles)) {
+								$better = true;
+								break;
+							}
+					}
+
+					//ne pas dégrader automatiquement le role
+					//faire confirmer au user qu'il souhaite dégrader le role
+					if (!$better) {
+						//privé de gateau
+				        // $a_user = wp_update_user( array( 'ID' => $a_user, 'role' => 'subscriber' ) );
+					}
+
+			        //suppression de la meta du client dans tous les cas
+			        Kidzou_Utils::log( $a_user . ' : suppression de la meta', true );
+
+			        delete_user_meta( $a_user, Kidzou_Customer::$meta_customer, $customer_id );
+
+				}
+				
+			}
+
+		}
+		
+			
+	}
+
+	/**
 	 * Enregistrement de la meta 'analytics' sur le customer, ce qui permet aux users de ce customer de voir les analytics
 	 *
 	 * @param $is_analytics boolean true si les users du customer sont autorisés à voir les analytics 
@@ -441,6 +626,7 @@ class Kidzou_Customer {
 	/**
 	 * Enregistrement de la meta 'API' sur le customer, ce qui fournit des indications sur les API et leurs quotas autorisés pour le customer
 	 *
+	 * @deprecated
 	 * @param $api_names Array tableau de noms de méthode dans les API customer
 	 * @param $key string Clé d'API pour le customer
 	 * @param $quota int nombre d'appels possibles pour le customer
@@ -458,6 +644,53 @@ class Kidzou_Customer {
 
 		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
 		$meta[Kidzou_Customer::$meta_api_quota] = array(reset($api_names) => $quota);
+
+		Kidzou_Utils::save_meta($customer_id, $meta);
+		
+	}
+
+	/**
+	 * Enregistrement de la Key du client
+	 *
+	 * @param $key string Clé d'API pour le customer
+	 *
+	 **/
+	public static function setKey($customer_id, $key='')
+	{	
+
+		if ($key=='')
+			return new WP_Error('set_api', 'Aucune key pour les API');
+
+		$meta = array();
+
+		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
+		// $meta[Kidzou_Customer::$meta_api_quota] = array(reset($api_names) => $quota);
+
+		Kidzou_Utils::save_meta($customer_id, $meta);
+		
+	}
+
+	/**
+	 * Enregistrement du quota pour l'API donnée
+	 *
+	 * @param $quota int quota d'appel quotidien
+	 * @api_name $api_name string nom de méthode de l'API customer concernée par le quota
+	 *
+	 **/
+	public static function setQuota($customer_id, $api_name='', $quota=0)
+	{	
+
+		if ($api_name=='')
+			return new WP_Error('setQuota', 'Aucune Methode d\'API pour le quota');
+
+		if ($quota==0)
+			return new WP_Error('setQuota', 'Aucun quota indiqué');
+
+		$meta = array();
+
+		$meta[Kidzou_Customer::$meta_api_quota] = array($api_name => $quota);
+
+		// Kidzou_Utils::log(array('save_meta'=>$meta), true);
 
 		Kidzou_Utils::save_meta($customer_id, $meta);
 		
