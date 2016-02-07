@@ -33,7 +33,7 @@ var kidzouPlaceModule = (function() { //havre de paix
       var phoneEquals = (__phone_number==this.phone_number);
       if (!phoneEquals) {
         if (typeof _phone_number!=='undefined') {
-          if (typeof this.phone_number!=='undefined')
+          if (typeof this.phone_number!=='undefined' &&  typeof __phone_number!=='undefined')
             phoneEquals = ( this.phone_number.replace(/\s/gi, "") == __phone_number.replace(/\s/gi, "") );
         }
       }
@@ -76,30 +76,32 @@ var kidzouPlaceModule = (function() { //havre de paix
           value : ville
         }, function (n) {
 
-          var term_id = n.term.term_id;
-          var node = document.querySelector( '#in-ville-' + term_id );
-        
-          if(node!==null ) {
-            node.setAttribute('checked','checked');
+          if (typeof n.term!=='undefined') {
+            var term_id = n.term.term_id;
+            var node = document.querySelector( '#in-ville-' + term_id );
+          
+            if(node!==null ) {
+              node.setAttribute('checked','checked');
 
-            jQuery.get(place_jsvars.api_base + '/api/get_nonce/?controller=taxonomy&method=setPostTerms', {}, function (n) {
+              jQuery.get(place_jsvars.api_base + '/api/get_nonce/?controller=taxonomy&method=setPostTerms', {}, function (n) {
 
-              jQuery.post(place_jsvars.api_set_post_terms + '?nonce=' + n.nonce, {
-                post_id : postID,
-                taxonomy : 'ville',
-                terms : [term_id]
-              }).done(function (r) {
-                if (r.status=='ok' && typeof r.result!=='undefined' && r.result!==null && (typeof r.result.errors!=='undefined' || r.result=='false') && typeof errorCallback === "function")
-                  errorCallback(r);
+                jQuery.post(place_jsvars.api_set_post_terms + '?nonce=' + n.nonce, {
+                  post_id : postID,
+                  taxonomy : 'ville',
+                  terms : [term_id]
+                }).done(function (r) {
+                  if (r.status=='ok' && typeof r.result!=='undefined' && r.result!==null && (typeof r.result.errors!=='undefined' || r.result=='false') && typeof errorCallback === "function")
+                    errorCallback(r);
 
-                else if (typeof successCallback === "function")
-                  successCallback(r);
-              }).fail(function (err) {
-                if (typeof errorCallback === "function")
-                    errorCallback(err);
+                  else if (typeof successCallback === "function")
+                    successCallback(r);
+                }).fail(function (err) {
+                  if (typeof errorCallback === "function")
+                      errorCallback(err);
+                });
+
               });
-
-            });
+            }
           }
 
         });
