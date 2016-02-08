@@ -203,26 +203,36 @@ var kidzouPlaceModule = function () {
         }
       };
     },
+
+    /** 
+     * Bind des variables globales qui vont faire le lien avec le monde exterieur
+     * * proposePlace 
+     * * changePlace
+     */
     componentWillMount: function componentWillMount() {
       var _this = this;
 
       var self = this;
       //remplissage automatique si aucun lieu n'est renseigné, sinon enrichissement des propositiosn
       proposePlace = function proposePlace(type, _place) {
+
         var maPlace = new Place(_this.state.place.name, _this.state.place.address, _this.state.place.website, _this.state.place.phone_number, _this.state.place.city, _this.state.place.latitude, _this.state.place.longitude, _this.state.place.opening_hours);
-        // console.debug('proposePlace', maPlace, maPlace.isEmpty());
+
+        //si aucune place n'était enregistrée, on prend direct la proposition
         if (maPlace.isEmpty()) {
           self.setState({
             place: _place
           });
+
+          // sinon, on propose à condition que les lieux ne soient pas identiques...
         } else if (!maPlace.equals(_place.name, _place.address, _place.website, _place.phone_number, _place.city, _place.latitude, _place.longitude, _place.opening_hours)) {
 
-          var proposals = _this.state.placesProposals;
-          proposals.push(_place);
-          self.setState({
-            placesProposals: proposals
-          });
-        }
+            var proposals = _this.state.placesProposals;
+            proposals.push(_place);
+            self.setState({
+              placesProposals: proposals
+            });
+          }
       };
 
       //choix explicite d'une place depuis l'exterieur
@@ -469,6 +479,7 @@ var kidzouPlaceModule = function () {
      * To use this adress for the customer
      */
     onUseForCustomer: function onUseForCustomer() {
+      console.debug('onUseForCustomer', window.kidzouCustomerModule);
       if (window.kidzouCustomerModule) {
         kidzouCustomerModule.setPlace(this.state.place);
       }

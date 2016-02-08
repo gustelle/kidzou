@@ -1,6 +1,6 @@
 'use strict';
 
-var kidzouCustomerAnalyticsModule = function ($) {
+var kidzouFeaturedModule = function ($) {
 	//havre de paix
 
 	var postID = document.querySelector('#post_ID') !== null ? document.querySelector('#post_ID').value : '';

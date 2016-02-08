@@ -688,9 +688,8 @@ class Kidzou_Customer {
 
 		$meta = array();
 
-		$meta[Kidzou_Customer::$meta_api_quota] = array($api_name => $quota);
-
-		// Kidzou_Utils::log(array('save_meta'=>$meta), true);
+		$meta[self::$meta_api_key]	= self::getKey($customer_id);
+		$meta[self::$meta_api_quota] = array($api_name => $quota);
 
 		Kidzou_Utils::save_meta($customer_id, $meta);
 		
