@@ -239,17 +239,26 @@ var kidzouPlaceModule = (function() { //havre de paix
         }
       };
     },
+
+    /** 
+     * Bind des variables globales qui vont faire le lien avec le monde exterieur
+     * * proposePlace 
+     * * changePlace
+     */
     componentWillMount: function() {
       var self = this;
       //remplissage automatique si aucun lieu n'est renseigné, sinon enrichissement des propositiosn
       proposePlace = (type, _place) => {
+
           var maPlace = new Place(this.state.place.name, this.state.place.address, this.state.place.website, this.state.place.phone_number, this.state.place.city, this.state.place.latitude, this.state.place.longitude, this.state.place.opening_hours);
-          // console.debug('proposePlace', maPlace, maPlace.isEmpty());
+          
+          //si aucune place n'était enregistrée, on prend direct la proposition
           if (maPlace.isEmpty()){
             self.setState({
               place : _place
             })
 
+            // sinon, on propose à condition que les lieux ne soient pas identiques...
           } else if (!maPlace.equals(_place.name, _place.address, _place.website, _place.phone_number, _place.city, _place.latitude, _place.longitude, _place.opening_hours) ) {
 
             var proposals = this.state.placesProposals;
@@ -469,6 +478,7 @@ var kidzouPlaceModule = (function() { //havre de paix
      * To use this adress for the customer
      */
     onUseForCustomer: function() {
+      console.debug('onUseForCustomer',window.kidzouCustomerModule);
       if (window.kidzouCustomerModule) {
         kidzouCustomerModule.setPlace(this.state.place);
       }

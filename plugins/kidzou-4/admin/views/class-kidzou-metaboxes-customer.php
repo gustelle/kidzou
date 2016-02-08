@@ -75,8 +75,8 @@ class Kidzou_Metaboxes_Customer {
 
 		if ( in_array($screen->id , $this->screen_with_meta_client) || in_array($screen->id, $this->customer_screen) ) { 
 
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
 
 			//inline edit
 			wp_enqueue_script('react-inline-edit', plugins_url( 'assets/js/lib/react-inline-edit.js', dirname(__FILE__) ), array('react'), '1.0', true);
@@ -452,11 +452,8 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function save_analytics_metabox($post_id)
 	{
-
 		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
 			return ;
-
-		// Kidzou_Utils::log(array('POST'=> $_POST),true);
 
 		$slug = 'customer';
 
@@ -478,7 +475,7 @@ class Kidzou_Metaboxes_Customer {
 
 		$is_analytics = false;
 		if ( isset($_POST['kz_customer_analytics']) ) {
-			$is_analytics = ($_POST['kz_customer_analytics']=='true');
+			$is_analytics = ($_POST['kz_customer_analytics']=='on');
 		}
 
 		Kidzou_Customer::set_analytics($post_id, $is_analytics);
@@ -601,8 +598,8 @@ class Kidzou_Metaboxes_Customer {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		// $key = $_POST['kz_q'];
-		$quota = $_POST['kz_quota'];
+		$key 	= Kidzou_Customer::getKey($post_id);
+		$quota 	= $_POST['kz_quota'];
 
 		// //todo : actuellement seule une API est gérée
 		$api_names = array();
