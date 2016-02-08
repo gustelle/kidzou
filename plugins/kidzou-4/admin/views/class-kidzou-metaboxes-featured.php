@@ -80,8 +80,8 @@ class Kidzou_Metaboxes_Featured {
 
 		if ( in_array($screen->id , $this->screen_with_meta)  ) { 
 
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
 
 			wp_enqueue_style( 'kidzou-form', 	plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 

@@ -1,4 +1,4 @@
-var kidzouFeaturedModule = (function($) { //havre de paix
+var kidzouCustomerModule = (function($) { //havre de paix
 
 	var postID = (document.querySelector('#post_ID')!==null ? document.querySelector('#post_ID').value : '');
 
@@ -18,11 +18,16 @@ var kidzouFeaturedModule = (function($) { //havre de paix
 				newCustomerName : ''
 			};
 	    },
+
+	    /** 
+	     * Utilisation du composant depuis l'exterieur au travers de la variable globale setPlace
+	     */
 	    componentWillMount: function() {
 	      var self = this;
 
 	      //envoi d'une adresse client depuis l'exterieur
 	      setPlace = (_place) => {
+	    
 	      	self.savePlace(_place, 
 	      		function(){
 	      			self._hintMessage.onProgress('Enregistrement de l\'adresse');

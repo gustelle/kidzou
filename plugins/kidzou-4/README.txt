@@ -11,16 +11,17 @@
 
 </ul>
 
-<h4>Refactoring</h4>
+<h4>Refactoring des Metabox et Passage à ReactJS</h4>
 <h5>Fevrier 2015</h5>
 <ul>
 	
 	<li>Passage à React pour toutes les metabox Kidzou</li>
 	<li>Refactoring pour mieux isoler les metaboxes les unes des autres, les rendre plus modulaires</li>
 
+	<li>TODO : Paramétrisation des permissions</li>
+	<li>TODO : Externaliser les Metadata d'API dans Kidzou_API et pas Kidzou_Customer</li>
 	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
 	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
-	<li>TODO : Paramétrisation des permissions</li>
 
 </ul>
 

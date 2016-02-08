@@ -211,7 +211,7 @@ class Kidzou_API {
 	public static function getCustomerByKey($key) {
 
 		if (!$key) 
-			return new WP_Error( 'unvalid_key', __( "Votre clé n'est pas valide", "kidzou" ) );
+			return new WP_Error( 'getCustomerByKey_1', __( "Votre clé n'est pas valide", "kidzou" ) );
 	    	
 		//qui est donc notre client ?
 		$args = array(
@@ -228,7 +228,7 @@ class Kidzou_API {
 		$results = $the_query->get_posts();
 
 		if (count($results)==0)
-			return new WP_Error( 'unvalid_key', __( "Votre clé n'est pas valide", "kidzou" ) );
+			return new WP_Error( 'getCustomerByKey_2', __( "Votre clé n'est pas valide", "kidzou" ) );
 
 		$customer = $results[0];
 

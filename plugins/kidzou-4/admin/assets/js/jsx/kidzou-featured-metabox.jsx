@@ -1,4 +1,4 @@
-var kidzouCustomerAnalyticsModule = (function($) { //havre de paix
+var kidzouFeaturedModule = (function($) { //havre de paix
 
 	var postID = (document.querySelector('#post_ID')!==null ? document.querySelector('#post_ID').value : '');
 

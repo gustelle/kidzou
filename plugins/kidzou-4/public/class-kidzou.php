@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'react-metabox';
+	const VERSION = 'metabox-refactoring-fix3';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
