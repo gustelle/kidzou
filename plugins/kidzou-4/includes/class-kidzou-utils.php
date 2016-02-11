@@ -151,8 +151,6 @@ class Kidzou_Utils {
 	 **/
 	public static function current_user_is($role = '')
 	{
-		// Kidzou_Utils::log('Kidzou_Utils [current_user_is] '. $role, true );
-		// return true;
 
 		$is_user = false;
 		switch ($role) {
@@ -188,6 +186,20 @@ class Kidzou_Utils {
 		// Kidzou_Utils::log('Kidzou_Utils [current_user_is] '. $role . ' = ' . ($is_user ? 'yes' : 'no') , true );
 
 		return $is_user;
+	}
+
+	/**
+	 * Cette méthode permet d'attribuer des permissions fonctionnelles fines telles que l'import d'événement, l'édition client, ...
+	 *
+	 * @param $permission string permission Kidzou
+	 **/
+	public static function current_user_can($permission = '') 
+	{
+		if ($permission=='') return false;
+
+		return self::current_user_is(
+				self::get_option($permission)
+			);
 	}
 
 	/**
@@ -424,7 +436,7 @@ class Kidzou_Utils {
 		if ($post_id==0)
 			return;
 
-		Kidzou_Utils::log(array('post_id'=>$post_id,'save_meta'=>$arr, 'prefix'=>$prefix), true);
+		// Kidzou_Utils::log(array('post_id'=>$post_id,'save_meta'=>$arr, 'prefix'=>$prefix), true);
 
 		// Add values of $events_meta as custom fields
 		foreach ($arr as $key => $value) { // Cycle through the $events_meta array!

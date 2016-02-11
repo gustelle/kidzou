@@ -248,815 +248,961 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     )
                 );
 
-            // ACTUAL DECLARATION OF SECTIONS
-            $this->sections[] = array(
-                'title'     => __('G&eacute;olocalisation', 'kidzou'),
-                'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, Les contenus ne sont pas filtr&eacute;s. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
-                'icon'      => 'fa fa-map-marker',
-                'fields'    => array(
+                $this->sections[] = array(
+                    'title'     => __('Permissions', 'kidzou'),
+                    'desc'      => __('il y a les <strong>Admin</strong>, les <strong>Auteurs</strong>, les <strong>Pro</strong>, les <strong>contributeurs</strong>, ... certains ont droit de faire des choses, d&apos;autres non !', 'kidzou'),
+                    'icon'      => 'el el-lock',
+                    'fields'    => array(
+                    )
+                );
 
+                    /**
+                     * Sous section des permissions pour les imports
+                     */
+                    $this->sections[] = array(
+                        'icon'       => 'el el-calendar',
+                        'title'      => __( 'Evénements', 'kidzou' ),
+                        'subsection' => true,
+                        'fields'     => array(
+                            
+                            array(
+                                'id'       => 'can_set_event_recurrence',
+                                'type'     => 'select',
+                                'title'    => __('Affecter une recurrence à un événement', 'kidzou'), 
+                                'data'      => 'roles'
+                            ),
+
+                        )
+                    );
+
+                    /**
+                     * Sous section des permissions pour les featured
+                     */
+                    $this->sections[] = array(
+                        'icon'       => 'el el-star',
+                        'title'      => __( 'Featured', 'kidzou' ),
+                        'subsection' => true,
+                        'fields'     => array(
+                            
+                            array(
+                                'id'       => 'can_edit_featured',
+                                'type'     => 'select',
+                                'title'    => __('Positionner un article \'Featured\'', 'kidzou'), 
+                                'subtitle'  => __('Qui a le droit de mettre en avant un article ?', 'kidzou'),
+                                'data'      => 'roles'
+                            ),
+
+                        )
+                    );
+
+                    /**
+                     * Sous section des permissions sur les lieux
+                     */
+                    $this->sections[] = array(
+                        'icon'       => 'fa fa-map-marker',
+                        'title'      => __( 'Lieux', 'kidzou' ),
+                        'subsection' => true,
+                        'fields'     => array(
+                            
+                            // array(
+                            //     'id'       => 'can_edit_place',
+                            //     'type'     => 'select',
+                            //     'title'    => __('Editer le lieu d&apos;un Article', 'kidzou'),
+                            //     'subtitle'  => __('Un article peut-être rattaché à un lieu, mais qui a le droit de choisir le lieu de l\'article ?', 'kidzou'),
+                            //     'data'      => 'roles'
+                            // ),
+
+                            // array(
+                            //     'id'       => 'can_propose_place',
+                            //     'type'     => 'select',
+                            //     'title'    => __('Proposer des lieux en provenance d\'autres sources que Google Places', 'kidzou'),
+                            //     'subtitle'  => __('Typiquement si un article est affect&eacute; à un lieu, et que ce même article est affecté à un client dont l\'adresse est différente, qui peut changer le lieu de l\'article pour prendre l\'adresse du client ?', 'kidzou'),
+                            //     'data'      => 'roles'
+                            // ),
+
+                            array(
+                                'id'       => 'icons',
+                                'type'     => 'select',
+                                'title'    => __('Editer le lieu d&apos; &eacute;v&eacute;nement', 'kidzou'), 
+                                'data'      => 'elusive-icons'
+                            ),
+                            
+                        )
+                    );
+
+                    /**
+                     * Sous section des permissions sur les clients
+                     */
+                    $this->sections[] = array(
+                        'icon'       => 'el el-torso',
+                        'title'      => __( 'Clients', 'kidzou' ),
+                        'subsection' => true,
+                        'fields'     => array(
+
+                            array(
+                                'id'       => 'can_edit_customer',
+                                'type'     => 'select',
+                                'title'    => __('Editer un client', 'kidzou'), 
+                                // 'subtitle'  => __('Typiquement lorsqu&apos;on choisit un lieu sur un article affect&eacute; &agrave; un client, qui a le droit d&apos;utiliser ce lieu pour l&apos;injecter dans la fiche client ? de telle sorte que les prochains articles affect&eacute;s &agrave; ce client seront automatiquement pr&eacute;-rempli avec la m&ecirc;me adresse ?', 'kidzou'),
+                                'data'      => 'roles'
+                            ),
+                            
+                        )
+                    );
+
+                    /**
+                     * Sous section des permissions pour les imports
+                     */
+                    // $this->sections[] = array(
+                    //     'icon'       => 'el el-download',
+                    //     'title'      => __( 'Import', 'kidzou' ),
+                    //     'subsection' => true,
+                    //     'fields'     => array(
+                            
+                    //         array(
+                    //             'id'       => 'can_import_facebook',
+                    //             'type'     => 'select',
+                    //             'title'    => __('Importer un &eacute;v&eacute;nement Facebook', 'kidzou'), 
+                    //             'data'      => 'roles'
+                    //         ),
+
+                    //     )
+                    // );
+
+                    /**
+                     * Sous section des permissions pour les contributeurs
+                     */
+                    $this->sections[] = array(
+                        'icon'       => 'el el-edit',
+                        'title'      => __( 'Contributeurs', 'kidzou' ),
+                        'subsection' => true,
+                        'fields'     => array(
+                            
+                            array(
+                                'id'       => 'can_edit_post',
+                                'type'     => 'select',
+                                'title'    => __('Créer des contenus', 'kidzou'), 
+                                'data'      => 'roles'
+                            ),
+
+                        )
+                    );
+
+                    
+                // ACTUAL DECLARATION OF SECTIONS
+                $this->sections[] = array(
+                    'title'     => __('G&eacute;olocalisation', 'kidzou'),
+                    'desc'      => __('les contenus de la plateforme sont <strong>filtr&eacute;s automatiquement en fonction de la m&eacute;tropole de rattachement du user</strong>. Celle-ci est par d&eacute;faut calcul&eacute;e automatiquement (si le user accepte de se faire g&eacute;olocaliser). Si il n&apos;accepte pas de se faire g&eacute;olocaliser, Les contenus ne sont pas filtr&eacute;s. <br/>A tout moment, le user peut choisir sa m&eacute;tropole dans le header pour changer sa m&eacute;tropole', 'kidzou'),
+                    'icon'      => 'fa fa-map-marker',
+                    'fields'    => array(
+
+
+                            array(
+                                'id'       => 'geo_activate',
+                                'type'     => 'checkbox',
+                                'title'    => __('Activer la geolocalisation des contenus ?', 'kidzou'), 
+                                'subtitle'  => __('Si cette est active, les contenus seront filtr&eacute;s pour ne s&apos;afficher que si la m&eacute;tropole de rattachement du contenu est celle qui transite dans la requ&ecirc.te.', 'kidzou'),
+                                'desc'      => __('La requ&ecirc;te peut soit contenir la m&eacute;tropole <em>(../lille/...)</em> soit contenir un cookie <em>kz_metropole</em>". <br/>Tout ceci est calcul&eacute; automatiquement &agrave; la 1ere connexion du user.<br/>Si le user refuse de se faire geolocaliser ou si vous <strong>d&eacute;sactivez la geolocalisation des contenus</strong> les contenus ne seront pas filtr&eacute;s, m&ecirc;me si ils sont rattach&eacute;s &agrave; une m&eacute;tropole','kidzou'),
+                                'default'  => '0',// 1 = on | 0 = off
+                                'compiler'  => true
+                            ),
+
+                            array(
+                                'id'       => 'geo_supported_post_types',
+                                'type'     => 'select',
+                                'title'    => __('Types de contenus sujets &agrave; geolocalisation ?', 'kidzou'), 
+                                'subtitle'  => __('Par d&eacute;faut, les contenus de type <code>post, page</code> sont support&eacute;s.', 'kidzou'),
+                                'desc'      => __('les types de contenu que vous choisirez seront <em>ajout&eacute;s</em> aux contenus nativement support&eacutes;s par Kidzou','kidzou'),
+                                'data'      => 'post_types',
+                                'multi'    => true,
+                            ),
+
+                            array(
+                                'id'        => 'geo_mapquest_key',
+                                'type'      => 'text',
+                                'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
+                                'subtitle'  => __('Cette cl&eacute; est <strong>n&eacute;cessaire au bon fonctionnement de la geolocalisation des contenus</strong>. ', 'kidzou'),
+                                'desc'      => __('La clef permet d&apos;utiliser l&apos;API <a href="http://developer.mapquest.com/fr/web/products/dev-services/geocoding-ws">Maquest</a> qui fournit la m&eacute;tropole a partir des coordonn&eacute;es GPS du navigateur. La <em>M&eacute;tropole</em> est ensuite pass&eacute;e en param&egrave;tre de la requ&ecirc;te pour filtrer les contenus en base de donn&eacute;e (les contenus sont rattach&eacute;s a une ville)','kidzou')
+                            ),
+
+                            array(
+                                'id'        => 'geo_national_metropole',
+                                'type'      => 'select',
+                                'data' => 'terms',
+                                'args' => array('taxonomies'=>'ville', 'args'=>array()),
+                                'title'     => __('Quelle ville a une port&eacute;e &eacute;tendue ?', 'kidzou'),
+                                'subtitle'  => __('Lorsque des contenus y sont attach&eacute;s, ils sont visibles pour tous les utilisateurs quelque soit leur m&eacute;tropole de rattachement', 'kidzou'),
+                            ),
+
+                            array(
+                                'id'        => 'geo_default_metropole',
+                                'type'      => 'select',
+                                'data' => 'terms',
+                                'args' => array('taxonomies'=>'ville', 'args'=>array()),
+                                'title'     => __('Ville par d&eacute;faut ?', 'kidzou'),
+                                'subtitle'  => __('Si l&apos;utilisateur ne se geolocalise pas ou si une erreur survient lors de la geoloc...les contenus de cette ville lui sont affich&eacute;s', 'kidzou'),
+                            ),
+
+                            array(
+                                'id'        => 'geo_default_lat',
+                                'type'      => 'text',
+                                'validate' => 'numeric',
+                                'title'     => __('Latitude par d&eacute;faut', 'kidzou'),
+                                'subtitle'  => __('Si vous utilisez les fonctions de localisation de contenu par latitude/longitude, et que le user ne renvoie pas ses coordonn&eacute;es, cette latitude sera utilis&eacute;e par d&eacute;faut', 'kidzou'),
+                                'desc'      => __('Si vous ne savez pas quoi mettre, mettez la latitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
+                            ),
+
+                            array(
+                                'id'        => 'geo_default_lng',
+                                'type'      => 'text',
+                                'validate' => 'numeric',
+                                'title'     => __('Longitude par d&eacute;faut', 'kidzou'),
+                                'subtitle'  => __('Si vous utilisez les fonctions de localisation de contenu par latitude/longitude, et que le user ne renvoie pas ses coordonn&eacute;es, cette longitude sera utilis&eacute;e par d&eacute;faut ', 'kidzou'),         
+                                 'desc'      => __('Si vous ne savez pas quoi mettre, mettez la longitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
+     
+                            ),
+
+                            array(
+                                'id'       => 'geo_sync_geods',
+                                'type'     => 'checkbox',
+                                'title'    => __('Synchroniser le plugin Geo Data Store avec Kidzou ?', 'kidzou'), 
+                                'subtitle'  => __('Faites cela si vous avez install&eacute; le plugin Geo Data Store apr&egrave,s avoir associ&eacute; des posts avec des lieux. Une fois cette synchro effectu&eacute;e, le plugin sera synchronis&eacute; automatiquement ', 'kidzou'),
+                                'desc'      => __('Ce r&eacute;glage sera remis &agrave; 0 une fois la page valid&eacute;e. Toutefois, la synchro sera bien d&eacute;clench&eacute;e','kidzou'),
+                                'default'  => '0',// 1 = on | 0 = off
+                            ),
+
+                            array(
+                                'id'        => 'geo_bypass_param',
+                                'type'      => 'text',
+                                'title'     => __('Param&egrave;tre de d&eacute;sactivation ?', 'kidzou'),
+                                'subtitle'  => __('Lorsque ce param&egrave;tre est rep&eacute;r&eacute; en requ&ecirc;te, la geolocalisation ne filtre pas les contenus', 'kidzou'),     
+                                'default'   => 'region',  
+                                 // 'desc'      => __('Si vous ne savez pas quoi mettre, mettez la longitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
+     
+                            ),
+
+                            array(
+                                'id'        => 'geo_bypass_regexp',
+                                'type'      => 'text',
+                                'title'     => __('Ne pas geolocaliser les contenus pour les URLs qui matchent cette Expression R&eacute;guli&egrave;re :', 'kidzou'),
+                                'subtitle'  => __('Indiquer une regexp', 'kidzou'),     
+                                'default'   => '\/api\/',  
+        
+                            ),
+
+                            array(
+                                'id'        => 'geo_search_radius',
+                                'type'      => 'spinner',
+                                'title'     => __('Rayon de recherche des lieux autour de l&apos;utilisateur', 'kidzou'),
+                                'subtitle'  => __('Cela peut impacter la performance', 'kidzou'),
+                                // 'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
+                                'default'  => '15',
+                                'min'      => '5',
+                                'step'     => '1',
+                                'max'      => '50'
+                            ),
+
+
+
+                        )
+                    );
+                
+                //Ads
+                $this->sections[] = array(
+                    'title'     => __('Publicit&eacute;', 'kidzou'),
+                    'desc'      => __('lorem ipsum', 'kidzou'),
+                    'icon'      => 'el-icon-bullhorn',
+                    'fields'    => array(
 
                         array(
-                            'id'       => 'geo_activate',
+                            'id'        => 'pub_header',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Insertion de script dans le header', 'kidzou'),
+                            'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            'desc'      => 'Un javascript est attendu',
+                            'default'   => ''
+                        ),
+
+                        array(
+                            'id'        => 'pub_habillage',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Habillage publicitaire', 'kidzou'),
+                            'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            'desc'      => 'Un javascript est attendu',
+                            'default'   => ''
+                        ),
+
+                        array(
+                            'id'        => 'pub_archive',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Publicit&eacute; sur Archive', 'kidzou'),
+                            'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            'desc'      => 'Un bandeau 768x90 est parfait',
+                            'default'   => '<a href="#"><img src=""/></a>'
+                        ),
+
+                        array(
+                            'id'        => 'pub_portfolio',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Publicit&eacute; sur Portfolio d&apos;articles', 'kidzou'),
+                            'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            'desc'      => 'Typiquement une pub 300x250',
+                            'default'   => '<a href="#"><img src=""/></a>'
+                        ),
+
+                        array(
+                            'id'        => 'pub_post',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Publicit&eacute; sur un Article', 'kidzou'),
+                            'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            'desc'      => 'Typiquement une pub 300x250',
+                            'default'   => '<a href="#"><img src=""/></a>'
+                        )
+
+                    )
+                );
+                
+                //API
+                $this->sections[] = array(
+                    'title'     => __('API Kidzou', 'kidzou'),
+                    'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
+                    'icon'      => 'el el-puzzle',
+                    'fields'    => array(
+
+                        array(
+                            'id'        => 'excerpts_max_days',
+                            'type'      => 'spinner',
+                            'title'     => __('Jusque combien de jours l\'utilisateur peut-il remonter pour exporter les extraits ?', 'kidzou'),
+                            'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
+                            'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
+                            'default'  => '7',
+                            'min'      => '0',
+                            'step'     => '1',
+                            'max'      => '30'
+                        ),
+
+                        array(
+                            'id'        => 'api_usage_history',
+                            'type'      => 'spinner',
+                            'title'     => __('Combien de jours d\'historique pour l\'utilisation des API ?', 'kidzou'),
+                            'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
+                            'desc'     => __('30 jours me semble un max', 'kidzou'),
+                            'default'  => '7',
+                            'min'      => '1',
+                            'step'     => '1',
+                            'max'      => '30'
+                        ),
+
+                        array(
+                            'id'        => 'api_public_key',
+                            'type'      => 'multi_text',
+                            'subtitle'  => 'Cl&eacute; g&eacute;n&eacute;r&eacute;e au hasard :'.md5(uniqid()),
+                            'title'     => __('Cle publique pour utilisation des API sans authentification', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'       => 'api_activate_cors',
                             'type'     => 'checkbox',
-                            'title'    => __('Activer la geolocalisation des contenus ?', 'kidzou'), 
-                            'subtitle'  => __('Si cette est active, les contenus seront filtr&eacute;s pour ne s&apos;afficher que si la m&eacute;tropole de rattachement du contenu est celle qui transite dans la requ&ecirc.te.', 'kidzou'),
-                            'desc'      => __('La requ&ecirc;te peut soit contenir la m&eacute;tropole <em>(../lille/...)</em> soit contenir un cookie <em>kz_metropole</em>". <br/>Tout ceci est calcul&eacute; automatiquement &agrave; la 1ere connexion du user.<br/>Si le user refuse de se faire geolocaliser ou si vous <strong>d&eacute;sactivez la geolocalisation des contenus</strong> les contenus ne seront pas filtr&eacute;s, m&ecirc;me si ils sont rattach&eacute;s &agrave; une m&eacute;tropole','kidzou'),
+                            'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
+                            'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
+                            'default'  => '0',// 1 = on | 0 = off
+                        ),
+
+                    )
+                );
+    
+                //import
+                $this->sections[] = array(
+                    'title'     => __('Import de contenu', 'kidzou'),
+                    'desc'      => __('Allofamille, Facebook', 'kidzou'),
+                    'icon'      => 'el el-download',
+                    'fields'    => array(
+
+                        //user auquel sont rattachés les contenus importés
+                        array(
+                            'id'       => 'import_author_id',
+                            'type'     => 'select',
+                            'title'    => __('Auteur des contenus import&eacute;s', 'kidzou'), 
+                            'subtitle' => __('Il est obligatoirement administrateur du site', 'kidzou'),
+                            // 'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
+                            // Must provide key => value pairs for select options
+                            'options'  => $users_list
+                        ),
+
+                        //Template de contenu (append)
+                        array(
+                            'id'        => 'import_content_append',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Ajouter le contenu suivant en fin de contenu import&eacute;', 'kidzou'),
+                            'subtitle'  => __('Code HTML', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            // 'desc'      => 'Un javascript est attendu',
+                            'default'   => ''
+                        ),
+
+                    )
+                );
+                
+                //intégration Gravity Forms
+                if ($gf) {
+
+                    $this->sections[] = array(
+                        'title'     => __('Gravity Forms', 'kidzou'),
+                        'desc'      => __('Int&eacute;gration avec le plugin Gravity Forms pour exposition dans la config Kidzou', 'kidzou'),
+                        'icon'      => 'el el-check',
+                        'fields'    => array(
+
+                            array(
+                                'id'        => 'gf_form_id',
+                                'type'      => 'select',
+                                'title'     => __('Formulaire d&apos;envoi de photo ?', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $form_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_image_base64',
+                                'type'      => 'select',
+                                'title'     => __('Quel est le champ qui recevra la photo au format Base64 dans Gravity Forms WebAPI ?', 'kidzou'),
+                                // 'desc'     => __('', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_image_url',
+                                'type'      => 'select',
+                                'title'     => __('Quel est le champ qui recevra l\'URL de l\'image t&eacute;l&eacute;charg&eacute;e ?', 'kidzou'),
+                                // 'desc'     => __('', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_user_id',
+                                'type'      => 'select',
+                                'title'     => __('Quel est le champ qui recevra le login de l&apos;utilisateur courant ?', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_user_email',
+                                'type'      => 'select',
+                                'title'     => __('Le champ qui contient le mail du user', 'kidzou'),
+                                'subtitle'  => __('Ce champ sera rempli automatiquement en fonction du ID du user, il servira pour notifier le user', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_post_id',
+                                'type'      => 'select',
+                                'title'     => __('Quel est le champ qui recevra le ID de l&apos;article courant ?', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_comment',
+                                'type'      => 'select',
+                                'title'     => __('Quel est le champ qui recevra le commentaire de la photo ?', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_field_title',
+                                'type'      => 'select',
+                                'title'     => __('Quel est le champ qui recevra le titre de la photo ?', 'kidzou'),
+                                'multi'    => false,
+                                'options'  => $fields_options
+                            ),
+
+                            array(
+                                'id'        => 'gf_webapi_public_key',
+                                'type'      => 'text',
+                                'title'     => __('Public Key pour utilisation de WebAPI', 'kidzou'),
+                            ),
+
+                            array(
+                                'id'        => 'gf_webapi_private_key',
+                                'type'      => 'text',
+                                'title'     => __('Private Key pour utilisation de WebAPI', 'kidzou'),
+                            ),
+
+
+                        )
+                    );
+                }
+
+                //evenements
+                $this->sections[] = array(
+                    'title'     => __('Ev&eacute;nements', 'kidzou'),
+                    'desc'      => __('Gestion des r&eacute;rrences, des &eacute;v&eacute;nements termin&eacute;s ', 'kidzou'),
+                    'icon'      => 'el-icon-calendar',
+                    'fields'    => array(
+
+                        array(
+                            'id'       => 'obsolete_events_unpublish',
+                            'type'     => 'checkbox',
+                            'title'    => __('D&eacute;publier les &eacute;v&eacute;nements termin&eacute;s ?', 'kidzou'), 
+                            'default'  => '0'// 1 = on | 0 = off
+                        ),
+
+                        array(
+                            'id'       => 'obsolete_events_remove_cats',
+                            'type'     => 'select',
+                            'multi'    => true,
+                            'title'    => __('Supprimer les cat&eacute;gories suivantes des &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                            'data'      => 'categories',
+                        ),
+                        
+                        array(
+                            'id'       => 'obsolete_events_add_cats',
+                            'type'     => 'select',
+                            'multi'    => true,
+                            'title'    => __('Ajouter les cat&eacute;gories suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                            'data'      => 'categories',
+                        ),
+
+                        array(
+                            'id'       => 'obsolete_events_remove_taxonomies',
+                            'type'     => 'select',
+                            'multi'    => true,
+                            'title'    => __('Supprimer les taxonomies suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
+                            'data'     => 'taxonomies',
+                        ),
+                        
+                    )
+                );
+    
+                //contributeurs
+                $this->sections[] = array(
+                    'title'     => __('Contributeurs', 'kidzou'),
+                    'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
+                    'icon'      => 'el-icon-edit',
+                    'fields'    => array(
+
+                        array(
+                            'id'        => 'default_content',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Contenu par d&eacute;faut lors de l&apos;&eacute;dition d&apos;un contenu', 'kidzou'),
+                            'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            // 'desc'      => 'Un javascript est attendu',
+                            'default'   => ''
+                        ),
+                        array(
+                            'id'       => 'widget_watcher_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Activer la surveillance de contenus externes ?', 'kidzou'), 
+                            'default'  => '0'// 1 = on | 0 = off
+                        ),
+                        array(
+                            'id'       => 'widget_guidelines_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Activer le Tutorial  sur le dashboard des contributeurs ?', 'kidzou'), 
+                            'default'  => '0'// 1 = on | 0 = off
+                        ),
+                        array(
+                            'id'       => 'widget_guidelines_title',
+                            'type'     => 'text',
+                            'title'    => __('Titre du tutorial', 'kidzou')
+                        ),
+                        array(
+                            'id'       => 'widget_guidelines_body',
+                            'type'     => 'editor',
+                            'title'    => __('Contenu du tutorial', 'kidzou'),
+                            'args'   => array(
+                                'teeny'            => true,
+                                'textarea_rows'    => 10
+                            )
+                        ),
+                        array(
+                            'id'       => 'customer_analytics_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Ouvrir l&apos;acc&egrave;s aux analytics pour les Pro', 'kidzou'), 
+                            'default'  => '0'// 1 = on | 0 = off
+                        ),
+                        
+                    )
+                );
+
+                //notifications
+                $this->sections[] = array(
+                    'title'     => __('Notifications', 'kidzou'),
+                    'desc'      => __('Les notifications apparaissent en bas &agrave; droite des pages, elles sugg&egrave;rent des contenus ou des actions (call-to-action). <br/>L&apos;ensemble des messages &agrave; afficher sont dans une queue d&eacute;pil&eacute;e au fur et &agrave; mesure. <br/>Lorsqu&apos;un message est affich&eacute; un cookie est stock&eacute; sur le poste de l&apos;utilisateur pendant 30 jours de sorte qu&apos;il ne reverra plus cette notification pendant ce laps de temps. Le message suivant peut &ecirc;tre lu.<br/>Un utilisateur ne recoit que 1 seul message par page', 'kidzou'),
+                    'icon'      => 'fa fa-bell-o',
+                    'fields'    => array(
+
+                        array(
+                            'id'       => 'notifications_activate',
+                            'type'     => 'checkbox',
+                            'title'    => __('Activer les notifications ?', 'kidzou'), 
                             'default'  => '0',// 1 = on | 0 = off
                             'compiler'  => true
                         ),
 
                         array(
-                            'id'       => 'geo_supported_post_types',
-                            'type'     => 'select',
-                            'title'    => __('Types de contenus sujets &agrave; geolocalisation ?', 'kidzou'), 
-                            'subtitle'  => __('Par d&eacute;faut, les contenus de type <code>post, page</code> sont support&eacute;s.', 'kidzou'),
-                            'desc'      => __('les types de contenu que vous choisirez seront <em>ajout&eacute;s</em> aux contenus nativement support&eacutes;s par Kidzou','kidzou'),
-                            'data'      => 'post_types',
-                            'multi'    => true,
+                            'id'       => 'notifications_messages_order',
+                            'type'     => 'sortable',
+                            'mode'      => 'checkbox',
+                            'title'    => __('Contenu des messages', 'kidzou'), 
+                            'subtitle' => __('si plusieurs messages sont dans la queue, trier les messages par ordre d&apos;apparition', 'kidzou'),
+                            'options'  => array(
+                                'newsletter'    => '<i class="fa fa-newspaper-o"></i>&nbsp;&nbsp;Inscription &agrave; la newsletter',
+                                'vote'          => '<i class="fa fa-heart-o"></i>&nbsp;&nbsp;Recommandation d&apos;article', 
+                                'featured'      => '<i class="fa fa-star"></i>&nbsp;&nbsp;Promotion d&apos;article', 
+                                'cats'          => '<i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Articles issues des cat&eacute;gories ci-dessous', 
+                            ),
+                            'default' => array(
+                               'newsletter' => true,
+                                'vote'      => true,
+                                'featured'  => false
+                            )
                         ),
 
                         array(
-                            'id'        => 'geo_mapquest_key',
-                            'type'      => 'text',
-                            'title'     => __('Cl&eacute; MapQuest', 'kidzou'),
-                            'subtitle'  => __('Cette cl&eacute; est <strong>n&eacute;cessaire au bon fonctionnement de la geolocalisation des contenus</strong>. ', 'kidzou'),
-                            'desc'      => __('La clef permet d&apos;utiliser l&apos;API <a href="http://developer.mapquest.com/fr/web/products/dev-services/geocoding-ws">Maquest</a> qui fournit la m&eacute;tropole a partir des coordonn&eacute;es GPS du navigateur. La <em>M&eacute;tropole</em> est ensuite pass&eacute;e en param&egrave;tre de la requ&ecirc;te pour filtrer les contenus en base de donn&eacute;e (les contenus sont rattach&eacute;s a une ville)','kidzou')
-                        ),
-
-                        array(
-                            'id'        => 'geo_national_metropole',
-                            'type'      => 'select',
-                            'data' => 'terms',
-                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
-                            'title'     => __('Quelle ville a une port&eacute;e &eacute;tendue ?', 'kidzou'),
-                            'subtitle'  => __('Lorsque des contenus y sont attach&eacute;s, ils sont visibles pour tous les utilisateurs quelque soit leur m&eacute;tropole de rattachement', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_metropole',
-                            'type'      => 'select',
-                            'data' => 'terms',
-                            'args' => array('taxonomies'=>'ville', 'args'=>array()),
-                            'title'     => __('Ville par d&eacute;faut ?', 'kidzou'),
-                            'subtitle'  => __('Si l&apos;utilisateur ne se geolocalise pas ou si une erreur survient lors de la geoloc...les contenus de cette ville lui sont affich&eacute;s', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_lat',
-                            'type'      => 'text',
-                            'validate' => 'numeric',
-                            'title'     => __('Latitude par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('Si vous utilisez les fonctions de localisation de contenu par latitude/longitude, et que le user ne renvoie pas ses coordonn&eacute;es, cette latitude sera utilis&eacute;e par d&eacute;faut', 'kidzou'),
-                            'desc'      => __('Si vous ne savez pas quoi mettre, mettez la latitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
-                        ),
-
-                        array(
-                            'id'        => 'geo_default_lng',
-                            'type'      => 'text',
-                            'validate' => 'numeric',
-                            'title'     => __('Longitude par d&eacute;faut', 'kidzou'),
-                            'subtitle'  => __('Si vous utilisez les fonctions de localisation de contenu par latitude/longitude, et que le user ne renvoie pas ses coordonn&eacute;es, cette longitude sera utilis&eacute;e par d&eacute;faut ', 'kidzou'),         
-                             'desc'      => __('Si vous ne savez pas quoi mettre, mettez la longitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
- 
-                        ),
-
-                        array(
-                            'id'       => 'geo_sync_geods',
+                            'id'       => 'notifications_post_type',
                             'type'     => 'checkbox',
-                            'title'    => __('Synchroniser le plugin Geo Data Store avec Kidzou ?', 'kidzou'), 
-                            'subtitle'  => __('Faites cela si vous avez install&eacute; le plugin Geo Data Store apr&egrave,s avoir associ&eacute; des posts avec des lieux. Une fois cette synchro effectu&eacute;e, le plugin sera synchronis&eacute; automatiquement ', 'kidzou'),
-                            'desc'      => __('Ce r&eacute;glage sera remis &agrave; 0 une fois la page valid&eacute;e. Toutefois, la synchro sera bien d&eacute;clench&eacute;e','kidzou'),
-                            'default'  => '0',// 1 = on | 0 = off
+                            'title'    => __('Activer les notifications pour les types de contenu :', 'kidzou'), 
+                         
+                            //Must provide key => value pairs for multi checkbox options
+                            'options'  => array(
+                                'post' => 'Post',
+                                // 'offres' => 'Offres',
+                                'page' => 'page'
+                            ),
+                         
+                            //See how default has changed? you also don't need to specify opts that are 0.
+                            'default' => array(
+                                'post' => '1', 
+                                // 'offres' => '0', 
+                                'page' => '0'
+                            ),
+                            'compiler'  => true
+                        
                         ),
 
                         array(
-                            'id'        => 'geo_bypass_param',
-                            'type'      => 'text',
-                            'title'     => __('Param&egrave;tre de d&eacute;sactivation ?', 'kidzou'),
-                            'subtitle'  => __('Lorsque ce param&egrave;tre est rep&eacute;r&eacute; en requ&ecirc;te, la geolocalisation ne filtre pas les contenus', 'kidzou'),     
-                            'default'   => 'region',  
-                             // 'desc'      => __('Si vous ne savez pas quoi mettre, mettez la longitude de la ville par d&eacute;faut. Le s&eacute;parateur de d&eacute;cimale est le : <em>point</em>','kidzou')
- 
+                            'id'       => 'notifications_message_title',
+                            'type'     => 'text',
+                            'title'    => __('Titre de la boite de notification', 'kidzou'),
+                            'subtitle' => __('Ce titre surplombe les suggestion d&apos;article qui apparaissent dans la boite de notification', 'kidzou'),
+                            'desc'     => __('ce texte est entour&eacute; d&apos;un &lt;h3&gt; dans la boite de notification. <b>Il n&apos;apparait pas lorsque la notification concerne une suggestion de vote</b>', 'kidzou'),
                         ),
 
                         array(
-                            'id'        => 'geo_bypass_regexp',
-                            'type'      => 'text',
-                            'title'     => __('Ne pas geolocaliser les contenus pour les URLs qui matchent cette Expression R&eacute;guli&egrave;re :', 'kidzou'),
-                            'subtitle'  => __('Indiquer une regexp', 'kidzou'),     
-                            'default'   => '\/api\/',  
-    
+                            'id'       => 'notifications_context',
+                            'type'     => 'radio',
+                            'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
+                            'subtitle' => __('Les messages appraissent a quelle frequence  ?', 'kidzou'),
+                            'desc'     => __('La fr&eacute;quence de notification des newsletter est r&eacute;glable ci-dessous', 'kidzou'),
+                            //Must provide key => value pairs for radio options
+                            'options'  => array(
+                                'daily' => '1 fois par jour', 
+                                'page'  => 'Sur chaque page consult&eacute;e', 
+                                'monthly' => '1 fois par mois',
+                                'weekly' => '1 fois par semaine',
+                            ),
+                            'default' => 'page',
+                            'compiler'  => true
                         ),
 
                         array(
-                            'id'        => 'geo_search_radius',
-                            'type'      => 'spinner',
-                            'title'     => __('Rayon de recherche des lieux autour de l&apos;utilisateur', 'kidzou'),
-                            'subtitle'  => __('Cela peut impacter la performance', 'kidzou'),
-                            // 'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
-                            'default'  => '15',
-                            'min'      => '5',
+                            'id'       => 'notifications_newsletter_context',
+                            'type'     => 'spinner',
+                            'title'    => __('Afficher le formulaire d&apos;inscription &agrave; la newsletter a quelle fr&eacute;quence ?', 'kidzou'), 
+                            'subtitle' => __('En nombre de pages vues :', 'kidzou'),
+                            'default'  => '3',
+                            'min'      => '1',
                             'step'     => '1',
-                            'max'      => '50'
+                            'max'      => '100',
                         ),
 
+                        // array(
+                        //     'id'       => 'notifications_newsletter_once',
+                        //     'type'     => 'checkbox',
+                        //     'default'  => '0',
+                        //     'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
+                        //     'subtitle' => __('Si vous choisissez cette option, un cookie sera positionn&eacute; lorsque l&apos;utilisateur aura vu la notification newsletter, afin de ne pas lui reproposer ce message pendant 30j', 'kidzou'),
+                        //     // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                        // ),
 
+                        array(
+                            'id'       => 'notifications_newsletter_nomobile',
+                            'type'     => 'checkbox',
+                            'default'  => '1',
+                            'title'    => __('Ne pas afficher le formulaire Newsletter sur mobile', 'kidzou'),
+                            'subtitle' => __('L&apos;experience utilisateur peut-&ecirc;tre mauvaise avec le formulaire newsletter dans la boite de Notification sur mobile', 'kidzou'),
+                            // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                        ),
 
+                         array(
+                            'id'       => 'notifications_include_categories',
+                            'type'     => 'select',
+                            'multi'    => true,
+                            'title'    => __('Inclure les cat&eacute;gories suivantes dans les notifications', 'kidzou'), 
+                            'subtitle' => __('En plus des recos et des featured. Tous les posts publi&eacute;s dans ces cat&eacute;gories seront dans le &apos;queue&apos; des messages &agrave; afficher', 'kidzou'),
+                            'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
+                            //Must provide key => value pairs for radio options
+                            'data'      => 'categories',
+                            'compiler'  => true
+                        ),
                     )
                 );
 
-            $this->sections[] = array(
-                'title'     => __('Publicit&eacute;', 'kidzou'),
-                'desc'      => __('lorem ipsum', 'kidzou'),
-                'icon'      => 'el-icon-bullhorn',
-                'fields'    => array(
-
-                    array(
-                        'id'        => 'pub_header',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Insertion de script dans le header', 'kidzou'),
-                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        'desc'      => 'Un javascript est attendu',
-                        'default'   => ''
-                    ),
-
-                    array(
-                        'id'        => 'pub_habillage',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Habillage publicitaire', 'kidzou'),
-                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        'desc'      => 'Un javascript est attendu',
-                        'default'   => ''
-                    ),
-
-                    array(
-                        'id'        => 'pub_archive',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Publicit&eacute; sur Archive', 'kidzou'),
-                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        'desc'      => 'Un bandeau 768x90 est parfait',
-                        'default'   => '<a href="#"><img src=""/></a>'
-                    ),
-
-                    array(
-                        'id'        => 'pub_portfolio',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Publicit&eacute; sur Portfolio d&apos;articles', 'kidzou'),
-                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        'desc'      => 'Typiquement une pub 300x250',
-                        'default'   => '<a href="#"><img src=""/></a>'
-                    ),
-
-                    array(
-                        'id'        => 'pub_post',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Publicit&eacute; sur un Article', 'kidzou'),
-                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        'desc'      => 'Typiquement une pub 300x250',
-                        'default'   => '<a href="#"><img src=""/></a>'
-                    )
-
-                )
-            );
-            
-            $this->sections[] = array(
-                'title'     => __('API Kidzou', 'kidzou'),
-                'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
-                'icon'      => 'el el-puzzle',
-                'fields'    => array(
-
-                    array(
-                        'id'        => 'excerpts_max_days',
-                        'type'      => 'spinner',
-                        'title'     => __('Jusque combien de jours l\'utilisateur peut-il remonter pour exporter les extraits ?', 'kidzou'),
-                        'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
-                        'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
-                        'default'  => '7',
-                        'min'      => '0',
-                        'step'     => '1',
-                        'max'      => '30'
-                    ),
-
-                    array(
-                        'id'        => 'api_usage_history',
-                        'type'      => 'spinner',
-                        'title'     => __('Combien de jours d\'historique pour l\'utilisation des API ?', 'kidzou'),
-                        'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
-                        'desc'     => __('30 jours me semble un max', 'kidzou'),
-                        'default'  => '7',
-                        'min'      => '1',
-                        'step'     => '1',
-                        'max'      => '30'
-                    ),
-
-                    array(
-                        'id'        => 'api_public_key',
-                        'type'      => 'multi_text',
-                        'subtitle'  => 'Cl&eacute; g&eacute;n&eacute;r&eacute;e au hasard :'.md5(uniqid()),
-                        'title'     => __('Cle publique pour utilisation des API sans authentification', 'kidzou'),
-                    ),
-
-                    array(
-                        'id'       => 'api_activate_cors',
-                        'type'     => 'checkbox',
-                        'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
-                        'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
-                        'default'  => '0',// 1 = on | 0 = off
-                    ),
-
-                )
-            );
-
-            $this->sections[] = array(
-                'title'     => __('Import de contenu', 'kidzou'),
-                'desc'      => __('Allofamille, Facebook', 'kidzou'),
-                'icon'      => 'el el-download',
-                'fields'    => array(
-
-                    //user auquel sont rattachés les contenus importés
-                    array(
-                        'id'       => 'import_author_id',
-                        'type'     => 'select',
-                        'title'    => __('Auteur des contenus import&eacute;s', 'kidzou'), 
-                        'subtitle' => __('Il est obligatoirement administrateur du site', 'kidzou'),
-                        // 'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
-                        // Must provide key => value pairs for select options
-                        'options'  => $users_list
-                    ),
-
-                    //Template de contenu (append)
-                    array(
-                        'id'        => 'import_content_append',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Ajouter le contenu suivant en fin de contenu import&eacute;', 'kidzou'),
-                        'subtitle'  => __('Code HTML', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        // 'desc'      => 'Un javascript est attendu',
-                        'default'   => ''
-                    ),
-
-                )
-            );
-            
-            //intégration Gravity Forms
-            if ($gf) {
-
+                /**
+                 * Sous section de mise en forme des messages de notification
+                 */
                 $this->sections[] = array(
-                    'title'     => __('Gravity Forms', 'kidzou'),
-                    'desc'      => __('Int&eacute;gration avec le plugin Gravity Forms pour exposition dans la config Kidzou', 'kidzou'),
-                    'icon'      => 'el el-check',
-                    'fields'    => array(
-
-                        array(
-                            'id'        => 'gf_form_id',
-                            'type'      => 'select',
-                            'title'     => __('Formulaire d&apos;envoi de photo ?', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $form_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_image_base64',
-                            'type'      => 'select',
-                            'title'     => __('Quel est le champ qui recevra la photo au format Base64 dans Gravity Forms WebAPI ?', 'kidzou'),
-                            // 'desc'     => __('', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_image_url',
-                            'type'      => 'select',
-                            'title'     => __('Quel est le champ qui recevra l\'URL de l\'image t&eacute;l&eacute;charg&eacute;e ?', 'kidzou'),
-                            // 'desc'     => __('', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_user_id',
-                            'type'      => 'select',
-                            'title'     => __('Quel est le champ qui recevra le login de l&apos;utilisateur courant ?', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_user_email',
-                            'type'      => 'select',
-                            'title'     => __('Le champ qui contient le mail du user', 'kidzou'),
-                            'subtitle'  => __('Ce champ sera rempli automatiquement en fonction du ID du user, il servira pour notifier le user', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_post_id',
-                            'type'      => 'select',
-                            'title'     => __('Quel est le champ qui recevra le ID de l&apos;article courant ?', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_comment',
-                            'type'      => 'select',
-                            'title'     => __('Quel est le champ qui recevra le commentaire de la photo ?', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_field_title',
-                            'type'      => 'select',
-                            'title'     => __('Quel est le champ qui recevra le titre de la photo ?', 'kidzou'),
-                            'multi'    => false,
-                            'options'  => $fields_options
-                        ),
-
-                        array(
-                            'id'        => 'gf_webapi_public_key',
-                            'type'      => 'text',
-                            'title'     => __('Public Key pour utilisation de WebAPI', 'kidzou'),
-                        ),
-
-                        array(
-                            'id'        => 'gf_webapi_private_key',
-                            'type'      => 'text',
-                            'title'     => __('Private Key pour utilisation de WebAPI', 'kidzou'),
-                        ),
-
-
-                    )
-                );
-            }
-
-            $this->sections[] = array(
-                'title'     => __('Ev&eacute;nements', 'kidzou'),
-                'desc'      => __('Gestion des r&eacute;rrences, des &eacute;v&eacute;nements termin&eacute;s ', 'kidzou'),
-                'icon'      => 'el-icon-calendar',
-                'fields'    => array(
-
-                    array(
-                        'id'       => 'obsolete_events_unpublish',
-                        'type'     => 'checkbox',
-                        'title'    => __('D&eacute;publier les &eacute;v&eacute;nements termin&eacute;s ?', 'kidzou'), 
-                        'default'  => '0'// 1 = on | 0 = off
-                    ),
-
-                    array(
-                        'id'       => 'obsolete_events_remove_cats',
-                        'type'     => 'select',
-                        'multi'    => true,
-                        'title'    => __('Supprimer les cat&eacute;gories suivantes des &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
-                        'data'      => 'categories',
-                    ),
-                    
-                    array(
-                        'id'       => 'obsolete_events_add_cats',
-                        'type'     => 'select',
-                        'multi'    => true,
-                        'title'    => __('Ajouter les cat&eacute;gories suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
-                        'data'      => 'categories',
-                    ),
-
-                    array(
-                        'id'       => 'obsolete_events_remove_taxonomies',
-                        'type'     => 'select',
-                        'multi'    => true,
-                        'title'    => __('Supprimer les taxonomies suivantes pour les &eacute;v&eacute;nements termin&eacute;s', 'kidzou'), 
-                        'data'     => 'taxonomies',
-                    ),
-                    
-                )
-            );
-
-            $this->sections[] = array(
-                'title'     => __('Contributeurs', 'kidzou'),
-                'desc'      => __('Les contributeurs (les "Pro") peuvent ajouter leurs propres contenus sur la plateforme', 'kidzou'),
-                'icon'      => 'el-icon-edit',
-                'fields'    => array(
-
-                    array(
-                        'id'        => 'default_content',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Contenu par d&eacute;faut lors de l&apos;&eacute;dition d&apos;un contenu', 'kidzou'),
-                        'subtitle'  => __('Collez votre code HTML ici', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        // 'desc'      => 'Un javascript est attendu',
-                        'default'   => ''
-                    ),
-                    array(
-                        'id'       => 'widget_watcher_activate',
-                        'type'     => 'checkbox',
-                        'title'    => __('Activer la surveillance de contenus externes ?', 'kidzou'), 
-                        'default'  => '0'// 1 = on | 0 = off
-                    ),
-                    array(
-                        'id'       => 'widget_guidelines_activate',
-                        'type'     => 'checkbox',
-                        'title'    => __('Activer le Tutorial  sur le dashboard des contributeurs ?', 'kidzou'), 
-                        'default'  => '0'// 1 = on | 0 = off
-                    ),
-                    array(
-                        'id'       => 'widget_guidelines_title',
-                        'type'     => 'text',
-                        'title'    => __('Titre du tutorial', 'kidzou')
-                    ),
-                    array(
-                        'id'       => 'widget_guidelines_body',
-                        'type'     => 'editor',
-                        'title'    => __('Contenu du tutorial', 'kidzou'),
-                        'args'   => array(
-                            'teeny'            => true,
-                            'textarea_rows'    => 10
-                        )
-                    ),
-                    array(
-                        'id'       => 'customer_analytics_activate',
-                        'type'     => 'checkbox',
-                        'title'    => __('Ouvrir l&apos;acc&egrave;s aux analytics pour les Pro', 'kidzou'), 
-                        'default'  => '0'// 1 = on | 0 = off
-                    ),
-                    
-                )
-            );
-
-            
-            $this->sections[] = array(
-                'title'     => __('Notifications', 'kidzou'),
-                'desc'      => __('Les notifications apparaissent en bas &agrave; droite des pages, elles sugg&egrave;rent des contenus ou des actions (call-to-action). <br/>L&apos;ensemble des messages &agrave; afficher sont dans une queue d&eacute;pil&eacute;e au fur et &agrave; mesure. <br/>Lorsqu&apos;un message est affich&eacute; un cookie est stock&eacute; sur le poste de l&apos;utilisateur pendant 30 jours de sorte qu&apos;il ne reverra plus cette notification pendant ce laps de temps. Le message suivant peut &ecirc;tre lu.<br/>Un utilisateur ne recoit que 1 seul message par page', 'kidzou'),
-                'icon'      => 'fa fa-bell-o',
-                'fields'    => array(
-
-                    array(
-                        'id'       => 'notifications_activate',
-                        'type'     => 'checkbox',
-                        'title'    => __('Activer les notifications ?', 'kidzou'), 
-                        'default'  => '0',// 1 = on | 0 = off
-                        'compiler'  => true
-                    ),
-
-                    array(
-                        'id'       => 'notifications_messages_order',
-                        'type'     => 'sortable',
-                        'mode'      => 'checkbox',
-                        'title'    => __('Contenu des messages', 'kidzou'), 
-                        'subtitle' => __('si plusieurs messages sont dans la queue, trier les messages par ordre d&apos;apparition', 'kidzou'),
-                        'options'  => array(
-                            'newsletter'    => '<i class="fa fa-newspaper-o"></i>&nbsp;&nbsp;Inscription &agrave; la newsletter',
-                            'vote'          => '<i class="fa fa-heart-o"></i>&nbsp;&nbsp;Recommandation d&apos;article', 
-                            'featured'      => '<i class="fa fa-star"></i>&nbsp;&nbsp;Promotion d&apos;article', 
-                            'cats'          => '<i class="fa fa-pencil-square-o"></i>&nbsp;&nbsp;Articles issues des cat&eacute;gories ci-dessous', 
-                        ),
-                        'default' => array(
-                           'newsletter' => true,
-                            'vote'      => true,
-                            'featured'  => false
-                        )
-                    ),
-
-                    array(
-                        'id'       => 'notifications_post_type',
-                        'type'     => 'checkbox',
-                        'title'    => __('Activer les notifications pour les types de contenu :', 'kidzou'), 
-                     
-                        //Must provide key => value pairs for multi checkbox options
-                        'options'  => array(
-                            'post' => 'Post',
-                            // 'offres' => 'Offres',
-                            'page' => 'page'
-                        ),
-                     
-                        //See how default has changed? you also don't need to specify opts that are 0.
-                        'default' => array(
-                            'post' => '1', 
-                            // 'offres' => '0', 
-                            'page' => '0'
-                        ),
-                        'compiler'  => true
-                    
-                    ),
-
-                    array(
-                        'id'       => 'notifications_message_title',
-                        'type'     => 'text',
-                        'title'    => __('Titre de la boite de notification', 'kidzou'),
-                        'subtitle' => __('Ce titre surplombe les suggestion d&apos;article qui apparaissent dans la boite de notification', 'kidzou'),
-                        'desc'     => __('ce texte est entour&eacute; d&apos;un &lt;h3&gt; dans la boite de notification. <b>Il n&apos;apparait pas lorsque la notification concerne une suggestion de vote</b>', 'kidzou'),
-                    ),
-
-                    array(
-                        'id'       => 'notifications_context',
-                        'type'     => 'radio',
-                        'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
-                        'subtitle' => __('Les messages appraissent a quelle frequence  ?', 'kidzou'),
-                        'desc'     => __('La fr&eacute;quence de notification des newsletter est r&eacute;glable ci-dessous', 'kidzou'),
-                        //Must provide key => value pairs for radio options
-                        'options'  => array(
-                            'daily' => '1 fois par jour', 
-                            'page'  => 'Sur chaque page consult&eacute;e', 
-                            'monthly' => '1 fois par mois',
-                            'weekly' => '1 fois par semaine',
-                        ),
-                        'default' => 'page',
-                        'compiler'  => true
-                    ),
-
-                    array(
-                        'id'       => 'notifications_newsletter_context',
-                        'type'     => 'spinner',
-                        'title'    => __('Afficher le formulaire d&apos;inscription &agrave; la newsletter a quelle fr&eacute;quence ?', 'kidzou'), 
-                        'subtitle' => __('En nombre de pages vues :', 'kidzou'),
-                        'default'  => '3',
-                        'min'      => '1',
-                        'step'     => '1',
-                        'max'      => '100',
-                    ),
-
-                    // array(
-                    //     'id'       => 'notifications_newsletter_once',
-                    //     'type'     => 'checkbox',
-                    //     'default'  => '0',
-                    //     'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
-                    //     'subtitle' => __('Si vous choisissez cette option, un cookie sera positionn&eacute; lorsque l&apos;utilisateur aura vu la notification newsletter, afin de ne pas lui reproposer ce message pendant 30j', 'kidzou'),
-                    //     // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
-                    // ),
-
-                    array(
-                        'id'       => 'notifications_newsletter_nomobile',
-                        'type'     => 'checkbox',
-                        'default'  => '1',
-                        'title'    => __('Ne pas afficher le formulaire Newsletter sur mobile', 'kidzou'),
-                        'subtitle' => __('L&apos;experience utilisateur peut-&ecirc;tre mauvaise avec le formulaire newsletter dans la boite de Notification sur mobile', 'kidzou'),
-                        // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
-                    ),
-
-                     array(
-                        'id'       => 'notifications_include_categories',
-                        'type'     => 'select',
-                        'multi'    => true,
-                        'title'    => __('Inclure les cat&eacute;gories suivantes dans les notifications', 'kidzou'), 
-                        'subtitle' => __('En plus des recos et des featured. Tous les posts publi&eacute;s dans ces cat&eacute;gories seront dans le &apos;queue&apos; des messages &agrave; afficher', 'kidzou'),
-                        'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
-                        //Must provide key => value pairs for radio options
-                        'data'      => 'categories',
-                        'compiler'  => true
-                    ),
-                )
-            );
-
-            /**
-             * Sous section de mise en forme des messages de notification
-             */
-            $this->sections[] = array(
-                'icon'       => 'el-icon-website',
-                'title'      => __( 'Mise en forme', 'kidzou' ),
-                'subsection' => true,
-                'fields'     => array(
-                    
-                    array(
-                        'id'       => 'notifications_icon_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
-                    ),
-                    array(
-                        'id'       => 'notifications_icon_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
-                    ),
-                    
-                )
-            );
-
-            $this->sections[] = array(
-                'title'     => __('Newsletter', 'kidzou'),
-                'icon'      => 'fa fa-envelope-o',
-                'fields'    => array(
-
-                    array(
-                        'id'        => 'mailchimp_key',
-                        'type'      => 'text',
-                        'title'     => __('Cl&eacute; d&apos;API pour int&eacute;gration Mailchimp', 'kidzou'),
-                        'validate_callback' => 'set_mailchimp_lists'
-                    ),
-                    array(
-                        'id'       => 'mailchimp_list',
-                        'type'     => 'select',
-                        'title'    => __('Liste Mailchimp pour la souscription Newsletter', 'kidzou'), 
-                        'subtitle' => __('Cette liste est utlis&eacute;e dans les notifications par exemple', 'kidzou'),
-                        'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
-                        // Must provide key => value pairs for select options
-                        'options'  => $mailchimp_lists
-                    ),
-                    array(
-                        'id'       => 'newsletter_fields',
-                        'type'     => 'checkbox',
-                        'title'    => __('Champs du formulaire Newsletter', 'kidzou'), 
-                     
-                        //Must provide key => value pairs for multi checkbox options
-                        'options'  => array(
-                            'firstname' => 'Pr&eacute;nom',
-                            'lastname' => 'Nom',
-                            'zipcode' => 'Code Postal',
-                        ),
-                     
-                        //See how default has changed? you also don't need to specify opts that are 0.
-                        'default' => array(
-                            'firstname' => '0', 
-                            'lastname' => '0', 
-                            'zipcode' => '1'
-                        )
-                    
-                    )
-                )
-            );
-            
-            /**
-             * Sous section de mise en forme des messages de notification
-             */
-            $this->sections[] = array(
-                'icon'       => 'el-icon-website',
-                'title'      => __( 'Mise en forme', 'kidzou' ),
-                'subsection' => true,
-                'fields'     => array(
-
-                    array(
-                        'id'        => 'newsletter_header',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Header du formulaire de Newsletter', 'kidzou'),
-                        'subtitle'  => __('Code HTML', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        // 'desc'      => 'Un javascript est attendu',
-                        'default'   => ''
-                    ),
-
-                    array(
-                        'id'       => 'newsletter_form_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_form_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_labels_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS des <code>&lt;label&gt;</code> de formulaire'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_labels_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style des <code>&lt;label&gt;</code> de formulaire'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_input_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS des champs <code>&lt;input&gt;</code> du formulaire'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_input_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style des champs <code>&lt;input&gt;</code> du formulaire'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_button_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS du <code>&lt;button&gt;</code> de formulaire'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_button_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style du <code>&lt;button&gt;</code> de formulaire'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_error_class',
-                        'type'     => 'text',
-                        'title'    => __('Classe CSS du message d&apos;erreur'),
-                    ),
-                    array(
-                        'id'       => 'newsletter_error_style',
-                        'type'     => 'text',
-                        'title'    => __('Inline Style du message d&apos;erreur'),
-                    ),
-
-                    array(
-                        'id'        => 'newsletter_footer',
-                        'type'      => 'ace_editor',
-                        'title'     => __('Footer du formulaire de Newsletter', 'kidzou'),
-                        'subtitle'  => __('Code HTML', 'kidzou'),
-                        'mode'      => 'html',
-                        'theme'     => 'monokai',
-                        // 'desc'      => 'Un javascript est attendu',
-                        'default'   => ''
-                    ),
-                )
-            );
-
-            // ACTUAL DECLARATION OF SECTIONS
-            $this->sections[] = array(
-                'title'     => __('Performances', 'kidzou'),
-                'icon'      => 'fa fa-bolt',
-                'fields'    => array(
-
-                        array(
-                            'id'        => 'perf_activate_js',
-                            'type'      => 'checkbox',
-                            'default'   => '0',
-                            'title'     => __('Optimiser le chargement des JS par ajout de l&apos;attribut <em>async defer</em>', 'kidzou'),
-                            'subtitle'  => __('Les JS seront mis en footer et charg&eacute;s en <em>async defer</em>', 'kidzou'),
-
-                        ),
-
-                        array(
-                            'id'=>'perf_js_no_async',
-                            'type' => 'multi_text',
-                            'title' => __('Exclure les Javascripts suivants d&apos;un chargement asynchrone', 'kidzou'),
-                            'subtitle' => __('Cela n&apos;est utile que si les chargements asynchrones sont actifs', 'kidzou'),
-                        ),
-
-
-                        array(
-                            'id'        => 'perf_activate_css',
-                            'type'      => 'checkbox',
-                            'default'      => '0',
-                            'title'     => __('Optimiser le chargement des CSS', 'kidzou'),
-                            'subtitle'  => __('Les CSS seront charg&eacute;s en background en asynchrone par un Javascript', 'kidzou'),
-
-                        ),
-
-                        array(
-                            'id'        => 'perf_remove_css_id',
-                            'type'      => 'checkbox',
-                            'default'      => '0',
-                            'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
-                            'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
-
-                        ),
-
-                        array(
-                            'id'=>'perf_css_in_header',
-                            'type' => 'multi_text',
-                            'title' => __('Ne pas optimiser les CSS suivantes', 'kidzou'),
-                            'subtitle' => __('Les CSS list&eacute;es seront charg&eacute;es dans le footer. Il faut saisir les handle des CSS - Un handle par ligne', 'kidzou'),
-                        ),
-
-                        // array(
-                        //     'id'=>'perf_js_root_dependency',
-                        //     'type' => 'multi_text',
-                        //     'title' => __('Charger les Javascripts suivants en priorit&eacute;', 'kidzou'),
-                        //     'subtitle' => __('Ce sont par exemple les Javascripts qui sont utilis&eacute;s par les autres', 'kidzou'),
-                        // ),
-
-                        // array(
-                        //     'id'        => 'perf_add_async_attr',
-                        //     'type'      => 'checkbox',
-                        //     'default'      => '0',
-                        //     'title'     => __('Charger les Javascripts avec l&apos;attribut async', 'kidzou'),
-                        // ),
-
+                    'icon'       => 'el-icon-website',
+                    'title'      => __( 'Mise en forme', 'kidzou' ),
+                    'subsection' => true,
+                    'fields'     => array(
                         
                         array(
-                            'id'=>'perf_css_no_combine',
-                            'type' => 'multi_text',
-                            'title' => __('Ne pas combiner les CSS suivants avec les autres', 'kidzou'),
-                            'subtitle' => __('Cela n&apos;est utile que si les l&apos;option de combinaison CSS est active', 'kidzou'),
+                            'id'       => 'notifications_icon_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS de l&apos;icone <code>&lt;i&gt;</code>'),
+                        ),
+                        array(
+                            'id'       => 'notifications_icon_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style de l&apos;icone <code>&lt;i&gt;</code>'),
                         ),
                         
                     )
                 );
 
                 $this->sections[] = array(
-                    'title'     => __('Notes de Livraisons', 'kidzou'),
-                    'icon'      => 'fa fa-file-text-o',
+                    'title'     => __('Newsletter', 'kidzou'),
+                    'icon'      => 'fa fa-envelope-o',
                     'fields'    => array(
 
-                        array( 
-                            'id'       => 'release_notes',
-                            'type'     => 'raw',
-                            'title'    => __('Quoi de neuf ?', 'kidzou'),
-                            'content'  => file_get_contents(dirname(__FILE__) . '../../../README.txt')
+                        array(
+                            'id'        => 'mailchimp_key',
+                            'type'      => 'text',
+                            'title'     => __('Cl&eacute; d&apos;API pour int&eacute;gration Mailchimp', 'kidzou'),
+                            'validate_callback' => 'set_mailchimp_lists'
                         ),
+                        array(
+                            'id'       => 'mailchimp_list',
+                            'type'     => 'select',
+                            'title'    => __('Liste Mailchimp pour la souscription Newsletter', 'kidzou'), 
+                            'subtitle' => __('Cette liste est utlis&eacute;e dans les notifications par exemple', 'kidzou'),
+                            'desc'     => __('Cette liste se pr&eacute;-rempli automatiquement lorsque la cl&eacute; Mailchimp est renseign&eacute;e', 'kidzou'),
+                            // Must provide key => value pairs for select options
+                            'options'  => $mailchimp_lists
+                        ),
+                        array(
+                            'id'       => 'newsletter_fields',
+                            'type'     => 'checkbox',
+                            'title'    => __('Champs du formulaire Newsletter', 'kidzou'), 
+                         
+                            //Must provide key => value pairs for multi checkbox options
+                            'options'  => array(
+                                'firstname' => 'Pr&eacute;nom',
+                                'lastname' => 'Nom',
+                                'zipcode' => 'Code Postal',
+                            ),
+                         
+                            //See how default has changed? you also don't need to specify opts that are 0.
+                            'default' => array(
+                                'firstname' => '0', 
+                                'lastname' => '0', 
+                                'zipcode' => '1'
+                            )
                         
+                        )
                     )
                 );
                 
+                /**
+                 * Sous section de mise en forme des messages de notification
+                 */
+                $this->sections[] = array(
+                    'icon'       => 'el-icon-website',
+                    'title'      => __( 'Mise en forme', 'kidzou' ),
+                    'subsection' => true,
+                    'fields'     => array(
+
+                        array(
+                            'id'        => 'newsletter_header',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Header du formulaire de Newsletter', 'kidzou'),
+                            'subtitle'  => __('Code HTML', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            // 'desc'      => 'Un javascript est attendu',
+                            'default'   => ''
+                        ),
+
+                        array(
+                            'id'       => 'newsletter_form_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_form_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style de l&apos;&eacute;l&eacute;ment <code>&lt;form&gt;</code>'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_labels_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS des <code>&lt;label&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_labels_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style des <code>&lt;label&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_input_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS des champs <code>&lt;input&gt;</code> du formulaire'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_input_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style des champs <code>&lt;input&gt;</code> du formulaire'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_button_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS du <code>&lt;button&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_button_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style du <code>&lt;button&gt;</code> de formulaire'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_error_class',
+                            'type'     => 'text',
+                            'title'    => __('Classe CSS du message d&apos;erreur'),
+                        ),
+                        array(
+                            'id'       => 'newsletter_error_style',
+                            'type'     => 'text',
+                            'title'    => __('Inline Style du message d&apos;erreur'),
+                        ),
+
+                        array(
+                            'id'        => 'newsletter_footer',
+                            'type'      => 'ace_editor',
+                            'title'     => __('Footer du formulaire de Newsletter', 'kidzou'),
+                            'subtitle'  => __('Code HTML', 'kidzou'),
+                            'mode'      => 'html',
+                            'theme'     => 'monokai',
+                            // 'desc'      => 'Un javascript est attendu',
+                            'default'   => ''
+                        ),
+                    )
+                );
+
+                // ACTUAL DECLARATION OF SECTIONS
+                $this->sections[] = array(
+                    'title'     => __('Performances', 'kidzou'),
+                    'icon'      => 'fa fa-bolt',
+                    'fields'    => array(
+
+                            array(
+                                'id'        => 'perf_activate_js',
+                                'type'      => 'checkbox',
+                                'default'   => '0',
+                                'title'     => __('Optimiser le chargement des JS par ajout de l&apos;attribut <em>async defer</em>', 'kidzou'),
+                                'subtitle'  => __('Les JS seront mis en footer et charg&eacute;s en <em>async defer</em>', 'kidzou'),
+
+                            ),
+
+                            array(
+                                'id'=>'perf_js_no_async',
+                                'type' => 'multi_text',
+                                'title' => __('Exclure les Javascripts suivants d&apos;un chargement asynchrone', 'kidzou'),
+                                'subtitle' => __('Cela n&apos;est utile que si les chargements asynchrones sont actifs', 'kidzou'),
+                            ),
+
+
+                            array(
+                                'id'        => 'perf_activate_css',
+                                'type'      => 'checkbox',
+                                'default'      => '0',
+                                'title'     => __('Optimiser le chargement des CSS', 'kidzou'),
+                                'subtitle'  => __('Les CSS seront charg&eacute;s en background en asynchrone par un Javascript', 'kidzou'),
+
+                            ),
+
+                            array(
+                                'id'        => 'perf_remove_css_id',
+                                'type'      => 'checkbox',
+                                'default'      => '0',
+                                'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
+                                'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
+
+                            ),
+
+                            array(
+                                'id'=>'perf_css_in_header',
+                                'type' => 'multi_text',
+                                'title' => __('Ne pas optimiser les CSS suivantes', 'kidzou'),
+                                'subtitle' => __('Les CSS list&eacute;es seront charg&eacute;es dans le footer. Il faut saisir les handle des CSS - Un handle par ligne', 'kidzou'),
+                            ),
+
+                            // array(
+                            //     'id'=>'perf_js_root_dependency',
+                            //     'type' => 'multi_text',
+                            //     'title' => __('Charger les Javascripts suivants en priorit&eacute;', 'kidzou'),
+                            //     'subtitle' => __('Ce sont par exemple les Javascripts qui sont utilis&eacute;s par les autres', 'kidzou'),
+                            // ),
+
+                            // array(
+                            //     'id'        => 'perf_add_async_attr',
+                            //     'type'      => 'checkbox',
+                            //     'default'      => '0',
+                            //     'title'     => __('Charger les Javascripts avec l&apos;attribut async', 'kidzou'),
+                            // ),
+
+                            
+                            array(
+                                'id'=>'perf_css_no_combine',
+                                'type' => 'multi_text',
+                                'title' => __('Ne pas combiner les CSS suivants avec les autres', 'kidzou'),
+                                'subtitle' => __('Cela n&apos;est utile que si les l&apos;option de combinaison CSS est active', 'kidzou'),
+                            ),
+                            
+                        )
+                    );
+
+                    $this->sections[] = array(
+                        'title'     => __('Notes de Livraisons', 'kidzou'),
+                        'icon'      => 'fa fa-file-text-o',
+                        'fields'    => array(
+
+                            array( 
+                                'id'       => 'release_notes',
+                                'type'     => 'raw',
+                                'title'    => __('Quoi de neuf ?', 'kidzou'),
+                                'content'  => file_get_contents(dirname(__FILE__) . '../../../README.txt')
+                            ),
+                            
+                        )
+                    );
+                    
             
         }
 

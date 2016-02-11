@@ -23,12 +23,12 @@ class JSON_API_Clients_Controller {
 
 		$id 		= $json_api->query->id;
 
-		if (!Kidzou_Utils::current_user_is('contributor'))
+		if (!Kidzou_Utils::current_user_can('can_edit_post'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		//attention au hack
 		//si le user n'est pas au moins auteur, l'API ne peut être utilisée que avec le $id du customer du user courant
-		if (!Kidzou_Utils::current_user_is('author')) {
+		if (!Kidzou_Utils::current_user_can('can_edit_customer')) {
 
 			$current_customers = Kidzou_Customer::getCustomersIDByUserID();
 			if (!in_array($id, $current_customers))
@@ -52,7 +52,7 @@ class JSON_API_Clients_Controller {
 
 		$term 		= $json_api->query->term;
 
-		if (!Kidzou_Utils::current_user_is('author'))
+		if (!Kidzou_Utils::current_user_can('can_edit_customer'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		if ($term=='')
@@ -108,7 +108,7 @@ class JSON_API_Clients_Controller {
 
 		global $json_api;
 
-		if (!Kidzou_Utils::current_user_is('admin'))
+		if (!Kidzou_Utils::current_user_can('can_edit_customer'))
 			$json_api->error("Vous n'avez pas le droit d'utiliser cette fonction.");
 
 		$id 		= $json_api->query->id; //ID du client
@@ -158,7 +158,7 @@ class JSON_API_Clients_Controller {
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
 
-		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') ) $json_api->error("Vous n'avez pas les droits suffisants");
 		
 		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1 ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 		if ( !isset($_POST['posts']) || !is_array($_POST['posts']) ) $json_api->error("l'élement 'posts' n'est pas reconnu");
@@ -192,7 +192,7 @@ class JSON_API_Clients_Controller {
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
 
-		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') ) $json_api->error("Vous n'avez pas les droits suffisants");
 		
 		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1 ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 		if ( !isset($_POST['users']) || !is_array($_POST['users']) ) $json_api->error("l'élement 'users' n'est pas reconnu");
@@ -204,7 +204,7 @@ class JSON_API_Clients_Controller {
 	}
 
 	/**
-	* Quota d'accès aux API pour le client
+	* Changement du Quota d'accès aux API pour le client
 	* 
 	* @param $_POST Array un tableau contenant le quota par méthode d'API
 	**/
@@ -226,7 +226,7 @@ class JSON_API_Clients_Controller {
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
 
-		if ( !Kidzou_Utils::current_user_is('administrator') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') ) $json_api->error("Vous n'avez pas les droits suffisants");
 
 		if ( !isset($_POST['quota']) || !is_array($_POST['quota']) ) $json_api->error("l'élement 'quota' n'est pas reconnu");
 		
@@ -263,7 +263,7 @@ class JSON_API_Clients_Controller {
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
 
-		if ( !Kidzou_Utils::current_user_is('administrator') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') ) $json_api->error("Vous n'avez pas les droits suffisants");
 		
 		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 

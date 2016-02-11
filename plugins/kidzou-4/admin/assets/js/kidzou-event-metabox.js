@@ -65,7 +65,8 @@ var kidzouEventModule = function ($) {
 			}
 
 			return {
-				weekDaysGroup: wdg
+				weekDaysGroup: wdg,
+				allowRecurrence: event_jsvars.allow_recurrence
 			};
 		},
 
@@ -78,8 +79,8 @@ var kidzouEventModule = function ($) {
 			var endValue = recurrence.endType == 'date' ? moment(recurrence.endValue).toDate() : recurrence.endValue;
 			var repeatModel = recurrence.model || 'weekly';
 			var repeatItems = recurrence.repeatItems || [];
-			var startDate = typeof event_jsvars.start_date !== 'undefined' ? moment(event_jsvars.start_date).toDate() : null;
-			var endDate = typeof event_jsvars.end_date !== 'undefined' ? moment(event_jsvars.end_date).toDate() : null;
+			var startDate = typeof event_jsvars.start_date !== 'undefined' && event_jsvars.start_date !== '' ? moment(event_jsvars.start_date, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
+			var endDate = typeof event_jsvars.end_date !== 'undefined' && event_jsvars.end_date !== '' ? moment(event_jsvars.end_date, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
 			var pastDates = event_jsvars.past_dates || [];
 
 			return {
@@ -94,6 +95,27 @@ var kidzouEventModule = function ($) {
 				repeatItems: repeatItems
 			};
 		},
+
+		/** 
+   * Utilisation du composant depuis l'exterieur au travers de la variable globale setPlace
+   */
+		componentWillMount: function componentWillMount() {
+			var self = this;
+
+			//envoi de dates depuis l'exterieur
+			setDates = function setDates(_start_date, _end_date, _recurrence) {
+				// console.debug('setDates', _start_date, _end_date);
+				self.setState({
+					from: moment(_start_date).toDate(),
+					to: moment(_end_date).toDate(),
+					isRecurrence: false
+				}, function () {
+					self.saveEvent();
+					// console.debug('setDates end');
+				});
+			};
+		},
+
 		/**
    * Eviter les boucles infinies d'update causées par l'interaction avec le ChecboxGroup
    * Pas reussi à trouver le bug
@@ -131,8 +153,6 @@ var kidzouEventModule = function ($) {
 							numberOfMonths: 2,
 							onDayClick: this.handleDayClick,
 							modifiers: modifiers }),
-						React.createElement('input', { type: 'hidden', name: 'kz_event_start_date', value: moment(this.state.from).format("YYYY-MM-DD 00:00:00") }),
-						React.createElement('input', { type: 'hidden', name: 'kz_event_end_date', value: moment(this.state.to).format("YYYY-MM-DD 23:59:59") }),
 						React.createElement(
 							'div',
 							null,
@@ -197,11 +217,13 @@ var kidzouEventModule = function ($) {
 							React.createElement(HintMessage, { ref: function ref(c) {
 									return _this._hintMessage = c;
 								} })
-						)
+						),
+						React.createElement('input', { type: 'hidden', name: 'kz_event_start_date', value: moment(this.state.from).format("YYYY-MM-DD 00:00:00") }),
+						React.createElement('input', { type: 'hidden', name: 'kz_event_end_date', value: moment(this.state.to).format("YYYY-MM-DD 23:59:59") })
 					),
-					this.state.from !== null && React.createElement(Checkbox, { change: this.handleRecurrenceClick, isChecked: this.state.isRecurrence, label: 'Evénement récurrent :', name: 'kz_event_is_reccuring' })
+					this.state.from !== null && this.props.allowRecurrence && React.createElement(Checkbox, { change: this.handleRecurrenceClick, isChecked: this.state.isRecurrence, label: 'Evénement récurrent :', name: 'kz_event_is_reccuring' })
 				),
-				this.state.isRecurrence && React.createElement(
+				this.state.isRecurrence && this.props.allowRecurrence && React.createElement(
 					'ul',
 					null,
 					React.createElement(
@@ -573,4 +595,11 @@ var kidzouEventModule = function ($) {
 	});
 
 	ReactDOM.render(React.createElement(Event, null), document.querySelector('#kz_event_metabox .react-content'));
+
+	//global vars accessible de l'extérieur
+	var setDates;
+
+	return {
+		setDates: setDates //init depuis l'exterieur
+	};
 }(jQuery);

@@ -88,6 +88,7 @@ var Field = React.createClass({
       var tabIndex = (this.props.tabIndex || 0);
       var inputName = this.state.inputPrefix + this.props.updateParam;
       var text = '' + this.props.text; //forcer le type string 
+      // console.debug('render field',this.props.updateParam, text);
       return (
         <li>
            <span className="editableLabel">{this.props.label}</span>

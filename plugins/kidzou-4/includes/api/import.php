@@ -15,8 +15,9 @@ class JSON_API_Import_Controller {
 
 		global $json_api;
 
+		if ( !Kidzou_Utils::current_user_can('can_edit_post') ) $json_api->error("Vous n'avez pas les droits suffisants");
+
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
-		
 
 		if ( !isset($_POST['url']) || !isset($_POST['title']) ||  !isset($_POST['post_id'])) $json_api->error("Données manquantes");
 

@@ -46,11 +46,13 @@ var kidzouFeaturedModule = (function($) { //havre de paix
 
 
 	});
-
-	ReactDOM.render(
-		<Featured />, 
-		document.querySelector('#kz_featured_metabox .react-content')
-	);
-
+	
+	//tous les users ne voient pas cette metabox, dans ce cas l'élément DOM n'existe pas
+	if (document.querySelector('#kz_featured_metabox .react-content')!==null) {
+		ReactDOM.render(
+			<Featured />, 
+			document.querySelector('#kz_featured_metabox .react-content')
+		);
+	}
 
 }(jQuery));
