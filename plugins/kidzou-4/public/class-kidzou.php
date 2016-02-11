@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'metabox-refactoring-fix3';
+	const VERSION = 'options-permissions';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Migration des Metabox vers ReactJS";
+	public static $version_description = "Paramétrisation des permissions";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin

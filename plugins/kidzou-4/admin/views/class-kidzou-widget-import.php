@@ -51,11 +51,14 @@ class Kidzou_Widget_Import {
  
     function add_widget() {
 
-		wp_add_dashboard_widget(
-            'kidzou_import',
-            'Importez un événement Facebook',
-           	array($this, 'widget_content')
-        );
+    	if (Kidzou_Utils::current_user_can('can_import_facebook') ) {
+
+			wp_add_dashboard_widget(
+	            'kidzou_import',
+	            'Importez un événement Facebook',
+	           	array($this, 'widget_content')
+	        );
+		}
     	
 
     }
@@ -69,9 +72,11 @@ class Kidzou_Widget_Import {
  		wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
 		wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
 
-		wp_enqueue_script('react',				"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array(), '0.14.7', true);
+		wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array(), '0.14.7', true);
+		wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
 
-		wp_enqueue_script('kidzou-import-metabox', plugins_url( 'assets/js/kidzou-import-metabox.js', dirname(__FILE__) ) ,array('jquery', 'moment'), Kidzou::VERSION, true);
+		wp_enqueue_script('kidzou-react', 			plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+		wp_enqueue_script('kidzou-import-metabox', 	plugins_url( 'assets/js/kidzou-import-metabox.js', dirname(__FILE__) ) ,array('jquery', 'moment', 'react-dom'), Kidzou::VERSION, true);
 
 		$facebook_appId 	= $kidzou_options['fb_app_id'];
 		$facebook_appSecret = $kidzou_options['fb_app_secret'];

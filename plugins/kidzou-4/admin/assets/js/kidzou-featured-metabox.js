@@ -52,5 +52,8 @@ var kidzouFeaturedModule = function ($) {
 
 	});
 
-	ReactDOM.render(React.createElement(Featured, null), document.querySelector('#kz_featured_metabox .react-content'));
+	//tous les users ne voient pas cette metabox, dans ce cas l'élément DOM n'existe pas
+	if (document.querySelector('#kz_featured_metabox .react-content') !== null) {
+		ReactDOM.render(React.createElement(Featured, null), document.querySelector('#kz_featured_metabox .react-content'));
+	}
 }(jQuery);

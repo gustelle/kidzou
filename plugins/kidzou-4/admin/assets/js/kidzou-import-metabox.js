@@ -13,12 +13,14 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 
 			if (response && !response.error && typeof response.start_time != 'undefined') {
 
-				//import en background par ajax
+				//import en background par ajax, on n'est pas dans un post
+				//typiquement on est sur le dashboard d'amin (widget)
 				if (import_jsvars.background_import) {
 
 					var startend_time = typeof response.end_time == 'undefined' ? response.start_time : response.end_time;
 					var place = response.place || {};
 					var location = place.location || {};
+					var country_long = location.country || 'france'; //si aucun pays spécifié on considère que c'est en france
 
 					//source : 'api' inique que cette source de données est fiable, pas besoin de redressement
 					var apiInfo = {
@@ -35,7 +37,7 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 							zip: location.zip,
 							lat: location.latitude,
 							lng: location.longitude,
-							country: location.country.toLowerCase() == 'france' ? 'FR' : 'US', //sert de marqueur de redressement d'adresse sur le backend
+							country: country_long.toLowerCase() == 'france' ? 'FR' : 'US', //sert de marqueur de redressement d'adresse sur le backend
 							adresseComplete: ''
 						},
 						dates: {
@@ -52,9 +54,10 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 						jQuery.post(import_jsvars.api_base + '/api/content/create_post/', {
 							data: apiInfo,
 							nonce: n.nonce,
-							location: location,
 							author_id: author_id
 						}).done(function (r) {
+
+							if ((typeof r.post_id == 'undefined' || typeof r.error != 'undefined') && typeof errorCallback === "function") errorCallback({ msg: 'Vous n\'avez pas les droits pour créer un article' });
 
 							jQuery.post(import_jsvars.api_addMediaFromURL, {
 								url: response.cover.source,
@@ -64,19 +67,20 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 								if (typeof resp.status !== 'undefined' && resp.status == 'error' && typeof errorCallback === "function") errorCallback(resp);else if (typeof successCallback === "function") successCallback(r);
 							}).fail(function (err) {
 								// console.error('erreur lors de l\'import de la photo', err);
-								if (typeof errorCallback === "function") errorCallback(err);
+								if (typeof errorCallback === "function") errorCallback({ msg: 'Impossible d\'enregistrer l\’image' });
 							});
 						}).fail(function (err) {
-							if (typeof errorCallback === "function") errorCallback(err);
+							if (typeof errorCallback === "function") errorCallback({ msg: 'Impossible de créer l\'article' });
 						});
 					});
 
 					//sinon pré-remplissage des champs sur le post
 				} else if (!import_jsvars.background_import) {
 
-						if (window.kidzouEventsModule) {
+						if (window.kidzouEventModule) {
+
 							var startend_time = typeof response.end_time == 'undefined' ? response.start_time : response.end_time;
-							kidzouEventsModule.model.initDates(moment(response.start_time).startOf("day").format("YYYY-MM-DD HH:mm:ss"), moment(startend_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"), []); //pas de récurrence
+							kidzouEventModule.setDates(moment(response.start_time).startOf("day").format("YYYY-MM-DD HH:mm:ss"), moment(startend_time).endOf("day").format("YYYY-MM-DD HH:mm:ss"), []); //pas de récurrence
 						}
 
 						//on est dans l'édition d'un post
@@ -84,6 +88,7 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 
 						//remplacer les CR LF par des <br>
 						if (typeof response.description != 'undefined' && window.tinyMCE) {
+
 							var content = response.description.replace(/(\r\n|\n|\r)/gm, "<br/>");
 							//le contenu de Facebook est ajouté à la fin du contenu pré-existant
 							//il faut donc récupérer le contenu existant
@@ -106,7 +111,7 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 								name: _locationName,
 								address: _address,
 								website: value, //website
-								phone: _phone, //phone
+								phone_number: _phone, //phone
 								city: _city,
 								latitude: _latitude,
 								longitude: _longitude,
@@ -138,7 +143,7 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 								if (typeof successCallback === "function") successCallback(resp);
 							}).fail(function (err) {
 								// console.error('erreur lors de l\'import de la photo', err);
-								if (typeof errorCallback === "function") errorCallback(err);
+								if (typeof errorCallback === "function") errorCallback({ msg: 'Impossible d\'enregistrer l\’image' });
 							});
 						} else {
 							//pas d'import de photo (cover)
@@ -149,7 +154,9 @@ var applyChange = function applyChange(value, token, progressCallback, successCa
 				if (typeof errorCallback === "function") errorCallback(response);
 			}
 		}); //FB.api
-	}
+	} else {
+			if (typeof errorCallback === "function") errorCallback({ msg: 'cela ne correspond pas à l\'URL d\'un événement Facebook' });
+		}
 };
 
 /**
@@ -162,12 +169,7 @@ var ImportForm = React.createClass({
 
 	getInitialState: function getInitialState() {
 		return {
-			statusClass: '',
-			statusMessage: '',
 			inputClass: '',
-			hintStyle: {
-				display: 'none'
-			},
 			content_edit_url: ''
 		};
 	},
@@ -194,14 +196,11 @@ var ImportForm = React.createClass({
 		var value = e.target.value;
 
 		self.setState({
-			statusClass: 'fa fa-spinner fa-spin',
-			statusMessage: 'Import en cours...',
 			inputClass: 'valid',
-			hintStyle: {
-				display: 'inline'
-			},
 			content_edit_url: ''
 		});
+
+		self._hintMessage.onProgress('Import en cours');
 
 		////////////////////////////////////////////
 		//petit Timeout pour assurer que le token a bien eu le temps d'etre récupéré
@@ -209,35 +208,31 @@ var ImportForm = React.createClass({
 
 			applyChange(value, self.state.token, function (response) {
 				//progress
+				self._hintMessage.onProgress('Import en cours');
 			}, function (response) {
 
-				console.debug('received', response);
+				// console.debug('received', response);
+				self._hintMessage.onSuccess('Import terminé');
 				//success
 				self.setState({
-					statusClass: 'fa fa-check',
-					statusMessage: 'Import terminé',
 					inputClass: 'valid',
-					hintStyle: {
-						display: 'inline'
-					},
 					content_edit_url: response.post_edit_url
 				});
 			}, function (response) {
-				console.error('received', response);
+				// console.error('received', response);
+				var msg = response.msg || 'L\'import a échoué';
+				self._hintMessage.onError(msg);
 				//error
 				self.setState({
-					statusClass: 'fa fa-exclamation-circle',
-					statusMessage: 'L\'import a échoué',
 					inputClass: 'invalid',
-					hintStyle: {
-						display: 'inline'
-					},
 					content_edit_url: ''
 				});
 			});
 		}, 1000);
 	},
 	render: function render() {
+		var _this = this;
+
 		return React.createElement(
 			"div",
 			{ className: "kz_form", id: "import_form" },
@@ -282,12 +277,9 @@ var ImportForm = React.createClass({
 						onChange: this.handleChange,
 						onFocus: this.getToken,
 						className: this.state.inputClass }),
-					React.createElement(
-						"span",
-						{ className: "form_hint", style: this.state.hintStyle },
-						React.createElement("i", { className: this.state.statusClass }),
-						this.state.statusMessage
-					)
+					React.createElement(HintMessage, { ref: function ref(c) {
+							return _this._hintMessage = c;
+						} })
 				)
 			),
 			this.state.content_edit_url && React.createElement(
@@ -296,14 +288,15 @@ var ImportForm = React.createClass({
 				React.createElement(
 					"a",
 					{ href: this.state.content_edit_url, target: "_blank" },
-					"Vous pouvez continuer l'édition du contenu importé ici "
+					React.createElement("i", { className: "fa fa-external-link" }),
+					" Vous pouvez continuer l'édition du contenu importé ici "
 				)
 			)
 		);
 	}
 });
 
-React.render(React.createElement(ImportForm, null), document.querySelector(import_jsvars.import_form_parent));
+ReactDOM.render(React.createElement(ImportForm, null), document.querySelector(import_jsvars.import_form_parent));
 
 //initialisation des scripts facebook pour import d'événement par le Graph
 window.fbAsyncInit = function () {
