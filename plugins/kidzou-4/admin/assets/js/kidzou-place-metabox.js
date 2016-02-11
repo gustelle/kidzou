@@ -157,6 +157,8 @@ var kidzouPlaceModule = function () {
             post_id: postID
           }).done(function (r) {
 
+            if (r.status == 'error' && typeof errorCallback === "function") errorCallback({ msg: r.error });
+
             if (r.status == 'ok' && typeof r.result !== 'undefined' && r.result !== null && typeof r.result.errors !== 'undefined' && typeof errorCallback === "function") errorCallback(r);else if (typeof successCallback === "function") successCallback(r);
           }).fail(function (err) {
             console.error(err);
@@ -177,6 +179,13 @@ var kidzouPlaceModule = function () {
   //PlaceEditorModel
   var PlaceEditor = React.createClass({
     displayName: 'PlaceEditor',
+
+    getDefaultProps: function getDefaultProps() {
+
+      return {
+        canEditCustomer: place_jsvars.allow_edit_customer
+      };
+    },
 
     getInitialState: function getInitialState() {
       return {
@@ -200,7 +209,9 @@ var kidzouPlaceModule = function () {
             icon: '',
             message: ''
           }
-        }
+        },
+        isCustomer: false, //pas de customer séléectionné dans les autres metabox
+        isCustomerButtonDisabled: false //ce booléen servira de marqueur pour désactiver explicitement le bouton 'utiliser cette adresse pour le client'
       };
     },
 
@@ -220,8 +231,11 @@ var kidzouPlaceModule = function () {
 
         //si aucune place n'était enregistrée, on prend direct la proposition
         if (maPlace.isEmpty()) {
+
           self.setState({
             place: _place
+          }, function () {
+            self.savePlace();
           });
 
           // sinon, on propose à condition que les lieux ne soient pas identiques...
@@ -247,6 +261,13 @@ var kidzouPlaceModule = function () {
           self._suggest.clear();
         });
       };
+
+      //positionnement du booléen isCustomer
+      setCustomer = function setCustomer(_isCustomer) {
+        self.setState({
+          isCustomer: _isCustomer
+        });
+      };
     },
 
     /**
@@ -258,6 +279,7 @@ var kidzouPlaceModule = function () {
       var types = ['establishment'];
       var displayForm = this.state.place.name !== '' || this.state.place.address !== '' || this.state.place.city !== '' || this.state.place.latitude !== '' || this.state.place.longitude !== '' || this.state.place.website !== '' || this.state.place.phone_number !== '';
       var pointer = { cursor: 'pointer' };
+      var disableCustomerButton = !displayForm || this.state.isCustomerButtonDisabled ? 'disabled' : '';
 
       return React.createElement(
         'div',
@@ -328,16 +350,23 @@ var kidzouPlaceModule = function () {
           'p',
           null,
           React.createElement(
-            'a',
-            { onClick: this.onResetForm, style: { cursor: 'pointer' }, className: 'button' },
+            'button',
+            { onClick: this.onResetForm, className: 'button' },
             React.createElement('i', { className: 'fa fa-eraser' }),
             ' Remettre à zero'
           ),
-          React.createElement(
-            'a',
-            { onClick: this.onUseForCustomer, style: { cursor: 'pointer', marginLeft: '0.4em' }, className: 'button' },
-            React.createElement('i', { className: 'fa fa-mail-forward' }),
-            ' Utiliser cette adresse pour le client'
+          this.props.canEditCustomer && this.state.isCustomer && React.createElement(
+            'span',
+            null,
+            React.createElement(
+              'button',
+              { onClick: this.onUseForCustomer, style: { marginLeft: '0.4em' }, className: 'button primary', disabled: disableCustomerButton },
+              React.createElement('i', { className: 'fa fa-mail-forward' }),
+              ' Utiliser cette adresse pour le client'
+            ),
+            React.createElement(HintMessage, { ref: function ref(c) {
+                return _this2._useForCustomerMessage = c;
+              } })
           )
         ),
         React.createElement(PlacesProposals, { proposals: this.state.placesProposals }),
@@ -408,12 +437,14 @@ var kidzouPlaceModule = function () {
             }
           });
 
+          // console.debug('placeResult', placeResult);
+
           self.setState({
             place: {
               name: placeResult.name,
               address: placeResult.formatted_address,
-              website: placeResult.website,
-              phone_number: placeResult.formatted_phone_number,
+              website: placeResult.website || '',
+              phone_number: placeResult.formatted_phone_number || '',
               city: city,
               latitude: placeResult.geometry.location.lat(), //latitude
               longitude: placeResult.geometry.location.lng(), //longitude
@@ -432,6 +463,7 @@ var kidzouPlaceModule = function () {
      *
      */
     savePlace: function savePlace() {
+
       var self = this;
       kidzouPlaceEditor.model.completePlace(self.state.place, function (data) {
         var msg = data ? data.msg || 'Enregistrement' : 'Enregistrement';
@@ -446,6 +478,9 @@ var kidzouPlaceModule = function () {
         self._hintMessage.onError(msg);
       } //error
       );
+
+      //Relacher le bouton client
+      self.setState({ isCustomerButtonDisabled: false });
     },
 
     /**
@@ -473,15 +508,33 @@ var kidzouPlaceModule = function () {
         manualMode: true
       });
       this._suggest.clear();
+      //figer le bouton client
+      self.setState({ isCustomerButtonDisabled: true });
     },
 
     /**
-     * To use this adress for the customer
+     * use this adress as customer's default place
      */
-    onUseForCustomer: function onUseForCustomer() {
-      console.debug('onUseForCustomer', window.kidzouCustomerModule);
+    onUseForCustomer: function onUseForCustomer(evt) {
+
+      var self = this;
+
+      //ne pas soumettre la page
+      evt.preventDefault();
+      this.setState({ isCustomerButtonDisabled: true });
+
       if (window.kidzouCustomerModule) {
-        kidzouCustomerModule.setPlace(this.state.place);
+
+        kidzouCustomerModule.setPlace(this.state.place, function (msg) {
+          var _msg = msg || 'Mise à jour du client';
+          self._useForCustomerMessage.onProgress(_msg);
+        }, function (msg) {
+          var _msg = msg || 'Adresse client mise à jour';
+          self._useForCustomerMessage.onSuccess(_msg);
+        }, function (msg) {
+          var _msg = msg || 'Impossible de mettre à jour l\'adresse';
+          self._useForCustomerMessage.onError(_msg);
+        });
       }
     },
 
@@ -490,13 +543,15 @@ var kidzouPlaceModule = function () {
      * @param  {Object} edited data
      */
     onEdit: function onEdit(data, progress, success, error) {
-      // console.debug('onEdit', data, this.state);
 
       var self = this;
       var keys = Object.keys(data);
       var _place = self.state.place;
       _place[keys[0]] = data[keys[0]];
       self.setState(_place);
+
+      //relacher le bouton client
+      self.setState({ isCustomerButtonDisabled: false });
 
       kidzouPlaceEditor.model.completePlace(_place, function (msg) {
         if (typeof progress === 'function') progress(msg);
@@ -572,10 +627,11 @@ var kidzouPlaceModule = function () {
   //global vars accessible de l'extérieur
   var proposePlace;
   var _changePlace;
-  // var removeProposal;
+  var setCustomer;
 
   return {
     model: kidzouPlaceEditor.model, //necessaire de fournir un acces pour interaction avec Google Maps ??
-    proposePlace: proposePlace //propositions de places depuis l'exterieur, mis à jour lors de componentWillMount
+    proposePlace: proposePlace, //propositions de places depuis l'exterieur, mis à jour lors de componentWillMount
+    setCustomer: setCustomer // booléen qui informe le module qu'un client est séléctionné
   };
 }(); //kidzouPlaceModule

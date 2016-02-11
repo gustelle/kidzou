@@ -72,13 +72,13 @@ class Kidzou_Metaboxes_Event {
 			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
 			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
 
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array('jquery'), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
 			
-			wp_enqueue_script( 'daypicker-locale-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-LocaleUtils.js', dirname(__FILE__) ), array('moment' ), '1.0', true);
-			wp_enqueue_script( 'daypicker-date-utils', 		plugins_url( '/assets/js/lib/react-DayPicker-DateUtils.js', dirname(__FILE__) ), array( ), '1.0', true);
-			wp_enqueue_script( 'daypicker', 	plugins_url( '/assets/js/lib/react-DayPicker.js', dirname(__FILE__) ), array( 'daypicker-locale-utils', 'daypicker-date-utils', 'react-dom'), '1.0', true);
-			wp_enqueue_style( 'daypicker', 		plugins_url( 'assets/css/lib/react-DayPicker.css', dirname(__FILE__) )  );
+			wp_enqueue_script( 	'daypicker-locale-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-LocaleUtils.js', dirname(__FILE__) ), array('moment' ), '1.0', true);
+			wp_enqueue_script( 	'daypicker-date-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-DateUtils.js', dirname(__FILE__) ), array( ), '1.0', true);
+			wp_enqueue_script( 	'daypicker', 		plugins_url( '/assets/js/lib/react-DayPicker.js', dirname(__FILE__) ), array( 'daypicker-locale-utils', 'daypicker-date-utils', 'react-dom'), '1.0', true);
+			wp_enqueue_style( 	'daypicker', 		plugins_url( 'assets/css/lib/react-DayPicker.css', dirname(__FILE__) )  );
 
 			wp_enqueue_script( 'radio-group', 	plugins_url( '/assets/js/lib/react-radio-group.js', dirname(__FILE__) ), array(  'react-dom'), '1.0', true);
 
@@ -95,14 +95,13 @@ class Kidzou_Metaboxes_Event {
 			$past_dates		= $event_meta['past_dates'];
 
 			wp_localize_script('kidzou-event-metabox', 'event_jsvars', array(
-					// 'api_getClients'				=> site_url()."/api/clients/getClients/",
-					// 'api_getCustomerPlace'			=> site_url()."/api/clients/getCustomerPlace/",
 					'start_date'					=> $start_date,
 					'end_date'						=> $end_date,
 					'recurrence'					=> $recurrence,
 					'past_dates'					=> $past_dates,
 					'api_base'						=> site_url(),
-					'api_save_event'				=> site_url()."/api/content/eventData/"
+					'api_save_event'				=> site_url()."/api/content/eventData/",
+					'allow_recurrence'				=> Kidzou_Utils::current_user_can('can_set_event_recurrence')
 				)
 			);
 

@@ -75,8 +75,8 @@ class Kidzou_Metaboxes_Customer {
 
 		if ( in_array($screen->id , $this->screen_with_meta_client) || in_array($screen->id, $this->customer_screen) ) { 
 
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array('jquery'), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
 
 			//inline edit
 			wp_enqueue_script('react-inline-edit', plugins_url( 'assets/js/lib/react-inline-edit.js', dirname(__FILE__) ), array('react'), '1.0', true);
@@ -281,7 +281,7 @@ class Kidzou_Metaboxes_Customer {
 			add_meta_box('kz_customer_apis', 'API', array($this, 'customer_apis'), $screen->id, 'normal', 'high');
 			add_meta_box('kz_customer_users_metabox', 'Utilisateurs', array($this, 'customer_users_metabox'), $screen->id, 'normal', 'high');
 		
-		} elseif ( in_array($screen->id , $this->screen_with_meta_client) && Kidzou_Utils::current_user_is('author') ) { 
+		} elseif ( in_array($screen->id , $this->screen_with_meta_client) && Kidzou_Utils::current_user_can('can_edit_customer') ) { 
 
 			//par sécu, les users qui sont contributeurs ne voient même pas la metabox de sélection du client
 			add_meta_box('kz_client_metabox', 'Client', array($this, 'client_metabox'), $screen->id, 'normal', 'high'); 
@@ -405,7 +405,7 @@ class Kidzou_Metaboxes_Customer {
 	        return;
 	    }
 
-		if ( !Kidzou_Utils::current_user_is('author') ) {
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') ) {
 
 			//le user ne voit pas la meta client s'il n'est pas au moins auteur
 			//dans ce cas on rattache le post au client du user
@@ -509,7 +509,7 @@ class Kidzou_Metaboxes_Customer {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !Kidzou_Utils::current_user_is('author') )
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data
@@ -552,7 +552,7 @@ class Kidzou_Metaboxes_Customer {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !Kidzou_Utils::current_user_is('author') )
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') )
 			return $post_id;
 
 		$posts = (isset($_POST['customer_posts']) ? explode(",", $_POST['customer_posts']) : array());
@@ -592,7 +592,7 @@ class Kidzou_Metaboxes_Customer {
 			return $post_id;
 
 		// seuls les users sont autorisés
-		if ( !Kidzou_Utils::current_user_is('author') )
+		if ( !Kidzou_Utils::current_user_can('can_edit_customer') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data

@@ -63,7 +63,7 @@ class Kidzou_Widget_Dashboard {
     	global $kidzou_options;
 
     	//uniquement poru ceux qui peuvent contribuer
-    	if (isset($kidzou_options['widget_guidelines_activate']) && $kidzou_options['widget_guidelines_activate'] && Kidzou_Utils::current_user_is('contributor') ) {
+    	if (isset($kidzou_options['widget_guidelines_activate']) && $kidzou_options['widget_guidelines_activate'] && Kidzou_Utils::current_user_can('can_contribute') ) {
 
     		 wp_add_dashboard_widget(
 	            'kidzou_contributor_guidelines',

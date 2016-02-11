@@ -61,7 +61,8 @@ var kidzouEventModule = (function($) { //havre de paix
 			}
 
 			return {
-				weekDaysGroup : wdg
+				weekDaysGroup : wdg,
+				allowRecurrence : event_jsvars.allow_recurrence
 			};
 		},
 
@@ -74,10 +75,10 @@ var kidzouEventModule = (function($) { //havre de paix
 			var endValue = (recurrence.endType=='date' ? moment(recurrence.endValue).toDate() : recurrence.endValue);
 			var repeatModel = (recurrence.model || 'weekly');
 			var repeatItems = (recurrence.repeatItems || []);
-			var startDate = (typeof event_jsvars.start_date!=='undefined' ? moment(event_jsvars.start_date).toDate() : null); 
-			var endDate = (typeof event_jsvars.end_date!=='undefined' ? moment(event_jsvars.end_date).toDate() : null); 
+			var startDate = (typeof event_jsvars.start_date!=='undefined' && event_jsvars.start_date!=='' ? moment(event_jsvars.start_date, 'YYYY-MM-DD HH:mm:ss').toDate() : null); 
+			var endDate = (typeof event_jsvars.end_date!=='undefined' && event_jsvars.end_date!=='' ? moment(event_jsvars.end_date, 'YYYY-MM-DD HH:mm:ss').toDate() : null); 
 			var pastDates = (event_jsvars.past_dates || []);
-	
+
 			return {
 				from: startDate,
     			to: endDate,
@@ -90,6 +91,27 @@ var kidzouEventModule = (function($) { //havre de paix
     			repeatItems : repeatItems,
 			};
 	    },
+
+	    /** 
+	     * Utilisation du composant depuis l'exterieur au travers de la variable globale setPlace
+	     */
+	    componentWillMount: function() {
+	    	var self = this;
+
+	    	//envoi de dates depuis l'exterieur
+	    	setDates = (_start_date, _end_date, _recurrence) => {
+	    		// console.debug('setDates', _start_date, _end_date);
+	    		self.setState({
+	    			from 	: moment(_start_date).toDate(),
+	    			to 		: moment(_end_date).toDate(),
+	    			isRecurrence : false,
+	    		}, function(){
+	    			self.saveEvent();
+	    			// console.debug('setDates end');
+	    		});
+	      	};
+	    },
+
 	    /**
 	     * Eviter les boucles infinies d'update causées par l'interaction avec le ChecboxGroup
 	     * Pas reussi à trouver le bug
@@ -119,9 +141,6 @@ var kidzouEventModule = (function($) { //havre de paix
 					          	numberOfMonths={ 2 }
 					          	onDayClick={ this.handleDayClick }
 					          	modifiers={ modifiers } />
-
-					        <input type="hidden" name="kz_event_start_date" value={ moment(this.state.from).format("YYYY-MM-DD 00:00:00") } />
-					        <input type="hidden" name="kz_event_end_date" 	value={ moment(this.state.to).format("YYYY-MM-DD 23:59:59") } />
 					        
 					        <div>
 					          	{ (this.state.from==null && this.state.to==null) && 
@@ -153,15 +172,19 @@ var kidzouEventModule = (function($) { //havre de paix
 		
 					        	<HintMessage ref={(c) => this._hintMessage = c} />
 					        </div>
+
+					        <input type="hidden" name="kz_event_start_date" value={ moment(this.state.from).format("YYYY-MM-DD 00:00:00") } />
+					        <input type="hidden" name="kz_event_end_date" 	value={ moment(this.state.to).format("YYYY-MM-DD 23:59:59") } />
+
 					    </li>
 
-					    { this.state.from!==null  &&
+					    { this.state.from!==null  && this.props.allowRecurrence && 
 					    	<Checkbox change={this.handleRecurrenceClick} isChecked={this.state.isRecurrence} label="Ev&eacute;nement r&eacute;current :" name="kz_event_is_reccuring" />
 					    }
 
 					</ul>
 
-					{ this.state.isRecurrence &&
+					{ this.state.isRecurrence && this.props.allowRecurrence &&
 					<ul>
 						<li>
 				    		<label htmlFor="kz_event_reccurence_model">Type de r&eacute;currence:</label>
@@ -447,6 +470,13 @@ var kidzouEventModule = (function($) { //havre de paix
 		<Event />, 
 		document.querySelector('#kz_event_metabox .react-content')
 	);
+
+	//global vars accessible de l'extérieur
+	var setDates;
+
+	return {
+		setDates : setDates //init depuis l'exterieur 
+	};
 
 
 }(jQuery));

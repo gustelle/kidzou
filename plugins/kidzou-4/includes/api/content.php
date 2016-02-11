@@ -49,11 +49,16 @@ class JSON_API_Content_Controller {
 	    }
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
-		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		
+		if ( !Kidzou_Utils::current_user_can('can_edit_post') ) $json_api->error("Vous n'avez pas les droits suffisants");
 
 		if ( !isset($_POST['data']) ) $json_api->error("l'élement 'data' est attendu en parametre POST");
 
-		$data 		= $_POST['data'];
+		//attention aux différentes permissions pour créer un contenu
+		$is_author 		= Kidzou_Utils::current_user_can('can_edit_customer') ;
+		$feedback 		= array();
+
+		$data 			= $_POST['data'];
 
 		$titre 			= $data['titre'];
 		$description 	= $data['description'];
@@ -71,9 +76,9 @@ class JSON_API_Content_Controller {
 
 		$adresseRedresseeCorrecte = false;
 
-		if ( isset($_POST['location']) ) {
+		if ( isset($data['adresse']) ) {
 
-			$location = $_POST['location'];
+			$location = $data['adresse'];
 
 			$street 	= $location['street'];
 			$city 		= $location['city'];
@@ -84,22 +89,32 @@ class JSON_API_Content_Controller {
 			//on va surcharger le nom du customer
 			$name = $location['name'];
 
+			$location_address = ($street.$postalCode.$city=='' ? '' : $street.', '.$postalCode.' '.$city);
+
 			//généralement quand l'adresse n'est pas bien redréssée le pays est 'US' 
 			//de toute facon sur Kidzou on utilise des adresses en 'FR'
 			$adresseRedresseeCorrecte = ($location['country']=='FR');
 		}
 		
-		$author_id = -1;
-		if ( isset($_POST['author_id']) ) {
-			$author_id = intval($_POST['author_id']);
-		}
-
-		//recuperer le user "KidzouTeam"
-		if ($author_id<0)
-			$author_id 			= Kidzou_Utils::get_option('import_author_id');
-		
 		//récupérer le template de contenu à ajouter
 		$template_append 	= Kidzou_Utils::get_option('import_content_append');
+
+		//l'auteur est soit recupéré en param à condition que le user courant soit suffisamment capé
+		//sinon, on récupère le user courant
+		//sinon, il s'agit d'un cas d'import par API externe, on prend le user en option kidzou
+		$author_id = -1;
+		if ( $is_author && isset($_POST['author_id']) ) {
+			$author_id = intval($_POST['author_id']);
+		} else {
+			//si il n'y pas de user (ex: import depuis un plugin chrome) cette fonction renvoie "0"
+			$author_id = get_current_user_id();
+		}
+
+		//recuperer le user "KidzouTeam" si aucun author n'est détecté
+		if (!$author_id>0) {
+			$author_id 	= Kidzou_Utils::get_option('import_author_id');
+			Kidzou_Utils::log('Import externe, user d\'import : '. $author_id, true);
+		}
 
 		//créer le post 
 		$post_id = wp_insert_post(
@@ -111,6 +126,24 @@ class JSON_API_Content_Controller {
 				'post_type'			=>	'post',
 			)
 		);
+
+		//associer le lieu
+		if ($adresseRedresseeCorrecte) {
+
+			$ret = Kidzou_Geoloc::set_location(
+				$post_id, 
+				$name, 
+				$location_address, 
+				$web, 
+				$tel, 
+				$city, 
+				$lat, 
+				$lng );
+
+			if (is_wp_error( $ret )) {
+				$feedback[] = $ret->get_error_message();
+			}
+		}
 
 		//positionner les dates
 		if ($start_date!==null && $start_date!=='' ) { //end_date peut être nulle on s'en fout
@@ -125,42 +158,51 @@ class JSON_API_Content_Controller {
 		}
 
 		$customer_id = -1;
-		//créer le customer si le user à les bons droits
-		// if (Kidzou_Utils::current_user_is('author')) {
-		$customer_id = wp_insert_post(
-			array(
-				'post_author'		=>	$author_id,
-				'post_title'		=>	wp_strip_all_tags($name),
-				'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
-				'post_type'			=>	'customer'
-			)
-		);
-		//associer le post au customer
-		$ids = array();
-		$ids[] = $post_id;
-		Kidzou_Customer::attach_posts($customer_id, $ids);
-		// }
 
-		//associer l'adresse au customer, 
-		//elle sera transitive sur le post par association du client au post
-		if ($adresseRedresseeCorrecte) {
+		//on créé le customer si le user est suffisamment capé
+		if ($is_author) {
 
-			Kidzou_Geoloc::set_location(
-				$customer_id, 
-				$name, 
-				$street.', '.$postalCode.' '.$city, 
-				$web, 
-				$tel, 
-				$city, 
-				$lat, 
-				$lng );
+			//créer le customer si le user à les bons droits
+			// if (Kidzou_Utils::current_user_is('author')) {
+			$customer_id = wp_insert_post(
+				array(
+					'post_author'		=>	$author_id,
+					'post_title'		=>	wp_strip_all_tags($name),
+					'post_status'		=>	'publish', //pas de pb pour le rendre public, non exposé au public
+					'post_type'			=>	'customer'
+				)
+			);
+			//associer le post au customer
+			$ids = array();
+			$ids[] = $post_id;
+			Kidzou_Customer::attach_posts($customer_id, $ids);
+
+			//associer l'adresse au customer, 
+			//elle sera transitive sur le post par association du client au post
+			if ($adresseRedresseeCorrecte) {
+
+				$ret = Kidzou_Geoloc::set_location(
+					$customer_id, 
+					$name, 
+					$location_address, 
+					$web, 
+					$tel, 
+					$city, 
+					$lat, 
+					$lng );
+
+				if (is_wp_error( $ret )) {
+					$feedback[] = $ret->get_error_message();
+				}
+			}
 		}
 
 		return array(
 			'post_id'	=> $post_id,
 			'customer_id'=> $customer_id,
 			'post_edit_url'=> admin_url( 'post.php?post='.$post_id.'&action=edit' ),
-			'customer_edit_url'=> admin_url( 'post.php?post='.$customer_id.'&action=edit' )
+			'customer_edit_url'=> admin_url( 'post.php?post='.$customer_id.'&action=edit' ),
+			'errors'	=> $feedback
 		);
 	}
 
@@ -244,8 +286,6 @@ class JSON_API_Content_Controller {
 
 		global $json_api;
 
-		// Kidzou_Utils::log('post_id '.$_POST['post_id'].' ? '.is_int($_POST['post_id']), true);
-
 		$key = $json_api->query->key;
 		$nonce = $json_api->query->nonce;
 
@@ -259,7 +299,7 @@ class JSON_API_Content_Controller {
 	    }
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
-		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_post') ) $json_api->error("Vous n'avez pas les droits suffisants");
 
 		if ( !isset($_POST['location']) ) $json_api->error("l'élement 'location' est attendu en parametre POST");
 
@@ -703,7 +743,7 @@ class JSON_API_Content_Controller {
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
 
-		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_featured') ) $json_api->error("Vous n'avez pas les droits suffisants");
 		
 		if ( !isset($_POST['post_id']) || intval($_POST['post_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 
@@ -715,7 +755,7 @@ class JSON_API_Content_Controller {
 	}
 
 	/**
-	* Enregistre le fait que le contenu soit featured
+	* Enregistre les dates d'événement d'un post
 	* 
 	* @param $_POST Array 
 	**/
@@ -737,7 +777,7 @@ class JSON_API_Content_Controller {
 
 		if ( $_SERVER['REQUEST_METHOD']!='POST' ) $json_api->error("Utilisez la methode POST pour cette API");
 
-		if ( !Kidzou_Utils::current_user_is('author') ) $json_api->error("Vous n'avez pas les droits suffisants");
+		if ( !Kidzou_Utils::current_user_can('can_edit_post') ) $json_api->error("Vous n'avez pas les droits suffisants");
 		
 		if ( !isset($_POST['post_id']) || intval($_POST['post_id'])==1  ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 
@@ -749,7 +789,7 @@ class JSON_API_Content_Controller {
 
 		//les options de récurrence
 		$recurrence = array();
-		if (isset($_POST['recurrence']) && $_POST['recurrence']=='true')
+		if (Kidzou_Utils::current_user_can('can_set_event_recurrence') && isset($_POST['recurrence']) && $_POST['recurrence']=='true')
 		{
 			
 			$recurrence = array(

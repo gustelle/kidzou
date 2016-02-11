@@ -12,12 +12,6 @@ var kidzouCustomerModule = function ($) {
 			return {
 				customerId: parseInt(client_jsvars.customer_id),
 				options: client_jsvars.clients_list,
-				hint: {
-					valid: false,
-					show: false,
-					icon: '',
-					message: ''
-				},
 				customerPosts: client_jsvars.customer_posts,
 				displayForm: false,
 				newCustomerName: ''
@@ -31,14 +25,17 @@ var kidzouCustomerModule = function ($) {
 			var self = this;
 
 			//envoi d'une adresse client depuis l'exterieur
-			setPlace = function setPlace(_place) {
+			setPlace = function setPlace(_place, _progress, _success, _error) {
 
 				self.savePlace(_place, function () {
 					self._hintMessage.onProgress('Enregistrement de l\'adresse');
+					if (typeof _progress == 'function') _progress();
 				}, function () {
 					self._hintMessage.onSuccess('Adresse enregistrée');
+					if (typeof _success == 'function') _success();
 				}, function () {
 					self._hintMessage.onError('Impossible d\'enregistrer l\'adresse');
+					if (typeof _error == 'function') _error();
 				});
 			};
 		},
@@ -50,7 +47,7 @@ var kidzouCustomerModule = function ($) {
 		componentDidMount: function componentDidMount() {
 			var self = this;
 			document.addEventListener("DOMContentLoaded", function (event) {
-				// console.debug('DOMContentLoaded');
+
 				if (self.state.customerId > 0) {
 					self.proposeCustomerPlace(self.state.customerId);
 				}
@@ -224,7 +221,7 @@ var kidzouCustomerModule = function ($) {
 		},
 
 		/**
-   * Changement du client pour un post
+   * lorsque le user selectionne un client
    *
    */
 		saveCustomer: function saveCustomer(option) {
@@ -258,17 +255,19 @@ var kidzouCustomerModule = function ($) {
 		},
 
 		proposeCustomerPlace: function proposeCustomerPlace(customerId) {
-			// console.debug('window.kidzouPlaceModule ', window.kidzouPlaceModule);
-			if (window.kidzouPlaceModule) {
 
-				// console.debug('proposeCustomerPlace for customer ', customerId);
+			if (window.kidzouPlaceModule) {
 
 				$.get(client_jsvars.api_getCustomerPlace, {
 					id: customerId
 				}).done(function (data) {
-					// console.log('saveCustomer',data);
+
 					if (data.status === 'ok' && data.location.location_name != '') {
-						kidzouPlaceModule.proposePlace('Adresse Client', {
+
+						//positionnement du booléen isCustomer sur kidzouPlaceModule
+						window.kidzouPlaceModule.setCustomer(true);
+
+						window.kidzouPlaceModule.proposePlace('Adresse Client', {
 							name: data.location.location_name,
 							address: data.location.location_address,
 							website: data.location.location_website, //website
@@ -369,7 +368,10 @@ var kidzouCustomerModule = function ($) {
 		}
 	});
 
-	ReactDOM.render(React.createElement(CustomerSelector, null), document.querySelector('#kz_client_metabox .react-content'));
+	//tous les users ne voient pas cette metabox, dans ce cas l'élément DOM n'existe pas
+	if (document.querySelector('#kz_client_metabox .react-content') !== null) {
+		ReactDOM.render(React.createElement(CustomerSelector, null), document.querySelector('#kz_client_metabox .react-content'));
+	}
 
 	//global vars accessible de l'extérieur
 	var setPlace;

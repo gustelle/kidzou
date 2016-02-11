@@ -119,11 +119,12 @@ class Kidzou_Metaboxes_Place {
 			$args['api_save_place'] 	= site_url()."/api/content/place/";
 			$args['api_set_post_terms'] = site_url()."/api/taxonomy/setPostTerms/";
 			$args['api_base'] 			= site_url();
+			$args['allow_edit_customer']= Kidzou_Utils::current_user_can('can_edit_customer');
 
 			//recuperation de l'adresse du client associé pour la proposer
 			//A condition qu'il ne s'agisse pas d'un ecran "customer" et que le user n'ait pas le droit de selectionner un client
 			//sinon, cette proposition d'adresse client viendra de la metabox customer
-			if ($screen->id!='customer' && !Kidzou_Utils::current_user_is('administrator')) {
+			if ($screen->id!='customer' && !Kidzou_Utils::current_user_can('can_edit_customer')) {
 
 				$id = 0;
 				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
@@ -152,8 +153,8 @@ class Kidzou_Metaboxes_Place {
 		
 			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 			
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js",	array(), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js",	array('react'), '0.14.7', true);
+			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
+			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
 			wp_enqueue_script('google-maps', 	"https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
 			
 			wp_enqueue_script('react-geosuggest', 		plugins_url( 'assets/js/lib/react-geosuggest.min.js', dirname(__FILE__) ), array('react','google-maps'), '1.0', true);
@@ -250,7 +251,7 @@ class Kidzou_Metaboxes_Place {
 			return $post_id;
 		}
 		// Is the user allowed to edit the post or page?
-		if ( !Kidzou_Utils::current_user_is('contributor') )
+		if ( !Kidzou_Utils::current_user_can('can_edit_place') )
 			return $post_id;
 
 		// OK, we're authenticated: we need to find and save the data

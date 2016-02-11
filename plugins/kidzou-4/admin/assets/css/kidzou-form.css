@@ -106,10 +106,10 @@
   flex: 0 0 auto;
 }
 
-.kz_grid_2_1 > *:first-child {
+.kz_grid_2_1 > div:first-child {
   width: 66%;
 }
-.kz_grid_2_1 > *:nth-child(2) {
+.kz_grid_2_1 > div:first-child + div {
   width: 33%;
 }
 
