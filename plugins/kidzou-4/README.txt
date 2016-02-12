@@ -7,22 +7,23 @@
 	<li>Passage à React pour toutes les metabox Kidzou</li>
 	<li>Refactoring pour mieux isoler les metaboxes les unes des autres, les rendre plus modulaires</li>
 	<li>Paramétrisation des permissions</li>
-	<li>Fix de l'import facebook / format de date 2016-03-26T20:30:00+0100</li>
-	<li>Fix de l'import facebook / Remplacement de titre et contenu lorsqu'ils existent</li>
-	<li>Fix de la CSS du hint sur les events en recette</li>
-	<li>Fix de l'import facebook / champ telephone rempli à 'undefined'</li>
+	<li>Fix : import facebook / format de date 2016-03-26T20:30:00+0100</li>
+	<li>Fix : import facebook / Remplacement de titre et contenu lorsqu'ils existent</li>
+	<li>Fix : la CSS du hint sur les events en recette</li>
+	<li>Fix : import facebook / champ telephone rempli à 'undefined'</li>
 	<li>Fix : adresse non enregistrée pour les contribs lorsqu'on choisi un lieu</li>
 	<li>Fix des evements / Recurrence dispo uniquement pour user > auteur</li>
 	<li>Fix de l'adresse / Bouton "utiliser cette adresse pour le client" uniquement visible pour user > auteur</li>
 	<li>Fix : Utiliser cette adresse pour le client uniquement si un client est selectionné...sinon disabled</li>
-	<li>Fix de l'import facebook / Widget dispo uniquement pour user > contributeur pro</li>
-
-	<li>TODO : setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the HintMessage component.</li>
+	<li>Fix : import facebook / Widget dispo uniquement pour user > contributeur pro</li>
+	<li>Fix : setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the HintMessage component.</li>
+	<li>Refactoring de Kidzou_API et Kidzou_Customer</li>
+	<li>Fix : import facebook, les adresses BE sont considérées correctes dans /api/content/create_post</li>
+	
+	<li>TODO : Passage à ReactJS sur le front / Kidzou_Vote</li>
 	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
 	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
-	<li>TODO : Externaliser les Metadata d'API dans Kidzou_API et pas Kidzou_Customer</li>
 	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
-	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 </ul>
 

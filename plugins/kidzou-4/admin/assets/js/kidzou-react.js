@@ -3,14 +3,30 @@
 var HintMessage = React.createClass({
   displayName: 'HintMessage',
 
+  getDefaultProps: function getDefaultProps() {
+    return {
+      // _isMounted : false
+    };
+  },
+
   getInitialState: function getInitialState() {
     return {
       valid: false,
       show: false,
       iconClass: '',
-      message: ''
+      message: '',
+      _isMounted: false
     };
   },
+
+  //pour éviter erreur setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the HintMessage component
+  componentDidMount: function componentDidMount() {
+    this.setState({ _isMounted: true });
+  },
+  componentWillUnmount: function componentWillUnmount() {
+    this.setState({ _isMounted: false });
+  },
+
   render: function render() {
     var validClass = this.state.valid ? 'form_hint valid' : 'form_hint invalid';
     var displayStyle = this.state.show ? { display: 'inline' } : { display: 'none' };
@@ -23,46 +39,52 @@ var HintMessage = React.createClass({
   },
   onProgress: function onProgress(_message) {
     var self = this;
-    self.setState({
-      valid: true,
-      show: true,
-      iconClass: 'fa fa-spinner fa-spin',
-      message: _message
-    });
+    if (self.state._isMounted) {
+      self.setState({
+        valid: true,
+        show: true,
+        iconClass: 'fa fa-spinner fa-spin',
+        message: _message
+      });
+    }
   },
   onSuccess: function onSuccess(_message) {
     var self = this;
-    self.setState({
-      valid: true,
-      show: true,
-      iconClass: 'fa fa-check',
-      message: _message
-    });
-    setTimeout(function () {
+    if (self.state._isMounted) {
       self.setState({
-        valid: false,
-        show: false,
-        iconClass: '',
-        message: ''
+        valid: true,
+        show: true,
+        iconClass: 'fa fa-check',
+        message: _message
       });
-    }, 1500);
+      setTimeout(function () {
+        self.setState({
+          valid: false,
+          show: false,
+          iconClass: '',
+          message: ''
+        });
+      }, 1500);
+    }
   },
   onError: function onError(_message) {
     var self = this;
-    self.setState({
-      valid: false,
-      show: true,
-      iconClass: 'fa fa-exclamation-circle',
-      message: _message
-    });
-    setTimeout(function () {
+    if (self.state._isMounted) {
       self.setState({
         valid: false,
-        show: false,
-        iconClass: '',
-        message: ''
+        show: true,
+        iconClass: 'fa fa-exclamation-circle',
+        message: _message
       });
-    }, 1500);
+      setTimeout(function () {
+        self.setState({
+          valid: false,
+          show: false,
+          iconClass: '',
+          message: ''
+        });
+      }, 1500);
+    }
   }
 });
 

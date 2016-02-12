@@ -30,6 +30,21 @@ class Kidzou_API {
 	 */
 	protected static $instance = null;
 
+	/**
+	 * @todo : transformer en const
+	 */ 
+	public static $meta_api_key = 'kz_api_key';
+
+	/**
+	 * @todo : transformer en const
+	 */ 
+	public static $meta_api_quota = 'kz_api_quota';
+
+	/**
+	 * @todo : transformer en const
+	 */ 
+	public static $meta_api_usage = 'kz_api_usage';
+
 	
 
 	/**
@@ -70,15 +85,11 @@ class Kidzou_API {
 		return get_class_methods('JSON_API_Content_Controller');
 	}
 
-	public static function getCurrentUsage($key='', $api_name='') {
-
-		$customer = self::getCustomerByKey($key);
+	public static function getCurrentUsageByKey($key='', $api_name='') {
+		
 		$usage = 0;
 
-		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
-			return 0;
-
-		$usages = (array)self::getUsages($key, $api_name);
+		$usages = (array)self::getUsagesByKey($key, $api_name);
 		
 		$dStart = new DateTime( );
 		$date = $dStart->format('Y-m-d') ;
@@ -87,22 +98,51 @@ class Kidzou_API {
 			$usage = intval($usages[$date]);
 
 		return $usage;
-
 	}
+
+	public static function getCurrentUsageByPostID($customer_id=0, $api_name='') {
+		
+		$usage = 0;
+
+		$usages = (array)self::getUsagesByPostID($customer_id, $api_name);
+		
+		$dStart = new DateTime( );
+		$date = $dStart->format('Y-m-d') ;
+
+		if (isset($usages[$date]))
+			$usage = intval($usages[$date]);
+
+		return $usage;
+	}
+
 
 	/** 
 	 *
 	 * Le tableau des stats d'utilisation des API
 	 */ 
-	public static function getUsages($key='', $api_name='') {
+	private static function getUsagesByKey($key='',  $api_name='') {
 
-		$customer = self::getCustomerByKey($key);
+		$customer = self::getPostByKey($key);
+
+		if ( is_wp_error($customer) )
+			return new WP_Error('getUsagesByKey', '');
+	
+		return self::getUsagesByPostID($customer->ID,  $api_name);
+	}
+
+
+	/** 
+	 *
+	 * Le tableau des stats d'utilisation des API
+	 */ 
+	private static function getUsagesByPostID($customer_id=0, $api_name='') {
+
 		$usage = 0;
 
-		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
-			return 0;
+		if ($customer_id==0 || !in_array($api_name, self::getAPINames() ))
+			return new WP_Error('getUsagesByPostID', '');
 
-		$usage_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_usage,true);
+		$usage_array = get_post_meta($customer_id, self::$meta_api_usage,true);
 
 		if (!isset( $usage_array[$api_name] ) || !is_array($usage_array[$api_name]))
 			$usages = array();
@@ -110,8 +150,6 @@ class Kidzou_API {
 			$usages = (array)$usage_array[$api_name];
 	
 		return $usages;
-
-
 	}
 	
 	/**
@@ -122,14 +160,30 @@ class Kidzou_API {
 	 * @param api_name
 	 *
 	 */
-	public static function getQuotaByAPIName($key='', $api_name='') {
+	public static function getQuotaByKey($key='', $api_name='', $post_type='post') {
 
-		$customer = self::getCustomerByKey($key);
+		$customer = self::getPostByKey($key, $post_type);
 
 		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
-			return 0;
+			return new WP_Error('getQuotaByKey','');
 
-		$quota_array = get_post_meta($customer->ID, Kidzou_Customer::$meta_api_quota,true);
+		return self::getQuotaByPostID($customer->ID, $api_name, $post_type);
+	}
+
+	/**
+	 *
+	 * Fournit le quota d'un client identifié par sa <em>key</em> pour une API donnée
+	 *
+	 * @param key 
+	 * @param api_name
+	 *
+	 */
+	public static function getQuotaByPostID($post_id=0, $api_name='', $post_type='post') {
+
+		if ($post_id==0 || !in_array($api_name, self::getAPINames() ))
+			return new WP_Error('getQuotaByPostID','');
+
+		$quota_array = get_post_meta($post_id, self::$meta_api_quota,true);
 
 		//initialisation pour éviter les warnings php
 		$quota = -1;
@@ -142,10 +196,9 @@ class Kidzou_API {
 			$quota = 0;
 
 		Kidzou_Utils::log(array(
-				'getQuota' => array(
-						'key' => $key,
+				'getQuotaByPostID' => array(
 						'api_name' => $api_name,
-						'customer' => $customer->ID,
+						'customer' => $post_id,
 						'quota_array' => $quota_array,
 						'quota'=> $quota
 
@@ -153,7 +206,32 @@ class Kidzou_API {
 			), true);
 
 		return $quota;
+	}
 
+	/**
+	 * Enregistrement du quota pour l'API donnée
+	 *
+	 * @param $quota int quota d'appel quotidien
+	 * @api_name $api_name string nom de méthode de l'API customer concernée par le quota
+	 *
+	 **/
+	public static function setAPIQuota($post_id=0, $api_name='', $quota=0)
+	{	
+		if ($post_id==0)
+			return new WP_Error('setAPIQuota_1', 'un ID de customer est requis');
+
+		if ($api_name=='')
+			return new WP_Error('setAPIQuota_2', 'Aucune Methode d\'API pour le quota');
+
+		if ($quota==0)
+			return new WP_Error('setAPIQuota_3', 'Aucun quota indiqué');
+
+		$meta = array();
+
+		$meta[self::$meta_api_key]	= self::getAPIKey($post_id);
+		$meta[self::$meta_api_quota] = array($api_name => $quota);
+
+		Kidzou_Utils::save_meta($post_id, $meta);	
 	}
 
 	
@@ -177,7 +255,7 @@ class Kidzou_API {
 
 	public static function incrementUsage($key='', $api_name='') {
 
-		$customer = self::getCustomerByKey($key);
+		$customer = self::getPostByKey($key);
 
 		if (is_wp_error($customer) || !in_array($api_name, self::getAPINames() ))
 			return new WP_Error( 'invalid_data', __( "Clé ou API invalide", "kidzou" ) );
@@ -202,33 +280,37 @@ class Kidzou_API {
 			array_shift($usages);
 		}
 		
-		$meta[Kidzou_Customer::$meta_api_usage] = array( $api_name => $usages );
+		$meta[self::$meta_api_usage] = array( $api_name => $usages );
 
 		Kidzou_Utils::save_meta($customer->ID, $meta);
 
 	}
 
-	public static function getCustomerByKey($key) {
+	/**
+	 * Retrouve un objet WP_Post par sa Clé d'API
+	 *
+	 */
+	public static function getPostByKey($key='', $post_type='post') {
 
-		if (!$key) 
-			return new WP_Error( 'getCustomerByKey_1', __( "Votre clé n'est pas valide", "kidzou" ) );
+		if (!$key || $key=='') 
+			return new WP_Error( 'getPostByKey_1', __( "clé invalide", "kidzou" ) );
 	    	
 		//qui est donc notre client ?
 		$args = array(
 			'posts_per_page' => 1,
-			'post_type'	=> 'customer',
-			'meta_key' => Kidzou_Customer::$meta_api_key,
+			'post_type'	=> $post_type,
+			'meta_key' => self::$meta_api_key,
 			'meta_value' => $key
 		);
 
 		$the_query = new WP_Query( $args );
-
+		Kidzou_Utils::log($the_query->request,true);
 		wp_reset_query();
 
 		$results = $the_query->get_posts();
 
 		if (count($results)==0)
-			return new WP_Error( 'getCustomerByKey_2', __( "Votre clé n'est pas valide", "kidzou" ) );
+			return new WP_Error( 'getPostByKey_2', __( "Cette clé ne correspond à aucun client", "kidzou" ) );
 
 		$customer = $results[0];
 
@@ -249,13 +331,48 @@ class Kidzou_API {
 		    if ($a_key==$key) return true;
 		}
 
-		// Kidzou_Utils::log('Public Key : '.$public_key, true);
-
 		return false;
 
 	}
 
+	/**
+	 * retourne la clé d'API d'un post
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function getAPIKey($post_id = 0)
+	{
 
+		if ($post_id==0) 
+			return new WP_Error('getAPIKeyByPostID', 'post_id est requis');
+
+		$key = get_post_meta($post_id, self::$meta_api_key, TRUE);
+		if ($key == '') {
+			$key = md5(uniqid());
+		}
+
+		return $key;
+	}
+
+	/**
+	 * enregistre la clé d'API d'un post
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function setAPIKey($post_id = 0, $key='')
+	{
+
+		if ($post_id==0)
+			return new WP_Error('setAPIKey', 'un ID est requis');
+
+		$meta = array();
+
+		$meta[self::$meta_api_key] 	= $key;
+
+		Kidzou_Utils::save_meta($post_id, $meta);
+	}
 
 
 } //fin de classe

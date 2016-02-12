@@ -163,7 +163,7 @@ class JSON_API_Clients_Controller {
 		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1 ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 		if ( !isset($_POST['posts']) || !is_array($_POST['posts']) ) $json_api->error("l'élement 'posts' n'est pas reconnu");
 
-		Kidzou_Customer::attach_posts($_POST['customer_id'], $_POST['posts']);
+		Kidzou_Customer::setPosts($_POST['customer_id'], $_POST['posts']);
 
 		return array();
 	
@@ -197,7 +197,7 @@ class JSON_API_Clients_Controller {
 		if ( !isset($_POST['customer_id']) || intval($_POST['customer_id'])==1 ) $json_api->error("l'élement 'customer_id' n'est pas reconnu");
 		if ( !isset($_POST['users']) || !is_array($_POST['users']) ) $json_api->error("l'élement 'users' n'est pas reconnu");
 
-		Kidzou_Customer::set_users($_POST['customer_id'], $_POST['users']);
+		Kidzou_Customer::setUsers($_POST['customer_id'], $_POST['users']);
 
 		return array();
 	
@@ -234,7 +234,8 @@ class JSON_API_Clients_Controller {
 
 		$name 	= reset(array_keys($_POST['quota'])); //premiere clé du tableau
 		$quota 	= $_POST['quota'][$name];
-		Kidzou_Customer::setQuota($_POST['customer_id'], $name, $quota);
+
+		Kidzou_Customer::setAPIQuota($_POST['customer_id'], $name, $quota);
 
 		return array();
 	
@@ -271,7 +272,7 @@ class JSON_API_Clients_Controller {
 
 		// Kidzou_Utils::log('_POST[analytics]='.$_POST['analytics'], true);
 
-		Kidzou_Customer::set_analytics($_POST['customer_id'], ($_POST['analytics']=='true' ? true : false) );
+		Kidzou_Customer::setAnalytics($_POST['customer_id'], ($_POST['analytics']=='true' ? true : false) );
 
 		return array();
 	
