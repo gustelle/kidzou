@@ -92,8 +92,8 @@ class JSON_API_Content_Controller {
 			$location_address = ($street.$postalCode.$city=='' ? '' : $street.', '.$postalCode.' '.$city);
 
 			//généralement quand l'adresse n'est pas bien redréssée le pays est 'US' 
-			//de toute facon sur Kidzou on utilise des adresses en 'FR'
-			$adresseRedresseeCorrecte = ($location['country']=='FR');
+			//de toute facon sur Kidzou on utilise des adresses en 'FR' ou 'BE'
+			$adresseRedresseeCorrecte = ($location['country']=='FR' || $location['country']=='BE');
 		}
 		
 		//récupérer le template de contenu à ajouter
@@ -175,7 +175,7 @@ class JSON_API_Content_Controller {
 			//associer le post au customer
 			$ids = array();
 			$ids[] = $post_id;
-			Kidzou_Customer::attach_posts($customer_id, $ids);
+			Kidzou_Customer::setPosts($customer_id, $ids);
 
 			//associer l'adresse au customer, 
 			//elle sera transitive sur le post par association du client au post

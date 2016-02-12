@@ -1,13 +1,30 @@
 
 var HintMessage = React.createClass({
+
+    getDefaultProps: function () {
+      return {
+        // _isMounted : false
+      };
+    },
+
     getInitialState: function() {
       return {
         valid : false,
         show  : false,
         iconClass  : '',
         message : '',
+        _isMounted : false,
       }
     },
+
+    //pour éviter erreur setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the HintMessage component
+    componentDidMount: function() {
+      this.setState({_isMounted:true});
+    },
+    componentWillUnmount: function() {
+      this.setState({_isMounted:false});
+    },
+
     render: function() {
       var validClass = (this.state.valid ? 'form_hint valid' : 'form_hint invalid');
       var displayStyle = (this.state.show ? {display:'inline'} : {display:'none'});
@@ -19,21 +36,24 @@ var HintMessage = React.createClass({
     },
     onProgress: function(_message) {
       var self = this;
-      self.setState({
+      if (self.state._isMounted) {
+        self.setState({
           valid : true,
           show  : true,
           iconClass  : 'fa fa-spinner fa-spin',
           message : _message,
         });
+      }
     },
     onSuccess: function(_message) {
       var self = this;
-      self.setState({
-          valid : true,
-          show  : true,
-          iconClass  : 'fa fa-check',
-          message : _message,
-        });
+      if (self.state._isMounted) {
+        self.setState({
+            valid : true,
+            show  : true,
+            iconClass  : 'fa fa-check',
+            message : _message,
+          });
         setTimeout(function(){
           self.setState({
             valid : false,
@@ -42,15 +62,17 @@ var HintMessage = React.createClass({
             message : ''
           });
         }, 1500);
+      }
     },
     onError: function(_message) {
       var self = this;
-      self.setState({
-          valid : false,
-          show  : true,
-          iconClass  : 'fa fa-exclamation-circle',
-          message : _message,
-        });
+      if (self.state._isMounted) {
+        self.setState({
+            valid : false,
+            show  : true,
+            iconClass  : 'fa fa-exclamation-circle',
+            message : _message,
+          });
         setTimeout(function(){
           self.setState({
             valid : false,
@@ -59,6 +81,7 @@ var HintMessage = React.createClass({
             message : ''
           });
         }, 1500);
+      }
     }
 });
 

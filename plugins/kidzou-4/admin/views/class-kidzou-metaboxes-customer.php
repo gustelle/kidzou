@@ -155,11 +155,11 @@ class Kidzou_Metaboxes_Customer {
 
 				//////////////////////////////////////////////////////////////			
 				//partie API
-				$key = Kidzou_Customer::getKey($post->ID);
+				$key = Kidzou_Customer::getAPIKey($post->ID);
 
 				//actuellement $api_names ne sert à rien dans le code
 				//C'est pour ouvrir la voie vers une généralisation de la gestion des API
-				$api_names = Kidzou_API::getAPINames();
+				// $api_names = Kidzou_API::getAPINames();
 		 		
 		 		//todo : c'est ici qu'on fait référence en dur à l'API excerpts
 		 		//pour généraliser cette fonction, il faudrait boucler sur toutes les API 
@@ -167,8 +167,8 @@ class Kidzou_Metaboxes_Customer {
 				$open_apis = array();
 				$open_apis[0] = 'excerpts';
 
-				$quota = Kidzou_API::getQuotaByAPIName($key, $open_apis[0]); //$api_names[i]
-				$usage = Kidzou_API::getCurrentUsage($key, $open_apis[0]); //$api_names[i]
+				$quota = Kidzou_Customer::getAPIQuota($customer_id, $open_apis[0]); //$api_names[i]
+				$usage = Kidzou_Customer::getCurrentAPIUsage($customer_id, $open_apis[0]); //$api_names[i]
 
 				$customer_api = array();
 				$customer_api['quota'] 	= array($open_apis[0] => $quota);
@@ -180,7 +180,7 @@ class Kidzou_Metaboxes_Customer {
 				//////////////////////////////////////////////////////////////			
 				//partie Analytics
 				$customer_ana = array();
-				$customer_ana['is_analytics'] 		= Kidzou_Customer::isAnalyticsAuthorizedForCustomer($customer_id);
+				$customer_ana['is_analytics'] 		= Kidzou_Customer::isAnalytics($customer_id);
 				$customer_ana['api_base'] 			= site_url();
 				$customer_ana['api_save_analytics'] = site_url()."/api/clients/analytics/";
 
@@ -478,7 +478,7 @@ class Kidzou_Metaboxes_Customer {
 			$is_analytics = ($_POST['kz_customer_analytics']=='on');
 		}
 
-		Kidzou_Customer::set_analytics($post_id, $is_analytics);
+		Kidzou_Customer::setAnalytics($post_id, $is_analytics);
 	}
 
 	/**
@@ -519,7 +519,7 @@ class Kidzou_Metaboxes_Customer {
 
 		$customer_users = (isset($_POST['customer_users']) ? explode(",", $_POST['customer_users']) : array());
 
-		Kidzou_Customer::set_users($post_id, $customer_users);
+		Kidzou_Customer::setUsers($post_id, $customer_users);
 
 	}
 
@@ -557,7 +557,7 @@ class Kidzou_Metaboxes_Customer {
 
 		$posts = (isset($_POST['customer_posts']) ? explode(",", $_POST['customer_posts']) : array());
 
-		Kidzou_Customer::attach_posts($post_id, $posts);
+		Kidzou_Customer::setPosts($post_id, $posts);
 		
 	}
 
@@ -565,7 +565,7 @@ class Kidzou_Metaboxes_Customer {
 	/**
 	 * Sauvegarde en base des Quota et de la clé du client, tels que définis dans la Metabox sur l'écran "customer"
 	 *
-	 * @todo Actuellement seule une API est gérée 
+	 * @todo Actuellement seule l'API excerpts est gérée 
 	 * 
 	 * @return void
 	 * @author 
@@ -598,14 +598,10 @@ class Kidzou_Metaboxes_Customer {
 		// OK, we're authenticated: we need to find and save the data
 		// We'll put it into an array to make it easier to loop though.
 
-		$key 	= Kidzou_Customer::getKey($post_id);
 		$quota 	= $_POST['kz_quota'];
 
-		// //todo : actuellement seule une API est gérée
-		$api_names = array();
-		$api_names[0] = 'excerpts';//$_POST['api_name_0'];
 
-		Kidzou_Customer::set_api($post_id, $api_names, $key, $quota);
+		Kidzou_Customer::setAPIQuota($post_id, 'excerpts', $quota);
 	}
 
 	

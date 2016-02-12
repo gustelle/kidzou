@@ -39,21 +39,6 @@ class Kidzou_Customer {
 	/**
 	 * @todo : transformer en const
 	 */ 
-	public static $meta_api_key = 'kz_api_key';
-
-	/**
-	 * @todo : transformer en const
-	 */ 
-	public static $meta_api_quota = 'kz_api_quota';
-
-	/**
-	 * @todo : transformer en const
-	 */ 
-	public static $meta_api_usage = 'kz_api_usage';
-
-	/**
-	 * @todo : transformer en const
-	 */ 
 	public static $meta_customer_analytics = 'kz_customer_analytics';
 
 	/**
@@ -130,8 +115,6 @@ class Kidzou_Customer {
 
 			global $post;
 
-			// Kidzou_Utils::log('check_customer_analytics(1)['.$remove_analytics.']',true);
-
 			//activation ou désactivation générale des analytics dans les options Kidzou
 			$activate = Kidzou_Utils::get_option('customer_analytics_activate', false);
 		
@@ -143,7 +126,7 @@ class Kidzou_Customer {
 			{	
 				//vérif que le customer de la page courante est autorisé à visualiser ses analytics
 				$customer_id = self::getCustomerIDByPostID( $post->ID );
-				$is_authorized = self::isAnalyticsAuthorizedForCustomer($customer_id);
+				$is_authorized = self::isAnalytics($customer_id);
 
 				if (!$is_authorized)
 				{
@@ -226,8 +209,6 @@ class Kidzou_Customer {
 			global $post; 
 			$post_id = $post->ID; 
 		}
-
-		// Kidzou_Utils::log('getCustomerIDByPostID '.$post_id, true);
 
 		//si le post est un customer on jette une erreur
 		$post = get_post($post_id);
@@ -384,33 +365,45 @@ class Kidzou_Customer {
 	 * @return void
 	 * @author 
 	 **/
-	public static function getKey($customer_id = 0)
+	public static function getAPIKey($customer_id = 0)
 	{
 
 		if ($customer_id==0) {
 			$customer_id = self::getCustomerIDByPostID(); //echo $customer_id;
 			if ($customer_id==0)
-				return new WP_Error('getKey', 'Aucun client identifié');
+				return new WP_Error('getAPIKey', 'Aucun client identifié');
 		}
 
-		$key	 	= get_post_meta($customer_id, self::$meta_api_key, TRUE);
-		if ($key == '') {
-			$key = md5(uniqid());
-		}
-
-		return $key;
+		return Kidzou_API::getAPIKey($customer_id);
 	}
 
 	/**
-	 * undocumented function
+	 * retrouve un client par sa Clé d'API
 	 *
 	 * @return void
 	 * @author 
 	 **/
-	public static function isAnalyticsAuthorizedForCustomer($customer_id = 0)
+	public static function getCustomerByAPIKey($key='')
 	{
+		if ($key=='') {
+			return new WP_Error('getCustomerByAPIKey', 'parametre $key requis');
+		}
+
+		return Kidzou_API::getPostByKey($key, self::$post_type);
+	}
+
+	/**
+	 * détermine si un client a le droit de voir ses analytics
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public static function isAnalytics($customer_id = 0)
+	{
+		if ($customer_id==0)
+			return new WP_Error('isAnalytics', 'un ID de customer est requis');
+
 		$meta = get_post_meta($customer_id, self::$meta_customer_analytics , TRUE);
-		// Kidzou_Utils::log( array('method' => __METHOD__ , 'customer_id' => $customer_id, 'meta' => $meta), true);
 		return $meta;
 	}
 
@@ -420,12 +413,15 @@ class Kidzou_Customer {
 	 * @param $customer_id int le post sur lequel on vient attacher la meta  
 	 * @param $posts Array tableau des ID des posts à associer au customer
 	 **/
-	public static function attach_posts($customer_id, $posts=array())
+	public static function setPosts($customer_id=0, $posts=array())
 	{	
-		// Kidzou_Utils::log(array('attach_posts'=>$customer_id, 'posts'=>$posts),true);
-		
+
+		if ($customer_id==0)
+			return new WP_Error('setPosts_1', 'un ID de customer est requis');
+
+				
 		if (empty($posts))
-			return new WP_Error('set_customer_for_posts', 'Aucun ID de post passé dans le tableau');
+			return new WP_Error('setPosts_2', 'Aucun ID de post passé dans le tableau');
 
 		$meta = array();
 		$meta[Kidzou_Customer::$meta_customer] 	= $customer_id;
@@ -453,9 +449,7 @@ class Kidzou_Customer {
 		foreach ($old_posts as $an_old_one) {
 			if (in_array($an_old_one->ID, $posts)) {
 				//c'est bon rien à faire
-			} else {
-				// Kidzou_Utils::log( 'Post '.$an_old_one->ID.' n\'est plus affecte au client '. $post_id );
-				
+			} else {				
 				delete_post_meta($an_old_one->ID, Kidzou_Customer::$meta_customer, $customer_id);
 			}
 		}		
@@ -468,12 +462,13 @@ class Kidzou_Customer {
 	 * @param $customer_id int le post sur lequel on vient attacher la meta  
 	 * @param $users Array tableau des ID des users à associer au customer
 	 **/
-	public static function set_users($customer_id, $users=array())
+	public static function setUsers($customer_id = 0, $users=array())
 	{	
-		// Kidzou_Utils::log(array('attach_posts'=>$customer_id, 'posts'=>$posts),true);
+		if ($customer_id==0)
+			return new WP_Error('setUsers_1', 'un ID de customer est requis');
 		
 		if (empty($users))
-			return new WP_Error('set_customer_for_posts', 'Aucun ID de user passé dans le tableau');
+			return new WP_Error('setUsers_2', 'Aucun ID de user passé dans le tableau');
 
 				$meta = array();
 		
@@ -598,8 +593,11 @@ class Kidzou_Customer {
 	 * @param $is_analytics boolean true si les users du customer sont autorisés à voir les analytics 
 	 *
 	 **/
-	public static function set_analytics($customer_id, $is_analytics = false)
+	public static function setAnalytics($customer_id=0, $is_analytics = false)
 	{	
+		if ($customer_id==0)
+			return new WP_Error('setAnalytics', 'un ID de customer est requis');
+
 		$meta = array();
 
 		$meta[Kidzou_Customer::$meta_customer_analytics] = $is_analytics;
@@ -607,31 +605,6 @@ class Kidzou_Customer {
 		Kidzou_Utils::save_meta($customer_id, $meta);	
 	}
 
-	/**
-	 * Enregistrement de la meta 'API' sur le customer, ce qui fournit des indications sur les API et leurs quotas autorisés pour le customer
-	 *
-	 * @deprecated
-	 * @param $api_names Array tableau de noms de méthode dans les API customer
-	 * @param $key string Clé d'API pour le customer
-	 * @param $quota int nombre d'appels possibles pour le customer
-	 * @todo seul une API peut être gérée pour l'instant, autrement dit on ne considère que la premiere ligne du tableau $apis
-	 **/
-	public static function set_api($customer_id, $api_names=array(), $key='', $quota=0)
-	{	
-		if (empty($api_names))
-			return new WP_Error('set_api', 'Aucune API a configurer');
-
-		if ($key=='')
-			return new WP_Error('set_api', 'Aucune key pour les API');
-
-		$meta = array();
-
-		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
-		$meta[Kidzou_Customer::$meta_api_quota] = array(reset($api_names) => $quota);
-
-		Kidzou_Utils::save_meta($customer_id, $meta);
-		
-	}
 
 	/**
 	 * Enregistrement de la Key du client
@@ -639,18 +612,9 @@ class Kidzou_Customer {
 	 * @param $key string Clé d'API pour le customer
 	 *
 	 **/
-	public static function setKey($customer_id, $key='')
+	public static function setAPIKey($customer_id=0, $key='')
 	{	
-
-		if ($key=='')
-			return new WP_Error('set_api', 'Aucune key pour les API');
-
-		$meta = array();
-
-		$meta[Kidzou_Customer::$meta_api_key] 	= $key;
-		// $meta[Kidzou_Customer::$meta_api_quota] = array(reset($api_names) => $quota);
-
-		Kidzou_Utils::save_meta($customer_id, $meta);
+		Kidzou_API::setAPIKey($customer_id, $key);
 		
 	}
 
@@ -661,22 +625,28 @@ class Kidzou_Customer {
 	 * @api_name $api_name string nom de méthode de l'API customer concernée par le quota
 	 *
 	 **/
-	public static function setQuota($customer_id, $api_name='', $quota=0)
+	public static function setAPIQuota($customer_id=0, $api_name='', $quota=0)
 	{	
+		Kidzou_API::setAPIQuota($customer_id, $api_name, $quota);
+	}
 
-		if ($api_name=='')
-			return new WP_Error('setQuota', 'Aucune Methode d\'API pour le quota');
-
-		if ($quota==0)
-			return new WP_Error('setQuota', 'Aucun quota indiqué');
-
-		$meta = array();
-
-		$meta[self::$meta_api_key]	= self::getKey($customer_id);
-		$meta[self::$meta_api_quota] = array($api_name => $quota);
-
-		Kidzou_Utils::save_meta($customer_id, $meta);
+	/**
+	 * remonte le Quota d'une API pour un client
+	 *
+	 **/
+	public static function getAPIQuota($customer_id=0, $api_name='')
+	{	
+		return Kidzou_API::getQuotaByPostID($customer_id, $api_name, self::$post_type);
 		
+	}
+
+	/**
+	 * remonte l'utilisation d'une API pour un client
+	 *
+	 **/
+	public static function getCurrentAPIUsage($customer_id=0, $api_name='') 
+	{
+		return Kidzou_API::getCurrentUsageByPostID($customer_id, $api_name);
 	}
 
 
