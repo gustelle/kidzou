@@ -37,18 +37,6 @@ class Kidzou_Admin {
 	 */
 	public $screen_with_meta_client = array('post'); //'offres', 'product'
 
-	// *
-	//  * les ecrans customer, ils sont particuliers et ne bénéficient pas des 
-	//  * meta communes aux écrans $screen_with_meta
-	//  * 
-	//  *
-	//  * Cette variable est public, est est utlisée dans <code>Kidzou_Admin_geo->enqueue_geo_scripts()</code>
- //     *
-	//  * @since    1.0.0
-	//  *
-	//  * @var      string
-	 
-	// public $customer_screen = array('customer');
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
@@ -57,17 +45,6 @@ class Kidzou_Admin {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-
-		/*
-		 * Call $plugin_slug from public plugin class.
-		 *
-		 * @TODO:
-		 *
-		 * - Rename "Plugin_Name" to the name of your initial plugin class
-		 *
-		 */
-		// $plugin = Kidzou::get_instance();
-		// $this->plugin_slug = $plugin->get_plugin_slug();
 
 		/**
 		 * certains hook ont besoin d'etre déclarés tres tot
@@ -86,19 +63,10 @@ class Kidzou_Admin {
 
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-
-		//scripts partagés
-		//todo : clarifier pourquoi on a besoin de ca
-		// add_action( 'admin_enqueue_scripts', array( Kidzou_Geo::get_instance() , 'enqueue_geo_scripts' ) );
 
 		// Add the options page and menu item.
 		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
-
-		// Add an action link pointing to the options page.
-		// $plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
-		// add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
 		/*
 		 * Define custom functionality.
@@ -108,16 +76,13 @@ class Kidzou_Admin {
 		 */
 
 		add_action( 'add_meta_boxes', array( $this, 'posts_metaboxes' ) );
-		// add_action( 'add_meta_boxes', array( $this, 'page_rewrite_metabox') );
 
 		//sauvegarde des meta à l'enregistrement
 		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
-
 	
 		//http://wordpress.stackexchange.com/questions/25894/how-can-i-organize-the-uploads-folder-by-slug-or-id-or-filetype-or-author
 		add_filter('wp_handle_upload_prefilter', array($this, 'handle_upload_prefilter'));
 		add_filter('wp_handle_upload', array($this,'handle_upload'));
-
 		
 
 		/**
@@ -184,13 +149,6 @@ class Kidzou_Admin {
 	 **/
 	public function notify_admin ()
 	{
-		// if (Kidzou_Utils::current_user_is('author'))
-		// {
-		// 	echo '
-		// 	<div class="updated">
-		//         <p>'.Kidzou::$version_description.'</p>
-		//     </div>';
-		// }
 		
 	}
 	
@@ -208,8 +166,6 @@ class Kidzou_Admin {
 	    if ( strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-admin/edit.php' ) !== false  && ( !Kidzou_Utils::current_user_is('author') )) {
 		        global $current_user;
 		        $wp_query->set( 'author', $current_user->ID );
-
-		        // Kidzou_Utils::log("Kidzou_Admin [contrib_contents_filter]", true);
 		    }
 	}
 

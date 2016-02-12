@@ -295,40 +295,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         )
                     );
 
-                    /**
-                     * Sous section des permissions sur les lieux
-                     */
-                    $this->sections[] = array(
-                        'icon'       => 'fa fa-map-marker',
-                        'title'      => __( 'Lieux', 'kidzou' ),
-                        'subsection' => true,
-                        'fields'     => array(
-                            
-                            // array(
-                            //     'id'       => 'can_edit_place',
-                            //     'type'     => 'select',
-                            //     'title'    => __('Editer le lieu d&apos;un Article', 'kidzou'),
-                            //     'subtitle'  => __('Un article peut-être rattaché à un lieu, mais qui a le droit de choisir le lieu de l\'article ?', 'kidzou'),
-                            //     'data'      => 'roles'
-                            // ),
-
-                            // array(
-                            //     'id'       => 'can_propose_place',
-                            //     'type'     => 'select',
-                            //     'title'    => __('Proposer des lieux en provenance d\'autres sources que Google Places', 'kidzou'),
-                            //     'subtitle'  => __('Typiquement si un article est affect&eacute; à un lieu, et que ce même article est affecté à un client dont l\'adresse est différente, qui peut changer le lieu de l\'article pour prendre l\'adresse du client ?', 'kidzou'),
-                            //     'data'      => 'roles'
-                            // ),
-
-                            array(
-                                'id'       => 'icons',
-                                'type'     => 'select',
-                                'title'    => __('Editer le lieu d&apos; &eacute;v&eacute;nement', 'kidzou'), 
-                                'data'      => 'elusive-icons'
-                            ),
-                            
-                        )
-                    );
 
                     /**
                      * Sous section des permissions sur les clients
@@ -351,30 +317,11 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     );
 
                     /**
-                     * Sous section des permissions pour les imports
-                     */
-                    // $this->sections[] = array(
-                    //     'icon'       => 'el el-download',
-                    //     'title'      => __( 'Import', 'kidzou' ),
-                    //     'subsection' => true,
-                    //     'fields'     => array(
-                            
-                    //         array(
-                    //             'id'       => 'can_import_facebook',
-                    //             'type'     => 'select',
-                    //             'title'    => __('Importer un &eacute;v&eacute;nement Facebook', 'kidzou'), 
-                    //             'data'      => 'roles'
-                    //         ),
-
-                    //     )
-                    // );
-
-                    /**
                      * Sous section des permissions pour les contributeurs
                      */
                     $this->sections[] = array(
                         'icon'       => 'el el-edit',
-                        'title'      => __( 'Contributeurs', 'kidzou' ),
+                        'title'      => __( 'Contenus', 'kidzou' ),
                         'subsection' => true,
                         'fields'     => array(
                             
