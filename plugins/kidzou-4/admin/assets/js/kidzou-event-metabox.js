@@ -48,11 +48,9 @@ var kidzouEventModule = function ($) {
 
 					var repeatItems = event_jsvars.recurrence.repeatItems;
 
-					//initialisation des weekDaysGroup
 					repeatItems.forEach(function (item, index) {
 						wdg.items.forEach(function (day, i) {
 							if (item == day.value) {
-								// console.debug('setting item ' + day.label + ' checked');
 								wdg.items[i] = {
 									label: day.label,
 									value: item,
@@ -114,18 +112,6 @@ var kidzouEventModule = function ($) {
 					// console.debug('setDates end');
 				});
 			};
-		},
-
-		/**
-   * Eviter les boucles infinies d'update causées par l'interaction avec le ChecboxGroup
-   * Pas reussi à trouver le bug
-   */
-		shouldComponentUpdate: function shouldComponentUpdate(nextProps, nextState) {
-			// You can access `this.props` and `this.state` here
-			// This function should return a boolean, whether the component should re-render.
-			var diff = JSON.stringify(this.state) !== JSON.stringify(nextState);
-			// console.debug('shouldComponentUpdate', diff);
-			return diff;
 		},
 
 		render: function render() {
@@ -449,10 +435,12 @@ var kidzouEventModule = function ($) {
    * Choix du range de dates de l'evenement
    */
 		handleDayClick: function handleDayClick(e, day) {
-			// console.debug('day', day)
 			var self = this;
 			var range = DateUtils.addDayToRange(day, self.state);
-			self.setState(range, function () {
+			self.setState({
+				from: range.from,
+				to: range.to
+			}, function () {
 				self.saveEvent();
 			});
 		},
@@ -461,7 +449,6 @@ var kidzouEventModule = function ($) {
    * Check de la Box "l'evenement est recurrent"
    */
 		handleRecurrenceClick: function handleRecurrenceClick(data) {
-			// console.debug('_checkRecurrence', data);
 			this.setState({ isRecurrence: !this.state.isRecurrence }, function () {
 				this.saveEvent();
 			});
@@ -497,7 +484,6 @@ var kidzouEventModule = function ($) {
    * @param values Array
    */
 		onRepeatDays: function onRepeatDays(values) {
-			// console.debug('onRepeatDays');
 			this.setState({ repeatItems: values }, function () {
 				this.saveEvent();
 			});
@@ -507,7 +493,6 @@ var kidzouEventModule = function ($) {
    * Pour une recurrence de type "nombre d'occurence"
    */
 		onEndValue: function onEndValue(event) {
-			// console.debug('onEndValue', event.target.value);
 			this.setState({ endValue: event.target.value }, function () {
 				this.saveEvent();
 			});
@@ -517,7 +502,6 @@ var kidzouEventModule = function ($) {
    * Pour une recurrence de type "date"
    */
 		onEndDateValue: function onEndDateValue(event, day) {
-			// console.debug('onEndValue', day);
 			this.setState({ endValue: day }, function () {
 				this.saveEvent();
 			});
@@ -527,7 +511,6 @@ var kidzouEventModule = function ($) {
    * Choix du type de fin de recurrence
    */
 		onEndType: function onEndType(value, event) {
-			// console.debug('onEndType', value);
 			//remettre à zero endValue qui dépend de endType
 			//sinon on risque de retomber sur un formattage de date alors que endValue avait été rempli en tant que nombre d'occurences
 			this.setState({ endType: value, endValue: null }, function () {
@@ -536,14 +519,12 @@ var kidzouEventModule = function ($) {
 		},
 
 		onRecurrenceFreq: function onRecurrenceFreq(event) {
-			// console.debug('onRecurrenceFreq', event.target.value);
 			this.setState({ repeatEach: event.target.value }, function () {
 				this.saveEvent();
 			});
 		},
 
 		onRepeatItems: function onRepeatItems(value, event) {
-			// console.debug('onRepeatPeriod', value);
 			this.setState({ repeatItems: value }, function () {
 				this.saveEvent();
 			});
@@ -571,7 +552,7 @@ var kidzouEventModule = function ($) {
 
 				jQuery.post(event_jsvars.api_save_event + '?nonce=' + n.nonce, {
 					start_date: moment(self.state.from).format('YYYY-MM-DD 00:00:00'),
-					end_date: moment(self.state.to).format('YYYY-MM-DD 23:59:59'),
+					end_date: self.state.to == null ? '' : moment(self.state.to).format('YYYY-MM-DD 23:59:59'),
 					recurrence: self.state.isRecurrence,
 					model: self.state.repeatModel,
 					repeatEach: self.state.repeatEach,
@@ -584,7 +565,11 @@ var kidzouEventModule = function ($) {
 					if (r.status == 'ok' && typeof r.result !== 'undefined' && r.result !== null && typeof r.result.errors !== 'undefined') {
 						var key = Object.keys(r.result.errors)[0];
 						self._hintMessage.onError(r.result.errors[key][0]);
-					} else self._hintMessage.onSuccess('Enregistré');
+					} else if (r.status == 'error') {
+						self._hintMessage.onError(r.error);
+					} else {
+						self._hintMessage.onSuccess('Enregistré');
+					}
 				}).fail(function (err) {
 					console.error(err);
 					self._hintMessage.onError('Enregistrement impossible');

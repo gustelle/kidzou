@@ -34,14 +34,6 @@ class Kidzou_GeoDS {
 	 */
 	private function __construct() {
 
-		// add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
-
-		//nettoyage des transients de geoloc lorsque la taxo "ville bouge"
-		//merci https://www.dougv.com/2014/06/25/hooking-wordpress-taxonomy-changes-with-the-plugins-api/
-		// add_action('create_ville', 	array( $this, 'rebuild_geo_rules') );
-		// add_action('edit_ville', 	array( $this, 'rebuild_geo_rules') );
-		// add_action('delete_ville', 	array( $this, 'rebuild_geo_rules') );
-
 		//Plugin Geo Data Store
 		if (class_exists('sc_GeoDataStore')) {
 

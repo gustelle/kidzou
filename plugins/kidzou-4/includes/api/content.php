@@ -72,7 +72,7 @@ class JSON_API_Content_Controller {
 
 		//dates d'évenement
 		$start_date = $data['dates']['start_date'];
-		$end_date = $data['dates']['end_date'];
+		$end_date	= (isset($data['dates']['end_date']) ? $data['dates']['end_date'] : '');
 
 		$adresseRedresseeCorrecte = false;
 
@@ -147,13 +147,17 @@ class JSON_API_Content_Controller {
 
 		//positionner les dates
 		if ($start_date!==null && $start_date!=='' ) { //end_date peut être nulle on s'en fout
-			// Kidzou_Utils::log(array('start_date'=>$start_date, 'end_date'=>$end_date), true);
 			//check du format 
+			if ($end_date==null || $end_date=='')
+				$end_date = $start_date;
+
 			$date_s = DateTime::createFromFormat('Y-m-d H:i:s', $start_date);
 			$date_e = DateTime::createFromFormat('Y-m-d H:i:s', $end_date);
-			if ($date_s && $date_e) {
-				// Kidzou_Utils::log('setEventDates todo', true);
-			    Kidzou_Events::setEventDates($post_id, $start_date, $end_date); //on ne gere pas encore les récurrences
+
+			if (!$date_s || !$date_e) {
+			    $json_api->error("Format de date invalide");
+			} else {
+				Kidzou_Events::setEventDates($post_id, $start_date, $end_date); //on ne gere pas encore les récurrences
 			}
 		}
 
@@ -787,18 +791,30 @@ class JSON_API_Content_Controller {
 		$start_date = $_POST['start_date'];
 		$end_date	= (isset($_POST['end_date']) ? $_POST['end_date'] : '');
 
+		//check des formats de date
+		if ($start_date!==null && $start_date!=='' ) { //end_date peut être nulle on s'en fout
+			
+			if ($end_date==null || $end_date=='')
+				$end_date = $start_date;
+
+			$date_s = DateTime::createFromFormat('Y-m-d H:i:s', $start_date);
+			$date_e = DateTime::createFromFormat('Y-m-d H:i:s', $end_date);
+			
+			if (!$date_s || !$date_e) {
+			    $json_api->error("Format de date invalide");
+			} 
+		}
+
 		//les options de récurrence
 		$recurrence = array();
 		if (Kidzou_Utils::current_user_can('can_set_event_recurrence') && isset($_POST['recurrence']) && $_POST['recurrence']=='true')
 		{
 			
-			$recurrence = array(
-					"model" 		=> $_POST['model'],
-					"repeatEach" 	=> $_POST['repeatEach'],
-					"repeatItems" 	=> $_POST['repeatItems'], 
-					"endType" 		=> $_POST['endType'],
-					"endValue"		=> $_POST['endValue']
-				);
+			$recurrence = array( 	"model" 		=> $_POST['model'],
+									"repeatEach" 	=> $_POST['repeatEach'],
+									"repeatItems" 	=> $_POST['repeatItems'], 
+									"endType" 		=> $_POST['endType'],
+									"endValue"		=> $_POST['endValue'] );
 		}  
 		
 		$return = Kidzou_Events::setEventDates($post_id, $start_date, $end_date, $recurrence);

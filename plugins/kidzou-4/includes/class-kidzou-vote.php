@@ -88,8 +88,8 @@ class Kidzou_Vote {
 	 *
 	 * @return    object    A single instance of this class.
 	 */
-	public static function get_instance() {
-
+	public static function get_instance() 
+	{
 		// If the single instance hasn't been set, set it now.
 		if ( null == self::$instance ) {
 			self::$instance = new self;
@@ -99,10 +99,11 @@ class Kidzou_Vote {
 	}
 
 	/**
-	 * positionne la meta pour les posts qui n'ont jamais été recommandés
-	 *
+	 * Dans le CRON WP, positionne la meta pour les posts qui n'ont jamais été recommandés
+	 * @usedby kidzou_votes_scheduler
 	 */
-	public static function set_vote_meta() {
+	public static function set_vote_meta() 
+	{
 		
 		//voir http://wordpress.stackexchange.com/questions/80303/query-all-posts-where-a-meta-key-does-not-exist
 		$args = array(
@@ -112,24 +113,17 @@ class Kidzou_Vote {
 
 		$query = new Vote_Query( $args );
 
-		// Kidzou_Utils::log("Query set_vote_meta : {$query->request}", true);
-
 		$posts = $query->get_posts();
-
-		Kidzou_Utils::log('set_vote_meta : ' . $query->found_posts . ' meta a creer', true);
 
 		foreach ($posts as $post) {
 
-			$message = "set_vote_meta {" . $post->ID . "} " ;
 			add_post_meta($post->ID, self::$meta_vote_count, 0, TRUE);
-
-			Kidzou_Utils::log( $message, true );
 			
 		}
-
 	}
 
-	public static function getVoteCount($post_id = 0) {
+	public static function getVoteCount($post_id = 0) 
+	{
 
 		if ($post_id==0)
 		{
@@ -137,7 +131,7 @@ class Kidzou_Vote {
 			$post_id = $post->ID;
 		}
 
-		$count		= get_post_meta($post_id, self::$meta_vote_count, TRUE);
+		$count	= get_post_meta($post_id, self::$meta_vote_count, TRUE);
 
 		if ($count=='')
 			$count=0;
@@ -156,7 +150,8 @@ class Kidzou_Vote {
 		self::set_template('', false, true);
 	}
 
-	protected static function set_template($class='', $useCountText=false, $echo=true) {
+	protected static function set_template($class='', $useCountText=false, $echo=true) 
+	{
 
 		$countText = '';
 
@@ -180,7 +175,6 @@ class Kidzou_Vote {
 			echo $out;
 		else
 			return $out;
-
 	}
 
 	/**
@@ -190,7 +184,8 @@ class Kidzou_Vote {
 	 * @param echo 	renvoyer le HTML directement par echo ou par un return
 	 * @return HTML avec binding Knockout qui associé a public/assets/js/public.js va rendre le nombre de vote du post passé en param
 	 */
-	public static function get_vote_template($id=0, $class='', $useCountText=false, $echo=true) {
+	public static function get_vote_template($id=0, $class='', $useCountText=false, $echo=true) 
+	{
 
 		if ($id==0)
 		{
@@ -213,19 +208,24 @@ class Kidzou_Vote {
 			echo $out;
 		else
 			return $out;
-
 	}
 
 
-	public static function vote($id=0, $class='', $useCountText=false) {
+	public static function vote($id=0, $class='', $useCountText=false) 
+	{
 
 		echo self::get_vote_template($id, $class, $useCountText, false);
-
 	}
 
 	
-
-	public static function plusOne($id=0, $user_hash='') {
+	/** 
+	 * Augementation du nombre de votes de +1 pour le post $id et le user $user_hash
+	 *
+	 * @param $id int l'ID du post 
+	 * @param $user_hash string Le Hash du user (identifié ou non)
+	 */
+	public static function plusOne($id=0, $user_hash='') 
+	{
 
 		if ($id==0) 
 		{
@@ -296,7 +296,14 @@ class Kidzou_Vote {
 		return array('user_hash' => $user_hash);
 	}
 
-	public static function minusOne($id=0, $user_hash='') {
+	/** 
+	 * Retrait du vote pour le post $id et le user $user_hash
+	 *
+	 * @param $id int l'ID du post 
+	 * @param $user_hash string Le Hash du user (identifié ou non)
+	 */
+	public static function minusOne($id=0, $user_hash='') 
+	{
 
 		if ($id==0) 
 		{
@@ -365,7 +372,6 @@ class Kidzou_Vote {
 		}
 		
 		return array("user_hash" => $user_hash);
-
 	}
 
 	/**
@@ -388,12 +394,12 @@ class Kidzou_Vote {
 				"id" 	=> $post_id,
 		      	"votes"	=> intval($results)
 			);
-
 	}
 
 	/**
 	 * le nombre de votes pour une liste de post
 	 *
+	 * @param $list_array Array tableau d'ID de posts
 	 * @return Array<id, votes>
 	 * @author 
 	 **/
@@ -425,6 +431,7 @@ class Kidzou_Vote {
 	/**
 	 * Retourne le tableau des WP_Post que le user a voté
 	 *
+	 * @param $user_id int ID du user
 	 * @return Array
 	 * @since Noel2014
 	 * @author Guillaume
@@ -451,12 +458,12 @@ class Kidzou_Vote {
 		}
 
 		return $data;
-
 	}
 
 	/**
 	 * retourne un tableau d'ID correspondant aux posts que le user a voté 
 	 *
+	 * @param $user_hash string le Hash du user
 	 * @return Array
 	 * @deprecated 
 	 * @todo c'est une API, bouger cela dans les API...ca sert uniquement en Ajax pour le UI
@@ -536,7 +543,7 @@ class Kidzou_Vote {
 	 * @return TRUE si le user a déjà voté le post
 	 * @author Kidzou
 	 **/
-	public static function hasAlreadyVoted($post_id, $loggedIn='', $user_id=0, $user_hash='')
+	private static function hasAlreadyVoted($post_id, $loggedIn='', $user_id=0, $user_hash='')
 	{
 
 		// Kidzou_Utils::log('hasAlreadyVoted ? ' );
@@ -547,12 +554,8 @@ class Kidzou_Vote {
 		if ($user_id==0 && $loggedIn)
 			$user_id = get_current_user_id(); //get_user('ID')
 
-		// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' . $loggedIn);
-		// Kidzou_Utils::log('hasAlreadyVoted user_id ' . $user_id);
-
 		if ($loggedIn && $user_id>0)
 		{
-			// Kidzou_Utils::log('hasAlreadyVoted loggedIn ' );
 			//check DB
 			$meta_posts = get_user_meta($user_id, self::$meta_user_votes);
 			$voted_posts = $meta_posts[0];
@@ -573,17 +576,14 @@ class Kidzou_Vote {
 
 		}
 		else {
-			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' );
 			if ($user_hash=='') {
 				$user_hash = Kidzou_Utils::hash_anonymous();
 			}
-			// Kidzou_Utils::log('hasAlreadyVoted anonymous ' .$user_hash);
 			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
 		}
 			
 
 		return false;
-
 	}
 
 
@@ -593,7 +593,7 @@ class Kidzou_Vote {
 	 * @return TRUE si le user anonyme a deja voté
 	 * @author Kidzou
 	 **/
-	public static function hasAnonymousAlreadyVoted($post_id, $user_hash)
+	private static function hasAnonymousAlreadyVoted($post_id, $user_hash)
 	{
 		global $wpdb;
 		// $hash = hash_anonymous();
