@@ -238,29 +238,40 @@ var Checkbox = React.createClass({
 var CheckBoxItem = React.createClass({
   displayName: 'CheckBoxItem',
 
+  propTypes: {
+    value: React.PropTypes.string.isRequired,
+    name: React.PropTypes.string.isRequired
+  },
+  getInitialState: function getInitialState() {
+    return {
+      checked: this.props.checked || false
+    };
+  },
+
   render: function render() {
-    // console.debug('SimpleCheckBox', this.props);
     return React.createElement(
       'label',
       { htlmFor: this.props.id },
       React.createElement('input', { type: 'checkbox',
         name: this.props.name,
-        id: this.props.id,
         value: this.props.value,
-        checked: this.props.checked,
-        onChange: this.handleChange }),
+        checked: this.state.checked,
+        onClick: this.handleClick }),
       this.props.label,
       ' ',
       React.createElement('br', null)
     );
   },
 
-  handleChange: function handleChange(event) {
+  handleClick: function handleClick(event) {
     // Should use this to set parent's state via a callback func.  Then the
     // change to the parent's state will generate new props to be passed down
     // to the children in the render().
     event.stopPropagation();
-    this.props.callBackOnChange(this, event.target.checked);
+    var self = this;
+    self.setState({ checked: !self.state.checked }, function () {
+      self.props.callBackOnChange();
+    });
   }
 });
 
@@ -274,6 +285,7 @@ var CheckboxGroup = React.createClass({
   propTypes: {
     values: React.PropTypes.object.isRequired
   },
+  _checkBoxItems: [],
   getInitialState: function getInitialState() {
     return {
       values: this.props.values
@@ -282,7 +294,7 @@ var CheckboxGroup = React.createClass({
   render: function render() {
     var rows = [];
     var self = this;
-    self.props.values.items.forEach(function (item, index) {
+    self.state.values.items.forEach(function (item, index) {
       var key = '_CheckBoxItem_' + index;
       rows.push(React.createElement(CheckBoxItem, {
         name: self.props.name,
@@ -291,69 +303,49 @@ var CheckboxGroup = React.createClass({
         checked: item.checked,
         index: index,
         key: key,
-        callBackOnChange: self.handleChange }));
+        callBackOnChange: self.handleClick.bind(self, index),
+        ref: function ref(c) {
+          return self._checkBoxItems[index] = c;
+        } })); //callBackOnChange={self.handleChange}
     });
     return React.createElement(
       'div',
       null,
-      this.props.values.items.length > 0 && React.createElement(
+      this.state.values.items.length > 0 && React.createElement(
         'div',
         null,
         rows
       )
     );
   },
+
   /**
-   * Déclenchée à l'update d'un CheckboxItem
-   * Le CheckboxItem est passé en tant que 'componentChanged'
-   * @param newState : boolean (checked)
+   * Déclenchée à l'update d'un CheckboxItem par la prop 'callBackOnChange'
    */
-  handleChange: function handleChange(componentChanged, newState) {
-    // Callback function passed from CheckboxFieldGroup (this component) to each of the
-    // CheckboxField child components.  (See renderChoices func).
-    var idx = -1;
-    var stateMemberToChange = _.find(this.state.values.items, function (obj, num) {
-      idx = num;
-      return obj.value === componentChanged.props.value;
-    });
+  handleClick: function handleClick(i) {
 
-    // Threw an error when I tried to update and indiviudal member of the state array/object.  So, take a copy
-    // of the state, update the copy and do a setState() on the whole thing.  Using setState() rather than
-    // replaceState() should be more efficient here.
-    var newStateValuesArray = this.state.values.items;
-    newStateValuesArray[idx].checked = newState;
-    this.setState({
-      values: {
-        name: this.state.values.name,
-        items: newStateValuesArray
-      }
-    }); // Automatically triggers render() !!
-  },
-  getCheckedValues: function getCheckedValues() {
-    // Get an array of state objects that are checked
-    var checkedObjArray = [];
-    checkedObjArray = _.filter(this.state.values.items, function (obj) {
-      return obj.checked;
-    });
+    var self = this;
+    var newValues = self.state.values;
+    newValues.items[i].checked = self._checkBoxItems[i].state.checked;
 
-    // Get an array of value properties for the checked objects
-    var checkedArray = _.map(checkedObjArray, function (obj) {
-      return obj.value;
-    });
-    return checkedArray;
-    // console.log("SimpleCheckBox.getCheckedValues() = " + checkedArray);
-  },
-  componentDidMount: function componentDidMount() {
-    // this.getCheckedValues();
-  },
-  componentWillUpdate: function componentWillUpdate(nextProps, nextState) {
-    // console.debug(JSON.stringify(this.state.values.items), JSON.stringify(nextState.values.items));
-  },
-  componentDidUpdate: function componentDidUpdate() {
-    if (typeof this.props.onUpdate === 'function') {
-      this.props.onUpdate(this.getCheckedValues());
+    function getCheckedValues(_items) {
+      // Get an array of state objects that are checked
+      var checkedObjArray = [];
+      checkedObjArray = _.filter(_items, function (obj) {
+        return obj.checked;
+      });
+      // Get an array of value properties for the checked objects
+      var checkedArray = _.map(checkedObjArray, function (obj) {
+        return obj.value;
+      });
+      return checkedArray;
     }
+
+    self.setState({ values: newValues }, function () {
+      self.props.onUpdate(getCheckedValues(self.state.values.items));
+    });
   }
+
 });
 
 /**
@@ -365,11 +357,9 @@ var List = React.createClass({
   render: function render() {
     var rows = [];
     this.props.items.forEach(function (it, index) {
-      // console.debug('proposal', proposal);
       var key = 'item_' + index;
       rows.push(React.createElement(ListItem, { label: it, index: index, key: key }));
     });
-    // var isProposal = (this.props.proposals.length>0);
     return React.createElement(
       'ul',
       null,

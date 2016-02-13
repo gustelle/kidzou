@@ -64,13 +64,6 @@ class Kidzou_Events {
 
 
 	/**
-	 * les types de posts qui supportent les meta event
-	 *
-	 */
-	// public static $supported_post_types = array('post','offres');
-
-
-	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
 	 * and styles.
 	 *
@@ -88,7 +81,8 @@ class Kidzou_Events {
 	 *
 	 * @return    object    A single instance of this class.
 	 */
-	public static function get_instance() {
+	public static function get_instance() 
+	{
 
 		// If the single instance hasn't been set, set it now.
 		if ( null == self::$instance ) {
@@ -105,7 +99,8 @@ class Kidzou_Events {
 	 * il s'agit d'un hack pour tenir compte d'un legacy ou les event étaient des post types différents des posts normaux
 	 *
 	 */ 
-    public static function isTypeEvent($event_id=0) {
+    public static function isTypeEvent($event_id=0) 
+    {
 
     	if ($event_id==0)
 		{
@@ -115,8 +110,7 @@ class Kidzou_Events {
 
 		$dates = (array)self::getEventDates($event_id);
 
-		return ($dates['start_date']!=='') && ($dates['end_date']!=='') ;
-
+		return isset($dates['start_date']) && $dates['start_date']!=='' && isset($dates['end_date']) && $dates['end_date']!=='' ;
     }
 
     /**
@@ -148,8 +142,8 @@ class Kidzou_Events {
 	 *
 	 * @return Array un tableau contenant les dates start_date, end_date, recurrence et past_dates
 	 **/
-    public static function getEventDates($event_id=0) {
-
+    public static function getEventDates($event_id=0) 
+    {
     	if ($event_id==0)
 		{
 			global $post;
@@ -161,13 +155,26 @@ class Kidzou_Events {
 		$recurrence   		= get_post_meta($event_id, self::$meta_recurring, TRUE);
 		$past_dates   		= get_post_meta($event_id, self::$meta_past_dates, TRUE);
 
+		//Asurer le format de retour
+		$startFormat 	= DateTime::createFromFormat('Y-m-d H:i:s', $start_date, new DateTimeZone('Europe/Paris'));
+		$endFormat 		= DateTime::createFromFormat('Y-m-d H:i:s', $end_date, new DateTimeZone('Europe/Paris'));
+
+		//si la start_date n'est pas valide, c'est tout l'événement qui est invalide
+		if (!$startFormat) 	{
+			$start_date 	='';
+			$end_date 		='';
+			$recurrence 	='';
+			$past_dates 	='';
+		} else if (!$endFormat) {
+			$end_date 	='';
+		}
+
 		return array(
 				"start_date" 	=> $start_date,
 				"end_date" 		=> $end_date,
 				"recurrence" 	=> $recurrence,
 				'past_dates'	=> $past_dates
 			);
-
     }
 
     /**
@@ -181,7 +188,8 @@ class Kidzou_Events {
 	 * 
 	 * @todo controle de cohérnece des données, format des dates, etc...
 	 **/
-    public static function setEventDates($event_id=0, $start_date='', $end_date='', $recurrence=array()) {
+    public static function setEventDates($event_id=0, $start_date='', $end_date='', $recurrence=array()) 
+    {
 
     	if ($event_id==0)
 			return new WP_Error('setEventDates_1', 'Aucune post spécifié');
@@ -189,7 +197,18 @@ class Kidzou_Events {
 		if (!is_array($recurrence))
 			return new WP_Error('setEventDates_2', 'recurrence doit être un tableau');
 
-		//todo : checker le format des dates
+		//checker le format des dates
+		$startFormat 	= DateTime::createFromFormat('Y-m-d H:i:s', $start_date, new DateTimeZone('Europe/Paris'));
+		if (!$startFormat)
+			return new WP_Error('setEventDates_11', 'Format de date invalide');
+
+		//end_Date étant optionnel
+		if ($end_date!=='') {
+			$endFormat 		= DateTime::createFromFormat('Y-m-d H:i:s', $end_date, new DateTimeZone('Europe/Paris'));
+			if (!$endFormat)
+				return new WP_Error('setEventDates_12', 'Format de date invalide');
+		}
+
 
 		$events_meta['start_date'] 	= $start_date;
 		$events_meta['end_date'] 	= $end_date;
@@ -197,8 +216,6 @@ class Kidzou_Events {
 		//sauver la récurrence meme si elle est vide
 		//pour éviter pb de 'avant c'était recurrent, maintenant on ne veut plus que ce le soit
 		$events_meta['recurrence'] = $recurrence;	
-
-		// Kidzou_Utils::log(array('setEventDates'=>$events_meta), true);
 
 		//todo faire l controle sur repeatEach
 		if (!empty($recurrence)) {
@@ -208,7 +225,7 @@ class Kidzou_Events {
 				return new WP_Error('setEventDates_8', 'Les donnees de recurrence sont incorrectes');
 
 			//controle sur endValue en fonction du endType
-			if (!isset($recurrence['endValue']) || $recurrence['endValue']=='' )
+			if ( $recurrence['endType']!=='never' && (!isset($recurrence['endValue']) || $recurrence['endValue']=='') )
 				return new WP_Error('setEventDates_9', 'Complétez la date de fin de récurrence');
 
 			$dateOK = preg_match("#^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$#", $recurrence['endValue']);
@@ -237,7 +254,6 @@ class Kidzou_Events {
 		}
 
 		return Kidzou_Utils::save_meta($event_id, $events_meta, "kz_event_");
-
     }
 
 	/**
@@ -511,13 +527,8 @@ class Kidzou_Events {
 
 				$events_meta['past_dates'] = $past_dates[0];
 
-				// Kidzou_Utils::log(get_declared_classes(),true);
+				Kidzou_Utils::save_meta($event->ID, $events_meta, "kz_event_");	
 
-				Kidzou_Admin::save_meta($event->ID, $events_meta, "kz_event_");	
-
-				// Kidzou_Utils::log( 'Event changed dates ['. $event->post_name .'] : new start_date = ' . $events_meta['start_date'] , true);
-
-				// Kidzou_Utils::log($events_meta);
 			}
 			else
 			{
@@ -612,7 +623,7 @@ class Kidzou_Events {
 					$new_meta = array();
 					$new_meta[self::$meta_archive] = true;
 
-					Kidzou_Admin::save_meta($event->ID, $new_meta);	
+					Kidzou_Utils::save_meta($event->ID, $new_meta);	
 
 					Kidzou_Utils::log('Archivage de ['. $event->post_name . '] ', true );
 
@@ -625,7 +636,7 @@ class Kidzou_Events {
 					// suppression manuelle
 					if (Kidzou_Geoloc::has_post_location($event->ID)) {
 
-						Kidzou_Admin_Geo::delete_post_from_geo_ds($event->ID);
+						Kidzou_GeoDS::delete_post_from_geo_ds($event->ID);
 						Kidzou_Utils::log( 'Remove Entry from Geo Data Store ['. $event->post_name .']' , true);
 					
 					} else {
