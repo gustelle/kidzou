@@ -641,7 +641,7 @@
 						});
 
 						if ( $(this).hasClass('et-pb-arrow-next') ) {
-							console.debug('$active_carousel_group.children().first()', $active_carousel_group.children().first());
+							// console.debug('$active_carousel_group.children().first()', $active_carousel_group.children().first());
 							var $next_carousel_group,
 								current_position = 1,
 								next_position = 1,
@@ -1151,7 +1151,7 @@
 				else
 					isotope_filter = "*";
 
-				console.debug("isotope_filter " + isotope_filter);
+				// console.debug("isotope_filter " + isotope_filter);
 				
 				$(".et_pb_blog_grid").isotope({ filter: isotope_filter, layoutMode: 'masonry' });
 			});

@@ -248,6 +248,10 @@ function kz_divi_load_scripts ()
 	wp_dequeue_script( 'divi-custom-script' );
 	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery', 'jquery-ui-autocomplete' ), Kidzou::VERSION, true );
 
+	// wp_enqueue_script('react',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
+	// wp_enqueue_script('react-dom',	"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+	// wp_enqueue_script('vote',		get_stylesheet_directory_uri().'/js/vote.js',	array('react-dom'), Kidzou::VERSION, true);
+
 	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
 
 	$items = array();

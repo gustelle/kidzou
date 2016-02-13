@@ -1,6 +1,20 @@
 <h4>ImportExtension v3</h4>
 <h5>Fevrier 2015</h5>
 <ul>
+	<li>Fix : Amélioration du composant React CheckBoxGroup et Fix sur la date de fin de récurrence qd l'événement ne se termine jamais</li>
+	<li>Fix : Bug dans le CRON de dépublication des events, suite à refactoring de Kidzou_GeoDS</li>
+	<li>Fix : Renforcement des controles dans les events pour éviter des cas ou end_date est invalide</li>
+
+	<li>TODO : Passage à ReactJS sur le front / Kidzou_Vote</li>
+	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
+	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+</ul>
+
+<h4>ImportExtension v3</h4>
+<h5>Fevrier 2015</h5>
+<ul>
 	
 	<li>Refactoring / modularisation de Kidzou_Metaboxes_Event pour isoler un composant d'import</li>
 	<li>Migration du composant d'import Facebook en ReactJS et modularisation pour utilisation dans un Widget</li>
@@ -19,12 +33,7 @@
 	<li>Fix : setState(...): Can only update a mounted or mounting component. This usually means you called setState() on an unmounted component. This is a no-op. Please check the code for the HintMessage component.</li>
 	<li>Refactoring de Kidzou_API et Kidzou_Customer</li>
 	<li>Fix : import facebook, les adresses BE sont considérées correctes dans /api/content/create_post</li>
-	
-	<li>TODO : Passage à ReactJS sur le front / Kidzou_Vote</li>
-	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
-	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
-	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
-	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+
 </ul>
 
 <h4>Améliorations admin</h4>

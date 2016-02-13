@@ -221,28 +221,39 @@ var Checkbox = React.createClass({
  *
  */
 var CheckBoxItem = React.createClass({
+
+    propTypes: {
+        value : React.PropTypes.string.isRequired,
+        name : React.PropTypes.string.isRequired,
+    },
+    getInitialState: function () {
+      return {
+        checked : (this.props.checked || false)
+      };
+    },
   
     render: function() {
-      // console.debug('SimpleCheckBox', this.props);
         return (
             <label htlmFor={this.props.id}>
                 <input type="checkbox"
                     name={this.props.name}
-                    id={this.props.id}
                     value={this.props.value}
-                    checked={this.props.checked}
-                    onChange={this.handleChange} />
+                    checked={this.state.checked} 
+                    onClick={this.handleClick} />
                 {this.props.label} <br />
             </label>
         );
     },
 
-    handleChange: function(event) {
+    handleClick: function(event) {
         // Should use this to set parent's state via a callback func.  Then the
         // change to the parent's state will generate new props to be passed down
         // to the children in the render().
         event.stopPropagation();
-        this.props.callBackOnChange(this, event.target.checked);
+        var self = this;
+        self.setState({checked : !self.state.checked}, function(){
+          self.props.callBackOnChange();
+        });
     }  
 });
 
@@ -254,6 +265,7 @@ var CheckboxGroup = React.createClass({
     propTypes: {
         values: React.PropTypes.object.isRequired,
     },
+    _checkBoxItems : [],
     getInitialState: function () {
       return {
         values : this.props.values
@@ -262,7 +274,7 @@ var CheckboxGroup = React.createClass({
     render: function () {
         var rows = [];
         var self = this;
-        self.props.values.items.forEach(function(item, index) {
+        self.state.values.items.forEach(function(item, index) {
           var key = '_CheckBoxItem_' + index;
           rows.push(<CheckBoxItem 
                       name={self.props.name} 
@@ -271,11 +283,12 @@ var CheckboxGroup = React.createClass({
                       checked={item.checked} 
                       index={index} 
                       key={key} 
-                      callBackOnChange={self.handleChange} />);
+                      callBackOnChange={self.handleClick.bind(self, index)} 
+                      ref={(c) => self._checkBoxItems[index] = c} />); //callBackOnChange={self.handleChange}
         });
         return (
             <div>
-                { this.props.values.items.length>0 &&
+                { this.state.values.items.length>0 &&
                   <div>
                     {rows}
                   </div>
@@ -283,57 +296,35 @@ var CheckboxGroup = React.createClass({
             </div>
         );
     },
+
     /**
-     * Déclenchée à l'update d'un CheckboxItem
-     * Le CheckboxItem est passé en tant que 'componentChanged'
-     * @param newState : boolean (checked)
+     * Déclenchée à l'update d'un CheckboxItem par la prop 'callBackOnChange'
      */
-    handleChange: function(componentChanged, newState) {
-        // Callback function passed from CheckboxFieldGroup (this component) to each of the
-        // CheckboxField child components.  (See renderChoices func).
-        var idx = -1;
-        var stateMemberToChange = _.find(this.state.values.items, function(obj, num) {
-            idx = num;
-            return obj.value === componentChanged.props.value;
-        });
+    handleClick: function(i) {
+      
+      var self = this;
+      var newValues = self.state.values;
+      newValues.items[i].checked = self._checkBoxItems[i].state.checked;
 
-        // Threw an error when I tried to update and indiviudal member of the state array/object.  So, take a copy
-        // of the state, update the copy and do a setState() on the whole thing.  Using setState() rather than
-        // replaceState() should be more efficient here.
-        var newStateValuesArray = this.state.values.items;
-        newStateValuesArray[idx].checked = newState;
-        this.setState({
-          values: {
-            name : this.state.values.name,
-            items : newStateValuesArray
-          }
-        });  // Automatically triggers render() !!
-    },
-    getCheckedValues: function() {
-        // Get an array of state objects that are checked
-        var checkedObjArray = [];
-        checkedObjArray = _.filter(this.state.values.items, function(obj){
-            return obj.checked;
-        });
+      function getCheckedValues(_items){
+          // Get an array of state objects that are checked
+          var checkedObjArray = [];
+          checkedObjArray = _.filter(_items, function(obj){
+              return obj.checked;
+          });
+          // Get an array of value properties for the checked objects
+          var checkedArray = _.map(checkedObjArray, function(obj){
+              return obj.value;
+          });
+          return checkedArray;
+      }
 
-        // Get an array of value properties for the checked objects
-        var checkedArray = _.map(checkedObjArray, function(obj){
-            return obj.value;
-        });
-        return checkedArray;
-        // console.log("SimpleCheckBox.getCheckedValues() = " + checkedArray);
+      self.setState({values : newValues}, function(){
+        self.props.onUpdate(getCheckedValues(self.state.values.items));
+      });
+
     },
-    componentDidMount: function() {
-        // this.getCheckedValues();
-    },
-    componentWillUpdate: function(nextProps, nextState) {
-      // console.debug(JSON.stringify(this.state.values.items), JSON.stringify(nextState.values.items));
-    },
-    componentDidUpdate: function() {
-        if (typeof this.props.onUpdate==='function') {
-          this.props.onUpdate(this.getCheckedValues());
-        }
-    }
+    
 });
 
 /**
@@ -343,11 +334,9 @@ var List = React.createClass({
     render: function() {
       var rows = [];
       this.props.items.forEach(function(it, index) {
-        // console.debug('proposal', proposal);
         var key = 'item_' + index;
         rows.push(<ListItem label={it} index={index} key={key} />);
       });
-      // var isProposal = (this.props.proposals.length>0);
       return (
         <ul>
           { this.props.items.length>0 &&
