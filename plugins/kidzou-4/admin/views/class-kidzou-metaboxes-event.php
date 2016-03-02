@@ -40,13 +40,8 @@ class Kidzou_Metaboxes_Event {
 	 */
 	private function __construct() {
 		
-		//sauvegarde des meta à l'enregistrement
-		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
-
-		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
-
-		add_action( 'add_meta_boxes', array( $this, 'event_metaboxes' ) );
+		add_action( 'kidzou_add_metabox', array( $this, 'event_metaboxes' ) );
+		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes' ) );
 	}
 
 
@@ -59,55 +54,54 @@ class Kidzou_Metaboxes_Event {
 	 */
 	public function enqueue_styles_scripts() {
 
-		$screen = get_current_screen(); 
+		// $screen = get_current_screen(); 
 
 		//on a besoin de font awesome dans le paneau d'admin
 
-		if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
-
+		// if ( in_array($screen->id , $this->screen_with_meta_event)  ) {
 		
-			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
+		wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 
-			//gestion des events
-			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
-			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
+		//gestion des events
+		wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.11.2', true);
+		wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.11.2', true);
 
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
-			
-			wp_enqueue_script( 	'daypicker-locale-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-LocaleUtils.js', dirname(__FILE__) ), array('moment' ), '1.0', true);
-			wp_enqueue_script( 	'daypicker-date-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-DateUtils.js', dirname(__FILE__) ), array( ), '1.0', true);
-			wp_enqueue_script( 	'daypicker', 		plugins_url( '/assets/js/lib/react-DayPicker.js', dirname(__FILE__) ), array( 'daypicker-locale-utils', 'daypicker-date-utils', 'react-dom'), '1.0', true);
-			wp_enqueue_style( 	'daypicker', 		plugins_url( 'assets/css/lib/react-DayPicker.css', dirname(__FILE__) )  );
-
-			wp_enqueue_script( 'radio-group', 	plugins_url( '/assets/js/lib/react-radio-group.js', dirname(__FILE__) ), array(  'react-dom'), '1.0', true);
-
-			wp_enqueue_script('kidzou-react', 	plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
-			wp_enqueue_script('kidzou-event-metabox', plugins_url( 'assets/js/kidzou-event-metabox.js', dirname(__FILE__) ) ,array('kidzou-react', 'daypicker'), Kidzou::VERSION, true);
-
-			//insertion des metabox et initialisation des JS
-			global $post;
-			$event_meta 	= Kidzou_Events::getEventDates($post->ID);
+		wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
+		wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
 		
-			$start_date		= $event_meta['start_date'];
-			$end_date 		= $event_meta['end_date'];
-			$recurrence		= $event_meta['recurrence'];
-			$past_dates		= $event_meta['past_dates'];
+		wp_enqueue_script( 	'daypicker-locale-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-LocaleUtils.js', dirname(__FILE__) ), array('moment' ), '1.0', true);
+		wp_enqueue_script( 	'daypicker-date-utils', 	plugins_url( '/assets/js/lib/react-DayPicker-DateUtils.js', dirname(__FILE__) ), array( ), '1.0', true);
+		wp_enqueue_script( 	'daypicker', 		plugins_url( '/assets/js/lib/react-DayPicker.js', dirname(__FILE__) ), array( 'daypicker-locale-utils', 'daypicker-date-utils', 'react-dom'), '1.0', true);
+		wp_enqueue_style( 	'daypicker', 		plugins_url( 'assets/css/lib/react-DayPicker.css', dirname(__FILE__) )  );
 
-			wp_localize_script('kidzou-event-metabox', 'event_jsvars', array(
-					'start_date'					=> $start_date,
-					'end_date'						=> $end_date,
-					'recurrence'					=> $recurrence,
-					'past_dates'					=> $past_dates,
-					'api_base'						=> site_url(),
-					'api_save_event'				=> site_url()."/api/content/eventData/",
-					'allow_recurrence'				=> Kidzou_Utils::current_user_can('can_set_event_recurrence')
-				)
-			);
+		wp_enqueue_script( 'radio-group', 	plugins_url( '/assets/js/lib/react-radio-group.js', dirname(__FILE__) ), array(  'react-dom'), '1.0', true);
+
+		wp_enqueue_script('kidzou-react', 	plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+		wp_enqueue_script('kidzou-event-metabox', plugins_url( 'assets/js/kidzou-event-metabox.js', dirname(__FILE__) ) ,array('kidzou-react', 'daypicker'), Kidzou::VERSION, true);
+
+		//insertion des metabox et initialisation des JS
+		global $post;
+		$event_meta 	= Kidzou_Events::getEventDates($post->ID);
+	
+		$start_date		= $event_meta['start_date'];
+		$end_date 		= $event_meta['end_date'];
+		$recurrence		= $event_meta['recurrence'];
+		$past_dates		= $event_meta['past_dates'];
+
+		wp_localize_script('kidzou-event-metabox', 'event_jsvars', array(
+				'start_date'					=> $start_date,
+				'end_date'						=> $end_date,
+				'recurrence'					=> $recurrence,
+				'past_dates'					=> $past_dates,
+				'api_base'						=> site_url(),
+				'api_save_event'				=> site_url()."/api/content/eventData/",
+				'allow_recurrence'				=> Kidzou_Utils::current_user_can('can_set_event_recurrence')
+			)
+		);
 
 
 
-		} 
+		// } 
 	}
 
 
@@ -135,7 +129,10 @@ class Kidzou_Metaboxes_Event {
 		$screen = get_current_screen(); 
 
 		if ( in_array($screen->id , $this->screen_with_meta_event) ) { 
-			// add_meta_box('kz_facebook_metabox', 'Importer un &eacute;v&eacute;nement Facebook', array($this, 'facebook_event_metabox'), $screen->id, 'normal', 'high');
+			
+			// Load admin style sheet and JavaScript.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
+
 			add_meta_box('kz_event_metabox', 'Evenement', array($this, 'event_metabox'), $screen->id, 'normal', 'high');
 		} 
 	}
@@ -197,7 +194,6 @@ class Kidzou_Metaboxes_Event {
 	 **/
 	private function save_event_meta($post_id)
 	{
-		// Kidzou_Utils::log('save_event_meta',true);
 		if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
 			return ;
 
@@ -217,8 +213,6 @@ class Kidzou_Metaboxes_Event {
 		// Verify that the nonce is valid.
 		if ( ! wp_verify_nonce( $nonce, 'event_metabox' ) )
 			return $post_id;
-
-		// Kidzou_Utils::log(array('POST'=>$_POST), true);
 
 		$start_date = (isset($_POST['kz_event_start_date']) ? $_POST['kz_event_start_date'] : '');
 		$end_date	= (isset($_POST['kz_event_end_date']) ? $_POST['kz_event_end_date'] : '');

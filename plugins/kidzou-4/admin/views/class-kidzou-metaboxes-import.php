@@ -38,14 +38,9 @@ class Kidzou_Metaboxes_Import {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-		
-		//sauvegarde des meta à l'enregistrement
-		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
-
-		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
-
-		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
+	
+		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes' ) );
+		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes' ) );
 	}
 
 
@@ -58,34 +53,34 @@ class Kidzou_Metaboxes_Import {
 	 */
 	public function enqueue_styles_scripts() {
 
-		$screen = get_current_screen(); 
+		// $screen = get_current_screen(); 
 
 		//on a besoin de font awesome dans le paneau d'admin
 
-		if ( in_array($screen->id , $this->supported_screens)  ) {
+		// if ( in_array($screen->id , $this->supported_screens)  ) {
 
-			wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
-			wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
+		wp_enqueue_script('moment',			"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js",	array('jquery'), '2.4.0', true);
+		wp_enqueue_script('moment-locale',	"https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js",	array('moment'), '2.4.0', true);
 
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+		wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
+		wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
 
-			wp_enqueue_script('kidzou-react', 			plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
-			wp_enqueue_script('kidzou-import-metabox', 	plugins_url( 'assets/js/kidzou-import-metabox.js', dirname(__FILE__) ) ,array('jquery', 'moment', 'react-dom'), Kidzou::VERSION, true);
+		wp_enqueue_script('kidzou-react', 			plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+		wp_enqueue_script('kidzou-import-metabox', 	plugins_url( 'assets/js/kidzou-import-metabox.js', dirname(__FILE__) ) ,array('jquery', 'moment', 'react-dom'), Kidzou::VERSION, true);
 
-			$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
-			$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
+		$facebook_appId 	= Kidzou_Utils::get_option('fb_app_id','');
+		$facebook_appSecret = Kidzou_Utils::get_option('fb_app_secret','');
 
-			wp_localize_script('kidzou-import-metabox', 'import_jsvars', array(
-					'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
-					'facebook_appId'				=> $facebook_appId,
-					'facebook_appSecret'			=> $facebook_appSecret,
-					'import_form_parent'			=> '#kz_import_metabox .react-content', //noeud DOM dans lequel injecter le form
-					'background_import'				=> false
-				)
-			);
+		wp_localize_script('kidzou-import-metabox', 'import_jsvars', array(
+				'api_addMediaFromURL'			=> site_url()."/api/import/addMediaFromURL/",
+				'facebook_appId'				=> $facebook_appId,
+				'facebook_appSecret'			=> $facebook_appSecret,
+				'import_form_parent'			=> '#kz_import_metabox .react-content', //noeud DOM dans lequel injecter le form
+				'background_import'				=> false
+			)
+		);
 
-		} 
+		// } 
 	}
 
 
@@ -119,6 +114,9 @@ class Kidzou_Metaboxes_Import {
 		$screen = get_current_screen(); 
 
 		if ( in_array($screen->id , $this->supported_screens) ) { 
+
+			// Load admin style sheet and JavaScript.
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 
 			add_meta_box('kz_import_metabox', 'Import de contenu', array($this, 'import_metabox'), $screen->id, 'normal', 'high');
 		} 

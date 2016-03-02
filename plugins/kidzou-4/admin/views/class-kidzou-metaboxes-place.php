@@ -40,15 +40,9 @@ class Kidzou_Metaboxes_Place {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-		
-		//sauvegarde des meta à l'enregistrement
-		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
 
-		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
-
-		add_action( 'add_meta_boxes', array( $this, 'place_metaboxes' ) );
+		add_action( 'kidzou_add_metabox', array( $this, 'place_metaboxes' ) );
+		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes' ) );
 	}
 
 	/**
@@ -60,29 +54,29 @@ class Kidzou_Metaboxes_Place {
 	public function enqueue_geo_scripts()
 	{
 
-		$screen = get_current_screen(); 
+		// $screen = get_current_screen(); 
 
-		if (in_array($screen->id , $this->screen_with_meta_place)) {
+		// if (in_array($screen->id , $this->screen_with_meta_place)) {
 
 			// wp_enqueue_script('kidzou-storage', 	plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
-			wp_enqueue_script('kidzou-admin-geo', 	plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery'), Kidzou::VERSION, true);
+		wp_enqueue_script('kidzou-admin-geo', 	plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery'), Kidzou::VERSION, true);
 
-			$villes = Kidzou_Metropole::get_metropoles();
+		$villes = Kidzou_Metropole::get_metropoles();
 
-			$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
-	  
-			$args = array(
-						// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
-						'geo_mapquest_key'			=> $key, 
-						'geo_mapquest_reverse_url'	=> "https://open.mapquestapi.com/geocoding/v1/reverse",
-						'geo_mapquest_address_url'	=> "https://open.mapquestapi.com/geocoding/v1/address",
-						// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
-						'geo_possible_metropoles'	=> $villes ,
-						// 'geo_coords'				=> $locator::COOKIE_COORDS,
-					);
+		$key = Kidzou_Utils::get_option("geo_mapquest_key",'Fmjtd%7Cluur2qubnu%2C7a%3Do5-9aanq6');
+  
+		$args = array(
+					// 'geo_activate'				=> (bool)Kidzou_Utils::get_option('geo_activate',false), //par defaut non
+					'geo_mapquest_key'			=> $key, 
+					'geo_mapquest_reverse_url'	=> "https://open.mapquestapi.com/geocoding/v1/reverse",
+					'geo_mapquest_address_url'	=> "https://open.mapquestapi.com/geocoding/v1/address",
+					// 'geo_cookie_name'			=> $locator::COOKIE_METRO,
+					'geo_possible_metropoles'	=> $villes ,
+					// 'geo_coords'				=> $locator::COOKIE_COORDS,
+				);
 
-		    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
-		}
+	    wp_localize_script(  'kidzou-admin-geo', 'kidzou_admin_geo_jsvars', $args );
+		// }
 		
 	}
 
@@ -100,72 +94,72 @@ class Kidzou_Metaboxes_Place {
 		//on a besoin de font awesome dans le paneau d'admin
 		// wp_enqueue_style( 'fontello', "//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
 
-		if ( in_array($screen->id , $this->screen_with_meta_place)  ) {
+		// if ( in_array($screen->id , $this->screen_with_meta_place)  ) {
 
-			$args = array();
-			global $post;
-			$location = Kidzou_Geoloc::get_post_location($post->ID); 
+		$args = array();
+		global $post;
+		$location = Kidzou_Geoloc::get_post_location($post->ID); 
 
-			// Kidzou_Utils::log($location,true);
+		// Kidzou_Utils::log($location,true);
 
-			$args['location_name'] 		= $location['location_name'];
-			$args['location_address'] 	= $location['location_address'];
-			$args['location_website'] 	= $location['location_website'];
-			$args['location_phone_number'] 	= $location['location_phone_number'];
-			$args['location_city'] 		= $location['location_city'];
-			$args['location_latitude'] 	= $location['location_latitude'];
-			$args['location_longitude'] = $location['location_longitude'];
+		$args['location_name'] 		= $location['location_name'];
+		$args['location_address'] 	= $location['location_address'];
+		$args['location_website'] 	= $location['location_website'];
+		$args['location_phone_number'] 	= $location['location_phone_number'];
+		$args['location_city'] 		= $location['location_city'];
+		$args['location_latitude'] 	= $location['location_latitude'];
+		$args['location_longitude'] = $location['location_longitude'];
 
-			$args['api_save_place'] 	= site_url()."/api/content/place/";
-			$args['api_set_post_terms'] = site_url()."/api/taxonomy/setPostTerms/";
-			$args['api_base'] 			= site_url();
-			$args['allow_edit_customer']= Kidzou_Utils::current_user_can('can_edit_customer');
+		$args['api_save_place'] 	= site_url()."/api/content/place/";
+		$args['api_set_post_terms'] = site_url()."/api/taxonomy/setPostTerms/";
+		$args['api_base'] 			= site_url();
+		$args['allow_edit_customer']= Kidzou_Utils::current_user_can('can_edit_customer');
 
-			//recuperation de l'adresse du client associé pour la proposer
-			//A condition qu'il ne s'agisse pas d'un ecran "customer" et que le user n'ait pas le droit de selectionner un client
-			//sinon, cette proposition d'adresse client viendra de la metabox customer
-			if ($screen->id!='customer' && !Kidzou_Utils::current_user_can('can_edit_customer')) {
+		//recuperation de l'adresse du client associé pour la proposer
+		//A condition qu'il ne s'agisse pas d'un ecran "customer" et que le user n'ait pas le droit de selectionner un client
+		//sinon, cette proposition d'adresse client viendra de la metabox customer
+		if ($screen->id!='customer' && !Kidzou_Utils::current_user_can('can_edit_customer')) {
 
-				$id = 0;
-				$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
+			$id = 0;
+			$res = Kidzou_Customer::getCustomersIDByUserID();//print_r($res);
+
+			//on prend le premier 
+			if ( is_array($res) ) { //&& count($res)==1
+				$vals =array_values($res);
+				$id = reset($vals);//[0];
+
+				$customer_location = Kidzou_Geoloc::get_post_location($id);
+
+				if (isset($customer_location['location_name']) && $customer_location['location_name']!='') {
+
+					$args['customer_location_name'] 	= $customer_location['location_name'];
+					$args['customer_location_address'] 	= $customer_location['location_address'];
+					$args['customer_location_website'] 		= $customer_location['location_website'];
+					$args['customer_location_phone_number'] = $customer_location['location_phone_number'];
+					$args['customer_location_city'] 	= $customer_location['location_city'];
+					$args['customer_location_latitude'] = $customer_location['location_latitude'];
+					$args['customer_location_longitude'] = $customer_location['location_longitude'];
+					// Kidzou_Utils::log(array('args'=>$args),true);
+				}
+			}		
+			
+		}
 	
-				//on prend le premier 
-				if ( is_array($res) ) { //&& count($res)==1
-					$vals =array_values($res);
-					$id = reset($vals);//[0];
-
-					$customer_location = Kidzou_Geoloc::get_post_location($id);
-
-					if (isset($customer_location['location_name']) && $customer_location['location_name']!='') {
-
-						$args['customer_location_name'] 	= $customer_location['location_name'];
-						$args['customer_location_address'] 	= $customer_location['location_address'];
-						$args['customer_location_website'] 		= $customer_location['location_website'];
-						$args['customer_location_phone_number'] = $customer_location['location_phone_number'];
-						$args['customer_location_city'] 	= $customer_location['location_city'];
-						$args['customer_location_latitude'] = $customer_location['location_latitude'];
-						$args['customer_location_longitude'] = $customer_location['location_longitude'];
-						// Kidzou_Utils::log(array('args'=>$args),true);
-					}
-				}		
-				
-			}
+		wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
 		
-			wp_enqueue_style( 'kidzou-form', plugins_url( 'assets/css/kidzou-form.css', dirname(__FILE__) )  );
-			
-			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
-			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
-			wp_enqueue_script('google-maps', 	"https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
-			
-			wp_enqueue_script('react-geosuggest', 		plugins_url( 'assets/js/lib/react-geosuggest.min.js', dirname(__FILE__) ), array('react','google-maps'), '1.0', true);
-			wp_enqueue_script('react-inline-edit', 		plugins_url( 'assets/js/lib/react-inline-edit.js', dirname(__FILE__) ), array('react'), '1.0', true);
-			wp_enqueue_style( 'react-geosuggest', 		plugins_url( 'assets/css/lib/geosuggest.css', dirname(__FILE__) )  );
+		wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
+		wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
+		wp_enqueue_script('google-maps', 	"https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
+		
+		wp_enqueue_script('react-geosuggest', 		plugins_url( 'assets/js/lib/react-geosuggest.min.js', dirname(__FILE__) ), array('react','google-maps'), '1.0', true);
+		wp_enqueue_script('react-inline-edit', 		plugins_url( 'assets/js/lib/react-inline-edit.js', dirname(__FILE__) ), array('react'), '1.0', true);
+		wp_enqueue_style( 'react-geosuggest', 		plugins_url( 'assets/css/lib/geosuggest.css', dirname(__FILE__) )  );
 
-			wp_enqueue_script('kidzou-react', 			plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
-			wp_enqueue_script('kidzou-place-metabox', 	plugins_url( 'assets/js/kidzou-place-metabox.js', dirname(__FILE__) ) ,array('react-geosuggest','kidzou-react', 'react-inline-edit'), Kidzou::VERSION, true);
-			wp_localize_script('kidzou-place-metabox', 'place_jsvars', $args);
+		wp_enqueue_script('kidzou-react', 			plugins_url( 'assets/js/kidzou-react.js', dirname(__FILE__) ) ,array('react-dom'), Kidzou::VERSION, true);			
+		wp_enqueue_script('kidzou-place-metabox', 	plugins_url( 'assets/js/kidzou-place-metabox.js', dirname(__FILE__) ) ,array('react-geosuggest','kidzou-react', 'react-inline-edit'), Kidzou::VERSION, true);
+		wp_localize_script('kidzou-place-metabox', 'place_jsvars', $args);
 
-		} 
+		// } 
 
 
 	}
@@ -193,6 +187,10 @@ class Kidzou_Metaboxes_Place {
 		$screen = get_current_screen(); 
 
 		if ( in_array($screen->id , $this->screen_with_meta_place) ) {
+			
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_geo_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
+
 			add_meta_box('kz_place_metabox', 'Lieu', array($this, 'place_metabox'), $screen->id, 'normal', 'high');
 		}
 

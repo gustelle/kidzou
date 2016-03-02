@@ -2,7 +2,7 @@
 
 /**
  *
- * Création du champ Input via ReactJS
+ * Création d'un <input type="text"> reactif aux URL facebook : onChange déclenche un import de contenu
  */
 
 var ImportForm = React.createClass({
@@ -16,6 +16,7 @@ var ImportForm = React.createClass({
 	},
 
 	handleChange: function handleChange(e) {
+		console.debug('tinyMCE', window.tinyMCE.activeEditor.getContent({ format: 'html' }));
 
 		var self = this;
 		var value = e.target.value;
@@ -111,9 +112,9 @@ var ImportForm = React.createClass({
 									var content = response.description.replace(/(\r\n|\n|\r)/gm, "<br/>");
 									//le contenu de Facebook est ajouté à la fin du contenu pré-existant
 									//il faut donc récupérer le contenu existant
-									var previousContent = tinyMCE.activeEditor.getContent({ format: 'raw' });
+									var previousContent = window.tinyMCE.activeEditor.getContent({ format: 'raw' });
 
-									tinyMCE.execCommand('mceSetContent', false, previousContent + content);
+									window.tinyMCE.execCommand('mceSetContent', false, previousContent + content);
 								}
 
 								//fixer le contenu dans l'editor

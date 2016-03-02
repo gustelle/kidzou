@@ -9,11 +9,7 @@
 
 					global $wp_query;
 
-					// if ( WP_DEBUG === true && current_user_can('manage_options') )
-					// 	error_log( $wp_query->request );
-
 					$name = '';
-					// print_r($wp_query);
 
 					if (is_tax()) {
 						
@@ -28,9 +24,7 @@
 
 					} elseif (is_category() ) {
 						$name = $wp_query->queried_object->name;
-					} else {
-						//
-					}
+					} 
 					
 					if ($name != '') {
 						echo do_shortcode(
@@ -58,150 +52,17 @@
 
 									<?php
 
-										$with_votes = true;
-										$show_title = 'on';
-										$show_categories = 'on';
-										$show_pagination = 'on';
 										$filter = 'none';
-										$fullwidth = 'off';
-										$background_layout = 'light';
-										$module_id ='';
-										$module_class = '';
-										$show_ad = 'on';
-										$container_is_closed = false;
-
-										$is_pub = ( trim(Kidzou_Utils::get_option('pub_archive', '')) != '' );
-
-										if ( $is_pub )
-											echo Kidzou_Utils::get_option('pub_archive', '');
 
 										ob_start();
 
-										$categories_included = array();
-
-										$index = 0;
-
 										if ( have_posts() ) {
 
-											while ( have_posts() ) {
+											$posts = $wp_query->posts;
+ 	
+											render_react_portfolio(true, $posts, false); 
 
-												if ($index==2 && $show_ad=='on') {
-
-													//insertion de pub
-													// global $kidzou_options;
-													$is_pub = ( trim(Kidzou_Utils::get_option('pub_portfolio', '')) != '' );
-
-													if ( $is_pub ) {
-
-														$output = sprintf(
-															'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
-																%2$s
-															</div>',
-															'et_pb_portfolio_item kz_portfolio_item ad',
-															Kidzou_Utils::get_option('pub_portfolio', ''),
-															__('Publicite','Divi')
-														);
-
-														echo $output;
-
-													} //if ( $is_pub )
-														
-
-												} else { //if ($index==2 && $show_ad=='on')
-
-													the_post(); 
-
-													$categories = get_the_terms( get_the_ID(), 'category' );
-													if ( $categories ) {
-														foreach ( $categories as $category ) {
-															$categories_included[] = $category->term_id;
-														}
-													} //if ( $categories )
-													?>
-
-													<div id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_portfolio_item kz_portfolio_item' ); ?>>
-
-														<?php
-														$thumb = '';
-
-														$width = 400;
-														$height = 284;
-
-														$classtext = '';
-														$titletext = get_the_title();
-														$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'et-pb-portfolio-image' );
-														$thumb = $thumbnail["thumb"];
-
-														// print_r($thumb);
-
-														if ( '' !== $thumb ) : ?>
-															<a href="<?php the_permalink(); ?>">
-															<?php if ( 'on' !== $fullwidth ) : ?>
-																<span class="et_portfolio_image">
-															<?php endif; ?>
-															<?php if ( $with_votes  ) 
-																	Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
-																	<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
-															<?php if ( 'on' !== $fullwidth ) : ?>
-																	<span class="et_overlay"></span>
-																</span>
-															<?php endif; ?>
-															</a>
-													<?php
-														endif; //if ( '' !== $thumb )
-													?>
-
-														<?php if ( 'on' === $show_title ) : ?>
-															<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-														<?php endif; ?>
-
-														<?php if ( 'on' === $show_categories ) : ?>
-															<p class="post-meta"><?php echo get_the_term_list( get_the_ID(), 'category', '', ', ' ); ?></p>
-														<?php endif; ?>
-
-														<?php
-
-														if (Kidzou_Events::isTypeEvent()) {
-
-															$location = Kidzou_Events::getEventDates();
-
-															$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
-															$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
-
-
-															$formatter = new IntlDateFormatter('fr_FR',
-													                                            IntlDateFormatter::SHORT,
-													                                            IntlDateFormatter::NONE,
-													                                            'Europe/Paris',
-													                                            IntlDateFormatter::GREGORIAN,
-													                                            'dd/MM/yyyy');
-															
-															$formatter->setPattern('cccc dd LLLL');
-
-															$formatted = '';
-
-															if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-																$formatted = __( 'Le ', 'Divi').  $formatter->format($start) ;
-															else
-																$formatted = __( 'Du ', 'Divi').  $formatter->format($start).__(' au ', 'Divi'). $formatter->format($end);
-															
-															echo '<div class="portfolio_dates"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
-														
-														} //if (Kidzou_Events::isTypeEvent()) 
-														?>
-
-													</div> <!-- .et_pb_portfolio_item -->
-
-									<?php
-												
-												} //fin de test sur $index
-
-												$index++;
-
-											
-											}//fin de boucle while
-
-											if ( 'on' === $show_pagination && ! is_search() ) {
+											if ( ! is_search() ) { //'on' === $show_pagination && 
 												echo '</div> <!-- .et_pb_portfolio -->';
 
 												$container_is_closed = true;

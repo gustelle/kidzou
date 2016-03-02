@@ -203,25 +203,22 @@ class Kidzou_Customer {
 	 **/
 	public static function getCustomerIDByPostID($post_id = 0)
 	{
-
 		if ($post_id==0)
 		{
-			global $post; 
+			global $post;
 			$post_id = $post->ID; 
+			$post_type = $post->post_type;
+		} else {
+			$post_type = get_post_type($post_id);
 		}
 
-		//si le post est un customer on jette une erreur
-		$post = get_post($post_id);
+		if ($post_type==self::$post_type)
+			return new WP_Error( 'getCustomerIDByPostID', __( "ce type de post n'est pas supporté par cette fonction", "kidzou" ) );
 
-		if (get_post_type($post)==self::$post_type)
-			return new WP_Error( 'not_a_post', __( "L'ID correspond déjà à un Client", "kidzou" ) );
-
-		$customer = get_post_meta($post_id, self::$meta_customer, TRUE);
+		$customer = get_post_meta($post_id, self::$meta_customer, TRUE); 
 
 		if (!$customer || $customer=='')
-			$customer = 0;
-
-		// Kidzou_Utils::log(array('method', __METHOD__, 'post_id' => $post_id, 'customer'=> $customer) , true);
+			$customer = 0; 
 
 		return intval($customer);
 	}

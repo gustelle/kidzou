@@ -1,15 +1,24 @@
 <h4>ImportExtension v3</h4>
+<h5>Saint Valentin</h5>
+<ul>
+	<li>fix : un post peut ne pas avoir de date d'event</li>
+	<li>fix : bug étrange dans Kidzou_Customer::getCustomerIDByPostID() qui causait un bug dans les contenus par défaut d'un nouveau post</li>
+	<li>Passage à ReactJS sur le front / Kidzou_Vote</li>
+	<li>Correctif sur l'affichage du website et phone_number</li>
+
+	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
+	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+</ul>
+
+
+<h4>ImportExtension v3</h4>
 <h5>Fevrier 2015</h5>
 <ul>
 	<li>Fix : Amélioration du composant React CheckBoxGroup et Fix sur la date de fin de récurrence qd l'événement ne se termine jamais</li>
 	<li>Fix : Bug dans le CRON de dépublication des events, suite à refactoring de Kidzou_GeoDS</li>
 	<li>Fix : Renforcement des controles dans les events pour éviter des cas ou end_date est invalide</li>
-
-	<li>TODO : Passage à ReactJS sur le front / Kidzou_Vote</li>
-	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
-	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
-	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
-	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 </ul>
 
 <h4>ImportExtension v3</h4>

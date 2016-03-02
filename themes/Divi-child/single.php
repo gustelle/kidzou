@@ -39,7 +39,7 @@
 						<div class="et_pb_column et_pb_column_3_8 et_pb_column_inner">
 							<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 							
-								<?php Kidzou_Vote::vote(get_the_ID(), 'font-2x'); ?>
+								<?php kz_vote_single(); ?>
 								
 								<h1><?php the_title(); ?></h1>
 								<?php et_divi_post_meta(); ?>
@@ -54,8 +54,8 @@
 							?>
 								<div class="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
 									<?php if (isset($location['location_address']) && $location['location_address']<>'') echo '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>'; ?>
-									<?php if (isset($location['location_tel']) && $location['location_tel']<>'')  echo '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>'; ?>
-									<?php if (isset($location['location_web']) && $location['location_web']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i><a target="_blank" href="'.$location['location_web'].'">'.__('Visiter le site web','Divi').'</a></p>'; ?>
+									<?php if (isset($location['location_phone_number']) && $location['location_phone_number']<>'')  echo '<p class="location"><i class="fa fa-phone"></i>'.$location['location_phone_number'].'</p>'; ?>
+									<?php if (isset($location['location_website']) && $location['location_website']<>'')  echo '<p class="location"><i class="fa fa-tablet"></i><a target="_blank" href="'.$location['location_website'].'">'.__('Visiter le site web','Divi').'</a></p>'; ?>
 
 								</div> <!-- .et_pb_text --><hr class="et_pb_space" />
 							

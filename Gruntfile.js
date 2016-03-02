@@ -70,37 +70,53 @@ module.exports = function(grunt) {
 		},
 
 		//compilation des JSX React
-		babel: {
-			options: {
-				plugins: ['transform-react-jsx'],
-				presets: ['es2015', 'react']	
-			},
-			jsx: {
-				files: [{
-				  expand: true,
-				  cwd: '<%= cfg.kidzou_path %>/admin/assets/js/jsx/', // Custom folder
-				  src: ['*.jsx'],
-				  dest: '<%= cfg.kidzou_path %>/admin/assets/js', // Custom folder
-				  ext: '.js'
-				}]
-			}
-		},
-
 		// babel: {
 		// 	options: {
 		// 		plugins: ['transform-react-jsx'],
-		// 		presets: ['es2015', 'react']
+		// 		presets: ['es2015', 'react']	
 		// 	},
 		// 	jsx: {
 		// 		files: [{
 		// 		  expand: true,
-		// 		  cwd: '<%= cfg.theme_path %>/js/jsx/', // Custom folder
+		// 		  cwd: '<%= cfg.kidzou_path %>/admin/assets/js/jsx/', // Custom folder
 		// 		  src: ['*.jsx'],
-		// 		  dest: '<%= cfg.theme_path %>/js', // Custom folder
+		// 		  dest: '<%= cfg.kidzou_path %>/admin/assets/js', // Custom folder
 		// 		  ext: '.js'
 		// 		}]
 		// 	}
-		// }
+		// },
+
+		// babel: {
+		// 	options: {
+		// 		plugins: ['transform-react-jsx'],
+		// 		presets: ['es2015', 'react']	
+		// 	},
+		// 	jsx: {
+		// 		files: [{
+		// 		  expand: true,
+		// 		  cwd: '<%= cfg.kidzou_path %>/public/assets/js/jsx/', // Custom folder
+		// 		  src: ['*.jsx'],
+		// 		  dest: '<%= cfg.kidzou_path %>/public/assets/js', // Custom folder
+		// 		  ext: '.js'
+		// 		}]
+		// 	}
+		// },
+
+		babel: {
+			options: {
+				plugins: ['transform-react-jsx'],
+				presets: ['es2015', 'react']
+			},
+			jsx: {
+				files: [{
+				  expand: true,
+				  cwd: '<%= cfg.theme_path %>/js/jsx/', // Custom folder
+				  src: ['*.jsx'],
+				  dest: '<%= cfg.theme_path %>/js', // Custom folder
+				  ext: '.js'
+				}]
+			}
+		}
 		
 	});
 

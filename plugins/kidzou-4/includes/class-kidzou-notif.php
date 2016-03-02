@@ -68,8 +68,13 @@ class Kidzou_Notif {
 
 		wp_enqueue_style( 'endbox', plugins_url( 'kidzou-4/public/assets/css/endpage-box.css' ), array(), Kidzou::VERSION );
 
+		wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+		wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+		wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+		wp_enqueue_script( 'storage', 		plugins_url( ).'/../assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
 		wp_enqueue_script('endbox',	 plugins_url( 'kidzou-4/public/assets/js/jquery.endpage-box.min.js' ),array(), Kidzou::VERSION, true);
-		wp_enqueue_script( 'kidzou-notif', plugins_url( 'kidzou-4/public/assets/js/kidzou-notif.js' ), array('jquery', 'ko', 'endbox','kidzou-plugin-script', 'kidzou-storage'), Kidzou::VERSION, true);
+		wp_enqueue_script( 'kidzou-notif', plugins_url( 'kidzou-4/public/assets/js/kidzou-notif.js' ), array('jquery', 'endbox', 'kidzou-storage', 'react-dom'), Kidzou::VERSION, true); //ko
 
 		wp_localize_script('kidzou-notif', 'kidzou_notif', array(
 				'messages'				=> self::get_messages(),
@@ -77,6 +82,13 @@ class Kidzou_Notif {
 				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
 				'newsletter_context'	=> Kidzou_Utils::get_option('notifications_newsletter_context', 1),
 				'newsletter_nomobile'	=> Kidzou_Utils::get_option('notifications_newsletter_nomobile', true),
+				'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
+				'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
+				'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+												'voteUp'		=> site_url().'/api/vote/up/',
+												'voteDown'		=> site_url().'/api/vote/down/',
+												'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+												'getNonce'		=> site_url().'/api/get_nonce/')
 			)
 		);
 
@@ -217,8 +229,6 @@ class Kidzou_Notif {
 
 		$messages['content'] = $content;
 
-		// Kidzou_Utils::log($messages, true);
-
 		return $messages;
 	}
 
@@ -228,16 +238,16 @@ class Kidzou_Notif {
 	 */
 	private static function get_vote_message($icon_class='', $icon_style='') {
 
-		$icon = sprintf('<i class="fa fa-heart-o fa-3x vote %1$s" style="%2$s"></i>',
-			$icon_class,
-			$icon_style);
+		// $icon = sprintf('<i class="fa fa-heart-o fa-3x vote %1$s" style="%2$s"></i>',
+		// 	$icon_class,
+		// 	$icon_style);
 
 		return array(
 				'id'		=> 'vote',
 				'title' 	=> __( 'Vous aimez cette sortie ?', 'kidzou' ),
 				'body' 		=> __( 'Recommandez cette sortie aux autres parents afin de les aider &agrave; identifier rapidement les meilleurs plans. Cliquez sur le coeur en haut de page ! ', 'kidzou' ),
 				'target' 	=> '#',
-				'icon' 		=> $icon,
+				'icon' 		=> '',
 			);
 
 	}
