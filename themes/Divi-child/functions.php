@@ -937,8 +937,8 @@ function kz_pb_blog( $atts ) {
  */
 function render_react_portfolio($show_ad = false, $posts = array(), $animate=true) {
 
-	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
-	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js',		array('react'), '0.14.7', true);	
 	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
 	wp_enqueue_script('moment',			'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js',	array('jquery'), '2.11.2', true);
 	wp_enqueue_script('moment-locale',	'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js',		array('moment'), '2.11.2', true);
@@ -952,7 +952,8 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
 	///
 	////////////////////////////////////////////////////////////////////
 
-	include get_stylesheet_directory().'/includes/react/ReactJS.php';
+	if (!class_exists('ReactJS'))
+		include get_stylesheet_directory().'/includes/react/ReactJS.php';
 
 	$react = new ReactJS(
 	  	// location of React's code and dependencies
@@ -1047,7 +1048,8 @@ function kz_vote_single() {
 	///
 	////////////////////////////////////////////////////////////////////
 
-	include get_stylesheet_directory().'/includes/react/ReactJS.php';
+	if (!class_exists('ReactJS'))
+		include get_stylesheet_directory().'/includes/react/ReactJS.php';
 
 	$react = new ReactJS(
 	  	// location of React's code and dependencies
