@@ -188,12 +188,12 @@ var kidzouGeoContent = (function () {
 							//l'utilisateur change de position
 							//on indique a la page qu'elle peut recharger son contenu "proximite"
 
-							if ( ko.toJSON(short_position) != ko.toJSON(prec_coords) ) {
+							if ( JSON.stringify(short_position) != JSON.stringify(prec_coords) ) {
 
 								// console.info('New position detected ' );
 
 								//stockage des résultats dans un cookie pour transmission en requete 
-								storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, ko.toJSON( short_position ) );
+								storageSupport.setCookie(kidzou_geo_jsvars.geo_coords, JSON.stringify( short_position ) );
 
 								var myEvent = new CustomEvent("geolocation", {
 									detail: {error: false, acceptGeolocation : true, refresh : true, coords : short_position},

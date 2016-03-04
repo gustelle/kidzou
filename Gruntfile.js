@@ -86,6 +86,7 @@ module.exports = function(grunt) {
 			}
 		},
 
+
 		// babel: {
 		// 	options: {
 		// 		plugins: ['transform-react-jsx'],

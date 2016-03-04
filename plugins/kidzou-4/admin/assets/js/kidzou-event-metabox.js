@@ -533,17 +533,23 @@ var kidzouEventModule = function ($) {
 		saveEvent: function saveEvent() {
 			var self = this;
 
+			//si aucune date de début, ce n'est pas un event
 			if (self.state.from == null) {
-				self._hintMessage.onError('Renseignez une date');
-				return;
-			} else if (self.state.isRecurrence) {
-				if (self.state.repeatModel == 'weekly' && self.state.repeatItems.length == 0) {
-					self._hintMessage.onError('Choisissez les jours de récurrence');
-					return;
-				}
-				if (self.state.endType == 'date' && (self.state.endValue == '' || self.state.endValue == null)) {
-					self._hintMessage.onError('Renseignez la date de fin de récurrence');
-					return;
+				self.setState({
+					to: null,
+					isRecurrence: false
+				});
+			} else {
+
+				if (self.state.isRecurrence) {
+					if (self.state.repeatModel == 'weekly' && self.state.repeatItems.length == 0) {
+						self._hintMessage.onError('Choisissez les jours de récurrence');
+						return;
+					}
+					if (self.state.endType == 'date' && (self.state.endValue == '' || self.state.endValue == null)) {
+						self._hintMessage.onError('Renseignez la date de fin de récurrence');
+						return;
+					}
 				}
 			}
 
@@ -551,7 +557,7 @@ var kidzouEventModule = function ($) {
 			jQuery.get(event_jsvars.api_base + '/api/get_nonce/?controller=content&method=eventData', {}, function (n) {
 
 				jQuery.post(event_jsvars.api_save_event + '?nonce=' + n.nonce, {
-					start_date: moment(self.state.from).format('YYYY-MM-DD 00:00:00'),
+					start_date: self.state.from == null ? '' : moment(self.state.from).format('YYYY-MM-DD 00:00:00'),
 					end_date: self.state.to == null ? '' : moment(self.state.to).format('YYYY-MM-DD 23:59:59'),
 					recurrence: self.state.isRecurrence,
 					model: self.state.repeatModel,

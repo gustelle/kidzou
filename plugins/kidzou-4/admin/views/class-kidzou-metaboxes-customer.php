@@ -55,8 +55,6 @@ class Kidzou_Metaboxes_Customer {
 		//pour le B.O (partie admin)
 		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes') );
 		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes'), 10, 1);
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 		
 	}
 
@@ -95,7 +93,7 @@ class Kidzou_Metaboxes_Customer {
 			$customer_id = 0;
 			if (in_array($screen->id , $this->screen_with_meta_client))
 				$customer_id = Kidzou_Customer::getCustomerIDByPostID();
-			
+
 			if (in_array($screen->id , $this->customer_screen))
 				$customer_id = $post->ID;
 			
@@ -112,8 +110,8 @@ class Kidzou_Metaboxes_Customer {
 
 				$args = array();
 
-				$args['api_save_place'] 	= site_url()."/api/content/place/";
-				$args['api_create_post'] 	= site_url()."/api/posts/create_post/";
+				$args['api_save_place'] 		= site_url()."/api/content/place/";
+				$args['api_create_post'] 		= site_url()."/api/posts/create_post/";
 				$args['api_getCustomerPlace']	= site_url()."/api/clients/getCustomerPlace/";
 
 				$args['customer_posts'] = array_map(function($item){
@@ -126,6 +124,9 @@ class Kidzou_Metaboxes_Customer {
 				$args['api_attach_posts'] 	= site_url()."/api/clients/posts/";
 				$args['api_base'] 			= site_url();
 				$args['admin_url'] 			= admin_url();
+
+				wp_enqueue_script( 'kidzou-customer-metabox', plugins_url( '/assets/js/kidzou-customer-metabox.js', dirname(__FILE__) ), array( 'jquery', 'react-select', 'kidzou-react' ), Kidzou::VERSION, true);
+				wp_localize_script('kidzou-customer-metabox', 'client_jsvars', $args);
 			} 
 
 			//selection de users et de posts sur l'écran customer
@@ -156,10 +157,6 @@ class Kidzou_Metaboxes_Customer {
 				//////////////////////////////////////////////////////////////			
 				//partie API
 				$key = Kidzou_Customer::getAPIKey($post->ID);
-
-				//actuellement $api_names ne sert à rien dans le code
-				//C'est pour ouvrir la voie vers une généralisation de la gestion des API
-				// $api_names = Kidzou_API::getAPINames();
 		 		
 		 		//todo : c'est ici qu'on fait référence en dur à l'API excerpts
 		 		//pour généraliser cette fonction, il faudrait boucler sur toutes les API 
@@ -193,13 +190,6 @@ class Kidzou_Metaboxes_Customer {
 				wp_localize_script('kidzou-customer-users-metabox', 'customer_users_jsvars', 	$users);
 				wp_localize_script('kidzou-customer-api-metabox', 	'customer_api_jsvars', 		$customer_api);
 				wp_localize_script('kidzou-customer-analytics-metabox', 'customer_analytics_jsvars', 	$customer_ana);
-			}
-		
-			//sur les post on a besoin d'une meta client
-			//selection de users et de posts sur l'écran customer
-			if (in_array($screen->id , $this->screen_with_meta_client)) {
-				wp_enqueue_script( 'kidzou-customer-metabox', plugins_url( '/assets/js/kidzou-customer-metabox.js', dirname(__FILE__) ), array( 'jquery', 'react-select', 'kidzou-react' ), Kidzou::VERSION, true);
-				wp_localize_script('kidzou-customer-metabox', 'client_jsvars', $args);
 			}
 
 		}
@@ -270,8 +260,10 @@ class Kidzou_Metaboxes_Customer {
 	 **/
 	public function add_metaboxes()
 	{
-		// Kidzou_Utils::log('Kidzou_Admin_Customer [add_metaboxes]', true);
+
 		$screen = get_current_screen(); 
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 
 		if ($screen->id =='customer' ) {
 
@@ -439,7 +431,6 @@ class Kidzou_Metaboxes_Customer {
 			$events_meta[$key] = 0;
 
 		Kidzou_Utils::save_meta($post_id, $events_meta);
-		
 	}
 
 	/**
@@ -520,7 +511,6 @@ class Kidzou_Metaboxes_Customer {
 		$customer_users = (isset($_POST['customer_users']) ? explode(",", $_POST['customer_users']) : array());
 
 		Kidzou_Customer::setUsers($post_id, $customer_users);
-
 	}
 
 	/**
@@ -557,8 +547,7 @@ class Kidzou_Metaboxes_Customer {
 
 		$posts = (isset($_POST['customer_posts']) ? explode(",", $_POST['customer_posts']) : array());
 
-		Kidzou_Customer::setPosts($post_id, $posts);
-		
+		Kidzou_Customer::setPosts($post_id, $posts);	
 	}
 
 

@@ -54,12 +54,27 @@ class Kidzou_Vote {
 	 */
 	private function __construct() { 
 
-		if (!Kidzou_Utils::is_really_admin())
-			add_action( 'wp_head', array($this, 'insert_template'));
+		// if (!Kidzou_Utils::is_really_admin())
+		// 	add_action( 'wp_head', array($this, 'insert_template'));
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		//Alterer les queries des archives : tri par nb de votes
 		add_action( "pre_get_posts", array($this, "archives_orderby_vote") );
 
+	}
+
+	/**
+	 * Injecte les Javascripts nécessaires à la détermination de la métropole la plus proche du user. Cette métropole est fournie par MapQuest en fonction de lat/lng du user
+	 * le script détermine si la métropole remontée par MapQuest est disponible dans le système.
+	 *
+	 *
+	 * @return void
+	 * @author 
+	 **/
+	public function enqueue_scripts()
+	{
+		
+		
 	}
 
 	/**
@@ -153,28 +168,28 @@ class Kidzou_Vote {
 	protected static function set_template($class='', $useCountText=false, $echo=true) 
 	{
 
-		$countText = '';
+		// $countText = '';
 
-		if ($useCountText)
-			$countText .= '<span 	data-bind="text: $data.countText"></span>';
+		// if ($useCountText)
+		// 	$countText .= '<span 	data-bind="text: $data.countText"></span>';
 
-		$out = sprintf('
-		<script type="text/html" id="vote-template">
-	    <span class="vote %s" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
-			<i data-bind="css : $data.iconClass"></i>
-			<span 	data-bind="text: $data.votes"></span>
-			%s
-	    </span>
-		</script>',
-		$class,
-		$countText);
+		// $out = sprintf('
+		// <script type="text/html" id="vote-template">
+	 //    <span class="vote %s" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
+		// 	<i data-bind="css : $data.iconClass"></i>
+		// 	<span 	data-bind="text: $data.votes"></span>
+		// 	%s
+	 //    </span>
+		// </script>',
+		// $class,
+		// $countText);
 
-		// self::$is_template_inserted = true;
+		// // self::$is_template_inserted = true;
 
-		if ($echo)
-			echo $out;
-		else
-			return $out;
+		// if ($echo)
+		// 	echo $out;
+		// else
+		// 	return $out;
 	}
 
 	/**
@@ -187,34 +202,34 @@ class Kidzou_Vote {
 	public static function get_vote_template($id=0, $class='', $useCountText=false, $echo=true) 
 	{
 
-		if ($id==0)
-		{
-			global $post;
-			$id = $post->ID;
-		}
+		// if ($id==0)
+		// {
+		// 	global $post;
+		// 	$id = $post->ID;
+		// }
 
-		$out ='';
-		$apost = get_post();
-		$slug = $apost->post_name;
+		// $out ='';
+		// $apost = get_post();
+		// $slug = $apost->post_name;
 
-		$out .= sprintf(
-				"<span class='votable %s' data-post='%s' data-slug='%s' data-bind=\"template: { name: 'vote-template', data: votes.getVotableItem(%s) }\"></span>",
-				$class,
-				$id,
-				$slug,
-				$id);
+		// $out .= sprintf(
+		// 		"<span class='votable %s' data-post='%s' data-slug='%s' data-bind=\"template: { name: 'vote-template', data: votes.getVotableItem(%s) }\"></span>",
+		// 		$class,
+		// 		$id,
+		// 		$slug,
+		// 		$id);
 
-		if ($echo)
-			echo $out;
-		else
-			return $out;
+		// if ($echo)
+		// 	echo $out;
+		// else
+		// 	return $out;
 	}
 
 
 	public static function vote($id=0, $class='', $useCountText=false) 
 	{
 
-		echo self::get_vote_template($id, $class, $useCountText, false);
+		// echo self::get_vote_template($id, $class, $useCountText, false);
 	}
 
 	
@@ -414,8 +429,10 @@ class Kidzou_Vote {
 		//attention à cette requete
 		//ajout de DISTINCT et suppression de la limite car certains couples ID|META_VALUE peuvent être multiples !?
 		$res = $wpdb->get_results(
-			"SELECT DISTINCT post_id as id,meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id in $list ", ARRAY_A); //LIMIT $limit
-		// Kidzou_Utils::log(array('getPostsListVotes'=> $res), true);
+			"SELECT DISTINCT post_id as id, meta_value as votes FROM $wpdb->postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id in $list ", ARRAY_A); //LIMIT $limit
+		
+		// SELECT DISTINCT post_id as id, meta_value as votes FROM wp_postmeta key1 WHERE key1.meta_key='kz_reco_count' AND key1.post_id in (16189,14553,15721,12437,14174,15816,16440,17,281,16153,5607,2273,10588);
+		
 		$status = array();
 
 		$status['status'] = array(); $i=0;
@@ -543,7 +560,7 @@ class Kidzou_Vote {
 	 * @return TRUE si le user a déjà voté le post
 	 * @author Kidzou
 	 **/
-	private static function hasAlreadyVoted($post_id, $loggedIn='', $user_id=0, $user_hash='')
+	public static function hasAlreadyVoted($post_id, $loggedIn='', $user_id=0, $user_hash='')
 	{
 
 		// Kidzou_Utils::log('hasAlreadyVoted ? ' );
@@ -583,6 +600,51 @@ class Kidzou_Vote {
 		}
 			
 
+		return false;
+	}
+
+	/**
+	 * détermine si un user a déjà voté un post
+	 *
+	 * @return TRUE si le user a déjà voté le post
+	 * @author Kidzou
+	 **/
+	public static function isVotedByUser($post_id, $user_hash='')
+	{
+
+		$user_id = 0;
+		$loggedIn = is_user_logged_in();
+
+		if ($loggedIn)
+			$user_id = get_current_user_id(); //get_user('ID')
+
+		if ($loggedIn && $user_id>0)
+		{
+			//check DB
+			$meta_posts = get_user_meta($user_id, self::$meta_user_votes);
+			$voted_posts = $meta_posts[0];
+
+			if(!is_array($voted_posts))
+				$voted_posts = array();
+
+			if(in_array($post_id, $voted_posts))
+				return true;
+			else {
+				//gestion des nouveaux modes de vote
+				//maintenant on tracke les timestamp donc les valeurs sont des array(id, timestamps)
+				foreach ($voted_posts as $index => $id_tmsp) {
+					if( isset($id_tmsp['id']) && intval($id_tmsp['id'])==intval($post_id) )
+						return true;
+				}
+			}
+
+		} else {
+			if ($user_hash=='') {
+				$user_hash = Kidzou_Utils::hash_anonymous();
+			}
+			return self::hasAnonymousAlreadyVoted ($post_id, $user_hash);
+		}
+			
 		return false;
 	}
 

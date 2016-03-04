@@ -102,14 +102,11 @@ class JSON_API_Vote_Controller {
 		      "votes"	=> $res['votes'],
 		      "voted"	=> (intval($res['votes'])>0),
 		      "date"	=> time()
-		    );
-			
+		    );		
 		}
 		elseif ($in!='') 
 		{
 
-			// $list_array = json_decode($in, true);
-			// Kidzou_Utils::log(array('in'=>$in), true);
 			if (count($in)>0)
 			{
 				$status = Kidzou_Vote::getPostsListVotes($in);
@@ -121,6 +118,9 @@ class JSON_API_Vote_Controller {
 
 	}
 
+	/**
+	 * @deprecated DO NOT USE ANY MORE, TO BE REMOVED
+	 */
 	public function voted_by_user() {
 
 		global $json_api;
@@ -130,10 +130,33 @@ class JSON_API_Vote_Controller {
 	      $json_api->error("You must include a 'post_id'");
 	    }
 
-	    // $user_id = (is_user_logged_in() ? intval(get_user('ID') : 0);
-	    // Kidzou_Utils::log('voted_by_user for '. $id);
-	    // Kidzou_Utils::log('voted_by_user ? '. Kidzou_Vote::hasAlreadyVoted($id));
+	    //la fonction hasAlreadyVoted remettra en cohérence si le user est loggé
 	    $voted = Kidzou_Vote::hasAlreadyVoted($id); 
+
+		return array('voted' => $voted);
+
+	}
+
+	/**
+	 * Version améliorée de voted_by_user, tenant compte du hash
+	 * la fonction Kidzou_Vote::isVotedByUser remet en cohérence si le user est loggé
+	 *
+	 */
+	public function isVotedByUser() {
+
+		global $json_api;
+
+		if (!$json_api->query->post_id) {
+	      $json_api->error("You must include a 'post_id'");
+	    }
+	    if (!$json_api->query->user_hash) {
+	      $json_api->error("You must include a 'user_hash'");
+	    }
+
+	    $id = $json_api->query->post_id;
+		$hash = $json_api->query->user_hash;
+
+	    $voted = Kidzou_Vote::isVotedByUser($id, $hash); 
 
 		return array('voted' => $voted);
 

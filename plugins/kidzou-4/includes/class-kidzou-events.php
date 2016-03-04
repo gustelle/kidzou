@@ -191,24 +191,29 @@ class Kidzou_Events {
     public static function setEventDates($event_id=0, $start_date='', $end_date='', $recurrence=array()) 
     {
 
-    	if ($event_id==0)
-			return new WP_Error('setEventDates_1', 'Aucune post spécifié');
+    	if ($event_id==0) return new WP_Error('setEventDates_1', 'Aucune post spécifié');
 
-		if (!is_array($recurrence))
-			return new WP_Error('setEventDates_2', 'recurrence doit être un tableau');
+		if (!is_array($recurrence)) return new WP_Error('setEventDates_2', 'recurrence doit être un tableau');
 
-		//checker le format des dates
-		$startFormat 	= DateTime::createFromFormat('Y-m-d H:i:s', $start_date, new DateTimeZone('Europe/Paris'));
-		if (!$startFormat)
-			return new WP_Error('setEventDates_11', 'Format de date invalide');
+		//si start_date=='' alors ce n'est pas un event, il faut supprimer les meta
+		if ($start_date!=='') { 
 
-		//end_Date étant optionnel
-		if ($end_date!=='') {
-			$endFormat 		= DateTime::createFromFormat('Y-m-d H:i:s', $end_date, new DateTimeZone('Europe/Paris'));
-			if (!$endFormat)
-				return new WP_Error('setEventDates_12', 'Format de date invalide');
+			//checker le format des dates
+			$startFormat = DateTime::createFromFormat('Y-m-d H:i:s', $start_date, new DateTimeZone('Europe/Paris'));
+			if (!$startFormat) return new WP_Error('setEventDates_11', 'Format de date invalide');
+
+			//end_Date étant optionnel
+			if ($end_date!=='') {
+				$endFormat 	= DateTime::createFromFormat('Y-m-d H:i:s', $end_date, new DateTimeZone('Europe/Paris'));
+				if (!$endFormat) return new WP_Error('setEventDates_12', 'Format de date invalide');
+			}
+
+		} else {
+
+			//forcer en cas d'incohérence de donnée
+			$recurrence = array();
+			$end_date = '';
 		}
-
 
 		$events_meta['start_date'] 	= $start_date;
 		$events_meta['end_date'] 	= $end_date;

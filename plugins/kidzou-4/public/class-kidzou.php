@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Paramétrisation des permissions";
+	public static $version_description = "Reactisation du front";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -601,44 +601,29 @@ class Kidzou {
 	 */
 	public function enqueue_scripts() {
 
-		wp_enqueue_script( $this->plugin_slug . '-storage', plugins_url( 'kidzou-4/assets/js/kidzou-storage.js' ), array( 'jquery', 'ko', 'ko-mapping' ), self::VERSION, true);
-		wp_enqueue_script('ko',	 		"https://cdnjs.cloudflare.com/ajax/libs/knockout/2.2.1/knockout-min.js",array(), '2.2.1', true);
-		wp_enqueue_script('ko-mapping',	"https://cdnjs.cloudflare.com/ajax/libs/knockout.mapping/2.3.5/knockout.mapping.js",array("ko"), '2.3.5', true);
+		wp_enqueue_script( $this->plugin_slug . '-storage'	, plugins_url( '../assets/js/kidzou-storage.js', __FILE__ ), array( 'jquery' ), self::VERSION, true); // 'ko', 'ko-mapping'
+		wp_enqueue_script( $this->plugin_slug 				, plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery' ), self::VERSION, true); // 'ko', 'ko-mapping'
 
 		if (!Kidzou_Utils::is_really_admin())
 		{
 			global $kidzou_options;
-
-			wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'assets/js/public.js', __FILE__ ), array( 'jquery', 'ko', 'kidzou-storage'), self::VERSION, true );
 			
 			//utilisation d'un polyfill pour compatibilité avec les vieux navigateurs
 			//Car on utilise les DOMContentLoaded, les CustomEvent...
 			wp_enqueue_script('dom4',	"https://cdnjs.cloudflare.com/ajax/libs/dom4/1.3.1/dom4.js",array(), '1.3.1', true);
 
-			wp_localize_script($this->plugin_slug . '-plugin-script', 'kidzou_commons_jsvars', array(
-					'msg_wait'			 			 => 'Merci de patienter...',
-					'msg_loading'				 	 => 'Chargement en cours...',
-					'msg_auth_onprogress'			 => "Connexion en cours, merci de votre patience",
-					'msg_auth_success'				 => "Connexion r&eacute;ussie, la page va se recharger...",
-					'msg_auth_failed'				 => "Echec de connexion",
-					'votable_countText' 			 => "Cool",
-					'votable_countText_down'		 => "Pas cool",
-					'cfg_lost_password_url'			 =>  site_url().'/wp-login.php?action=lostpassword',
-					'cfg_signup_url'				 =>  site_url().'/wp-signup.php',
+			wp_localize_script($this->plugin_slug , 'kidzou_commons_jsvars', array(
 					'cfg_site_url'		 			 =>  site_url().'/',
 					'cfg_debug_mode' 	 			 =>  (bool)Kidzou_Utils::get_option('debug_mode'),
-					'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
-					'api_get_event'					 =>  site_url().'/api/events/get_event/',
-					'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 
-					'api_get_votes_user'			 =>  site_url().'/api/vote/get_votes_user/',
-					'api_vote_up'			 		 =>  site_url().'/api/vote/up/',
-					'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
-					'api_voted_by_user'				 => site_url().'/api/vote/voted_by_user/',
-					// 'api_generate_auth_cookie'		 => site_url().'/api/auth/generate_auth_cookie/',
+					// 'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
+					// 'api_get_event'					 =>  site_url().'/api/events/get_event/',
+					// 'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 
+					// 'api_get_votes_user'			 =>  site_url().'/api/vote/get_votes_user/',
+					// 'api_vote_up'			 		 =>  site_url().'/api/vote/up/',
+					// 'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
+					// 'api_voted_by_user'				 => site_url().'/api/vote/voted_by_user/',
 					'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
-					'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
-					'form_wait_message'		=> __('<i class="fa fa-spinner fa-spin pull-left"></i>Merci de votre patience...','kidzou'),
-					'form_error_message'	=> __('<i class="fa fa-warning pull-left"></i>Une erreur est survenue, nous en sommes d&eacute;sol&eacute;s','kidzou'),
+					// 'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
 					'mailchimp_key'			=> Kidzou_Utils::get_option('mailchimp_key', ''),
 					'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
 					'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),

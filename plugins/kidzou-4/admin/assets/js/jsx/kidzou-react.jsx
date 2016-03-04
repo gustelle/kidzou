@@ -1,4 +1,12 @@
 
+/**
+ * Un <HintMessage /> est un message diffusé a coté d'un champ mis à jour en Ajax
+ * Il peut etre appelé de 3 manieres : 
+ * * onProgress
+ * * onSuccess (effacé au bout de 1,5s)
+ * * onError (effacé au bout de 1,5s)
+ *
+ */
 var HintMessage = React.createClass({
 
     getDefaultProps: function () {
@@ -258,7 +266,7 @@ var CheckBoxItem = React.createClass({
 });
 
 /**
- * Un ensemble de <SimpleCheckBox />
+ * Un ensemble de <CheckBoxItem />
  *
  */
 var CheckboxGroup = React.createClass({
@@ -323,8 +331,7 @@ var CheckboxGroup = React.createClass({
         self.props.onUpdate(getCheckedValues(self.state.values.items));
       });
 
-    },
-    
+    },   
 });
 
 /**

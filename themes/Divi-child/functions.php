@@ -103,12 +103,12 @@ function override_divi_parent_functions()
 	remove_shortcode('et_pb_login');
 	add_shortcode( 'et_pb_login', 'kz_pb_login' );
 
+
 	//depuis WP 4.2, WP ajoute des scripts et styles pour supporter les Emojis, 
 	//on s'en fout ?? 
 	//@see https://wordpress.org/support/topic/emoji-and-smiley-js-and-css-added-to-head
 	// remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 	// remove_action( 'wp_print_styles', 'print_emoji_styles' );
-
 }
 
 
@@ -141,7 +141,6 @@ function kz_habillage() {
 
 	if ($is_habillage)
 		echo Kidzou_Utils::get_option('pub_habillage');
-
 }
 
 
@@ -248,10 +247,6 @@ function kz_divi_load_scripts ()
 	wp_dequeue_script( 'divi-custom-script' );
 	wp_enqueue_script( 'kidzou-custom-script',  get_stylesheet_directory_uri().'/js/custom.js', array( 'jquery', 'jquery-ui-autocomplete' ), Kidzou::VERSION, true );
 
-	// wp_enqueue_script('react',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array(), '0.14.7', true);
-	// wp_enqueue_script('react-dom',	"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
-	// wp_enqueue_script('vote',		get_stylesheet_directory_uri().'/js/vote.js',	array('react-dom'), Kidzou::VERSION, true);
-
 	$terms = get_terms(array('category', 'divers', 'ville', 'age'), array("fields", "all") );
 
 	$items = array();
@@ -346,14 +341,14 @@ function get_post_footer()
 			);
 
 		echo do_shortcode($out);
-	}
-	
+	}	
 }
 
 /**
  * Le formulaire de login n'est pas affiché qd le user est logué
  */
-function kz_pb_login( $atts, $content = null ) {
+function kz_pb_login( $atts, $content = null ) 
+{
 	extract( shortcode_atts( array(
 			'module_id' => '',
 			'module_class' => '',
@@ -373,18 +368,6 @@ function kz_pb_login( $atts, $content = null ) {
 		$redirect_url = 'on' === $current_page_redirect
 			? ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
 			: '';
-
-
-		// if ( is_user_logged_in() ) {
-		// 	global $current_user;
-		// 	get_currentuserinfo();
-
-		// 	$content .= sprintf( '<br/>%1$s <a href="%2$s">%3$s</a>',
-		// 		sprintf( __( 'Logged in as %1$s', 'Divi' ), esc_html( $current_user->display_name ) ),
-		// 		esc_url( wp_logout_url( $redirect_url ) ),
-		// 		esc_html__( 'Log out', 'Divi' )
-		// 	);
-		// }
 
 		$class = " et_pb_bg_layout_{$background_layout} et_pb_text_align_{$text_orientation}";
 
@@ -455,7 +438,8 @@ function kz_pb_login( $atts, $content = null ) {
  * le formulaire de souscription newsletter, à la sauce Kidzou (avec le codepostal)
  *
  */
-function kz_pb_signup( $atts, $content = null ) {
+function kz_pb_signup( $atts, $content = null ) 
+{
 
 	extract( shortcode_atts( array(
 			'module_id' => '',
@@ -945,14 +929,216 @@ function kz_pb_blog( $atts ) {
 	return $output;
 }
 
+/** 
+ * Rendu d'un portfolio de posts via ReactJS executé sur le serveur par V8JS
+ *
+ * @param $postList Array
+ * @param $show_ad on|off rendu ou non d'une pub
+ */
+function render_react_portfolio($show_ad = false, $posts = array(), $animate=true) {
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script('moment',			'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js',	array('jquery'), '2.11.2', true);
+	wp_enqueue_script('moment-locale',	'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js',		array('moment'), '2.11.2', true);
+	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
+
+	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	////////////////////////////////////////////////////////////////////
+	///
+	/// Reactisation du bazar
+	///
+	////////////////////////////////////////////////////////////////////
+
+	include get_stylesheet_directory().'/includes/react/ReactJS.php';
+
+	$react = new ReactJS(
+	  	// location of React's code and dependencies
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom-server.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js'),
+		// file_get_contents(WP_CONTENT_DIR.'/../wp-includes/js/jquery/jquery.js', FILE_USE_INCLUDE_PATH),
+		// app code
+		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
+	);
+	
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom' ), Kidzou::VERSION, false );
+
+ 	////////////////////////////////////////////////////////////////////
+ 	////////////////////////////////////////////////////////////////////
+ 	//////////////////////////////////////////////////////////////////// 
+
+	$data = array();
+ 	$data['apis'] 		= array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+								'voteUp'		=> site_url().'/api/vote/up/',
+								'voteDown'		=> site_url().'/api/vote/down/',
+								'userVotes'  	=> site_url().'/api/vote/get_votes_user/',
+								'getNonce'		=> site_url().'/api/get_nonce/');
+
+ 	$data['current_user_id'] = (is_user_logged_in() ? get_current_user_id() : 0);
+
+ 	$data['posts'] 		= array();
+ 	$data['ad']			= Kidzou_Utils::get_option('pub_portfolio');
+ 	$data['show_ad']	= $show_ad;
+ 	$data['animate']	= $animate;
+
+ 	
+ 	global $post;
+
+ 	foreach ($posts as $post){
+ 		
+ 		setup_postdata($post);
+
+ 		$width 		= Kidzou_Featured::isFeatured() ? 600 : 400; 
+		$height 	= 284;
+		$classtext 	= '';
+		$titletext 	= get_the_title();
+		$thumbnail 	= get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
+
+    	$data['posts'][] = array( 
+					'ID' 		=> $post->ID,
+					'title'		=> $post->post_title,
+					'slug'		=> $post->post_name,
+					'permalink'	=> get_the_permalink(),
+					'featured'	=> Kidzou_Featured::isFeatured(),
+					'location' 	=> Kidzou_Geoloc::get_post_location(),
+					'dates' 	=> Kidzou_Events::getEventDates(),
+					'thumbnail'	=> print_thumbnail($thumbnail , $thumbnail["use_timthumb"], $titletext, $width, $height , '', false ),
+					'excerpt'	=> get_the_excerpt(),
+					'terms'		=> get_the_term_list( get_the_ID(), "category", '', ', ' ),
+					'post_meta'	=> kz_get_post_meta());
+	}
+
+	$react->setComponent('Portfolio', $data);
+
+	printf("<div id='react_ptf'>%1s</div>",
+		$react->getMarkup()
+	);
+
+	$footer_script = $react->getJS('#react_ptf', "Portfolio");
+		 	
+ 	//injecter les scripts en footer pour éviter de polluer le HTML
+ 	add_action( 'wp_footer', function() use ($footer_script) { 
+ 		echo '<script>'.$footer_script.'</script>';
+ 	}, 999 );
+}
+
+/** 
+ * Rendu d'un 'coeur' de vote sur un single
+ *
+ */
+function kz_vote_single() {
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
+	
+	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	////////////////////////////////////////////////////////////////////
+	///
+	/// Reactisation du bazar
+	///
+	////////////////////////////////////////////////////////////////////
+
+	include get_stylesheet_directory().'/includes/react/ReactJS.php';
+
+	$react = new ReactJS(
+	  	// location of React's code and dependencies
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom-server.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js'),
+		// app code
+		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
+	);
+	
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react' ), Kidzou::VERSION, false );
+
+ 	////////////////////////////////////////////////////////////////////
+ 	////////////////////////////////////////////////////////////////////
+ 	//////////////////////////////////////////////////////////////////// 
+
+	global $post;
+	
+	$data = array();
+	$data['context'] 	= 'single';
+ 	$data['apis'] 		= array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+								'voteUp'		=> site_url().'/api/vote/up/',
+								'voteDown'		=> site_url().'/api/vote/down/',
+								'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+								'getNonce'		=> site_url().'/api/get_nonce/');
+
+ 	$data['current_user_id'] = (is_user_logged_in() ? get_current_user_id() : 0);
+ 	$data['ID'] = $post->ID;
+
+	$react->setComponent('Vote', $data);
+
+	printf("<div id='react_vote'>%1s</div>",
+		$react->getMarkup()
+	);
+
+	$footer_script = $react->getJS('#react_vote', "Vote");
+		 	
+ 	//injecter les scripts en footer pour éviter de polluer le HTML
+ 	add_action( 'wp_footer', function() use ($footer_script) { 
+ 		echo '<script>'.$footer_script.'</script>';
+ 	}, 999 );
+}
+
 /**
+ * Rendu du fly-in de notification sur les posts
+ *
+ */
+function kz_notification() {
+
+	global $post;
+
+	wp_enqueue_style( 'endbox', 	get_stylesheet_directory_uri().'/js/css/endpage-box.css' , array(), Kidzou::VERSION );
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	// wp_enqueue_script( 'portfolio-components', get_stylesheet_directory_uri().'/js/portfolio.js', array('react-dom'), Kidzou::VERSION, true); //ko
+
+	wp_enqueue_script('endbox',	 	get_stylesheet_directory_uri().'/js/jquery.endpage-box.min.js' ,array('jquery'), Kidzou::VERSION, true);
+	wp_enqueue_script('notif', 		get_stylesheet_directory_uri().'/js/notif.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
+
+	wp_localize_script('notif', 'kidzou_notif', array(
+			'messages'				=> Kidzou_Notif::get_messages(),
+			'activate'				=> Kidzou_Notif::isActive(),
+			'message_title'			=> __( 'A voir &eacute;galement :', 'Divi' ),
+			'newsletter_context'	=> Kidzou_Notif::getNewsletterFrequency(),
+			'newsletter_nomobile'	=> !Kidzou_Notif::isActiveOnMobile(),
+			'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
+			'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
+			'slug'					=> $post->post_name,
+			'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+											'voteUp'		=> site_url().'/api/vote/up/',
+											'voteDown'		=> site_url().'/api/vote/down/',
+											'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+											'getNonce'		=> site_url().'/api/get_nonce/')
+		)
+	);
+
+}
+
+/**
+ * Rendu d'un post au sein d'un portfolio 
  *
  * @param fullwidth on|off
  * @param render_featured : True si les posts featured doivent etre rendus différemment des autres
  */
 function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '', $render_featured = true) {
 
-	// Kidzou_Utils::log('kz_render_post ' . $render_featured);
 	$category_classes = array();
 	$categories = get_the_terms( get_the_ID(), 'category' );
 	if ( $categories ) {
@@ -1035,6 +1221,8 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 	//rendu du thumbnail
 	if ( '' !== $thumb ) {
 
+		$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
+
 		//Rendu des post featured
 		if ( $featured ) {
 
@@ -1043,14 +1231,14 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 
 			$output .= sprintf("<div class='kz_portfolio_featured_hover'>
 									%s 
-									<a href='%s'><h2>%s</h2></a>
+									<a href='%s'><span class='votable'></span><h2>%s</h2></a>
 									%s
 									%s
 									%s
 									%s
 									%s
 								</div>",
-					Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
+					'',// Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
 					get_permalink(),
 					get_the_title(),
 					kz_get_post_meta(),
@@ -1058,13 +1246,6 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 					$event_meta,
 					$location_meta,
 					$fb);
-		} else  {
-			$output .= Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
-		}
-
-		$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
-
-		if ($featured) {
 
 			$output = sprintf("
 						%s <a href='%s'>%s</a>								
@@ -1073,23 +1254,27 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 				get_permalink(),
 				$image
 				);
+		} else  {
+			//$output .= Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
 
-		} else if ( 'on' !== $fullwidth ) { 
+			if ( 'on' !== $fullwidth ) { 
 			
-			$output = sprintf("
+				$output = sprintf("
 					<a href='%s'>
 						<span class='et_portfolio_image'>
-							%s %s
+							<span class='votable'></span> %s %s
 							<span class='et_overlay'></span>
 						</span><!--  et_portfolio_image -->
 					</a>
-				",
-				get_permalink(),
-				$output,
-				$image
+					",
+					get_permalink(),
+					$output,
+					$image
 				);
 
-		} 
+			} 
+		}
+
 	}
 
 	//le titre
@@ -1130,8 +1315,6 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
  *
  */
 function kz_pb_portfolio( $atts ) {
-
-	// Kidzou_Utils::log(array('kz_pb_portfolio'=> $atts),true);
 	
 	extract( shortcode_atts( array(
 			'module_id' => '',
@@ -1152,8 +1335,6 @@ function kz_pb_portfolio( $atts ) {
 			'render_featured' => 'on' //faut-il rendre les featured différemment des autres ?
 		), $atts
 	) );
-
-	// Kidzou_Utils::log($atts);
 
 	//inclure ces scripts pour ne pas corrompre custom.js qui fait référence 
 	//à ces librairies pour les et_pb_portfolio_filter
@@ -1208,8 +1389,6 @@ function kz_pb_portfolio( $atts ) {
 			break;
 	}
 
-	$categories_included = array();
-
 	ob_start();
 
 	$index = 0;
@@ -1221,72 +1400,14 @@ function kz_pb_portfolio( $atts ) {
 	$temp_query = $wp_query;
 	$wp_query   = NULL;
 	$wp_query   = $query;
-	$filter_terms = [];
+	$filter_terms = [];	
 
 	if ( $query->have_posts() ) {
 
-		while( $query->have_posts() ) {
+		$posts = $query->posts;	
 
-			$insert = false;
-
-			//si le précédent post était featured, la pub vient tout de suite...
-			if (Kidzou_Featured::isFeatured() && !$inserted && $show_ad=='on')
-				$insert = true;
-			else if ($index==2 && !$inserted && $show_ad=='on')
-				$insert = true;
-
-			if ($insert) {
-
-				$inserted = true;
-
-				//insertion de pub
-				$is_pub = (trim(Kidzou_Utils::get_option('pub_portfolio')) != '');
-
-				if ($is_pub) {
-
-					$output = sprintf(
-						'<div id="pub_portfolio" class="%1$s" data-content="%3$s">
-							%2$s
-						</div>',
-						'et_pb_portfolio_item kz_portfolio_item ad',
-						Kidzou_Utils::get_option('pub_portfolio'),
-						__('Publicite','Divi')
-					);
-
-					echo $output;
-
-				}	
-
-			} else {
-
-				global $post;
-
-				$query->the_post();
-
-				//si les filtres sont actifs, retenir les terms du post pour utilisation plus lointaine dans $filter_terms
-				//NB : $filter_terms sera filtré par array_unique pour assurer de ne pas avoir de term en doublon
-				if ($filter!='none') {
-					$terms = wp_get_post_terms($post->ID, $filter, array("fields" => "all"));
-					foreach ($terms as $term) {
-						array_push(
-							$filter_terms, 
-							$term
-						);
-					}	
-					// Kidzou_Utils::log(array('$filter_terms' => $filter_terms), true);
-				} 
-
-				$featured = ($render_featured=='on' ? true : false);
-
-				echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', $featured);
-
-				wp_reset_postdata();
-			}
-
-			$index++;
-
-		//fin de boucle while
-		}
+		$doShowAd = ($show_ad=='on' ? true: false);
+		render_react_portfolio($doShowAd, $posts, true);
 
 		if ( 'on' === $show_pagination && !is_search() ) {
 			echo '</div> <!-- .et_pb_portfolio -->';
@@ -1297,7 +1418,6 @@ function kz_pb_portfolio( $atts ) {
 				wp_pagenavi();
 			else
 				get_template_part( 'includes/navigation', 'index' );
-
 		}
 
 	} else {
@@ -1322,17 +1442,14 @@ function kz_pb_portfolio( $atts ) {
 		$unique_terms = array_filter($filter_terms, function($obj)
 		{
 		    static $slugsList = array();
-		    if(in_array($obj->slug,$slugsList)) {
+		    if(in_array($obj->slug, $slugsList)) {
 		        return false;
 		    }
-		    $slugsList[]= $obj->slug;
+		    $slugsList[] = $obj->slug;
 		    return true;
 		});
-
-		Kidzou_Utils::log($unique_terms, true);
 		
 		foreach ( $unique_terms as $term  ) {
-			// Kidzou_Utils::log($term, true);
 			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="%3$s" title="%4$s">%2$s</a></li>',
 				esc_attr( $term->slug ),
 				esc_html( $term->name ),
@@ -1349,8 +1466,7 @@ function kz_pb_portfolio( $atts ) {
 							</div><!-- .et_pb_portfolio_filters -->
 						</div>',
 						$category_filters);
-	}
-		
+	}		
 
 	$output = sprintf(
 		'<div%5$s class="%1$s%3$s%6$s">
@@ -1372,8 +1488,7 @@ function kz_pb_portfolio( $atts ) {
 	$wp_query = NULL;
 	$wp_query = $temp_query;
 
-	return $output;
-	
+	return $output;	
 }
 
 function kz_pb_filterable_portfolio( $atts ) {
@@ -1452,9 +1567,10 @@ function kz_pb_filterable_portfolio( $atts ) {
 					<a href="<?php the_permalink(); ?>">
 					<?php if ( 'on' !== $fullwidth ) : ?>
 						<span class="et_portfolio_image">
-					<?php endif; ?>
-						<?php Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); ?>
-						<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
+					<?php endif; 
+						// kz_vote_single();
+						//Kidzou_Vote::vote(get_the_ID(), 'hovertext votable_template'); 
+						print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
 					<?php if ( 'on' !== $fullwidth ) : ?>
 							<span class="et_overlay"></span>
 						</span>
@@ -1643,9 +1759,7 @@ function kz_pb_user_favs( $atts ) {
 		ob_end_clean();
 		
 		return $out;
-	}
-
-	
+	}	
 }
 
 /**
@@ -1846,7 +1960,6 @@ function kz_pb_proximite( $atts ) {
 			$out
 		);
 	}
-
 }
 
 /**
@@ -1904,7 +2017,6 @@ function kz_pb_proximite_content() {
 	);
 
 	wp_send_json($return);
-
 }
 
 /**
@@ -2099,7 +2211,6 @@ function format_fullwidth_portolio_items($projects, $show_title = "on", $show_da
 			<?php
 		}
 	}
-
 }
 
 function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $module_id, $module_class, $auto, $auto_speed, $title) {
@@ -2124,7 +2235,6 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
 	);
 
 	return $output;
-
 }
 
 /**
@@ -2134,13 +2244,8 @@ function format_fullwidth_portfolio ($background_layout, $fullwidth, $posts, $mo
  */
 function get_portfolio_items( $args = array() ) {
 
-	// Kidzou_Utils::log('functions.php [get_portfolio_items]',true);
-
-	// return Kidzou_Geo::WP_Query( $args ) ;
-	// $args['get_portfolio_items'] = true;
 	$args['post_type'] = kidzou::post_types();
 	return new WP_Query($args);
-
 }
 
 /**
@@ -2317,8 +2422,7 @@ function kz_pb_fullwidth_map( $atts, $content = '' ) {
 			</div>
 		</div>',
 		$out
-	);
-	
+	);	
 }
 
 /**
@@ -2525,8 +2629,6 @@ function kz_get_post_meta() {
 
 	return $out;
 }
-
-
 
 
 ?>
