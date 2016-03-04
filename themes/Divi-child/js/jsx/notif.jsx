@@ -19,6 +19,63 @@ var isMobile = {
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
     }
 };
+
+/**
+ * Composant de Simplifié de Vote
+ *
+ */
+var VoteNotification = React.createClass({
+
+  getInitialState: function() {
+    return {
+      voted       : false, //le user a t il voté ce post ?
+    };
+  },
+
+  handleVoteAction: function(e, x) {
+
+  	e.preventDefault(); //stopper le click
+
+  	var self = this;
+	self.setState({
+		voted : true
+	}, function(){
+
+		//deleguer le vote au composant principal sur la page
+	   var pageVoter = kidzouVoteModule.getComponents()[0];
+	   pageVoter.voteUpOrDown('Notification');
+	   
+	   setTimeout(function(){
+	    	kidzouNotifier.close();
+	    }, 200);
+	});
+
+  },
+
+
+  render: function () {
+
+    var self = this;
+
+    var votedClass = classNames( 'popMe', {
+        'fa fa-heart' : self.state.voted ,
+        'fa fa-heart-o' : !self.state.voted
+    });
+
+    var spanClass = classNames( 'voteBlock fa-3x', {
+    });
+
+    return (
+      <span style={{display: 'inline'}} className={spanClass} onClick={self.handleVoteAction}>
+        <span className='vote'>
+          <i className={votedClass}></i>
+        </span>
+      </span>
+    );
+  }
+  
+});
+
 var kidzouNotifier = (function(){
 
 	//le système de notification est-il actif ?
@@ -44,18 +101,18 @@ var kidzouNotifier = (function(){
 
 		//recupérer les notifications présentes dans le storageSupport
 		notificationsRead = storageSupport.fromLocalData('messages') || [] ;
-
-		ko.utils.arrayForEach(notificationsRead, function(n) {
-			if (n.context == pageId) {
+		[].forEach.call(notificationsRead, function(n) {
+		    if (n.context == pageId) {
 				thisContextNotifications = n;
 			}
-		});
+	    });
 
 		if (thisContextNotifications==null) {
 			thisContextNotifications = {context: pageId, messages: []};
 		}
 			
-		ko.utils.arrayForEach(kidzou_notif.messages.content, function(m) {
+		// ko.utils.arrayForEach(kidzou_notif.messages.content, function(m) {
+		[].forEach.call(kidzou_notif.messages.content, function(m) {
 
 			var amess = new Message(m.id, m.title, m.body, m.target, m.icon);
 
@@ -63,7 +120,8 @@ var kidzouNotifier = (function(){
 			//de même si le post à recommander est déjà le post sur lequel on se trouve
 			if ( ( _is_page_voted && m.id=='vote' ) || ( _current_page_id == m.id ) ) amess.readMe();
 			
-			ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
+			// ko.utils.arrayForEach(thisContextNotifications.messages, function(alreadyRead) {
+			[].forEach.call(thisContextNotifications.messages, function(alreadyRead) {
 
 				//gestion du legacy 
 				//les messages newsletter n'entrent pas dans la logique "lu/pas lu"
@@ -122,7 +180,9 @@ var kidzouNotifier = (function(){
 
 			var exist = false;
 
-			ko.utils.arrayForEach(notificationsRead, function(n) {
+			// ko.utils.arrayForEach(notificationsRead, function(n) {
+			[].forEach.call(notificationsRead, function(n) {
+
 				if (n.context == pageId) {
 					//remplacer l'existant
 					n = thisContextNotifications;
@@ -143,7 +203,6 @@ var kidzouNotifier = (function(){
 
 			storageSupport.toLocalData('messages', notificationsRead, expiration );
 		}
-
 	}
 
 	/**
@@ -151,9 +210,9 @@ var kidzouNotifier = (function(){
 	 */
 	function chooseMessage (messages) {
 		
-		var unread = ko.utils.arrayFilter(messages, function(m) {
-            return !m.readFlag;
-        });
+        var unread = messages.filter(function(m){
+  			return !m.readFlag;
+  		}); 
   
       	// exclusion du form newsletter si l'option'newsletter_once' est passée et que le user a déjà vu le formulaure
       	//
@@ -193,7 +252,7 @@ var kidzouNotifier = (function(){
 
       		//si le formulaire newsletter est choisi, remettre à 0 les pages viewed
       		// console.info(chosen);
-      		if ( chosen.id=='newsletter' && pages_viewed==newsletter_context ) {
+      		if ( typeof chosen!=='undefined' && chosen.id=='newsletter' && pages_viewed==newsletter_context ) {
       			storageSupport.setLocal('pages_viewed', 1);
       		}
 
@@ -201,83 +260,16 @@ var kidzouNotifier = (function(){
 
       	} else {
       		// console.info('exclusion du formulaire newsletter');
-      		return ko.utils.arrayFirst(unread, function(item) {
-      			// console.info(item.id);
-	            return item.id!='newsletter';
-	        });
+      		// return ko.utils.arrayFirst(unread, function(item) {
+      		var found = unread.filter(function(item){
+      			return item.id!='newsletter';
+      		}).shift(); 
+      		return found;
+      		
       	}
-
 	}
 
 	function displayMessage(m) {
-
-		var boxcontent = '';
-
-		//l'id du post wordpress
-		var current_page_id = kidzouModule.getCurrentPageId();
-
-		//le votable est récupéré du model, on peut donc actionner les actions dessus
-		//Attention, le votable est le modele objet du coeur toute en haut de la page
-		var votable = kidzouModule.getVotesModel().getVotableItem( current_page_id );
-
-		//le contenu de la boite de notif dépend si c'est un vote ou non
-		var is_vote = (m.id=='vote');
-		var is_newsletter = (m.id=='newsletter');
-
-
-		var href = (is_vote ? "" : 'href="' + m.target + '"');
-		var classes = (is_vote ? "votable_notification" : "notification" );
-
-		if (!is_vote && !is_newsletter) {
-			boxcontent += '<h3>' + kidzou_notif.message_title + '</h3>';
-		}
-
-		if (!is_newsletter) {
-			//Bugfix : pour je ne sais quelle raison le body de certains messages n'est pas limité par l'excerpt
-			//du coup on sécurise la taille du body
-			var excerpt = (m.body.length > 200 ? m.body.substring(0,200) + '...' : m.body);
-			boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + excerpt + '</span></a>';
-		} else 
-			boxcontent += '<i class="fa fa-close close"></i>' + m.icon + '<h3>' + m.title + '</h3>' + m.body ;
-
-		if (jQuery.fn.endpage_box) {
-			jQuery("#endpage-box").endpage_box({
-			    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
-			    from: "2%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
-			    to: "80%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
-			    content: boxcontent  // The plugin will automatically create a container if it doesn't exist. This option will allow you to define the content of the container. This field also supports HTML.
-			  });
-		}
-
-		//suivi des clicks sur les suivis de lien
-		jQuery('.notification').click(function() {
-			kidzouTracker.trackEvent("Notification", "Suivi de suggestion", m.target , 0);
-		});
-
-		//gestion de la fermeture de la boite de notif
-		jQuery('.close').click(function() {
-			closeFlyIn();
-		});
-
-		//gestion du vote
-		jQuery('.votable_notification').click(function() {
-			
-			kidzouTracker.trackEvent("Notification", "Vote", current_page_id , 0);
-
-			//mettre en cohérence le coeur tout en haut et procéder au vote
-			votable.doUpOrDown();
-
-			//Remercier le user
-			jQuery("#endpage-box").html('<i class="fa fa-close close"></i><i class="fa fa-heart fa-3x vote"></i><h4>C&apos;est bien not&eacute; !</h4>');
-
-			//Attendre un peu avant de supprimer le message...g
-			//histoire que le user voit les effets de son click
-			setTimeout(function(){
-				closeFlyIn();
-			}, 700);
-			
-
-		});
 
 		var link = document.querySelector('#newsletter_refuse');
 		if (link!=null)
@@ -295,15 +287,8 @@ var kidzouNotifier = (function(){
 			}, false); 
 		}
 
-		document.addEventListener("newsletter_subscribing", function(e) {
-
-			// console.info('newsletter_subscribing');
-
-		}, false);
 
 		document.addEventListener("newsletter_subscribed", function(e) {
-
-			// console.info(e.detail);
 
 			if (e.detail.status=='ok' && e.detail.result!='error') {
 
@@ -316,11 +301,69 @@ var kidzouNotifier = (function(){
 					closeFlyIn();
 				}, 1500);
 			}
-
 		}, false);
+
+		var boxcontent = '';
+
+		//l'id du post wordpress pris dans <article id="post-xxx">
+		var current_page_id = document.querySelector('article').getAttribute('id').split('-')[1];//kidzouModule.getCurrentPageId();
+
+		//le votable est récupéré du model, on peut donc actionner les actions dessus
+		//Attention, le votable est le modele objet du coeur toute en haut de la page
+		// var votable = kidzouModule.getVotesModel().getVotableItem( current_page_id );
+		//le contenu de la boite de notif dépend si c'est un vote ou non
+		var is_vote 		= (m.id=='vote');
+		var is_newsletter 	= (m.id=='newsletter');
+
+		var href 	= (is_vote ? "" : 'href="' + m.target + '"');
+		var classes = (is_vote ? "votable_notification" : "notification" );
+
+		if (!is_vote && !is_newsletter) {
+			var excerpt = (m.body.length > 200 ? m.body.substring(0,200) + '...' : m.body);
+			boxcontent += '<h3>' + kidzou_notif.message_title + '</h3>';
+			boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="'+ classes +'">' + m.icon + '<h4>' + m.title + '</h4><span>' + excerpt + '</span></a>';
+		} else if (is_vote) {
+			boxcontent += '<i class="fa fa-close close"></i><span class="vote_container"></span><h4>' + m.title + '</h4><span>' + m.body + '</span>';
+		} else {
+			boxcontent += '<i class="fa fa-close close"></i>' + m.icon + '<h3>' + m.title + '</h3>' + m.body ;
+		}
+
+		if (jQuery.fn.endpage_box) {
+
+			jQuery("#endpage-box").endpage_box({
+			    animation: "flyInDown",  // There are several animations available: fade, slide, flyInLeft, flyInRight, flyInUp, flyInDown, or false if you don't want it to animate. The default value is fade.
+			    from: "2%",  // This option allows you to define where on the page will the box start to appear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 50%.
+			    to: "80%", // This option lets you define where on the page will the box start to disappear. You can either send in the percentage of the page, or the exact pixels (without the px). The default value is 110% (the extra 10% is to support the over scrolling effect you get from OSX's Chrome and Safari)
+			    content: boxcontent  // The plugin will automatically create a container if it doesn't exist. This option will allow you to define the content of the container. This field also supports HTML.
+			  });
+
+			if (is_vote) {
+				ReactDOM.render(
+					<VoteNotification 	
+							ID={current_page_id}
+							apis={kidzou_notif.vote_apis} 
+							currentUserId={kidzou_notif.current_user_id}
+							slug={kidzou_notif.slug} />,
+					document.querySelector('.vote_container')
+				);
+			}
+		}
 
 		setMessageRead(m);
 
+		//suivi des clicks sur les suivis de lien
+		if (document.querySelector(".notification")!==null) {
+			document.querySelector(".notification").addEventListener("click", function(){
+				kidzouTracker.trackEvent("Notification", "Suivi de suggestion", m.target , 0);
+			});
+		}
+
+		//gestion de la fermeture de la boite de notif
+		if (document.querySelector(".close")!==null) {
+			document.querySelector(".close").addEventListener("click", function(){
+				closeFlyIn();
+			});
+		}
 	}
 
 	function closeFlyIn() {
@@ -329,7 +372,6 @@ var kidzouNotifier = (function(){
 	}
 
 	document.addEventListener('DOMContentLoaded', function() {
-
 		if (kidzou_notif.activate && kidzou_notif.messages.content.length) {
 
 			//mettre a jour le cookie  qui trace le nombre de pages vues, 
@@ -343,21 +385,26 @@ var kidzouNotifier = (function(){
 			//s'il a déjà recommandé la sortie, on ne lui affiche pas la notif de vote
 			jQuery(window).load( function() {
 
-				kidzouModule.afterVoteUpdate(function(result) {
+				var current_page_id = document.querySelector('article').getAttribute('id').split('-')[1];//kidzouModule.getCurrentPageId();
 
-					var messages = getUnreadMessages(result, kidzouModule.getCurrentPageId() );
-					var message = chooseMessage(messages) ;
-
-					if (message !=null && (typeof message!='undefined') ) displayMessage(message);
-
-				});
+				// kidzouModule.afterVoteUpdate(function(result) {
+				jQuery.get(kidzou_notif.api_voted_by_user, {
+						post_id: current_page_id
+					},
+					function(data) {
+						var voted = data.voted;
+						var messages = getUnreadMessages(voted, current_page_id );
+						var message = chooseMessage(messages) ;
+						if (message !=null && (typeof message!='undefined') ) displayMessage(message);
+			        }
+			    );
 		
 			});
-
 		} 
-	
-		
 	});
 	
+	return {
+		close : closeFlyIn
+	}
 
 })();

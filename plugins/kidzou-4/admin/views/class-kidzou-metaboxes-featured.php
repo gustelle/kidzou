@@ -39,13 +39,10 @@ class Kidzou_Metaboxes_Featured {
 	 * @since     1.0.0
 	 */
 	private function __construct() {
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 		
 		//sauvegarde des meta à l'enregistrement
-		add_action( 'save_post', array( $this, 'save_metaboxes' ) );
-
-		add_action( 'add_meta_boxes', array( $this, 'add_metaboxes' ) );
+		add_action( 'kidzou_save_metabox', array( $this, 'save_metaboxes' ) );
+		add_action( 'kidzou_add_metabox', array( $this, 'add_metaboxes' ) );
 	}
 	
 
@@ -76,9 +73,9 @@ class Kidzou_Metaboxes_Featured {
 	public function enqueue_styles_scripts() {
 
 		global $post;
-		$screen = get_current_screen(); 
+		// $screen = get_current_screen(); 
 
-		if ( in_array($screen->id , $this->screen_with_meta)  ) { 
+		// if ( in_array($screen->id , $this->screen_with_meta)  ) { 
 
 			wp_enqueue_script('react',			"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js",	array('jquery'), '0.14.7', true);
 			wp_enqueue_script('react-dom',		"https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js",	array('react'), '0.14.7', true);
@@ -95,7 +92,7 @@ class Kidzou_Metaboxes_Featured {
 			wp_enqueue_script( 'kidzou-featured-metabox', plugins_url( '/assets/js/kidzou-featured-metabox.js', dirname(__FILE__) ), array( 'jquery', 'kidzou-react'), Kidzou::VERSION, true);
 			wp_localize_script('kidzou-featured-metabox', 'featured_jsvars', 	$featured_vars);
 
-		}
+		// }
 
 	}
 
@@ -111,6 +108,7 @@ class Kidzou_Metaboxes_Featured {
 		$screen = get_current_screen(); 
 
 		if ( in_array($screen->id , $this->screen_with_meta) && Kidzou_Utils::current_user_can('can_edit_featured')) { 
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_styles_scripts' ) );
 			add_meta_box('kz_featured_metabox', 'Mise en avant', array($this, 'add_featured_metabox'), $screen->id, 'normal', 'high');
 		} 
 

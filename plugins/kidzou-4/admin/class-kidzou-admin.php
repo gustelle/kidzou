@@ -117,7 +117,21 @@ class Kidzou_Admin {
 		 *
 		 * @link https://developer.wordpress.org/reference/hooks/default_content/
 		 */
-		add_filter( 'default_content', array($this, 'kz_default_content') );
+		add_filter( 'default_content', array($this, 'kz_default_content'), 99, 2 );
+
+		/**
+		 * Ajout d'un contenu par defaut lors de l'édition de contenu
+		 *
+		 * @link https://developer.wordpress.org/reference/hooks/default_title/
+		 */
+		add_filter( 'default_title', array($this, 'kz_default_title'), 99, 2 );
+
+		/**
+		 * Ajout d'un contenu par defaut lors de l'édition de contenu
+		 *
+		 * @link https://developer.wordpress.org/reference/hooks/enter_title_here/
+		 */
+		add_filter( 'enter_title_here', array($this, 'default_placeholder'), 99, 2 );
 
 
 	}
@@ -455,10 +469,7 @@ class Kidzou_Admin {
 	public function save_metaboxes($post_id) {
 
 		$this->save_rewrite_meta($post_id);
-
-		// //
 		$this->save_post_metropole($post_id);
-		// $this->set_post_metropole($post_id);
 
 		/**
 		 * Permet d'attacher des metabox additionnelles
@@ -597,15 +608,31 @@ class Kidzou_Admin {
 
 	}
 
-	
+	/**
+	 * Lors de l'édition d'un contenu, par défaut le placeholder du titre
+	 *
+	 * @return string placeholder du titre du post
+	 */
+	public function default_placeholder($title, $post) {
+	    return 'Saisissez le titre de votre article';
+	}
+
+	/**
+	 * Lors de l'édition d'un contenu, par défaut on propose un titre vide
+	 *
+	 * @return string le titre du post par défaut
+	 */
+	public function kz_default_title($title, $post) {
+	    return '';
+	}
+
 
 	/**
 	 * Lors de l'édition d'un contenu, par défaut on propose le contenu pré-saisi dans les options Kidzou
 	 *
 	 * @return string le contenu affiché dans l'éditeur wordpress
 	 */
-	public function kz_default_content() {
-
+	public function kz_default_content($content, $post) {
 		$content = Kidzou_Utils::get_option('default_content');
     	return $content;
 	}
@@ -650,9 +677,7 @@ class Kidzou_Admin {
 	 * afin de partager cette methode avec des API qui ne doivent pas dépendre des composants d'admin
 	 */
 	public static function save_meta($post_id = 0, $arr = array(), $prefix = '') {
-
 		Kidzou_Utils::save_meta($post_id, $arr, $prefix);
-
 	}
 
 }

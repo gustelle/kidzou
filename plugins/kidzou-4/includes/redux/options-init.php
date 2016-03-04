@@ -845,14 +845,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                         ),
 
                         array(
-                            'id'       => 'notifications_message_title',
-                            'type'     => 'text',
-                            'title'    => __('Titre de la boite de notification', 'kidzou'),
-                            'subtitle' => __('Ce titre surplombe les suggestion d&apos;article qui apparaissent dans la boite de notification', 'kidzou'),
-                            'desc'     => __('ce texte est entour&eacute; d&apos;un &lt;h3&gt; dans la boite de notification. <b>Il n&apos;apparait pas lorsque la notification concerne une suggestion de vote</b>', 'kidzou'),
-                        ),
-
-                        array(
                             'id'       => 'notifications_context',
                             'type'     => 'radio',
                             'title'    => __('Fr&eacute;quence de notification', 'kidzou'), 
@@ -879,15 +871,6 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'step'     => '1',
                             'max'      => '100',
                         ),
-
-                        // array(
-                        //     'id'       => 'notifications_newsletter_once',
-                        //     'type'     => 'checkbox',
-                        //     'default'  => '0',
-                        //     'title'    => __('Ne proposer la souscription Newsletter qu&apos;une seule fois', 'kidzou'),
-                        //     'subtitle' => __('Si vous choisissez cette option, un cookie sera positionn&eacute; lorsque l&apos;utilisateur aura vu la notification newsletter, afin de ne pas lui reproposer ce message pendant 30j', 'kidzou'),
-                        //     // 'desc'     => __('Le nom de la cat&eacute;gorie', 'kidzou'),
-                        // ),
 
                         array(
                             'id'       => 'notifications_newsletter_nomobile',
