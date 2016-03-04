@@ -1,6 +1,4 @@
 
-//fonctionnement du vote dans les notfis, reprendre à displayMessage
-//vérifier fonctionnement Newsletter
 
 /**
  * Préview d'un post 
@@ -191,7 +189,7 @@ var Portfolio = React.createClass({
 
     if (self.props.animate) {
       //affichage progressif des PostPreview 
-      TweenMax.fromTo('.preview', 2,{opacity: 0.5},{display : 'block',opacity: 1,autoAlpha: 1});
+      TweenMax.fromTo('.preview', 1,{opacity: 0.7},{display : 'block',opacity: 1,autoAlpha: 1});
       //Animation speciale sur les featured pour faire un "waoo"
       TweenMax.staggerFrom('.kz_portfolio_item_featured', 2, {scale:0.2, opacity:0, delay:0.5, ease:Elastic.easeOut, force3D:true}, 0.2);
     } else {
@@ -264,6 +262,8 @@ var Vote = React.createClass({
 
     if (self.props.context=='single') {
 
+      kidzouVoteModule.registerComponent(this);
+
       //recupération des votes pour ce post
       jQuery.get(self.props.apis.getVotes + '?post_id=' + self.props.ID, function (result) {
         self.setState({
@@ -283,18 +283,22 @@ var Vote = React.createClass({
       
       }); 
     }
-
   },
 
   handleVoteAction: function(e, x) {
-    e.preventDefault(); //stopper le click
 
+    e.preventDefault(); //stopper le click
+    this.voteUpOrDown('Recommandation');
+
+  },
+
+  voteUpOrDown: function(_context) {
     var self = this;
     var upOrdown = '+1';
     if (self.state.voted)
       upOrdown = '-1';
 
-    if (window.kidzouTracker) kidzouTracker.trackEvent("Recommandation", upOrdown, self.props.slug , self.props.currentUserId);
+    if (window.kidzouTracker) kidzouTracker.trackEvent(_context, upOrdown, self.props.slug , self.props.currentUserId);
 
     if (self.state.voted) 
       self.doWithdraw();
@@ -302,6 +306,7 @@ var Vote = React.createClass({
       self.doVote();
 
     if (self.props.context=='single') TweenMax.fromTo('.popMe', 1.5,{scale:0.1},{scale:1,ease:Elastic.easeOut, force3D: true});
+
   },
 
   doVote: function() {
@@ -403,6 +408,25 @@ var Vote = React.createClass({
   }
   
 });
+
+var kidzouVoteModule = (function(){
+
+  var components = [];
+
+  function addComponent(_comp) {
+    components.push(_comp);
+  }
+
+  function getComponents() {
+    return components;
+  }
+
+  return {
+    registerComponent : addComponent,
+    getComponents : getComponents
+  }
+
+}());
  
 /**
  * 

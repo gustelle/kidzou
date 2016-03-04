@@ -291,5 +291,7 @@
 	<!-- </div> .container -->
 </div> <!-- #main-content -->
 
+<?php kz_notification() ?>
+
 <?php get_footer(); ?>
 

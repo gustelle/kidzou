@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Paramétrisation des permissions";
+	public static $version_description = "Reactisation du front";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin

@@ -937,8 +937,8 @@ function kz_pb_blog( $atts ) {
  */
 function render_react_portfolio($show_ad = false, $posts = array(), $animate=true) {
 
-	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js',			array('classnames'), '0.14.7', true);
-	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
 	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
 	wp_enqueue_script('moment',			'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js',	array('jquery'), '2.11.2', true);
 	wp_enqueue_script('moment-locale',	'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js',		array('moment'), '2.11.2', true);
@@ -967,7 +967,7 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
 		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
 	);
 	
-	wp_enqueue_script( 'kidzou-react',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react' ), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom' ), Kidzou::VERSION, false );
 
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -1034,8 +1034,8 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
  */
 function kz_vote_single() {
 
-	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js',			array('classnames'), '0.14.7', true);
-	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
 	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
 	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
 	
@@ -1059,7 +1059,7 @@ function kz_vote_single() {
 		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
 	);
 	
-	wp_enqueue_script( 'kidzou-react',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react' ), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react' ), Kidzou::VERSION, false );
 
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -1090,6 +1090,45 @@ function kz_vote_single() {
  	add_action( 'wp_footer', function() use ($footer_script) { 
  		echo '<script>'.$footer_script.'</script>';
  	}, 999 );
+}
+
+/**
+ * Rendu du fly-in de notification sur les posts
+ *
+ */
+function kz_notification() {
+
+	global $post;
+
+	wp_enqueue_style( 'endbox', 	get_stylesheet_directory_uri().'/js/css/endpage-box.css' , array(), Kidzou::VERSION );
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	// wp_enqueue_script( 'portfolio-components', get_stylesheet_directory_uri().'/js/portfolio.js', array('react-dom'), Kidzou::VERSION, true); //ko
+
+	wp_enqueue_script('endbox',	 	get_stylesheet_directory_uri().'/js/jquery.endpage-box.min.js' ,array('jquery'), Kidzou::VERSION, true);
+	wp_enqueue_script('notif', 		get_stylesheet_directory_uri().'/js/notif.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
+
+	wp_localize_script('notif', 'kidzou_notif', array(
+			'messages'				=> Kidzou_Notif::get_messages(),
+			'activate'				=> Kidzou_Notif::isActive(),
+			'message_title'			=> __( 'A voir &eacute;galement :', 'Divi' ),
+			'newsletter_context'	=> Kidzou_Notif::getNewsletterFrequency(),
+			'newsletter_nomobile'	=> !Kidzou_Notif::isActiveOnMobile(),
+			'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
+			'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
+			'slug'					=> $post->post_name,
+			'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+											'voteUp'		=> site_url().'/api/vote/up/',
+											'voteDown'		=> site_url().'/api/vote/down/',
+											'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+											'getNonce'		=> site_url().'/api/get_nonce/')
+		)
+	);
+
 }
 
 /**

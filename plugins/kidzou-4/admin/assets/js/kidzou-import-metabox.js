@@ -16,7 +16,6 @@ var ImportForm = React.createClass({
 	},
 
 	handleChange: function handleChange(e) {
-		console.debug('tinyMCE', window.tinyMCE.activeEditor.getContent({ format: 'html' }));
 
 		var self = this;
 		var value = e.target.value;

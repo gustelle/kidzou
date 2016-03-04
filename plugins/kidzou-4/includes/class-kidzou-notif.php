@@ -32,10 +32,6 @@ class Kidzou_Notif {
 	 */
 	private function __construct() { 
 
-		// Load public-facing style sheet and JavaScript.
-		if  (!Kidzou_Utils::is_really_admin())
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-
 	}
 
 	/**
@@ -55,47 +51,9 @@ class Kidzou_Notif {
 		return self::$instance;
 	}
 
-	/**
-	 * Register and enqueues public-facing JavaScript files.
-	 * en effet, le Hook d'appel `wp_enqueue_scripts` n'est pas appelé dans l'Admin WP
-	 *
-	 */
-	public function enqueue_scripts() {
-
-		global $kidzou_options;
-
-		$kidzou_instance = Kidzou::get_instance();
-
-		wp_enqueue_style( 'endbox', plugins_url( 'kidzou-4/public/assets/css/endpage-box.css' ), array(), Kidzou::VERSION );
-
-		wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
-		wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
-		wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
-		wp_enqueue_script( 'storage', 		plugins_url( ).'/../assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
-
-		wp_enqueue_script('endbox',	 plugins_url( 'kidzou-4/public/assets/js/jquery.endpage-box.min.js' ),array(), Kidzou::VERSION, true);
-		wp_enqueue_script( 'kidzou-notif', plugins_url( 'kidzou-4/public/assets/js/kidzou-notif.js' ), array('jquery', 'endbox', 'kidzou-storage', 'react-dom'), Kidzou::VERSION, true); //ko
-
-		wp_localize_script('kidzou-notif', 'kidzou_notif', array(
-				'messages'				=> self::get_messages(),
-				'activate'				=> (bool)Kidzou_Utils::get_option('notifications_activate', false),
-				'message_title'			=> Kidzou_Utils::get_option('notifications_message_title', ''),
-				'newsletter_context'	=> Kidzou_Utils::get_option('notifications_newsletter_context', 1),
-				'newsletter_nomobile'	=> Kidzou_Utils::get_option('notifications_newsletter_nomobile', true),
-				'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
-				'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
-				'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
-												'voteUp'		=> site_url().'/api/vote/up/',
-												'voteDown'		=> site_url().'/api/vote/down/',
-												'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
-												'getNonce'		=> site_url().'/api/get_nonce/')
-			)
-		);
-
-	}
 
 	/**
-	 * La Liste des messages pour notification dans le front-end
+	 * La Queue des messages de notification 
 	 * 
 	 * <p>Fournit Un tableau associatif avec le contexte des messages (la fréquence) et le contenu des messages
 	 * les contenus sont cachés par des `transient` WP</p>
@@ -121,10 +79,10 @@ class Kidzou_Notif {
 		{
 			$current_post_id = $post->ID;
 
-			$activate = (bool)Kidzou_Utils::get_option('notifications_activate', false);
-			$notification_types = Kidzou_Utils::get_option('notifications_post_type', array());
+			$activate 			= self::isActive();
+			$notification_types = self::getSupportedPostTypes();
 			$post_type = get_post_type( $current_post_id );
-			$frequency = Kidzou_Utils::get_option('notifications_context');
+			$frequency = self::getNotificationFrequency();
 
 			if ($frequency == 'page')
 				$messages['context'] = $post->ID;
@@ -299,6 +257,51 @@ class Kidzou_Notif {
         delete_transient('kz_notifications_content_post');
 
 	}
+
+	/**
+	 * Les notifications sont elles actives ?
+	 *
+	 */
+	public static function isActive() {
+		return (bool)Kidzou_Utils::get_option('notifications_activate', false);
+	}
+
+	/**
+	 * La fréquence d'affichage du formulaire Newsletter 
+	 *
+	 * @return int le nb de pages vues entre 2 affichages
+	 */
+	public static function getNewsletterFrequency() {
+		return intval(Kidzou_Utils::get_option('notifications_newsletter_context', 1));
+	}
+
+	/**
+	 * La fréquence d'affichage des boites de notif, 
+	 *
+	 * @return string daily|page|weekly|monthly
+	 */
+	public static function getNotificationFrequency() {
+		return Kidzou_Utils::get_option('notifications_context', 'page');
+	}
+
+	/**
+	 * Doit on activer les notifs sur mobile ?
+	 *
+	 * @return bool True sir les notifs sont actives sur mobile
+	 */
+	public static function isActiveOnMobile() {
+		return !Kidzou_Utils::get_option('notifications_newsletter_nomobile', true);
+	}
+
+	/**
+	 * Les Post Types supportés par la notif
+	 *
+	 * @return array liste de types de posts
+	 */
+	public static function getSupportedPostTypes() {
+		return Kidzou_Utils::get_option('notifications_post_type', array());
+	}
+
 
 
 } //fin de classe

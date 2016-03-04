@@ -22,123 +22,35 @@ var isMobile = {
 	}
 };
 
-var VoteTeaser = React.createClass({
-	displayName: 'VoteTeaser',
+/**
+ * Composant de Simplifié de Vote
+ *
+ */
+var VoteNotification = React.createClass({
+	displayName: 'VoteNotification',
 
 	getInitialState: function getInitialState() {
 		return {
-			votes: 0,
-			isLoaded: false, //marker pour le rafraichissement des votes au départ
 			voted: false };
 	},
 
 	//le user a t il voté ce post ?
-	/**
-  * dans le cas d'un single, ce composant est indépendant du <Portfolio />
-  * ainsi le nombre de votes n'est pas mis à jour par le <Portfolio /> mais à l'intérieur du composant
-  *
-  */
-	componentDidMount: function componentDidMount() {
-
-		var self = this;
-
-		//recupération des votes pour ce post
-		jQuery.get(self.props.apis.getVotes + '?post_id=' + self.props.ID, function (result) {
-
-			self.setState({
-				votes: result.votes
-			});
-
-			//le user a-t-il voté ce post ?
-			jQuery.get(self.props.apis.isVotedByUser + '?post_id=' + self.props.ID + '&user_hash=' + voteSupportModule.getUserHash(), function (res) {
-				self.setState({
-					voted: res.voted,
-					isLoaded: true
-				});
-			});
-		});
-	},
-
 	handleVoteAction: function handleVoteAction(e, x) {
+
 		e.preventDefault(); //stopper le click
 
 		var self = this;
-		var upOrdown = '+1';
-		if (self.state.voted) upOrdown = '-1';
-
-		if (window.kidzouTracker) kidzouTracker.trackEvent("Notification", "Vote", self.props.ID, 0);
-
-		if (self.state.voted) self.doWithdraw();else self.doVote();
-
-		setTimeout(function () {
-			kidzouNotifier.close();
-		}, 400);
-	},
-
-	doVote: function doVote() {
-
-		var self = this;
-		if (self.state.voted) return;
-
-		var _id = self.props.ID;
-
-		//update the UI immediatly and proceed to the vote in back-office
-		var count = parseInt(self.state.votes) + 1;
 		self.setState({
-			voted: true,
-			votes: count
-		});
+			voted: true
+		}, function () {
 
-		//get nonce for voting and proceed to vote
-		jQuery.get(self.props.apis.getNonce, { controller: 'vote', method: 'up' }, function (data) {
+			//deleguer le vote au composant principal sur la page
+			var pageVoter = kidzouVoteModule.getComponents()[0];
+			pageVoter.voteUpOrDown('Notification');
 
-			if (data !== null) {
-				var nonce = data.nonce;
-				//vote with the nonce
-				jQuery.get(self.props.apis.voteUp, {
-					post_id: _id,
-					nonce: nonce,
-					user_hash: voteSupportModule.getUserHash()
-				}, function (data) {
-					//cas des users loggués, le user_hash n'est aps renvoyé
-					if (data.user_hash !== null && data.user_hash !== "undefined") voteSupportModule.setUserHash(data.user_hash); //pour reuntilisation ultérieure
-
-					voteSupportModule.removeLocalData("voted"); //pour rafraichissement à la prochaine requete
-				});
-			}
-		});
-	},
-
-	//retrait du vote ('Je ne recommande plus')
-	doWithdraw: function doWithdraw() {
-
-		var self = this;
-		if (!self.state.voted) return;
-
-		var _id = self.props.ID;
-
-		//update the UI immediatly and proceed to the withdraw in back-office
-		var count = parseInt(self.state.votes) - 1;
-		self.setState({
-			voted: false,
-			votes: count
-		});
-
-		//get nonce for voting and proceed to vote
-		jQuery.get(self.props.apis.getNonce, { controller: 'vote', method: 'down' }, function (data) {
-
-			var nonce = data.nonce;
-			//vote with the nonce
-			jQuery.get(self.props.apis.voteDown, {
-				post_id: _id,
-				nonce: nonce,
-				user_hash: voteSupportModule.getUserHash()
-			}, function (data) {
-				//cas des users loggués, le user_hash n'est aps renvoyé
-				if (data.user_hash !== null && data.user_hash !== "undefined") voteSupportModule.setUserHash(data.user_hash); //pour reuntilisation ultérieure
-
-				voteSupportModule.removeLocalData("voted"); //pour rafraichissement à la prochaine requete
-			});
+			setTimeout(function () {
+				kidzouNotifier.close();
+			}, 200);
 		});
 	},
 
@@ -146,15 +58,17 @@ var VoteTeaser = React.createClass({
 
 		var self = this;
 
-		var votedClass = classNames('fa-3x voteIcon', {
+		var votedClass = classNames('popMe', {
 			'fa fa-heart': self.state.voted,
 			'fa fa-heart-o': !self.state.voted
 		});
 
+		var spanClass = classNames('voteBlock fa-3x', {});
+
 		return React.createElement(
 			'span',
-			{ className: 'voteBlock', onClick: self.handleVoteAction },
-			self.state.isLoaded && React.createElement(
+			{ style: { display: 'inline' }, className: spanClass, onClick: self.handleVoteAction },
+			React.createElement(
 				'span',
 				{ className: 'vote' },
 				React.createElement('i', { className: votedClass })
@@ -398,7 +312,7 @@ var kidzouNotifier = function () {
 			boxcontent += '<h3>' + kidzou_notif.message_title + '</h3>';
 			boxcontent += '<i class="fa fa-close close"></i><a ' + href + '" class="' + classes + '">' + m.icon + '<h4>' + m.title + '</h4><span>' + excerpt + '</span></a>';
 		} else if (is_vote) {
-			boxcontent += '<i class="fa fa-close close"></i><span class="vote_container"/><h4>' + m.title + '</h4><span>' + m.body + '</span>';
+			boxcontent += '<i class="fa fa-close close"></i><span class="vote_container"></span><h4>' + m.title + '</h4><span>' + m.body + '</span>';
 		} else {
 			boxcontent += '<i class="fa fa-close close"></i>' + m.icon + '<h3>' + m.title + '</h3>' + m.body;
 		}
@@ -413,10 +327,11 @@ var kidzouNotifier = function () {
 			});
 
 			if (is_vote) {
-				ReactDOM.render(React.createElement(VoteTeaser, { current_user_id: kidzou_notif.current_user_id,
+				ReactDOM.render(React.createElement(VoteNotification, {
 					ID: current_page_id,
-					context: 'single',
-					apis: kidzou_notif.vote_apis }), document.querySelector('.vote_container'));
+					apis: kidzou_notif.vote_apis,
+					currentUserId: kidzou_notif.current_user_id,
+					slug: kidzou_notif.slug }), document.querySelector('.vote_container'));
 			}
 		}
 
