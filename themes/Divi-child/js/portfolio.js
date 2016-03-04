@@ -239,7 +239,8 @@ var Portfolio = React.createClass({
       return React.createElement(PostPreview, { data: row,
         ref: row.ID,
         apis: self.props.apis,
-        currentUserId: self.props.current_user_id });
+        currentUserId: self.props.current_user_id,
+        key: row.ID });
     });
 
     //inserer la pub en 3e position sauf si le 1er est featured
