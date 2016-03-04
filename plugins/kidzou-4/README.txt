@@ -1,3 +1,17 @@
+<h4>Fourty</h4>
+<h5>Mars 2015</h5>
+<ul>
+	
+	<li>TODO : affichage des votes une fois chargés</li>
+	<li>TODO : rebrancher le defer_javascript de mod_pagespeed</li>
+	<li>TODO : refaire marcher les plugins chrome d'import</li>
+
+	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
+	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+</ul>
+
 <h4>ImportExtension v3</h4>
 <h5>Saint Valentin</h5>
 <ul>
@@ -5,11 +19,6 @@
 	<li>fix : bug étrange dans Kidzou_Customer::getCustomerIDByPostID() qui causait un bug dans les contenus par défaut d'un nouveau post</li>
 	<li>Passage à ReactJS sur le front / Kidzou_Vote</li>
 	<li>Correctif sur l'affichage du website et phone_number</li>
-
-	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
-	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
-	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
-	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 </ul>
 
 
