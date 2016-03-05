@@ -1,5 +1,9 @@
 "use strict";
 
+/*
+ *
+ * Helper qui permet d'exposer les <Vote /> à l'exterieur, notamment utile dans les single pour les boites de Notif
+ */
 var kidzouVoteModule = function () {
 
   var components = [];
@@ -76,10 +80,11 @@ var Vote = React.createClass({
     return {
       votes: 0,
       isLoaded: false, //marker pour le rafraichissement des votes au départ
-      voted: false };
+      voted: false, //le user a t il voté ce post ?
+      display: 'none'
+    };
   },
 
-  //le user a t il voté ce post ?
   /**
    * dans le cas d'un single, ce composant est indépendant du <Portfolio />
    * ainsi le nombre de votes n'est pas mis à jour par le <Portfolio /> mais à l'intérieur du composant
@@ -212,9 +217,15 @@ var Vote = React.createClass({
       'font-2x': self.props.featured || self.props.context == 'single'
     });
 
+    /**
+     * Pour les 'single', pas de souci on affiche direct
+     * Mais pour les Portfolio, on attend que les votes soient raffraichis avant d'afficher pour une meilleure UX
+     */
+    var _display = self.props.context == 'single' ? 'inline' : self.state.display;
+
     return React.createElement(
       "span",
-      { style: { display: 'inline' }, className: spanClass, onClick: self.handleVoteAction },
+      { style: { display: _display }, className: spanClass, onClick: self.handleVoteAction },
       self.state.isLoaded && React.createElement(
         "span",
         { className: "vote" },
@@ -265,7 +276,7 @@ var PostPreview = React.createClass({
 
     return React.createElement(
       "div",
-      { className: "preview", style: { display: 'none' } },
+      { className: "preview" },
       typeof self.props.data.__html !== 'undefined' && React.createElement("div", { className: "et_pb_portfolio_item kz_portfolio_item ad", dangerouslySetInnerHTML: { __html: self.props.data.__html }, "data-content": "Publicite" }),
       typeof self.props.data.__html == 'undefined' && React.createElement(
         "div",
@@ -393,7 +404,8 @@ var PostPreview = React.createClass({
     var self = this;
     self._voteComponent.setState({
       votes: _count,
-      isLoaded: true
+      isLoaded: true,
+      display: 'inline'
     });
   },
 
@@ -442,16 +454,16 @@ var Portfolio = React.createClass({
 
     if (self.props.animate) {
       //affichage progressif des PostPreview
-      TweenMax.fromTo('.preview', 1, { opacity: 0.7 }, { display: 'block', opacity: 1, autoAlpha: 1 });
+      // TweenMax.fromTo('.preview', 1,{opacity: 0.7},{display : 'block',opacity: 1,autoAlpha: 1});
       //Animation speciale sur les featured pour faire un "waoo"
       TweenMax.staggerFrom('.kz_portfolio_item_featured', 2, { scale: 0.2, opacity: 0, delay: 0.5, ease: Elastic.easeOut, force3D: true }, 0.2);
     } else {
 
-      var posts = document.querySelectorAll('.preview');
-      [].forEach.call(posts, function (p) {
-        // do whatever
-        p.style.display = "block";
-      });
+      // var posts = document.querySelectorAll('.preview');
+      // [].forEach.call(posts, function(p) {
+      //   // do whatever
+      //   p.style.display = "block";
+      // });
     }
   },
 

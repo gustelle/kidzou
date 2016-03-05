@@ -1,11 +1,15 @@
 <h4>Fourty</h4>
-<h5>Mars 2015</h5>
+<h5>Mars 2016</h5>
 <ul>
 	
-	<li>TODO : affichage des votes une fois chargés</li>
-	<li>TODO : rebrancher le defer_javascript de mod_pagespeed</li>
-	<li>TODO : refaire marcher les plugins chrome d'import</li>
+	<li>Affichage des votes une fois chargés</li>
+	<li>Affichage des PostPreview sans effet de fade in dans les Portfolio</li>
+	<li>fix sur la notification de vote mobile</li>
+	<li>fix sur les plugins d'import chrome</li>
 
+	<li>TODO : rebrancher le defer_javascript de mod_pagespeed</li>
+	<li>TODO : React Vote</li>
+	<li>TODO : Reactisation full de la Home Page</li>
 	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
 	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
 	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
@@ -20,7 +24,6 @@
 	<li>Passage à ReactJS sur le front / Kidzou_Vote</li>
 	<li>Correctif sur l'affichage du website et phone_number</li>
 </ul>
-
 
 <h4>ImportExtension v3</h4>
 <h5>Fevrier 2015</h5>

@@ -9,13 +9,10 @@ Class Definitions
   bottom: 20px;
   right: 20px;
   background-color: #F9F5F5; /*léger gris pour contraster avec le fond du main_content */
-  /*opacity: 0.85;*/
   width: 70%;
   font-size: 90%;
   max-width: 350px;
   height: auto;
-  /*max-height: 110px;*/
-  /*overflow: hidden;*/
   padding: 25px;
   box-shadow: 0 2px 20px rgba(0,0,0,0.3);
   -moz-box-shadow: 0 2px 20px rgba(0,0,0,0.3);
@@ -33,7 +30,7 @@ Class Definitions
 .endpage-box h1, .endpage-box h2, .endpage-box h3, .endpage-box h4, .endpage-box h5, .endpage-box h6 {  }
 
 @media screen and (max-width: 800px) and (orientation: landscape), screen and (max-height: 600px) {
-	.endpage-box span {display: none;}
+	.endpage-box h4+span {display: none;}
 }
 
 [class*="animation-"] {

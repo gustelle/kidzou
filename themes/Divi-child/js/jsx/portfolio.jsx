@@ -1,3 +1,7 @@
+/*
+ *
+ * Helper qui permet d'exposer les <Vote /> à l'exterieur, notamment utile dans les single pour les boites de Notif
+ */
 var kidzouVoteModule = (function(){
 
   var components = [];
@@ -75,6 +79,7 @@ var Vote = React.createClass({
       votes       : 0,
       isLoaded    : false, //marker pour le rafraichissement des votes au départ
       voted       : false, //le user a t il voté ce post ?
+      display     : 'none'
     };
   },
 
@@ -221,8 +226,14 @@ var Vote = React.createClass({
         'font-2x' : self.props.featured || self.props.context=='single',
     });
 
+    /**
+     * Pour les 'single', pas de souci on affiche direct
+     * Mais pour les Portfolio, on attend que les votes soient raffraichis avant d'afficher pour une meilleure UX
+     */
+     var _display = (self.props.context=='single' ? 'inline' : self.state.display);
+
     return (
-      <span style={{display: 'inline'}} className={spanClass} onClick={self.handleVoteAction}>
+      <span style={{display: _display}} className={spanClass} onClick={self.handleVoteAction}>
       {
        self.state.isLoaded && 
         <span className='vote'>
@@ -374,7 +385,8 @@ var PostPreview = React.createClass({
     var self = this;
     self._voteComponent.setState({
       votes : _count,
-      isLoaded : true
+      isLoaded : true,
+      display : 'inline' 
     });
   },
 
@@ -471,7 +483,6 @@ var Portfolio = React.createClass({
   }
   
 });
-
 
 
 
