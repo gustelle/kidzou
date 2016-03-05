@@ -7,6 +7,7 @@
 	<li>fix sur la notification de vote mobile</li>
 	<li>fix sur les plugins d'import chrome</li>
 
+	<li>TODO : Fix sur la notification newsletter qui apparait tout le tmeps</li>
 	<li>TODO : rebrancher le defer_javascript de mod_pagespeed</li>
 	<li>TODO : React Vote</li>
 	<li>TODO : Reactisation full de la Home Page</li>
