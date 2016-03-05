@@ -1,281 +1,90 @@
-'use strict';
+"use strict";
 
 /**
- * Préview d'un post 
  *
+ * Helper qui permet d'exposer les <Vote /> à l'exterieur, notamment utile dans les single pour les boites de Notif
  */
-var PostPreview = React.createClass({
-  displayName: 'PostPreview',
+var kidzouVoteModule = function () {
 
-  getInitialState: function getInitialState() {
+  var components = [];
 
-    //si la prop data.__html est positonnée, il s'agit d'un contenu qui va être injecté en HTML
-    //exemple d'une pub
-    if (typeof this.props.data.__html !== 'undefined') return {};
-
-    var self = this;
-    var hasLocation = self.props.data.location.location_name !== '';
-    var isTypeEvent = typeof self.props.data.dates == 'undefined' ? false : typeof self.props.data.dates.start_date !== 'undefined' && self.props.data.dates.start_date !== '';
-    var noEndDate = typeof self.props.data.dates == 'undefined' ? true : typeof self.props.data.dates.end_date == 'undefined' || self.props.data.dates.end_date == '';
-
-    return {
-      hasLocation: hasLocation,
-      isTypeEvent: isTypeEvent,
-      startDate: isTypeEvent ? moment(self.props.data.dates.start_date, 'YYYY-MM-DD HH:mm:ss') : '',
-      endDate: isTypeEvent ? moment(self.props.data.dates.end_date, 'YYYY-MM-DD HH:mm:ss') : '',
-      singleDay: isTypeEvent && noEndDate || isTypeEvent && self.props.data.dates.start_date === self.props.data.dates.end_date,
-      isLoaded: false };
-  },
-
-  //marker pour le rafraichissement des votes au départ
-  render: function render() {
-    var _this = this;
-
-    var self = this;
-
-    return React.createElement(
-      'div',
-      { className: 'preview', style: { display: 'none' } },
-      typeof self.props.data.__html !== 'undefined' && React.createElement('div', { className: 'et_pb_portfolio_item kz_portfolio_item ad', dangerouslySetInnerHTML: { __html: self.props.data.__html }, 'data-content': 'Publicite' }),
-      typeof self.props.data.__html == 'undefined' && React.createElement(
-        'div',
-        null,
-        self.props.data.featured && React.createElement(
-          'div',
-          { className: 'et_pb_portfolio_item kz_portfolio_item kz_portfolio_item_featured' },
-          React.createElement(
-            'div',
-            { className: 'kz_portfolio_featured_hover' },
-            React.createElement(
-              'a',
-              { href: self.props.data.permalink },
-              React.createElement(Vote, { context: 'portfolio',
-                featured: true,
-                ref: function ref(c) {
-                  return _this._voteComponent = c;
-                },
-                ID: self.props.data.ID,
-                slug: self.props.data.slug,
-                apis: self.props.apis,
-                currentUserId: self.props.currentUserId }),
-              React.createElement(
-                'h2',
-                null,
-                self.props.data.title
-              )
-            ),
-            React.createElement('div', { dangerouslySetInnerHTML: { __html: self.props.data.post_meta } }),
-            self.state.isTypeEvent && React.createElement(
-              'div',
-              { className: 'portfolio_meta' },
-              React.createElement('i', { className: 'fa fa-calendar' }),
-              self.state.singleDay && React.createElement(
-                'span',
-                null,
-                'Le ',
-                moment(self.state.startDate).format('DD MMM')
-              ),
-              !self.state.singleDay && React.createElement(
-                'span',
-                null,
-                'Du ',
-                moment(self.state.startDate).format('DD MMM'),
-                ' au ',
-                moment(self.state.endDate).format('DD MMM')
-              )
-            ),
-            self.state.hasLocation && React.createElement(
-              'div',
-              { className: 'portfolio_meta' },
-              React.createElement('i', { className: 'fa fa-map-marker' }),
-              self.props.data.location.location_city
-            )
-          ),
-          React.createElement(
-            'a',
-            { href: self.props.data.permalink },
-            React.createElement('span', { dangerouslySetInnerHTML: { __html: self.props.data.thumbnail } })
-          )
-        ),
-        !self.props.data.featured && React.createElement(
-          'div',
-          { className: 'et_pb_portfolio_item kz_portfolio_item' },
-          React.createElement(
-            'a',
-            { href: self.props.data.permalink },
-            React.createElement(
-              'span',
-              { className: 'et_portfolio_image' },
-              React.createElement(Vote, { context: 'portfolio',
-                ref: function ref(c) {
-                  return _this._voteComponent = c;
-                },
-                ID: self.props.data.ID,
-                slug: self.props.data.slug,
-                apis: self.props.apis,
-                currentUserId: self.props.currentUserId }),
-              React.createElement('span', { dangerouslySetInnerHTML: { __html: self.props.data.thumbnail } }),
-              React.createElement('span', { className: 'et_overlay' })
-            )
-          ),
-          React.createElement(
-            'h2',
-            null,
-            React.createElement(
-              'a',
-              { href: self.props.data.permalink },
-              self.props.data.title
-            )
-          ),
-          React.createElement('p', { className: 'post-meta', dangerouslySetInnerHTML: { __html: self.props.data.terms } }),
-          self.state.isTypeEvent && React.createElement(
-            'div',
-            { className: 'portfolio_meta' },
-            React.createElement('i', { className: 'fa fa-calendar' }),
-            self.state.singleDay && React.createElement(
-              'span',
-              null,
-              'Le ',
-              moment(self.state.startDate).format('DD MMM')
-            ),
-            !self.state.singleDay && React.createElement(
-              'span',
-              null,
-              'Du ',
-              moment(self.state.startDate).format('DD MMM'),
-              ' au ',
-              moment(self.state.endDate).format('DD MMM')
-            )
-          ),
-          self.state.hasLocation && React.createElement(
-            'div',
-            { className: 'portfolio_meta' },
-            React.createElement('i', { className: 'fa fa-map-marker' }),
-            self.props.data.location.location_city
-          )
-        ),
-        React.createElement('div', { style: { display: 'none' }, dangerouslySetInnerHTML: { __html: self.props.data.excerpt } })
-      )
-    );
-  },
-
-  setVotesCount: function setVotesCount(_count) {
-    var self = this;
-    self._voteComponent.setState({
-      votes: _count,
-      isLoaded: true
-    });
-  },
-
-  setVoted: function setVoted(_bool) {
-    var self = this;
-    self._voteComponent.setState({
-      voted: _bool
-    });
+  function addComponent(_comp) {
+    components.push(_comp);
   }
 
-});
+  function getComponents() {
+    return components;
+  }
+
+  return {
+    registerComponent: addComponent,
+    getComponents: getComponents
+  };
+}();
 
 /**
- * Portfolio de <PostPreview />
- *
+ * 
+ * Quelques fonctions support pour la suite
  */
-var Portfolio = React.createClass({
-  displayName: 'Portfolio',
+var voteSupportModule = function (storageSupport) {
+  /**
+  * permet d'identifier un user anonyme
+  * le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
+  **/
+  function setUserHash(hash) {
 
-  componentDidMount: function componentDidMount() {
+    if (hash === null || hash === "" || hash === "undefined") //prevention des cas ou le user est identifié : son user_hash est null
+      return;
 
-    var self = this;
-
-    var post_ids = self.props.posts.map(function (row) {
-      return row.ID;
-    });
-
-    //recupération des votes pour les posts
-    jQuery.get(self.props.apis.getVotes, { posts_in: post_ids }, function (result) {
-      var votesData = result.status;
-      for (var i = 0, iLen = votesData.length; i < iLen; i++) {
-        self.refs[votesData[i].id].setVotesCount(votesData[i].votes);
-      }
-
-      //recupération des votes du user
-      jQuery.get(self.props.apis.userVotes + '?user_hash=' + voteSupportModule.getUserHash(), function (res) {
-        var userVotes = res.voted;
-        for (var j = 0, jLen = userVotes.length; j < jLen; j++) {
-          //il est vraisemblable que tous les posts votés par le user ne soient pas sur la page...
-          if (typeof self.refs[userVotes[j].id] !== 'undefined') {
-            self.refs[userVotes[j].id].setVoted(true);
-          }
-        }
-      });
-    });
-
-    if (self.props.animate) {
-      //affichage progressif des PostPreview
-      TweenMax.fromTo('.preview', 1, { opacity: 0.7 }, { display: 'block', opacity: 1, autoAlpha: 1 });
-      //Animation speciale sur les featured pour faire un "waoo"
-      TweenMax.staggerFrom('.kz_portfolio_item_featured', 2, { scale: 0.2, opacity: 0, delay: 0.5, ease: Elastic.easeOut, force3D: true }, 0.2);
-    } else {
-
-      var posts = document.querySelectorAll('.preview');
-      [].forEach.call(posts, function (p) {
-        // do whatever
-        p.style.display = "block";
-      });
+    if (getUserHash() === null || getUserHash() === "" || getUserHash() === "undefined") {
+      // logger.debug("setUserHash : " + hash);
+      storageSupport.setLocal("user_hash", hash);
     }
-  },
-
-  render: function render() {
-
-    var self = this;
-
-    //pour les pubs
-    var ad = self.props.ad;
-    var showAd = self.props.show_ad;
-
-    //le portfolio en lui même
-    var list = self.props.posts.map(function (row) {
-
-      return React.createElement(PostPreview, { data: row,
-        ref: row.ID,
-        apis: self.props.apis,
-        currentUserId: self.props.current_user_id,
-        key: row.ID });
-    });
-
-    //inserer la pub en 3e position sauf si le 1er est featured
-    //dans le cas d'un premier post featured, on insert la pub en 2e
-    if (showAd && ad !== '') {
-      var index = list[0].props.data.featured ? 1 : 2;
-      var insertedPost = React.createElement(PostPreview, { data: { __html: ad } });
-      list.splice(index, 0, insertedPost);
-    }
-
-    return React.createElement(
-      'div',
-      null,
-      list
-    );
   }
 
-});
+  /**
+  * permet d'identifier un user anonyme
+  * le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
+  **/
+  function getUserHash() {
+
+    if (storageSupport.getLocal("user_hash") === "undefined") {
+      //pour le legacy
+      // logger.debug("user_hash undefined" );
+      storageSupport.removeLocal("user_hash");
+    }
+
+    return storageSupport.getLocal("user_hash");
+  }
+
+  function removeLocalData(key) {
+    storageSupport.removeLocalData(key);
+  }
+
+  return {
+    getUserHash: getUserHash,
+    setUserHash: setUserHash,
+    removeLocalData: removeLocalData
+  };
+}(window.storageSupport);
 
 /**
  * Composant de Vote, réutilisé dans plusieurs contextes dont le <PostPreview />
  *
  */
 var Vote = React.createClass({
-  displayName: 'Vote',
+  displayName: "Vote",
 
   getInitialState: function getInitialState() {
 
     return {
       votes: 0,
       isLoaded: false, //marker pour le rafraichissement des votes au départ
-      voted: false };
+      voted: false, //le user a t il voté ce post ?
+      display: 'none'
+    };
   },
 
-  //le user a t il voté ce post ?
   /**
    * dans le cas d'un single, ce composant est indépendant du <Portfolio />
    * ainsi le nombre de votes n'est pas mis à jour par le <Portfolio /> mais à l'intérieur du composant
@@ -408,16 +217,22 @@ var Vote = React.createClass({
       'font-2x': self.props.featured || self.props.context == 'single'
     });
 
+    /**
+     * Pour les 'single', pas de souci on affiche direct
+     * Mais pour les Portfolio, on attend que les votes soient raffraichis avant d'afficher pour une meilleure UX
+     */
+    var _display = self.props.context == 'single' ? 'inline' : self.state.display;
+
     return React.createElement(
-      'span',
-      { style: { display: 'inline' }, className: spanClass, onClick: self.handleVoteAction },
+      "span",
+      { style: { display: _display }, className: spanClass, onClick: self.handleVoteAction },
       self.state.isLoaded && React.createElement(
-        'span',
-        { className: 'vote' },
-        React.createElement('i', { className: votedClass }),
+        "span",
+        { className: "vote" },
+        React.createElement("i", { className: votedClass }),
         React.createElement(
-          'span',
-          { className: 'popMe' },
+          "span",
+          { className: "popMe" },
           self.state.votes
         )
       )
@@ -426,66 +241,263 @@ var Vote = React.createClass({
 
 });
 
-var kidzouVoteModule = function () {
+/**
+ * Préview d'un post 
+ *
+ */
+var PostPreview = React.createClass({
+  displayName: "PostPreview",
 
-  var components = [];
+  getInitialState: function getInitialState() {
 
-  function addComponent(_comp) {
-    components.push(_comp);
+    //si la prop data.__html est positonnée, il s'agit d'un contenu qui va être injecté en HTML
+    //exemple d'une pub
+    if (typeof this.props.data.__html !== 'undefined') return {};
+
+    var self = this;
+    var hasLocation = self.props.data.location.location_name !== '';
+    var isTypeEvent = typeof self.props.data.dates == 'undefined' ? false : typeof self.props.data.dates.start_date !== 'undefined' && self.props.data.dates.start_date !== '';
+    var noEndDate = typeof self.props.data.dates == 'undefined' ? true : typeof self.props.data.dates.end_date == 'undefined' || self.props.data.dates.end_date == '';
+
+    return {
+      hasLocation: hasLocation,
+      isTypeEvent: isTypeEvent,
+      startDate: isTypeEvent ? moment(self.props.data.dates.start_date, 'YYYY-MM-DD HH:mm:ss') : '',
+      endDate: isTypeEvent ? moment(self.props.data.dates.end_date, 'YYYY-MM-DD HH:mm:ss') : '',
+      singleDay: isTypeEvent && noEndDate || isTypeEvent && self.props.data.dates.start_date === self.props.data.dates.end_date,
+      isLoaded: false };
+  },
+
+  //marker pour le rafraichissement des votes au départ
+  render: function render() {
+    var _this = this;
+
+    var self = this;
+
+    return React.createElement(
+      "div",
+      { className: "preview" },
+      typeof self.props.data.__html !== 'undefined' && React.createElement("div", { className: "et_pb_portfolio_item kz_portfolio_item ad", dangerouslySetInnerHTML: { __html: self.props.data.__html }, "data-content": "Publicite" }),
+      typeof self.props.data.__html == 'undefined' && React.createElement(
+        "div",
+        null,
+        self.props.data.featured && React.createElement(
+          "div",
+          { className: "et_pb_portfolio_item kz_portfolio_item kz_portfolio_item_featured" },
+          React.createElement(
+            "div",
+            { className: "kz_portfolio_featured_hover" },
+            React.createElement(
+              "a",
+              { href: self.props.data.permalink },
+              React.createElement(Vote, { context: "portfolio",
+                featured: true,
+                ref: function ref(c) {
+                  return _this._voteComponent = c;
+                },
+                ID: self.props.data.ID,
+                slug: self.props.data.slug,
+                apis: self.props.apis,
+                currentUserId: self.props.currentUserId }),
+              React.createElement(
+                "h2",
+                null,
+                self.props.data.title
+              )
+            ),
+            React.createElement("div", { dangerouslySetInnerHTML: { __html: self.props.data.post_meta } }),
+            self.state.isTypeEvent && React.createElement(
+              "div",
+              { className: "portfolio_meta" },
+              React.createElement("i", { className: "fa fa-calendar" }),
+              self.state.singleDay && React.createElement(
+                "span",
+                null,
+                "Le ",
+                moment(self.state.startDate).format('DD MMM')
+              ),
+              !self.state.singleDay && React.createElement(
+                "span",
+                null,
+                "Du ",
+                moment(self.state.startDate).format('DD MMM'),
+                " au ",
+                moment(self.state.endDate).format('DD MMM')
+              )
+            ),
+            self.state.hasLocation && React.createElement(
+              "div",
+              { className: "portfolio_meta" },
+              React.createElement("i", { className: "fa fa-map-marker" }),
+              self.props.data.location.location_city
+            )
+          ),
+          React.createElement(
+            "a",
+            { href: self.props.data.permalink },
+            React.createElement("span", { dangerouslySetInnerHTML: { __html: self.props.data.thumbnail } })
+          )
+        ),
+        !self.props.data.featured && React.createElement(
+          "div",
+          { className: "et_pb_portfolio_item kz_portfolio_item" },
+          React.createElement(
+            "a",
+            { href: self.props.data.permalink },
+            React.createElement(
+              "span",
+              { className: "et_portfolio_image" },
+              React.createElement(Vote, { context: "portfolio",
+                ref: function ref(c) {
+                  return _this._voteComponent = c;
+                },
+                ID: self.props.data.ID,
+                slug: self.props.data.slug,
+                apis: self.props.apis,
+                currentUserId: self.props.currentUserId }),
+              React.createElement("span", { dangerouslySetInnerHTML: { __html: self.props.data.thumbnail } }),
+              React.createElement("span", { className: "et_overlay" })
+            )
+          ),
+          React.createElement(
+            "h2",
+            null,
+            React.createElement(
+              "a",
+              { href: self.props.data.permalink },
+              self.props.data.title
+            )
+          ),
+          React.createElement("p", { className: "post-meta", dangerouslySetInnerHTML: { __html: self.props.data.terms } }),
+          self.state.isTypeEvent && React.createElement(
+            "div",
+            { className: "portfolio_meta" },
+            React.createElement("i", { className: "fa fa-calendar" }),
+            self.state.singleDay && React.createElement(
+              "span",
+              null,
+              "Le ",
+              moment(self.state.startDate).format('DD MMM')
+            ),
+            !self.state.singleDay && React.createElement(
+              "span",
+              null,
+              "Du ",
+              moment(self.state.startDate).format('DD MMM'),
+              " au ",
+              moment(self.state.endDate).format('DD MMM')
+            )
+          ),
+          self.state.hasLocation && React.createElement(
+            "div",
+            { className: "portfolio_meta" },
+            React.createElement("i", { className: "fa fa-map-marker" }),
+            self.props.data.location.location_city
+          )
+        ),
+        React.createElement("div", { style: { display: 'none' }, dangerouslySetInnerHTML: { __html: self.props.data.excerpt } })
+      )
+    );
+  },
+
+  setVotesCount: function setVotesCount(_count) {
+    var self = this;
+    self._voteComponent.setState({
+      votes: _count,
+      isLoaded: true,
+      display: 'inline'
+    });
+  },
+
+  setVoted: function setVoted(_bool) {
+    var self = this;
+    self._voteComponent.setState({
+      voted: _bool
+    });
   }
 
-  function getComponents() {
-    return components;
-  }
-
-  return {
-    registerComponent: addComponent,
-    getComponents: getComponents
-  };
-}();
+});
 
 /**
- * 
- * Quelques fonctions support pour la suite
+ * Portfolio de <PostPreview />
+ *
  */
-var voteSupportModule = function (storageSupport) {
-  /**
-  * permet d'identifier un user anonyme
-  * le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
-  **/
-  function setUserHash(hash) {
+var Portfolio = React.createClass({
+  displayName: "Portfolio",
 
-    if (hash === null || hash === "" || hash === "undefined") //prevention des cas ou le user est identifié : son user_hash est null
-      return;
+  componentDidMount: function componentDidMount() {
 
-    if (getUserHash() === null || getUserHash() === "" || getUserHash() === "undefined") {
-      // logger.debug("setUserHash : " + hash);
-      storageSupport.setLocal("user_hash", hash);
+    var self = this;
+
+    var post_ids = self.props.posts.map(function (row) {
+      return row.ID;
+    });
+
+    //recupération des votes pour les posts
+    jQuery.get(self.props.apis.getVotes, { posts_in: post_ids }, function (result) {
+      var votesData = result.status;
+      for (var i = 0, iLen = votesData.length; i < iLen; i++) {
+        self.refs[votesData[i].id].setVotesCount(votesData[i].votes);
+      }
+
+      //recupération des votes du user
+      jQuery.get(self.props.apis.userVotes + '?user_hash=' + voteSupportModule.getUserHash(), function (res) {
+        var userVotes = res.voted;
+        for (var j = 0, jLen = userVotes.length; j < jLen; j++) {
+          //il est vraisemblable que tous les posts votés par le user ne soient pas sur la page...
+          if (typeof self.refs[userVotes[j].id] !== 'undefined') {
+            self.refs[userVotes[j].id].setVoted(true);
+          }
+        }
+      });
+    });
+
+    if (self.props.animate) {
+      //affichage progressif des PostPreview
+      // TweenMax.fromTo('.preview', 1,{opacity: 0.7},{display : 'block',opacity: 1,autoAlpha: 1});
+      //Animation speciale sur les featured pour faire un "waoo"
+      TweenMax.staggerFrom('.kz_portfolio_item_featured', 2, { scale: 0.2, opacity: 0, delay: 0.5, ease: Elastic.easeOut, force3D: true }, 0.2);
+    } else {
+
+      // var posts = document.querySelectorAll('.preview');
+      // [].forEach.call(posts, function(p) {
+      //   // do whatever
+      //   p.style.display = "block";
+      // });
     }
-  }
+  },
 
-  /**
-  * permet d'identifier un user anonyme
-  * le hash est fourni par le serveur, voir hash_anonymous() dans kidzou_utils
-  **/
-  function getUserHash() {
+  render: function render() {
 
-    if (storageSupport.getLocal("user_hash") === "undefined") {
-      //pour le legacy
-      // logger.debug("user_hash undefined" );
-      storageSupport.removeLocal("user_hash");
+    var self = this;
+
+    //pour les pubs
+    var ad = self.props.ad;
+    var showAd = self.props.show_ad;
+
+    //le portfolio en lui même
+    var list = self.props.posts.map(function (row) {
+
+      return React.createElement(PostPreview, { data: row,
+        ref: row.ID,
+        apis: self.props.apis,
+        currentUserId: self.props.current_user_id,
+        key: row.ID });
+    });
+
+    //inserer la pub en 3e position sauf si le 1er est featured
+    //dans le cas d'un premier post featured, on insert la pub en 2e
+    if (showAd && ad !== '') {
+      var index = list[0].props.data.featured ? 1 : 2;
+      var insertedPost = React.createElement(PostPreview, { data: { __html: ad } });
+      list.splice(index, 0, insertedPost);
     }
 
-    return storageSupport.getLocal("user_hash");
+    return React.createElement(
+      "div",
+      null,
+      list
+    );
   }
 
-  function removeLocalData(key) {
-    storageSupport.removeLocalData(key);
-  }
-
-  return {
-    getUserHash: getUserHash,
-    setUserHash: setUserHash,
-    removeLocalData: removeLocalData
-  };
-}(window.storageSupport);
+});

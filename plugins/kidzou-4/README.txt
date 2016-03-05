@@ -1,3 +1,19 @@
+<h4>Fourty</h4>
+<h5>Mars 2016</h5>
+<ul>
+	<li>Affichage des PostPreview sans effet de fade in dans les Portfolio</li>
+	<li>fix sur la notification de vote mobile</li>
+	<li>fix sur les plugins d'import chrome</li>
+
+	<li>TODO : React Vote</li>
+
+	<li>TODO : Reactisation full de la Home Page</li>
+	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
+	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+</ul>
+
 <h4>ImportExtension v3</h4>
 <h5>Saint Valentin</h5>
 <ul>
@@ -6,10 +22,6 @@
 	<li>Passage à ReactJS sur le front / Kidzou_Vote</li>
 	<li>Correctif sur l'affichage du website et phone_number</li>
 
-	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
-	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
-	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
-	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 </ul>
 
 

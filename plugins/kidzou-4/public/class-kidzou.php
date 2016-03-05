@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'St Valentin (Fix)';
+	const VERSION = 'Fourty+f2';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Reactisation du front";
+	public static $version_description = "Des correctifs pour mes 40 ans";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
