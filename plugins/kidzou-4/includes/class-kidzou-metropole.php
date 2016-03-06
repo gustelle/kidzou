@@ -345,6 +345,16 @@ class Kidzou_Metropole {
 
 		add_filter('crp_posts_join', array($this, 'crp_filter_metropole')) ;
 
+		//nouveau filtre CRP très restrictif : seuls les posts les plus récents sont vus
+		//et ce filtre est trop restrictif et privilégie la récence à la pertinence
+		add_filter('crp_posts_from_date',  function() {
+			global $wpdb;
+			$current_time = current_time( 'timestamp', 0 );
+			$from_date = $current_time - ( 365 * DAY_IN_SECONDS ); //1 an
+			$from_date = gmdate( 'Y-m-d H:i:s' , $from_date );
+			return " AND ".$wpdb->posts.".post_date >= '".$from_date."'";
+		});
+
 		return get_crp_posts_id();
 
 	}
@@ -361,13 +371,12 @@ class Kidzou_Metropole {
 		$join = ''; 
 
 		$metropole = self::get_post_metropole(); //object
-
 		if ($metropole!=null) {
+			global $wpdb;
 			$join .= "
-			INNER JOIN wp_term_taxonomy AS tt ON (tt.term_id=".$metropole->term_id." AND tt.taxonomy='ville')
-			INNER JOIN wp_term_relationships AS tr ON (tr.term_taxonomy_id=tt.term_taxonomy_id AND tr.object_id=ID) ";
+			INNER JOIN ".$wpdb->term_taxonomy ." AS tt ON (tt.term_id=".$metropole->term_id." AND tt.taxonomy='ville')
+			INNER JOIN ".$wpdb->term_relationships ." AS tr ON (tr.term_taxonomy_id=tt.term_taxonomy_id AND tr.object_id=ID) ";
 		}
-
 		return $join;
 	}
 

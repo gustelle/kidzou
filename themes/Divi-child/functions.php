@@ -301,12 +301,9 @@ function kz_mailchimp_key()
 function get_post_footer()
 {
 	$locator = Kidzou_Metropole::get_instance();
-	// $lists = et_pb_get_mailchimp_lists();
 	$key = kz_mailchimp_key();
 
-	// if(!empty($lists) && is_array($lists)) {
 	if ($key!='') {
-		// $key = kz_mailchimp_key();
 
 		$posts_ids_objects = $locator->get_related_posts();
 		$ids = array();
@@ -323,7 +320,16 @@ function get_post_footer()
 			$crp = '[et_pb_row]
 				<h2>D&apos;autres sorties sympa :</h2>
 					[et_pb_column type="4_4"]
-						[kz_pb_portfolio admin_label="Portfolio" fullwidth="off" render_featured="off" posts_number="3" post__in="'.$ids_list.'" show_title="on" show_categories="on" show_pagination="off" show_filters="off" background_layout="light" show_ad="off" /]
+						[kz_pb_portfolio admin_label="Portfolio" 	fullwidth="off" 
+																	render_featured="off" 
+																	render_votes="off" 
+																	posts_number="3" 
+																	post__in="'.$ids_list.'" 
+																	show_title="on" 
+																	show_categories="off" 
+																	show_pagination="off" 
+																	show_filters="off" 
+																	background_layout="light" show_ad="off" /]
 					[/et_pb_column]
 				[/et_pb_row]';
 		}
@@ -934,8 +940,9 @@ function kz_pb_blog( $atts ) {
  *
  * @param $postList Array
  * @param $show_ad on|off rendu ou non d'une pub
+ * @param $render_votes rendu ou non de l'icone de vote et du nb de votes
  */
-function render_react_portfolio($show_ad = false, $posts = array(), $animate=true) {
+function render_react_portfolio($show_ad = false, $posts = array(), $animate=true, $render_votes = true, $show_categories = true) {
 
 	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js',			array('classnames'), '0.14.7', true);
 	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js',		array('react'), '0.14.7', true);	
@@ -986,8 +993,11 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
  	$data['posts'] 		= array();
  	$data['ad']			= Kidzou_Utils::get_option('pub_portfolio');
  	$data['show_ad']	= $show_ad;
- 	$data['animate']	= $animate;
+ 	$data['animate']			= $animate;
+ 	$data['render_votes']		= $render_votes;
+ 	$data['show_categories'] 	= $show_categories;
 
+ 	Kidzou_Utils::log(array('data'=>$data), true);
  	
  	global $post;
 
@@ -1331,7 +1341,8 @@ function kz_pb_portfolio( $atts ) {
 			'post__in' => '', //extension kidzou pour afficher un portfolio d'articles 
 			'with_votes' => true, //systeme de vote Kidzou, par défaut non affiché
 			'show_ad' => 'on',
-			// 'show_filters' => 'off',
+			'show_filters' => 'off',
+			'render_votes' => 'on',
 			'filter' => 'none', //nom d'une taxonomie par laquelle on va pouvoir filtrer
 			'orderby' => 'publish_date',
 			'render_featured' => 'on' //faut-il rendre les featured différemment des autres ?
@@ -1408,8 +1419,11 @@ function kz_pb_portfolio( $atts ) {
 
 		$posts = $query->posts;	
 
-		$doShowAd = ($show_ad=='on' ? true: false);
-		render_react_portfolio($doShowAd, $posts, true);
+		$doShowAd 		= ($show_ad=='on' ? true: false);
+		$doShowVotes 	= ($render_votes=='on' ? true: false);
+		$doShowCats 	= ($show_categories=='on' ? true: false);
+
+		render_react_portfolio($doShowAd, $posts, true, $doShowVotes, $doShowCats);
 
 		if ( 'on' === $show_pagination && !is_search() ) {
 			echo '</div> <!-- .et_pb_portfolio -->';
