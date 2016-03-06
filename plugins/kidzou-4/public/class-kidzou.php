@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Fourty+f2';
+	const VERSION = 'Fourty+f3';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -613,23 +613,17 @@ class Kidzou {
 			wp_enqueue_script('dom4',	"https://cdnjs.cloudflare.com/ajax/libs/dom4/1.3.1/dom4.js",array(), '1.3.1', true);
 
 			wp_localize_script($this->plugin_slug , 'kidzou_commons_jsvars', array(
-					'cfg_site_url'		 			 =>  site_url().'/',
-					'cfg_debug_mode' 	 			 =>  (bool)Kidzou_Utils::get_option('debug_mode'),
-					// 'api_get_nonce'				 	 =>  site_url().'/api/get_nonce/',
-					// 'api_get_event'					 =>  site_url().'/api/events/get_event/',
-					// 'api_get_votes_status'			 =>  site_url().'/api/vote/get_votes_status/', 
-					// 'api_get_votes_user'			 =>  site_url().'/api/vote/get_votes_user/',
-					// 'api_vote_up'			 		 =>  site_url().'/api/vote/up/',
-					// 'api_vote_down'			 		 =>  site_url().'/api/vote/down/',
-					// 'api_voted_by_user'				 => site_url().'/api/vote/voted_by_user/',
-					'is_admin' 						 => Kidzou_Utils::current_user_is('administrator'),
-					// 'current_user_id'				 => (is_user_logged_in() ? get_current_user_id() : 0),
+					'cfg_site_url'		 	=>  site_url().'/',
+					'cfg_debug_mode' 	 	=> (bool)Kidzou_Utils::get_option('debug_mode'),
+					'is_admin' 				=> Kidzou_Utils::current_user_is('administrator'),
 					'mailchimp_key'			=> Kidzou_Utils::get_option('mailchimp_key', ''),
 					'mailchimp_list'		=> Kidzou_Utils::get_option('mailchimp_list', ''),
 					'api_newsletter_nonce'  => wp_create_nonce( 'newsletter_subscribe_nonce' ),
 					'api_newsletter_url'	=> site_url().'/api/mailchimp/subscribe/',
 					'newsletter_fields'		=> Kidzou_Utils::get_option('newsletter_fields',array()),
-					'analytics_activate'	=> (bool)Kidzou_Utils::get_option('analytics_activate',false)
+					'form_wait_message'		=> __( 'c&apos;est parti !', 'kidzou' ),
+					'form_error_message'	=> __( 'Oops..ca marche pas :-(', 'kidzou' ),
+					'analytics_activate'	=> (bool)Kidzou_Utils::get_option('analytics_activate',false),
 				)
 			);
 		}

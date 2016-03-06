@@ -271,38 +271,6 @@ var kidzouNotifier = (function(){
 
 	function displayMessage(m) {
 
-		var link = document.querySelector('#newsletter_refuse');
-		if (link!=null)
-		{
-			link.addEventListener("click", function(e){
-
-				kidzouTracker.trackEvent("Notification", "Newsletter", 'Refus' , 0);
-
-				storageSupport.setLocal("newsletter_refuse", true);
-
-				setTimeout(function(){
-					closeFlyIn();
-				}, 700);
-
-			}, false); 
-		}
-
-
-		document.addEventListener("newsletter_subscribed", function(e) {
-
-			if (e.detail.status=='ok' && e.detail.result!='error') {
-
-				//positionner un cookie pour ne pas re-solliciter le user sur une inscription newsletter alors qu'il s'est déjà inscrit
-				storageSupport.setLocal("newsletter_subscribe", true);
-
-				//Attendre un peu avant de supprimer le message...
-				//histoire que le user ait le temps de lire le messaye de confirmation de souscription
-				setTimeout(function(){
-					closeFlyIn();
-				}, 1500);
-			}
-		}, false);
-
 		var boxcontent = '';
 
 		//l'id du post wordpress pris dans <article id="post-xxx">
@@ -346,6 +314,39 @@ var kidzouNotifier = (function(){
 							slug={kidzou_notif.slug} />,
 					document.querySelector('.vote_container')
 				);
+			} else if (is_newsletter) {
+
+				var link = document.querySelector('#newsletter_refuse');
+				if (link!=null)
+				{
+					link.addEventListener("click", function(e){
+
+						kidzouTracker.trackEvent("Notification", "Newsletter", 'Refus' , 0);
+
+						storageSupport.setLocal("newsletter_refuse", true);
+
+						setTimeout(function(){
+							closeFlyIn();
+						}, 700);
+
+					}, false); 
+				}
+
+
+				document.addEventListener("newsletter_subscribed", function(e) {
+
+					if (e.detail.status=='ok' && e.detail.result!='error') {
+
+						//positionner un cookie pour ne pas re-solliciter le user sur une inscription newsletter alors qu'il s'est déjà inscrit
+						storageSupport.setLocal("newsletter_subscribe", true);
+
+						//Attendre un peu avant de supprimer le message...
+						//histoire que le user ait le temps de lire le messaye de confirmation de souscription
+						setTimeout(function(){
+							closeFlyIn();
+						}, 1500);
+					}
+				}, false);
 			}
 		}
 
