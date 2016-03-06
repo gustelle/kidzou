@@ -290,7 +290,7 @@ var PostPreview = React.createClass({
             React.createElement(
               "a",
               { href: self.props.data.permalink },
-              React.createElement(Vote, { context: "portfolio",
+              self.props.render_votes && React.createElement(Vote, { context: "portfolio",
                 featured: true,
                 ref: function ref(c) {
                   return _this._voteComponent = c;
@@ -305,7 +305,7 @@ var PostPreview = React.createClass({
                 self.props.data.title
               )
             ),
-            React.createElement("div", { dangerouslySetInnerHTML: { __html: self.props.data.post_meta } }),
+            self.props.show_categories && React.createElement("div", { dangerouslySetInnerHTML: { __html: self.props.data.post_meta } }),
             self.state.isTypeEvent && React.createElement(
               "div",
               { className: "portfolio_meta" },
@@ -347,7 +347,7 @@ var PostPreview = React.createClass({
             React.createElement(
               "span",
               { className: "et_portfolio_image" },
-              React.createElement(Vote, { context: "portfolio",
+              self.props.render_votes && React.createElement(Vote, { context: "portfolio",
                 ref: function ref(c) {
                   return _this._voteComponent = c;
                 },
@@ -368,7 +368,7 @@ var PostPreview = React.createClass({
               self.props.data.title
             )
           ),
-          React.createElement("p", { className: "post-meta", dangerouslySetInnerHTML: { __html: self.props.data.terms } }),
+          self.props.show_categories && React.createElement("p", { className: "post-meta", dangerouslySetInnerHTML: { __html: self.props.data.terms } }),
           self.state.isTypeEvent && React.createElement(
             "div",
             { className: "portfolio_meta" },
@@ -429,41 +429,35 @@ var Portfolio = React.createClass({
 
     var self = this;
 
-    var post_ids = self.props.posts.map(function (row) {
-      return row.ID;
-    });
+    if (self.props.render_votes) {
 
-    //recupération des votes pour les posts
-    jQuery.get(self.props.apis.getVotes, { posts_in: post_ids }, function (result) {
-      var votesData = result.status;
-      for (var i = 0, iLen = votesData.length; i < iLen; i++) {
-        self.refs[votesData[i].id].setVotesCount(votesData[i].votes);
-      }
-
-      //recupération des votes du user
-      jQuery.get(self.props.apis.userVotes + '?user_hash=' + voteSupportModule.getUserHash(), function (res) {
-        var userVotes = res.voted;
-        for (var j = 0, jLen = userVotes.length; j < jLen; j++) {
-          //il est vraisemblable que tous les posts votés par le user ne soient pas sur la page...
-          if (typeof self.refs[userVotes[j].id] !== 'undefined') {
-            self.refs[userVotes[j].id].setVoted(true);
-          }
-        }
+      var post_ids = self.props.posts.map(function (row) {
+        return row.ID;
       });
-    });
+
+      //recupération des votes pour les posts
+      jQuery.get(self.props.apis.getVotes, { posts_in: post_ids }, function (result) {
+        var votesData = result.status;
+        for (var i = 0, iLen = votesData.length; i < iLen; i++) {
+          self.refs[votesData[i].id].setVotesCount(votesData[i].votes);
+        }
+
+        //recupération des votes du user
+        jQuery.get(self.props.apis.userVotes + '?user_hash=' + voteSupportModule.getUserHash(), function (res) {
+          var userVotes = res.voted;
+          for (var j = 0, jLen = userVotes.length; j < jLen; j++) {
+            //il est vraisemblable que tous les posts votés par le user ne soient pas sur la page...
+            if (typeof self.refs[userVotes[j].id] !== 'undefined') {
+              self.refs[userVotes[j].id].setVoted(true);
+            }
+          }
+        });
+      });
+    }
 
     if (self.props.animate) {
-      //affichage progressif des PostPreview
-      // TweenMax.fromTo('.preview', 1,{opacity: 0.7},{display : 'block',opacity: 1,autoAlpha: 1});
       //Animation speciale sur les featured pour faire un "waoo"
       TweenMax.staggerFrom('.kz_portfolio_item_featured', 2, { scale: 0.2, opacity: 0, delay: 0.5, ease: Elastic.easeOut, force3D: true }, 0.2);
-    } else {
-
-      // var posts = document.querySelectorAll('.preview');
-      // [].forEach.call(posts, function(p) {
-      //   // do whatever
-      //   p.style.display = "block";
-      // });
     }
   },
 
@@ -482,7 +476,9 @@ var Portfolio = React.createClass({
         ref: row.ID,
         apis: self.props.apis,
         currentUserId: self.props.current_user_id,
-        key: row.ID });
+        key: row.ID,
+        render_votes: self.props.render_votes,
+        show_categories: self.props.show_categories });
     });
 
     //inserer la pub en 3e position sauf si le 1er est featured

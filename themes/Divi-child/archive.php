@@ -53,14 +53,23 @@
 									<?php
 
 										$filter = 'none';
+										$background_layout = 'light';
+										$fullwidth = 'off';
+										$module_id = '';
+										$module_class = '';
+										$render_votes = 'on';
+										$show_categories = 'on';
 
 										ob_start();
 
 										if ( have_posts() ) {
 
 											$posts = $wp_query->posts;
+
+											$doShowVotes 	= ($render_votes=='on' ? true: false);
+											$doShowCats 	= ($show_categories=='on' ? true: false);
  	
-											render_react_portfolio(true, $posts, false); 
+											render_react_portfolio(true, $posts, false, $doShowVotes, $doShowCats); 
 
 											if ( ! is_search() ) { //'on' === $show_pagination && 
 												echo '</div> <!-- .et_pb_portfolio -->';

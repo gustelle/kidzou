@@ -6,11 +6,17 @@
 	<li>Affichage des PostPreview sans effet de fade in dans les Portfolio</li>
 	<li>fix sur la notification de vote mobile</li>
 	<li>fix sur les plugins d'import chrome</li>
-
-	<li>TODO : Fix sur la notification newsletter qui apparait tout le tmeps</li>
-	<li>TODO : rebrancher le defer_javascript de mod_pagespeed</li>
+	<li>fix : inscription newsletter / message 'undefined'</li>
+	<li>fix : Constructeurs des widgets dans widget-adsense.php', 'widget-ads.php', 'widget-adsense.php'</li>
+	<li>fix : variables indéfinies dans archive.php</li>
+	<li>fix : integration React foireuse avec les CRP</li>
+	<li>fix : Utilisation de la variable show_categories dans kz_pb_portfolio avec React</li>
+	<li>fix : la notification newsletter qui apparait tout le tmeps</li>
+	
+	<li>TODO : faire fonctionner mod_pagespeed avec react en prod</li>
 	<li>TODO : React Vote</li>
 	<li>TODO : Reactisation full de la Home Page</li>
+	
 	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
 	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
 	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
