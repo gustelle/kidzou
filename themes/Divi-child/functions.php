@@ -794,7 +794,7 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
 		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
 	);
 	
-	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom' ), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage' ), Kidzou::VERSION, false );
 
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -1319,7 +1319,6 @@ function render_react_single() {
 	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
 	
 	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
-
 	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage'), Kidzou::VERSION, false );
 	
  	////////////////////////////////////////////////////////////////////
@@ -1334,7 +1333,7 @@ function render_react_single() {
 
 	ob_start();
 	kz_notification();
-	kz_single_vote();
+	kz_single_vote(get_the_ID());
 	get_footer();
 	$footer = ob_get_contents();ob_end_clean();
 
@@ -1363,17 +1362,21 @@ function render_react_single() {
  * Rendu du composant de vote dans le DOM (pas sur le serveur)
  * afin de forcer l'update des data
  *
+ * @param $post_id int ID du post concerné
  */
-function kz_single_vote() {
+function kz_single_vote($post_id=0) {
 
-	global $post;
+	if ($post_id==0) {
+		global $post;
+		$post_id = $post->ID;
+	}
 
 	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
 	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
 	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
 	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array(), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
 
-	wp_enqueue_script('singleVote', 		get_stylesheet_directory_uri().'/js/singleVote.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
+	wp_enqueue_script('singleVote', 	get_stylesheet_directory_uri().'/js/singleVote.js', array('storage','portfolio-components'), Kidzou::VERSION, true); //ko
 
 	wp_localize_script('singleVote', 'singleVote_jsvars', 
 		array('apis'=>
@@ -1382,7 +1385,7 @@ function kz_single_vote() {
 					'voteDown'		=> site_url().'/api/vote/down/',
 					'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
 					'getNonce'		=> site_url().'/api/get_nonce/'),
-			'ID' => get_the_ID(),
+			'ID' => $post_id ,
 			'current_user_id' => (is_user_logged_in() ? get_current_user_id() : 0)
 		)
 	);
