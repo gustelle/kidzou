@@ -88,24 +88,28 @@ var Vote = React.createClass({
   /**
    * dans le cas d'un single, ce composant est indépendant du <Portfolio />
    * ainsi le nombre de votes n'est pas mis à jour par le <Portfolio /> mais à l'intérieur du composant
+   * 
+   * Cette fonction est donc a appeler sur le composant depuis l'exterieur
    *
    */
-  componentDidMount: function componentDidMount() {
+  componentWillMount: function componentWillMount() {
 
     var self = this;
 
     if (self.props.context == 'single') {
 
+      // console.debug('Vote updateComponent');
+
       kidzouVoteModule.registerComponent(this);
 
       //recupération des votes pour ce post
-      jQuery.get(self.props.apis.getVotes + '?post_id=' + self.props.ID, function (result) {
+      jQuery.getJSON(self.props.apis.getVotes + '?post_id=' + self.props.ID, function (result) {
         self.setState({
           votes: result.votes
         });
 
         //le user a-t-il voté ce post ?
-        jQuery.get(self.props.apis.isVotedByUser + '?post_id=' + self.props.ID + '&user_hash=' + voteSupportModule.getUserHash(), function (res) {
+        jQuery.getJSON(self.props.apis.isVotedByUser + '?post_id=' + self.props.ID + '&user_hash=' + voteSupportModule.getUserHash(), function (res) {
           self.setState({
             voted: res.voted,
             isLoaded: true
@@ -151,12 +155,12 @@ var Vote = React.createClass({
     });
 
     //get nonce for voting and proceed to vote
-    jQuery.get(self.props.apis.getNonce, { controller: 'vote', method: 'up' }, function (data) {
+    jQuery.getJSON(self.props.apis.getNonce, { controller: 'vote', method: 'up' }, function (data) {
 
       if (data !== null) {
         var nonce = data.nonce;
         //vote with the nonce
-        jQuery.get(self.props.apis.voteUp, {
+        jQuery.getJSON(self.props.apis.voteUp, {
           post_id: _id,
           nonce: nonce,
           user_hash: voteSupportModule.getUserHash()
@@ -186,11 +190,11 @@ var Vote = React.createClass({
     });
 
     //get nonce for voting and proceed to vote
-    jQuery.get(self.props.apis.getNonce, { controller: 'vote', method: 'down' }, function (data) {
+    jQuery.getJSON(self.props.apis.getNonce, { controller: 'vote', method: 'down' }, function (data) {
 
       var nonce = data.nonce;
       //vote with the nonce
-      jQuery.get(self.props.apis.voteDown, {
+      jQuery.getJSON(self.props.apis.voteDown, {
         post_id: _id,
         nonce: nonce,
         user_hash: voteSupportModule.getUserHash()
@@ -436,14 +440,14 @@ var Portfolio = React.createClass({
       });
 
       //recupération des votes pour les posts
-      jQuery.get(self.props.apis.getVotes, { posts_in: post_ids }, function (result) {
+      jQuery.getJSON(self.props.apis.getVotes, { posts_in: post_ids }, function (result) {
         var votesData = result.status;
         for (var i = 0, iLen = votesData.length; i < iLen; i++) {
           self.refs[votesData[i].id].setVotesCount(votesData[i].votes);
         }
 
         //recupération des votes du user
-        jQuery.get(self.props.apis.userVotes + '?user_hash=' + voteSupportModule.getUserHash(), function (res) {
+        jQuery.getJSON(self.props.apis.userVotes + '?user_hash=' + voteSupportModule.getUserHash(), function (res) {
           var userVotes = res.voted;
           for (var j = 0, jLen = userVotes.length; j < jLen; j++) {
             //il est vraisemblable que tous les posts votés par le user ne soient pas sur la page...

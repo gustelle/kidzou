@@ -38,7 +38,7 @@ function override_divi_parent_functions()
     //nouveau shotcode kidzou pour ajouter les post types de kidzou
     //et ne pas utiliser les taxonomies de Divi (project_category)
     //copié sur functions.php du parent
-    add_shortcode('kz_pb_blog','kz_pb_blog');
+    // add_shortcode('kz_pb_blog','kz_pb_blog');
     add_shortcode('kz_pb_portfolio','kz_pb_portfolio');
     add_shortcode('kz_pb_fullwidth_portfolio','kz_pb_fullwidth_portfolio');
     add_shortcode('kz_pb_filterable_portfolio','kz_pb_filterable_portfolio');
@@ -47,11 +47,11 @@ function override_divi_parent_functions()
     
     //pour le shortcode "proximite", le contenu est executé en 2 temps 
     //temps 1: chargement du JS, détection de la localisation lat/lng
-    add_shortcode('kz_pb_proximite','kz_pb_proximite');
+    // add_shortcode('kz_pb_proximite','kz_pb_proximite');
 
     //temps 2 : envoi du contenu part ajax
-    add_action( 'wp_ajax_kz_pb_proximite', 'kz_pb_proximite_content' );
-	add_action( 'wp_ajax_nopriv_kz_pb_proximite', 'kz_pb_proximite_content' );
+ //    add_action( 'wp_ajax_kz_pb_proximite', 'kz_pb_proximite_content' );
+	// add_action( 'wp_ajax_nopriv_kz_pb_proximite', 'kz_pb_proximite_content' );
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
@@ -189,23 +189,25 @@ function  kz_metropole_nav()
 			$i=0;
 			foreach ($metropoles as $m) {
 
-				$selected = ($m->slug == $current_metropole);
-				$pattern = '#\/'.$regexp.'\/?#';
-				
-				if (preg_match($pattern, $uri, $matches)) {
-					$new_url = site_url().preg_replace($regexp, $m->slug, $uri);
-				} else {
-					$new_url = site_url().'/'.$m->slug;
-				} 
+				if (is_object($m)) {
+					$selected = ($m->slug == $current_metropole);
+					$pattern = '#\/'.$regexp.'\/?#';
+					
+					if (preg_match($pattern, $uri, $matches)) {
+						$new_url = site_url().preg_replace($regexp, $m->slug, $uri);
+					} else {
+						$new_url = site_url().'/'.$m->slug;
+					} 
 
-				$ttes_metros .= sprintf(
-					'<option value="%2$s" %1$s>%3$s</option>',
-					($selected ? 'selected' : ''),
-					$new_url,
-					$m->name
-				);
+					$ttes_metros .= sprintf(
+						'<option value="%2$s" %1$s>%3$s</option>',
+						($selected ? 'selected' : ''),
+						$new_url,
+						$m->name
+					);
 
-				$i++;
+					$i++;
+				}
 
 			}
 
@@ -230,8 +232,7 @@ function filter_archive_query($query)
 
 		//pas de limite sur le nombre de posts dans un categorie
 		$query->set('nopaging', true);
-		$query->set('posts_per_page', '-1' ); 
-		
+		$query->set('posts_per_page', '-1' ); 	
 	}
 }
 
@@ -751,189 +752,7 @@ function kz_register_divi_layouts() {
 	register_post_type( 'et_pb_layout', apply_filters( 'et_pb_layout_args', $args ) );
 }	
 
-function kz_pb_blog( $atts ) {
 
-	extract( shortcode_atts( array(
-			'module_id' => '',
-			'module_class' => '',
-			'fullwidth' => 'on',
-			'posts_number' => 10,
-			'include_categories' => '',
-			'meta_date' => 'M j, Y',
-			'show_thumbnail' => 'on',
-			'show_content' => 'off',
-			'show_author' => 'on',
-			'show_date' => 'on',
-			'show_categories' => 'on',
-			'show_pagination' => 'on',
-			'background_layout' => 'light',
-		), $atts
-	) );
-
-	global $paged;
-
-	$container_is_closed = false;
-
-	if ( 'on' !== $fullwidth ){
-		wp_enqueue_script( 'jquery-masonry-3' );
-	}
-
-	$args = array( 'posts_per_page' => (int) $posts_number );
-
-	$et_paged = is_front_page() ? get_query_var( 'page' ) : get_query_var( 'paged' );
-
-	if ( is_front_page() ) {
-		$paged = $et_paged;
-	}
-
-	if ( '' !== $include_categories )
-		$args['cat'] = $include_categories;
-
-	if ( ! is_search() ) {
-		$args['paged'] = $et_paged;
-	}
-
-	$args['post_type'] = Kidzou::post_types();
-
-	ob_start();
-
-	// query_posts( $args );
-	// Kidzou_Geo::query_posts($args);
-
-	query_posts($args);
-
-	if ( have_posts() ) {
-		while ( have_posts() ) {
-			the_post();
-
-			$post_format = get_post_format();
-
-			$thumb = '';
-
-			$width = 'on' === $fullwidth ? 1080 : 400;
-			$width = (int) apply_filters( 'et_pb_blog_image_width', $width );
-
-			$height = 'on' === $fullwidth ? 675 : 250;
-			$height = (int) apply_filters( 'et_pb_blog_image_height', $height );
-			$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-			$titletext = get_the_title();
-			$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false, 'Blogimage' );
-			$thumb = $thumbnail["thumb"];
-
-			$no_thumb_class = '' === $thumb || 'off' === $show_thumbnail ? ' et_pb_no_thumb' : '';
-
-			if ( in_array( $post_format, array( 'video', 'gallery' ) ) ) {
-				$no_thumb_class = '';
-			} ?>
-
-		<article id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_post' . $no_thumb_class ); ?>>
-
-		<?php
-			et_divi_post_format_content();
-
-			if ( ! in_array( $post_format, array( 'link', 'audio', 'quote' ) ) ) {
-				if ( 'video' === $post_format && false !== ( $first_video = et_get_first_video() ) ) :
-					printf(
-						'<div class="et_main_video_container">
-							%1$s
-						</div>',
-						$first_video
-					);
-				elseif ( 'gallery' === $post_format ) :
-					et_gallery_images();
-				elseif ( '' !== $thumb && 'on' === $show_thumbnail ) :
-					if ( 'on' !== $fullwidth ) echo '<div class="et_pb_image_container">'; ?>
-						<a href="<?php the_permalink(); ?>">
-							<?php print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height ); ?>
-						</a>
-				<?php
-					if ( 'on' !== $fullwidth ) echo '</div> <!-- .et_pb_image_container -->';
-				endif;
-			} ?>
-
-		<?php if ( 'off' === $fullwidth || ! in_array( $post_format, array( 'link', 'audio', 'quote', 'gallery' ) ) ) { ?>
-			<?php if ( ! in_array( $post_format, array( 'link', 'audio' ) ) ) { ?>
-				<h2><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h2>
-			<?php } ?>
-
-			<?php
-				if ( 'on' === $show_author || 'on' === $show_date || 'on' === $show_categories ) {
-					printf( '<p class="post-meta">%1$s %2$s %3$s</p>',
-						(
-							'on' === $show_author
-								? sprintf( __( 'by %s |', 'Divi' ), et_get_the_author_posts_link() )
-								: ''
-						),
-						(
-							'on' === $show_date
-								? sprintf( __( '%s |', 'Divi' ), get_the_date( $meta_date ) )
-								: ''
-						),
-						(
-							'on' === $show_categories
-								? get_the_category_list(', ')
-								: ''
-						)
-					);
-				}
-
-				if ( 'on' === $show_content ) {
-					global $more;
-					$more = null;
-
-					the_content( __( 'read more...', 'Divi' ) );
-				} else {
-					if ( has_excerpt() ) {
-						the_excerpt();
-					} else {
-						truncate_post( 270 );
-					}
-				} ?>
-		<?php } // 'off' === $fullwidth || ! in_array( $post_format, array( 'link', 'audio', 'quote', 'gallery' ?>
-
-		</article> <!-- .et_pb_post -->
-<?php
-		} // endwhile
-
-		if ( 'on' === $show_pagination && ! is_search() ) {
-			echo '</div> <!-- .et_pb_posts -->';
-
-			$container_is_closed = true;
-
-			if ( function_exists( 'wp_pagenavi' ) )
-				wp_pagenavi();
-			else
-				get_template_part( 'includes/navigation', 'index' );
-		}
-
-		wp_reset_query();
-	} else {
-		get_template_part( 'includes/no-results', 'index' );
-	}
-
-	$posts = ob_get_contents();
-
-	ob_end_clean();
-
-	$class = " et_pb_bg_layout_{$background_layout}";
-
-	$output = sprintf(
-		'<div%5$s class="%1$s%3$s%6$s">
-			%2$s
-		%4$s',
-		( 'on' === $fullwidth ? 'et_pb_posts' : 'et_pb_blog_grid clearfix' ),
-		$posts,
-		esc_attr( $class ),
-		( ! $container_is_closed ? '</div> <!-- .et_pb_posts -->' : '' ),
-		( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-		( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' )
-	);
-
-	if ( 'on' !== $fullwidth )
-		$output = sprintf( '<div id="et_pb_blog_grid_wrapper" class="et_pb_blog_grid_wrapper">%1$s</div>', $output );
-
-	return $output;
-}
 
 /** 
  * Rendu d'un portfolio de posts via ReactJS executé sur le serveur par V8JS
@@ -996,8 +815,6 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
  	$data['animate']			= $animate;
  	$data['render_votes']		= $render_votes;
  	$data['show_categories'] 	= $show_categories;
-
- 	Kidzou_Utils::log(array('data'=>$data), true);
  	
  	global $post;
 
@@ -1313,6 +1130,304 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 		$output
 	);
 }
+
+/** 
+ * Rendu d'un single via ReactJS executé sur le serveur par V8JS
+ * @todo
+ */
+function render_react_single() {
+
+	/**
+	 *
+	 * Hack pour utiliser the_content() et autres en dehors de the_loop
+	 */
+	global $post;
+    setup_postdata( $post );
+
+	$data = array();
+
+	$data['social_sharing'] = do_shortcode('[TheChamp-Sharing]');
+	$data['single_top'] 	= (et_get_option('divi_integration_single_top') <> '' && et_get_option('divi_integrate_singletop_enable') == 'on' ? et_get_option('divi_integration_single_top') : '');
+	$data['post_class'] 	= get_post_class('et_pb_post');
+	$data['title'] 			= get_the_title();
+	$data['ID'] 			= get_the_ID();
+
+	$width 		= (int) apply_filters( 'et_pb_index_blog_image_width', 1080 );
+	$height 	= (int) apply_filters( 'et_pb_index_blog_image_height', 675 );
+	$thumbnail 	= get_thumbnail( $width, $height, '', $data['title'], $data['title'], false, 'Blogimage' );
+	$thumb 		= $thumbnail["thumb"];
+	$data['html_thumb'] = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $data['title'], $width, $height , 'et_pb_image et-waypoint et_pb_image et_pb_animation_left et-animated', false);
+
+	ob_start();
+	et_divi_post_meta();
+	$data['meta'] 		= ob_get_contents();ob_end_clean();
+
+	$data['has_location'] = Kidzou_Geoloc::has_post_location();
+	$data['location'] 	= Kidzou_Geoloc::get_post_location();
+	$data['is_event'] 	= Kidzou_Events::isTypeEvent();
+	$data['dates'] 		= Kidzou_Events::getEventDates(); 
+	$data['pub'] 		= ( Kidzou_Utils::get_option('pub_post')!='' ? Kidzou_Utils::get_option('pub_post') : '');
+	
+	////////////////////////////
+
+	ob_start();
+	the_content(); //passer par les filtres 'the_content' et pas par get_the_content() pour obtenir notamment les CRP...
+	$data['content'] = ob_get_contents();ob_end_clean();
+	////////////////////////////
+
+	$post_format = get_post_format();
+	$post_format_content = '';
+
+	if ( 'video' === $post_format && false !== ( $first_video = et_get_first_video() ) ) {
+		$post_format_content = $first_video;
+	} else if ( ! in_array( $post_format, array( 'gallery', 'link', 'quote' ) ) && 'on' === et_get_option( 'divi_thumbnails', 'on' ) && '' !== $thumb ) {
+		$post_format_content = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $title, $width, $height, '', false );
+	} else if ( 'gallery' === $post_format ) {
+		ob_start();
+		et_gallery_images();
+		$post_format_content = ob_get_contents();ob_end_clean();
+	}
+
+	$text_color_class 	= et_divi_get_post_text_color();
+	$inline_style 		= et_divi_get_post_bg_inline_style();
+
+	switch ( $post_format ) {
+		case 'audio' :
+			ob_start();
+			printf(
+				'<div class="et_audio_content%1$s"%2$s>
+					%3$s
+				</div>',
+				esc_attr( $text_color_class ),
+				$inline_style,
+				et_pb_get_audio_player()
+			);
+			$post_format_content = ob_get_contents();ob_end_clean();
+			break;
+		case 'quote' :
+			ob_start();
+			printf(
+				'<div class="et_quote_content%2$s"%3$s>
+					%1$s
+				</div> <!-- .et_quote_content -->',
+				et_get_blockquote_in_content(),
+				esc_attr( $text_color_class ),
+				$inline_style
+			);
+			$post_format_content = ob_get_contents();ob_end_clean();
+			break;
+		case 'link' :
+			ob_start();
+			printf(
+				'<div class="et_link_content%3$s"%4$s>
+					<a href="%1$s" class="et_link_main_url">%2$s</a>
+				</div> <!-- .et_link_content -->',
+				esc_url( et_get_link_url() ),
+				esc_html( et_get_link_url() ),
+				esc_attr( $text_color_class ),
+				$inline_style
+			);
+			$post_format_content = ob_get_contents();ob_end_clean();
+			break;
+	}
+
+	$data['post_format_content'] = $post_format_content;
+
+	////////////////////////////
+
+	ob_start();
+	wp_link_pages( array( 'before' => '<div class="page-links">' . __( 'Pages:', 'Divi' ), 'after' => '</div>' ) );
+	$data['link_pages'] = ob_get_contents();ob_end_clean();
+
+	////////////////////////////
+	$data['map'] = '';
+	if ($data['has_location']) {
+		$location = $data['location'];
+		$data['map'] = do_shortcode('[et_pb_map admin_label="Map" address="'.$location['location_address'].'" zoom_level="15" address_lat="'.$location['location_latitude'].'" address_lng="'.$location['location_longitude'].'"]'.
+										'[et_pb_map_pin title="'.$location['location_name'].'" pin_address="'.$location['location_address'].'" pin_address_lat="'.$location['location_latitude'].'" pin_address_lng="'.$location['location_longitude'].'"]
+															<p><strong>'.$location['location_name'].'</strong></p>'.
+																 (isset($location['location_address']) && $location['location_address']<>'' ? '<p class="location"><i class="fa fa-map-marker"></i>'.$location['location_address'].'</p>' : '').
+																 (isset($location['location_tel']) && $location['location_tel']<>'' ? '<p class="location"><i class="fa fa-phone"></i>'.$location['location_tel'].'</p>':'').
+																 (isset($location['location_web']) && $location['location_web']<>'' ?  '<p class="location"><i class="fa fa-tablet"></i>'.$location['location_web'].'</p>':'').
+										'[/et_pb_map_pin]
+									[/et_pb_map]');
+	}
+	
+	////////////////////////////
+
+	$data['is_ad'] 	= et_get_option('divi_468_enable') == 'on';
+	$data['adsense'] 	= ( et_get_option('divi_468_enable') == 'on' && et_get_option('divi_468_adsense') <> '' ? et_get_option('divi_468_adsense') : '');
+	$data['adimg_url'] 	= ( et_get_option('divi_468_enable') == 'on' && et_get_option('divi_468_url') <> '' ? esc_url(et_get_option('divi_468_url')) : '');	
+	$data['adimg_img'] 	= ( et_get_option('divi_468_enable') == 'on' && et_get_option('divi_468_url') <> '' ? esc_attr(et_get_option('divi_468_image')) : '');		
+	
+	////////////////////////////
+
+	$comments = '';
+	if ( comments_open() && 'on' == et_get_option( 'divi_show_postcomments', 'on' ) ) {
+		ob_start();
+		comments_template( '', true );	
+		$comments = ob_get_contents();ob_end_clean();
+	}
+	$data['comments'] = $comments;
+	
+	////////////////////////////
+
+	$data['single_bottom'] =  (et_get_option('divi_integration_single_bottom') <> '' && et_get_option('divi_integrate_singlebottom_enable') == 'on' ? et_get_option('divi_integration_single_bottom') : '');												
+
+	////////////////////////////
+	ob_start();
+	get_sidebar();
+	$data['sidebar'] = ob_get_contents();ob_end_clean();
+
+	////////////////////////////
+	ob_start();
+	get_post_footer();
+	$data['footer'] = ob_get_contents();ob_end_clean();
+
+	////////////////////////////
+	ob_start();
+	get_post_footer();
+	$data['post_footer'] = ob_get_contents();ob_end_clean();
+	
+
+	////////////////////////////////////////////////////////////////////
+	///
+	/// Reactisation du bazar
+	///
+	////////////////////////////////////////////////////////////////////
+
+	if (!class_exists('ReactJS'))
+		include get_stylesheet_directory().'/includes/react/ReactJS.php';
+
+	$react = new ReactJS(
+	  	// location of React's code and dependencies
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom-server.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js'),
+		// file_get_contents(WP_CONTENT_DIR.'/../wp-includes/js/jquery/jquery.js', FILE_USE_INCLUDE_PATH),
+		// app code
+		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/single.js', FILE_USE_INCLUDE_PATH)
+	);
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
+	
+	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage'), Kidzou::VERSION, false );
+	
+ 	////////////////////////////////////////////////////////////////////
+ 	////////////////////////////////////////////////////////////////////
+ 	//////////////////////////////////////////////////////////////////// 
+
+	$react->setComponent('Post', $data);
+
+	ob_start();
+	get_header();
+	$header = ob_get_contents();ob_end_clean();
+
+	ob_start();
+	kz_notification();
+	kz_single_vote();
+	get_footer();
+	$footer = ob_get_contents();ob_end_clean();
+
+	printf("%1s<div id='main-content'>%2s</div>%3s",
+		$header,
+		$react->getMarkup(),
+		$footer
+	);
+
+	$footer_script = $react->getJS('#main-content', "Post");
+		 	
+ 	//injecter les scripts en footer pour éviter de polluer le HTML
+ 	add_action( 'wp_footer', function() use ($footer_script) { 
+ 		echo '<script>'.$footer_script.'</script>';
+ 	}, 999 );
+
+ 	/** 
+ 	 * Fin du hack sur the_content() et autres 
+ 	 */
+ 	wp_reset_postdata( $post );
+
+}
+
+
+/**
+ * Rendu du composant de vote dans le DOM (pas sur le serveur)
+ * afin de forcer l'update des data
+ *
+ */
+function kz_single_vote() {
+
+	global $post;
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array(), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	wp_enqueue_script('singleVote', 		get_stylesheet_directory_uri().'/js/singleVote.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
+
+	wp_localize_script('singleVote', 'singleVote_jsvars', 
+		array('apis'=>
+			array(	'getVotes'		=> site_url().'/api/vote/get_votes_status/',
+					'voteUp'		=> site_url().'/api/vote/up/',
+					'voteDown'		=> site_url().'/api/vote/down/',
+					'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+					'getNonce'		=> site_url().'/api/get_nonce/'),
+			'ID' => get_the_ID(),
+			'current_user_id' => (is_user_logged_in() ? get_current_user_id() : 0)
+		)
+	);
+
+}
+
+/**
+ * Rendu du fly-in de notification sur les posts
+ *
+ */
+function kz_notification() {
+
+	global $post;
+
+	wp_enqueue_style( 'endbox', 	get_stylesheet_directory_uri().'/js/css/endpage-box.css' , array(), Kidzou::VERSION );
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	// wp_enqueue_script( 'portfolio-components', get_stylesheet_directory_uri().'/js/portfolio.js', array('react-dom'), Kidzou::VERSION, true); //ko
+
+	wp_enqueue_script('endbox',	 	get_stylesheet_directory_uri().'/js/jquery.endpage-box.min.js' ,array('jquery'), Kidzou::VERSION, true);
+	wp_enqueue_script('notif', 		get_stylesheet_directory_uri().'/js/notif.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
+
+	wp_localize_script('notif', 'kidzou_notif', array(
+			'messages'				=> Kidzou_Notif::get_messages(),
+			'activate'				=> Kidzou_Notif::isActive(),
+			'message_title'			=> __( 'A voir &eacute;galement :', 'Divi' ),
+			'newsletter_context'	=> Kidzou_Notif::getNewsletterFrequency(),
+			'newsletter_nomobile'	=> !Kidzou_Notif::isActiveOnMobile(),
+			'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
+			'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
+			'slug'					=> $post->post_name,
+			'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+											'voteUp'		=> site_url().'/api/vote/up/',
+											'voteDown'		=> site_url().'/api/vote/down/',
+											'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+											'getNonce'		=> site_url().'/api/get_nonce/')
+		)
+	);
+
+}
+
 
 /**
  * genere un portfolio incluant les post_types specifiques de Kidzou (les offres n'apparaissent pas dans le portfolio)
@@ -1778,262 +1893,6 @@ function kz_pb_user_favs( $atts ) {
 	}	
 }
 
-/**
- * genere un portfolio des posts a proximité
- *
- */
-function kz_pb_proximite( $atts ) {
-
-	$locator = Kidzou_Geoloc::get_instance();
-	
-	extract( shortcode_atts( array(
-			'module_id' => '',
-			'module_class' => '',
-			'fullwidth' => 'on',
-			'show_title' => 'on',
-			'show_categories' => 'on',
-			'background_layout' => 'light',
-			// 'radius' => 2,
-			'zoom'	=> 13,
-			'display_mode' => 'simple',
-			'max_distance'	=> 50
-		), $atts
-	) );
-
-	$radius = 1000; //on simule l'infini...
-
-	//generer le scripts qui va checker que lat/lng sont présents en localStorage
-	//si lat/lng sont détéctés, déclencher un ajax pour charger le portfolio
-	wp_enqueue_script(
-		'custom-proxi',
-		get_stylesheet_directory_uri() . '/js/custom-proxi.js',
-		array( 'jquery', 'google-maps-api' ),
-		Kidzou::VERSION,
-		true 
-	);
-
-	//le clusterer sert à regrouper les icons pour une meilleure perfromance d'affichage
-	wp_enqueue_script(
-		'marker-clusterer',
-		get_stylesheet_directory_uri() . '/js/markerclusterer_compiled.js',
-		array( 'custom-proxi' ),
-		Kidzou::VERSION,
-		true 
-	);
-
-	$is_geolocalized = $locator->is_request_geolocalized();
-
-	if (!wp_script_is( 'google-maps-api', 'enqueued' ) && $display_mode!='simple') 
-		wp_enqueue_script( 'google-maps-api' );
-
-	//initialement : récupérer les coords 
-	$coords = $locator->get_request_coords();
-	$ids = $locator->getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
-
-	$portfolio = kz_pb_render_proximite_portfolio(
-		$coords,
-		$ids, 
-		$radius,
-		$is_geolocalized, //faut-il ou non montrer la distance ?
-		$fullwidth, 
-		$show_title, 
-		$show_categories, 
-		$background_layout, 
-		$display_mode, 
-		$module_id, 
-		$module_class 
-	);
-
-	$pins = array();
-
-	if ($display_mode!='simple' ) {
-		$pins = kz_get_map_markers($ids);
-	}
-
-	wp_localize_script( 'custom-proxi', 'kidzou_proxi', array(
-		'ajaxurl'           	=> admin_url( 'admin-ajax.php' ),
-		'wait_geoloc_message' 	=> '<h2><i class="fa fa-spinner fa-spin pull-left"></i>Nous sommes entrain de d&eacute;terminer votre position...</h2>',
-		'wait_load_message' 	=> '<h2><i class="fa fa-map-marker  pull-left"></i>Chargement des r&eacute;sultats...</h2>',
-		'wait_refreshing' 		=> '<h5><i class="fa fa-spinner fa-spin"></i>Actualisation de la carte</h5>',
-		'wait_geoloc_progress' 	=> '<h4><i class="fa fa-spinner fa-spin pull-left"></i>Actualisation de votre position</h4><br/>',
-		'title' 				=> '<h1><i class="fa fa-map-marker pull-left"></i>A faire pr&egrave;s de chez vous</h1>',
-		'more_results'			=> '<hr class="et_pb_space et_pb_divider" /><a title="Etendre la recherche" class="et_pb_more_button center load_more_results">Plus de r&eacute;sultats</a>',
-		'distance_message'		=> 'Dans un rayon de {radius} Kilom&egrave;tres',
-		'refresh_message'		=> 'Ces r&eacute;sultats ne vous paraissent pas pertinents&nbsp;?&nbsp;<a title="Rafraichir les r&eacute;sultats">Rafraichir les r&eacute;sultats</a><br/><br/>',
-		// 'wait_map_onprogress'	=> '<i class="fa fa-5x fa-map-marker  pull-left"></i><h1>Je suis la carte !</h1><br/><em>je me charge...</em>',
-		'nonce'					=> wp_create_nonce("kz_pb_proximite"),
-		'action'				=> 'kz_pb_proximite',
-		'fullwidth'				=> $fullwidth,
-		'show_title'			=> $show_title,
-		'show_categories'		=> $show_categories,
-		'background_layout'		=> $background_layout,
-		'radius'				=> $radius,
-		'module_id'				=> $module_id,
-		'module_class'			=> $module_class,
-		'background_layout'		=> $background_layout, 
-		'display_mode'			=> $display_mode,
-		'geoloc_error_msg'			=> __('<h3><i class="fa fa-warning  pull-left"></i>Nous ne parvenons pas &agrave; vous localiser plus pr&eacute;cis&eacute;ment</h3>','Divi'),
-		'geoloc_pleaseaccept_msg'	=> __('<h3><i class="fa fa-warning pull-left"></i>Pour des r&eacute;sultats plus pertinents, acceptez la geolocalisation de votre navigateur !</h3>','Divi'),
-		'show_distance'			=> $is_geolocalized,
-		'markers'				=> $pins,
-		'zoom'					=> $zoom,
-		'max_distance'			=> $max_distance,
-		'request_coords'		=> $coords,
-		'page_container_selector'=> '#proxi_content',
-		'map_selector'			=> '#proxi_content .et_pb_map',
-		'map_container'			=> '#proxi_content .et_pb_map_container',
-		'more_results_selector' => '#proxi_content .more_results',
-		'more_results_cta_selector'	=> '.load_more_results',
-		'message_selector'		=> '#proxi_content .message',
-		'portfolio_selector'	=> '#proxi_content .et_pb_portfolio_results',
-		'distance_message_selector'	=> '.distance_message',
-
-	) );
-	
-	// <div id="map_loader" class="map_over"><i class="fa fa-5x fa-map-marker pull-left"></i><h1>Je suis la carte !</h1><em>je me charge...</em></div>
-	if ($display_mode=='with_map') {
-		$out = sprintf(
-				'<div%5$s class="et_pb_map_container%6$s">
-					<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
-					<!--div class="et_pb_pins">%4$s</div-->
-				</div><hr class="et_pb_space et_pb_divider" />',
-				esc_attr( $coords['latitude'] ),
-				esc_attr( $coords['longitude'] ),
-				$zoom, //zoom level
-				'',//$pins,
-				( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-				( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-				'on' //mousewheel
-			);
-	} elseif ($display_mode=='map_only') {
-		$out = sprintf(
-				'<div%5$s class="et_pb_map_container%6$s">
-					<div class="et_pb_map" data-center_lat="%1$s" data-center_lng="%2$s" data-zoom="%3$d" data-mouse_wheel="%7$s"></div>
-					<!--div class="et_pb_pins">%4$s</div-->
-				</div><hr class="et_pb_space et_pb_divider" />',
-				esc_attr( $coords['latitude'] ),
-				esc_attr( $coords['longitude'] ),
-				$zoom, //zoom level
-				'',//$pins,
-				( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-				( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-				'on' //mousewheel
-			);
-	} else {
-		$out = '<!-- simple portfolio -->';
-	}
-
-	if ($display_mode!='map_only') {
-
-		$class = " et_pb_bg_layout_{$background_layout}";
-		$filters_html = '';
-		$filter_out = '';
-
-		//prévision d'évolutions pour filtrer
-		if ($filters_html!='') {
-			$filter_out = sprintf(
-					'<div class="et_pb_filterable_portfolio ">
-						%1$s
-					</div>',
-					$filters_html
-				);
-		}
-
-		$out .= sprintf(
-			'<div%5$s class="%1$s%3$s%6$s">
-				%7$s
-				<div class="et_pb_portfolio_results">%2$s</div>
-			%4$s',
-			( 'on' === $fullwidth ? 'et_pb_portfolio' : 'et_pb_portfolio_grid clearfix' ),
-			$portfolio,
-			esc_attr( $class ),
-			'',
-			( '' !== $module_id ? sprintf( ' id="%1$s"', esc_attr( $module_id ) ) : '' ),
-			( '' !== $module_class ? sprintf( ' %1$s', esc_attr( $module_class ) ) : '' ),
-			'',
-			$filter_out
-		);
-
-		return sprintf(
-			'%1$s
-			<div id="proxi_content">
-				<div class="results">
-					%2$s
-				</div>
-				<div class="more_results"></div>
-			</div>',
-			'<div class="distance_message"></div>',
-			$out
-		);
-	}  else {
-
-		return sprintf(
-			'<div id="proxi_content">
-				<div class="results">
-					%1$s
-				</div>
-			</div>',
-			$out
-		);
-	}
-}
-
-/**
- * contenu injecté dans <div id="proxi_content"> en Ajax pour remplacer le contenu initial 
- *
- */
-function kz_pb_proximite_content() {
-
-	$locator = Kidzou_Geoloc::get_instance();
-
-	if ( !wp_verify_nonce( $_REQUEST['nonce'], "kz_pb_proximite")) {
-		exit("...<i class='fa pull-left fa-exclamation-circle'></i> Nous ne pouvons rafraichir les r&eacute;sultats");
-	}   
-
-	$coords 			= $_POST['coords'];
-	$fullwidth 			= (isset($_POST['fullwidth']) ? $_POST['fullwidth'] : '');
-	$radius 			= (isset($_POST['radius']) ? $_POST['radius'] : 5);
-	$show_title 		= (isset($_POST['show_title']) ? $_POST['show_title'] : '');
-	$show_categories 	= (isset($_POST['show_categories']) ? $_POST['show_categories'] : '');
-	$module_id 			= (isset($_POST['module_id']) ? $_POST['module_id'] : '');
-	$module_class 		= (isset($_POST['module_class']) ? $_POST['module_class'] : '');
-	$background_layout 	= (isset($_POST['background_layout']) ? $_POST['background_layout'] : 'light');
-	$display_mode 		= (isset($_POST['display_mode']) ? $_POST['display_mode'] : 'simple');
-	$show_distance		= (isset($_POST['show_distance']) ? $_POST['show_distance'] : false );
-
-	// Kidzou_Utils::log($_POST);
-
-	$ids = $locator->getPostsNearToMeInRadius($coords['latitude'], $coords['longitude'], $radius);
-
-	$portfolio = kz_pb_render_proximite_portfolio(
-		$coords,
-		$ids, 
-		$radius,
-		true, //si on arrive ici, le user est geolocalisé donc les distances ont du sens
-		$fullwidth, 
-		$show_title, 
-		$show_categories, 
-		$background_layout, 
-		$display_mode, 
-		$module_id, 
-		$module_class 
-	);
-
-	$pins = array();
-
-	if ($display_mode!='simple') {
-		$pins = kz_get_map_markers($ids);
-	}
-
-	$return = array(
-			'empty_results' =>  empty($ids),
-			'portfolio'		=>  $portfolio,
-			'markers'		=>  $pins
-			// 'map'
-	);
-
-	wp_send_json($return);
-}
 
 /**
  * undocumented function
@@ -2456,7 +2315,7 @@ function kz_pb_map( $atts, $content = '' ) {
 	) );
 
 	if (!wp_script_is( 'google-maps-api', 'enqueued' )) 
-		wp_enqueue_script( 'google-maps-api' );
+		wp_enqueue_script( 'google-maps-api', add_query_arg( array( 'v' => 3, 'sensor' => 'false' ), is_ssl() ? 'https://maps-api-ssl.google.com/maps/api/js' : 'http://maps.google.com/maps/api/js' ), array(), '3', true );
 
 	$all_pins_content = do_shortcode( et_pb_fix_shortcodes( $content ) );
 
