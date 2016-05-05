@@ -24,6 +24,10 @@ var Post = React.createClass({
 
     post_id    = "post-" + self.props.ID;
 
+    var addressDisplay 	= (self.props.has_location && self.props.location.location_address!='' ? 'block' : 'none');
+    var phoneDisplay 	= (self.props.has_location && self.props.location.location_phone_number!='' ? 'block' : 'none');
+    var websiteDisplay 	= (self.props.has_location && self.props.location.location_website!='' ? 'block' : 'none');
+
     return (
 
     	<div>
@@ -49,9 +53,9 @@ var Post = React.createClass({
 											self.props.has_location &&
 											<div>
 												<div className="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">
-													<p className="location"><i className="fa fa-map-marker"></i>{self.props.location.location_address}</p>
-													<p className="location"><i className="fa fa-phone"></i>{self.props.location.location_phone_number}</p>
-													<p className="location"><i className="fa fa-tablet"></i><a target="_blank" href={self.props.location.location_website}>Visiter le site web</a></p>
+													<p className="location" style={{display:addressDisplay}}><i className="fa fa-map-marker"></i>{self.props.location.location_address}</p>
+													<p className="location" style={{display:phoneDisplay}}><i className="fa fa-phone"></i>{self.props.location.location_phone_number}</p>
+													<p className="location" style={{display:websiteDisplay}}><i className="fa fa-tablet"></i><a target="_blank" href={self.props.location.location_website}>Visiter le site web</a></p>
 												</div>
 												<hr className="et_pb_space" />
 											</div>

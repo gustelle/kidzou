@@ -58,7 +58,6 @@ class Kidzou_Metaboxes_Place {
 
 		// if (in_array($screen->id , $this->screen_with_meta_place)) {
 
-			// wp_enqueue_script('kidzou-storage', 	plugins_url( '../assets/js/kidzou-storage.js', dirname(__FILE__) ) ,array('jquery'), Kidzou::VERSION, true);
 		wp_enqueue_script('kidzou-admin-geo', 	plugins_url( '../assets/js/kidzou-admin-geo.js', __FILE__ ) ,array('jquery'), Kidzou::VERSION, true);
 
 		$villes = Kidzou_Metropole::get_metropoles();

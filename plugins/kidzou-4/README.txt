@@ -1,3 +1,10 @@
+<h4>Spring 16</h4>
+<h5>Mai 2016</h5>
+<ul>
+	<li>Dynamisation des portfolio de posts pour les événements de longue durée</li>
+</ul>
+
+
 <h4>Fourty</h4>
 <h5>Mars 2016</h5>
 <ul>
@@ -5,15 +12,19 @@
 	<li>fix sur la notification de vote mobile</li>
 	<li>fix sur les plugins d'import chrome</li>
 	<li>fix : inscription newsletter / message 'undefined'</li>
-	<li>fix : Constructeurs des widgets dans widget-adsense.php', 'widget-ads.php', 'widget-adsense.php'</li>
+	<li>fix : Constructeurs des widgets dans widget-adsense.php', 'widget-ads.php'</li>
 	<li>fix : variables indéfinies dans archive.php</li>
 	<li>fix : integration React foireuse avec les CRP</li>
 	<li>fix : Utilisation de la variable show_categories dans kz_pb_portfolio avec React</li>
-	<li>fix : Chargement des data en Ajax vie $.getJSON (tentative fix bug de reload de page sur chrome)</li>
-	<li>Reactisation full de single.php</li>
-
-	<li>TODO : faire fonctionner mod_pagespeed avec react en prod</li>
+	<li>fix : Chargement des data en Ajax via $.getJSON (tentative fix bug de reload de page sur chrome)</li>
+	<li>fix : enqueue de portfolio.js dans le footer pour fixer la dépendance avec kidzou-storage</li>
+	<li>fix : Bug de notification si on vote et que la fenetre apparait ensuite</li>
+	<li>Fonctionnement complet de single.php avec ReactServer</li>
+	<li>Fix : icone telephone apparait sur single.php sans téléphone (https://www.kidzou.fr/americane-songues/)</li>
+	<li>Fix : sur CRP qui ne sort plus de résultat </li>
+	
 	<li>TODO : React Vote</li>
+	<li>TODO : faire fonctionner mod_pagespeed avec react en prod (fix du reload de page)</li>
 	
 	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
 	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>

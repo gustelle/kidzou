@@ -482,10 +482,12 @@ class JSON_API_Content_Controller {
 		if ( !is_int(intval($limit)) )  
 			$limit=3;
 
-		$results = array(); 
+		$locator = Kidzou_Metropole::get_instance();
+		$results = $locator->get_related_posts();
 
-		if (function_exists('get_crp_posts_id'))
-			$results = get_crp_posts_id(array( 'postid' => $id, 'limit' => $limit ));
+
+		// if (function_exists('get_crp_posts_id'))
+		// 	$results = get_crp_posts_id(array( 'postid' => $id, 'limit' => $limit ));
 
 		//filtrer les résultats
 		$filtered = array();
