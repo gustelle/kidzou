@@ -54,8 +54,6 @@ class Kidzou_Vote {
 	 */
 	private function __construct() { 
 
-		// if (!Kidzou_Utils::is_really_admin())
-		// 	add_action( 'wp_head', array($this, 'insert_template'));
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		//Alterer les queries des archives : tri par nb de votes
@@ -154,83 +152,6 @@ class Kidzou_Vote {
 		return intval($count);
 	}
 
-	/**
-	 * undocumented function
-	 *
-	 * @return void
-	 * @author 
-	 **/
-	public function insert_template ()
-	{
-		self::set_template('', false, true);
-	}
-
-	protected static function set_template($class='', $useCountText=false, $echo=true) 
-	{
-
-		// $countText = '';
-
-		// if ($useCountText)
-		// 	$countText .= '<span 	data-bind="text: $data.countText"></span>';
-
-		// $out = sprintf('
-		// <script type="text/html" id="vote-template">
-	 //    <span class="vote %s" data-bind="event: { click: $data.doUpOrDown, mouseover: $data.activateDown, mouseout: $data.deactivateDown }">
-		// 	<i data-bind="css : $data.iconClass"></i>
-		// 	<span 	data-bind="text: $data.votes"></span>
-		// 	%s
-	 //    </span>
-		// </script>',
-		// $class,
-		// $countText);
-
-		// // self::$is_template_inserted = true;
-
-		// if ($echo)
-		// 	echo $out;
-		// else
-		// 	return $out;
-	}
-
-	/**
-	 * 
-	 * @param id 	le post pour lequel on rend le template de vote
-	 * @param useCountText 	afficher ou non le nombre de votes du post
-	 * @param echo 	renvoyer le HTML directement par echo ou par un return
-	 * @return HTML avec binding Knockout qui associé a public/assets/js/public.js va rendre le nombre de vote du post passé en param
-	 */
-	public static function get_vote_template($id=0, $class='', $useCountText=false, $echo=true) 
-	{
-
-		// if ($id==0)
-		// {
-		// 	global $post;
-		// 	$id = $post->ID;
-		// }
-
-		// $out ='';
-		// $apost = get_post();
-		// $slug = $apost->post_name;
-
-		// $out .= sprintf(
-		// 		"<span class='votable %s' data-post='%s' data-slug='%s' data-bind=\"template: { name: 'vote-template', data: votes.getVotableItem(%s) }\"></span>",
-		// 		$class,
-		// 		$id,
-		// 		$slug,
-		// 		$id);
-
-		// if ($echo)
-		// 	echo $out;
-		// else
-		// 	return $out;
-	}
-
-
-	public static function vote($id=0, $class='', $useCountText=false) 
-	{
-
-		// echo self::get_vote_template($id, $class, $useCountText, false);
-	}
 
 	
 	/** 
@@ -449,11 +370,13 @@ class Kidzou_Vote {
 	 * Retourne le tableau des WP_Post que le user a voté
 	 *
 	 * @param $user_id int ID du user
+	 * @param $fields string ids|all
+	 *
 	 * @return Array
 	 * @since Noel2014
 	 * @author Guillaume
 	 **/
-	public static function getUserVotedPosts( $user_id = 0 )
+	public static function getUserVotedPosts( $user_id = 0, $args=array() )
 	{
 
 		if ($user_id == 0)
@@ -462,19 +385,28 @@ class Kidzou_Vote {
 		$meta = get_user_meta( $user_id, self::$meta_user_votes , false ); 
 		$data = $meta[0];
 
-		//gestion du legacy 
-		foreach ($data as $key => $value) {
-			if (!is_array($value)) {
+		if (!empty($args) && $args['fields']=='all') {
 
-				$data[$key] = array(
-					'id' => $value,
-					'timestamp' => 0,
-				);
-
+			$posts = array();
+			foreach ($data as $key => $value) {
+				$posts[] = get_post( $value );
 			}
+			return $posts;
+
+		} else {
+
+			//gestion du legacy 
+			foreach ($data as $key => $value) {
+				if (!is_array($value)) {
+					$data[$key] = array(
+						'id' => $value,
+						'timestamp' => 0,
+					);
+				}
+			}
+			return $data;
 		}
 
-		return $data;
 	}
 
 	/**

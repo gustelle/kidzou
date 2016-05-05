@@ -12,10 +12,9 @@ require_once( get_stylesheet_directory() . '/et-pagebuilder/et-pagebuilder.php' 
  */
 require_once( get_stylesheet_directory() . '/widget-customer-posts.php' );
 
- // print_r( debug_backtrace() );
 
 /**
- * shortcodes spécifiques Kidzou
+ * shortcodes spécifiques Kidzou et surcharge des shortcodes Divi
  *
  * @see http://www.themelab.com/2010/07/11/remove-code-wordpress-header/
  * @return void
@@ -45,13 +44,6 @@ function override_divi_parent_functions()
     add_shortcode('searchbox','searchbox');
     add_shortcode('kz_pb_user_favs','kz_pb_user_favs');
     
-    //pour le shortcode "proximite", le contenu est executé en 2 temps 
-    //temps 1: chargement du JS, détection de la localisation lat/lng
-    // add_shortcode('kz_pb_proximite','kz_pb_proximite');
-
-    //temps 2 : envoi du contenu part ajax
- //    add_action( 'wp_ajax_kz_pb_proximite', 'kz_pb_proximite_content' );
-	// add_action( 'wp_ajax_nopriv_kz_pb_proximite', 'kz_pb_proximite_content' );
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
@@ -707,7 +699,6 @@ function kz_pb_submit_subscribe_form() {
 function searchbox()
 {
 
-
 	$output = sprintf(
 		'<form class="kz_searchbox" method="get" action="%2$s">
 			<input id="kz_searchinput" placeholder="%1$s" type="text" autocomplete="off" name="s">
@@ -794,7 +785,7 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
 		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
 	);
 	
-	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage' ), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage' ), Kidzou::VERSION, true );
 
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -856,182 +847,13 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
  	}, 999 );
 }
 
-/**
- * Rendu d'un post au sein d'un portfolio 
- *
- * @param fullwidth on|off
- * @param render_featured : True si les posts featured doivent etre rendus différemment des autres
- */
-function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '', $render_featured = true) {
-
-	$category_classes = array();
-	$categories = get_the_terms( get_the_ID(), 'category' );
-	if ( $categories ) {
-		foreach ( $categories as $category ) {
-			$category_classes[] = 'project_category_' . $category->slug;
-			$categories_included[] = $category->term_id;
-		}
-	}
-
-	$category_classes = implode( ' ', $category_classes );
-
-	$featured = (Kidzou_Featured::isFeatured() && $render_featured);
-	$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
-
-	$thumb = '';
-
-	$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
-	$height = 'on' === $fullwidth ?  9999 : 284;
-	$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
-	$titletext = get_the_title();
-	$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
-	
-	$thumb = $thumbnail["thumb"];
-
-	$event_meta = '';
-	$location_meta = '';
-	$output = '';
-
-	//les posts dont l'adresse est renseignée : on affiche la ville pour donner un repère rapide au user
-	if (Kidzou_Geoloc::has_post_location()) {
-		$location = Kidzou_Geoloc::get_post_location();
-		$location_meta = '<div class="portfolio_meta"><i class="fa fa-map-marker"></i>'.$location['location_city'].'</div>'; 
-	}
-
-	//pour les posts de type event, la date est affichée
-	if (Kidzou_Events::isTypeEvent()) {
-
-		$location = Kidzou_Events::getEventDates();
-
-		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
-		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
-
-		$formatter = new IntlDateFormatter('fr_FR',
-                                            IntlDateFormatter::SHORT,
-                                            IntlDateFormatter::NONE,
-                                            'Europe/Paris',
-                                            IntlDateFormatter::GREGORIAN,
-                                            'dd/MM/yyyy');
-
-		$formatter->setPattern('cccc dd LLLL');
-
-		$formatted = '';
-
-		//mieux vaut prévenir les erreurs que les guérir
-		//c'est arrivé pour je ne sais quelle raison que les dates soient en erreur auquel cas 
-		//DateTime::createFromFormat() retourne "false"
-		if ($start!==false && $end!==false) {
-
-			if ($start->format("Y-m-d") == $end->format("Y-m-d"))
-				$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
-			else
-				$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
-		
-		 	$event_meta = '<div class="portfolio_meta"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
-		}
-	} 
-
-	//la distance au post est affichée de facon "intelligente"
-	if ($distance != '') {
-
-		if (floatval($distance)<1) {
-			$distance = (round($distance, 2)*1000). ' m'; 
-		} else {
-			$distance = round($distance, 1) . ' Km'; 
-		}
-
-		$distance = '<div class="portfolio_meta"><i class="fa fa-location-arrow"></i>'.$distance.'</div>' ;
-	}
-
-	//rendu du thumbnail
-	if ( '' !== $thumb ) {
-
-		$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
-
-		//Rendu des post featured
-		if ( $featured ) {
-
-			//ultérieur, pour intégration Facebook ?
-			$fb = '';
-
-			$output .= sprintf("<div class='kz_portfolio_featured_hover'>
-									%s 
-									<a href='%s'><span class='votable'></span><h2>%s</h2></a>
-									%s
-									%s
-									%s
-									%s
-									%s
-								</div>",
-					'',// Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
-					get_permalink(),
-					get_the_title(),
-					kz_get_post_meta(),
-					$distance,
-					$event_meta,
-					$location_meta,
-					$fb);
-
-			$output = sprintf("
-						%s <a href='%s'>%s</a>								
-				",
-				$output,
-				get_permalink(),
-				$image
-				);
-		} else  {
-			//$output .= Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
-
-			if ( 'on' !== $fullwidth ) { 
-			
-				$output = sprintf("
-					<a href='%s'>
-						<span class='et_portfolio_image'>
-							<span class='votable'></span> %s %s
-							<span class='et_overlay'></span>
-						</span><!--  et_portfolio_image -->
-					</a>
-					",
-					get_permalink(),
-					$output,
-					$image
-				);
-
-			} 
-		}
-
-	}
-
-	//le titre
-	if ( 'on' === $show_title && !$featured) {
-		$output .= '<h2><a href="'.get_the_permalink().'">'.get_the_title().'</a></h2>';
-	}
-
-	//les cats
-	if ( 'on' === $show_categories && !$featured ) {
-		$output .= '<p class="post-meta">'.get_the_term_list( get_the_ID(), "category", '', ', ' ).'</p>';
-	}
-
-	if (!$featured) {
-		$output .= $event_meta.$location_meta;
-		$output .= $distance;
-	}
-
-	//pour des raisons de SEO (Code to Text Ratio) on rend le short desc du post meme s'il n'est pas affiché
-	$output .= '<div style="display:none;">'.get_the_excerpt().'</div>';
-
-	return sprintf("<div id='post-%1s' class='%2s'>%3s</div>",
-		get_the_ID(),
-		implode(' ', get_post_class( 'et_pb_portfolio_item '.$kz_class. ' '. $category_classes, get_the_ID() )),
-		$output
-	);
-}
-
 /** 
  * Rendu d'un single via ReactJS executé sur le serveur par V8JS
  * @todo
  */
 function render_react_single() {
+
+	if (!is_single()) return;
 
 	/**
 	 *
@@ -1179,11 +1001,6 @@ function render_react_single() {
 	ob_start();
 	get_post_footer();
 	$data['footer'] = ob_get_contents();ob_end_clean();
-
-	////////////////////////////
-	ob_start();
-	get_post_footer();
-	$data['post_footer'] = ob_get_contents();ob_end_clean();
 	
 
 	////////////////////////////////////////////////////////////////////
@@ -1215,7 +1032,7 @@ function render_react_single() {
 	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
 	
 	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
-	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage'), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage'), Kidzou::VERSION, true );
 	
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -1229,7 +1046,7 @@ function render_react_single() {
 
 	ob_start();
 	kz_notification();
-	kz_single_vote(get_the_ID());
+	kz_single_vote($data['ID']);
 	get_footer();
 	$footer = ob_get_contents();ob_end_clean();
 
@@ -1261,6 +1078,8 @@ function render_react_single() {
  * @param $post_id int ID du post concerné
  */
 function kz_single_vote($post_id=0) {
+
+	if (!is_single()) return;
 
 	if ($post_id==0) {
 		global $post;
@@ -1696,59 +1515,20 @@ function kz_pb_user_favs( $atts ) {
 
 	$container_is_closed = false;
 
-	$voted =  Kidzou_Vote::getUserVotedPosts( );
-
-	global $post;
-
-	$categories_included = array();
+	//recuperer les votes au format WP_Post
+	$voted =  Kidzou_Vote::getUserVotedPosts( get_current_user_id(), array('fields'=>'all'));
 	
 
 	if ( count($voted)>0 )
 	{
+
 		ob_start();
 
-		foreach ($voted as $key => $value) {
-			
-			$post = get_post( $value['id'] );
-			setup_postdata( $post ); 
+		render_react_portfolio(false, $voted, false, false, true);
 
-			echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', true);
+		$posts = ob_get_contents(); ob_end_clean();
 
-			$cats = wp_get_post_terms( $post->ID, 'category', array('fields' => 'ids') );
-			foreach ($cats as $cat_key => $cat_value) {
-				$categories_included[] = $cat_value;
-			}
-
-		}
-		//fin de boucle foreach
-		wp_reset_postdata();
-
-		$posts = ob_get_contents();
-
-		ob_end_clean();
-
-		// Kidzou_Utils::log($categories_included);
-		$categories_included = array_unique( $categories_included );
-		// Kidzou_Utils::log($categories_included);
-		$terms_args = array(
-			'include' => $categories_included,
-			'orderby' => 'name',
-			'order' => 'ASC',
-		);
-		$terms = get_terms( 'category', $terms_args );
-
-		$category_filters = '<ul class="clearfix">';
-		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#" class="active" data-category-slug="all">%1$s</a></li>',
-			esc_html__( 'All', 'Divi' )
-		);
-		foreach ( $terms as $term  ) {
-			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="#" data-category-slug="%1$s">%2$s</a></li>',
-				esc_attr( $term->slug ),
-				esc_html( $term->name )
-			);
-		}
-		$category_filters .= '</ul>';
-		// $category_filters = '';
+		$category_filters = '';
 
 		$class = " et_pb_bg_layout_{$background_layout}";
 
@@ -1792,45 +1572,6 @@ function kz_pb_user_favs( $atts ) {
 	}	
 }
 
-
-/**
- * undocumented function
- *
- * @return void
- * @author 
- **/
-function kz_pb_render_proximite_portfolio ($coords, $ids, $radius, $show_distance, $fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
-{
-
-	$posts = '';
-
-	if (!empty($ids))
-	{	
-		global $post;
-
-		foreach ($ids as $key=>$value) 
-		{
-			$post = get_post($value->post_id);
-			setup_postdata($post);
-
-			// Kidzou_Utils::log('show_distance ? ' .$show_distance);
-			$distance = ($show_distance ? $value->distance : '');
-			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance, true );
-		
-		}
-
-		wp_reset_postdata();
-	}
-	else
-	{
-		ob_start();
-		get_template_part( 'includes/no-results', 'proximite-refresh' );
-		$posts = ob_get_clean();
-	}
-	
-
-	return $posts;
-}
 
 /**
  * Construit un tableau de data à utiliser par les Markers Google Maps coté JS 
