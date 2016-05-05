@@ -2,6 +2,14 @@
 <h5>Mai 2016</h5>
 <ul>
 	<li>Dynamisation des portfolio de posts pour les événements de longue durée</li>
+
+	<li>TODO : faire fonctionner mod_pagespeed avec react en prod</li>
+	<li>TODO : React Vote</li>
+	<li>TODO : faire fonctionner mod_pagespeed avec react en prod (fix du reload de page)</li>
+	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
+	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 </ul>
 
 
@@ -18,13 +26,9 @@
 	<li>fix : variables indéfinies dans archive.php</li>
 	<li>fix : integration React foireuse avec les CRP</li>
 	<li>fix : Utilisation de la variable show_categories dans kz_pb_portfolio avec React</li>
-<<<<<<< HEAD
 	<li>fix : la notification newsletter qui apparait tout le tmeps</li>
 	<li>fix : Chargement des data en Ajax vie $.getJSON (tentative fix bug de reload de page sur chrome)</li>
 	<li>Reactisation full de single.php</li>
-
-	<li>TODO : faire fonctionner mod_pagespeed avec react en prod</li>
-=======
 	<li>fix : Chargement des data en Ajax via $.getJSON (tentative fix bug de reload de page sur chrome)</li>
 	<li>fix : enqueue de portfolio.js dans le footer pour fixer la dépendance avec kidzou-storage</li>
 	<li>fix : Bug de notification si on vote et que la fenetre apparait ensuite</li>
@@ -32,14 +36,6 @@
 	<li>Fix : icone telephone apparait sur single.php sans téléphone (https://www.kidzou.fr/americane-songues/)</li>
 	<li>Fix : sur CRP qui ne sort plus de résultat </li>
 	
->>>>>>> hotfix/fourty+f6
-	<li>TODO : React Vote</li>
-	<li>TODO : faire fonctionner mod_pagespeed avec react en prod (fix du reload de page)</li>
-	
-	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
-	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
-	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
-	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
 </ul>
 
 <h4>ImportExtension v3</h4>
