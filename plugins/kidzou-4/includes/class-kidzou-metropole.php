@@ -350,7 +350,7 @@ class Kidzou_Metropole {
 		add_filter('crp_posts_from_date',  function() {
 			global $wpdb;
 			$current_time = current_time( 'timestamp', 0 );
-			$from_date = $current_time - ( 92 * DAY_IN_SECONDS ); //3 mois
+			$from_date = $current_time - ( 365 * DAY_IN_SECONDS ); //1 an
 			$from_date = gmdate( 'Y-m-d H:i:s' , $from_date );
 			return " AND ".$wpdb->posts.".post_date >= '".$from_date."'";
 		});

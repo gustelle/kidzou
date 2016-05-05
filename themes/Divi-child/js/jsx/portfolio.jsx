@@ -126,6 +126,11 @@ var Vote = React.createClass({
     e.preventDefault(); //stopper le click
     this.voteUpOrDown('Recommandation');
 
+    //fermer la boite de notification pour ne pas proposer de voter 
+    if (window.kidzouNotifier) {
+      kidzouNotifier.close();
+    }
+
   },
 
   voteUpOrDown: function(_context) {
@@ -138,7 +143,7 @@ var Vote = React.createClass({
 
     if (self.state.voted) 
       self.doWithdraw();
-    else
+    else 
       self.doVote();
 
     if (self.props.context=='single') TweenMax.fromTo('.popMe', 1.5,{scale:0.1},{scale:1,ease:Elastic.easeOut, force3D: true});

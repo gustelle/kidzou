@@ -46,8 +46,8 @@ var VoteNotification = React.createClass({
 	   pageVoter.voteUpOrDown('Notification');
 	   
 	   setTimeout(function(){
-	    	kidzouNotifier.close();
-	    }, 200);
+	   	kidzouNotifier.close();
+	   }, 200);
 	});
 
   },

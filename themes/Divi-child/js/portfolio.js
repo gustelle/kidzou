@@ -126,6 +126,11 @@ var Vote = React.createClass({
 
     e.preventDefault(); //stopper le click
     this.voteUpOrDown('Recommandation');
+
+    //fermer la boite de notification pour ne pas proposer de voter
+    if (window.kidzouNotifier) {
+      kidzouNotifier.close();
+    }
   },
 
   voteUpOrDown: function voteUpOrDown(_context) {

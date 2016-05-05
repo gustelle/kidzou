@@ -12,10 +12,9 @@ require_once( get_stylesheet_directory() . '/et-pagebuilder/et-pagebuilder.php' 
  */
 require_once( get_stylesheet_directory() . '/widget-customer-posts.php' );
 
- // print_r( debug_backtrace() );
 
 /**
- * shortcodes spécifiques Kidzou
+ * shortcodes spécifiques Kidzou et surcharge des shortcodes Divi
  *
  * @see http://www.themelab.com/2010/07/11/remove-code-wordpress-header/
  * @return void
@@ -45,13 +44,6 @@ function override_divi_parent_functions()
     add_shortcode('searchbox','searchbox');
     add_shortcode('kz_pb_user_favs','kz_pb_user_favs');
     
-    //pour le shortcode "proximite", le contenu est executé en 2 temps 
-    //temps 1: chargement du JS, détection de la localisation lat/lng
-    // add_shortcode('kz_pb_proximite','kz_pb_proximite');
-
-    //temps 2 : envoi du contenu part ajax
- //    add_action( 'wp_ajax_kz_pb_proximite', 'kz_pb_proximite_content' );
-	// add_action( 'wp_ajax_nopriv_kz_pb_proximite', 'kz_pb_proximite_content' );
 
     remove_shortcode('et_pb_fullwidth_map');
     remove_shortcode('et_pb_map');
@@ -707,7 +699,6 @@ function kz_pb_submit_subscribe_form() {
 function searchbox()
 {
 
-
 	$output = sprintf(
 		'<form class="kz_searchbox" method="get" action="%2$s">
 			<input id="kz_searchinput" placeholder="%1$s" type="text" autocomplete="off" name="s">
@@ -794,7 +785,7 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
 		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
 	);
 	
-	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage' ), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage' ), Kidzou::VERSION, true );
 
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -855,6 +846,7 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
  		echo '<script>'.$footer_script.'</script>';
  	}, 999 );
 }
+
 
 /** 
  * Rendu d'un 'coeur' de vote sur un single
@@ -1131,11 +1123,14 @@ function kz_render_post($post, $fullwidth, $show_title, $show_categories, $backg
 	);
 }
 
+
 /** 
  * Rendu d'un single via ReactJS executé sur le serveur par V8JS
  * @todo
  */
 function render_react_single() {
+
+	if (!is_single()) return;
 
 	/**
 	 *
@@ -1283,11 +1278,6 @@ function render_react_single() {
 	ob_start();
 	get_post_footer();
 	$data['footer'] = ob_get_contents();ob_end_clean();
-
-	////////////////////////////
-	ob_start();
-	get_post_footer();
-	$data['post_footer'] = ob_get_contents();ob_end_clean();
 	
 
 	////////////////////////////////////////////////////////////////////
@@ -1319,7 +1309,7 @@ function render_react_single() {
 	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
 	
 	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
-	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage'), Kidzou::VERSION, false );
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react-dom', 'storage'), Kidzou::VERSION, true );
 	
  	////////////////////////////////////////////////////////////////////
  	////////////////////////////////////////////////////////////////////
@@ -1333,7 +1323,7 @@ function render_react_single() {
 
 	ob_start();
 	kz_notification();
-	kz_single_vote(get_the_ID());
+	kz_single_vote($data['ID']);
 	get_footer();
 	$footer = ob_get_contents();ob_end_clean();
 
@@ -1365,6 +1355,8 @@ function render_react_single() {
  * @param $post_id int ID du post concerné
  */
 function kz_single_vote($post_id=0) {
+
+	if (!is_single()) return;
 
 	if ($post_id==0) {
 		global $post;
@@ -1800,59 +1792,20 @@ function kz_pb_user_favs( $atts ) {
 
 	$container_is_closed = false;
 
-	$voted =  Kidzou_Vote::getUserVotedPosts( );
-
-	global $post;
-
-	$categories_included = array();
+	//recuperer les votes au format WP_Post
+	$voted =  Kidzou_Vote::getUserVotedPosts( get_current_user_id(), array('fields'=>'all'));
 	
 
 	if ( count($voted)>0 )
 	{
+
 		ob_start();
 
-		foreach ($voted as $key => $value) {
-			
-			$post = get_post( $value['id'] );
-			setup_postdata( $post ); 
+		render_react_portfolio(false, $voted, false, false, true);
 
-			echo kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, '', true);
+		$posts = ob_get_contents(); ob_end_clean();
 
-			$cats = wp_get_post_terms( $post->ID, 'category', array('fields' => 'ids') );
-			foreach ($cats as $cat_key => $cat_value) {
-				$categories_included[] = $cat_value;
-			}
-
-		}
-		//fin de boucle foreach
-		wp_reset_postdata();
-
-		$posts = ob_get_contents();
-
-		ob_end_clean();
-
-		// Kidzou_Utils::log($categories_included);
-		$categories_included = array_unique( $categories_included );
-		// Kidzou_Utils::log($categories_included);
-		$terms_args = array(
-			'include' => $categories_included,
-			'orderby' => 'name',
-			'order' => 'ASC',
-		);
-		$terms = get_terms( 'category', $terms_args );
-
-		$category_filters = '<ul class="clearfix">';
-		$category_filters .= sprintf( '<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#" class="active" data-category-slug="all">%1$s</a></li>',
-			esc_html__( 'All', 'Divi' )
-		);
-		foreach ( $terms as $term  ) {
-			$category_filters .= sprintf( '<li class="et_pb_portfolio_filter"><a href="#" data-category-slug="%1$s">%2$s</a></li>',
-				esc_attr( $term->slug ),
-				esc_html( $term->name )
-			);
-		}
-		$category_filters .= '</ul>';
-		// $category_filters = '';
+		$category_filters = '';
 
 		$class = " et_pb_bg_layout_{$background_layout}";
 
@@ -1896,45 +1849,6 @@ function kz_pb_user_favs( $atts ) {
 	}	
 }
 
-
-/**
- * undocumented function
- *
- * @return void
- * @author 
- **/
-function kz_pb_render_proximite_portfolio ($coords, $ids, $radius, $show_distance, $fullwidth, $show_title, $show_categories, $background_layout, $display_mode, $module_id, $module_class)
-{
-
-	$posts = '';
-
-	if (!empty($ids))
-	{	
-		global $post;
-
-		foreach ($ids as $key=>$value) 
-		{
-			$post = get_post($value->post_id);
-			setup_postdata($post);
-
-			// Kidzou_Utils::log('show_distance ? ' .$show_distance);
-			$distance = ($show_distance ? $value->distance : '');
-			$posts .= kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance, true );
-		
-		}
-
-		wp_reset_postdata();
-	}
-	else
-	{
-		ob_start();
-		get_template_part( 'includes/no-results', 'proximite-refresh' );
-		$posts = ob_get_clean();
-	}
-	
-
-	return $posts;
-}
 
 /**
  * Construit un tableau de data à utiliser par les Markers Google Maps coté JS 
