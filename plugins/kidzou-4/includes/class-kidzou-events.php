@@ -177,6 +177,45 @@ class Kidzou_Events {
 			);
     }
 
+   	/**
+	 *
+	 * @return int le nombre de jours que dure un event
+	 **/
+    public static function getDurationInDays($event_id=0) 
+    {
+    	if ($event_id==0)
+		{
+			global $post;
+			$event_id = $post->ID;
+		}
+
+		if (!self::isTypeEvent($event_id))
+			return 0;
+
+		$start_date 		= get_post_meta($event_id, self::$meta_start_date, TRUE);
+		$end_date   		= get_post_meta($event_id, self::$meta_end_date, TRUE);
+
+		//Asurer le format de retour
+		$startFormat 	= DateTime::createFromFormat('Y-m-d H:i:s', $start_date, new DateTimeZone('Europe/Paris'));
+		$endFormat 		= DateTime::createFromFormat('Y-m-d H:i:s', $end_date, new DateTimeZone('Europe/Paris'));
+
+		//si la start_date n'est pas valide, c'est tout l'événement qui est invalide
+		if (!$startFormat || !$endFormat) 	{
+			Kidzou_Utils::log(array('Error for getDurationInDays'=>$event_id, 'startFormat'=>$startFormat, 'endFormat'=>$endFormat),true);
+			return 0;
+		}
+
+		$interval = $startFormat->diff($endFormat);
+		if (!$interval) {
+			Kidzou_Utils::log(array('Error for getDurationInDays'=>$event_id, 'startFormat'=>$startFormat, 'endFormat'=>$endFormat),true);
+			return 0;
+		}
+		$daysString =  $interval->format('%a');
+
+		//les jours ne sont pas complets
+		return intval($daysString)+1;
+    }
+
     /**
 	 * Il se peut que start_date ou end_date soient nuls, dans ce cas il n'y a pas de date de fin, l'eventment est géré par une récurrence
 	 *
@@ -233,6 +272,7 @@ class Kidzou_Events {
 			if ( $recurrence['endType']!=='never' && (!isset($recurrence['endValue']) || $recurrence['endValue']=='') )
 				return new WP_Error('setEventDates_9', 'Complétez la date de fin de récurrence');
 
+			//format YYYY-mm-dd HH:mm:ss
 			$dateOK = preg_match("#^\d{4}-\d{2}-\d{2}\s\d{2}:\d{2}:\d{2}$#", $recurrence['endValue']);
 			if ($recurrence['endType']=='date' && !$dateOK )
 				return new WP_Error('setEventDates_10', 'La date de fin de recurrence est incorrecte');

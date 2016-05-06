@@ -29,7 +29,7 @@ class Vote_Query extends WP_Query {
 		);
     }
 
-    parent::query($the_args);
+    parent::__construct($the_args);
 
   }
  
