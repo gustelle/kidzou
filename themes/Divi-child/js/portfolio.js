@@ -1,6 +1,6 @@
 "use strict";
 
-/**
+/*
  *
  * Helper qui permet d'exposer les <Vote /> à l'exterieur, notamment utile dans les single pour les boites de Notif
  */

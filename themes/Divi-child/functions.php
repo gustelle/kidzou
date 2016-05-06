@@ -847,6 +847,285 @@ function render_react_portfolio($show_ad = false, $posts = array(), $animate=tru
  	}, 999 );
 }
 
+
+/** 
+ * Rendu d'un 'coeur' de vote sur un single
+ *
+ */
+function kz_vote_single() {
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
+	
+	wp_enqueue_script( 'storage', plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	////////////////////////////////////////////////////////////////////
+	///
+	/// Reactisation du bazar
+	///
+	////////////////////////////////////////////////////////////////////
+
+	if (!class_exists('ReactJS'))
+		include get_stylesheet_directory().'/includes/react/ReactJS.php';
+
+	$react = new ReactJS(
+	  	// location of React's code and dependencies
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom-server.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js'),
+		// app code
+		file_get_contents('js/portfolio.js', FILE_USE_INCLUDE_PATH)
+	);
+	
+	wp_enqueue_script( 'portfolio-components',  get_stylesheet_directory_uri().'/js/portfolio.js', array( 'react' ), Kidzou::VERSION, false );
+
+ 	////////////////////////////////////////////////////////////////////
+ 	////////////////////////////////////////////////////////////////////
+ 	//////////////////////////////////////////////////////////////////// 
+
+	global $post;
+	
+	$data = array();
+	$data['context'] 	= 'single';
+ 	$data['apis'] 		= array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+								'voteUp'		=> site_url().'/api/vote/up/',
+								'voteDown'		=> site_url().'/api/vote/down/',
+								'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+								'getNonce'		=> site_url().'/api/get_nonce/');
+
+ 	$data['current_user_id'] = (is_user_logged_in() ? get_current_user_id() : 0);
+ 	$data['ID'] = $post->ID;
+
+	$react->setComponent('Vote', $data);
+
+	printf("<div id='react_vote'>%1s</div>",
+		$react->getMarkup()
+	);
+
+	$footer_script = $react->getJS('#react_vote', "Vote");
+		 	
+ 	//injecter les scripts en footer pour éviter de polluer le HTML
+ 	add_action( 'wp_footer', function() use ($footer_script) { 
+ 		echo '<script>'.$footer_script.'</script>';
+ 	}, 999 );
+}
+
+/**
+ * Rendu du fly-in de notification sur les posts
+ *
+ */
+function kz_notification() {
+
+	global $post;
+
+	wp_enqueue_style( 'endbox', 	get_stylesheet_directory_uri().'/js/css/endpage-box.css' , array(), Kidzou::VERSION );
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
+
+	// wp_enqueue_script( 'portfolio-components', get_stylesheet_directory_uri().'/js/portfolio.js', array('react-dom'), Kidzou::VERSION, true); //ko
+
+	wp_enqueue_script('endbox',	 	get_stylesheet_directory_uri().'/js/jquery.endpage-box.min.js' ,array('jquery'), Kidzou::VERSION, true);
+	wp_enqueue_script('notif', 		get_stylesheet_directory_uri().'/js/notif.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
+
+	wp_localize_script('notif', 'kidzou_notif', array(
+			'messages'				=> Kidzou_Notif::get_messages(),
+			'activate'				=> Kidzou_Notif::isActive(),
+			'message_title'			=> __( 'A voir &eacute;galement :', 'Divi' ),
+			'newsletter_context'	=> Kidzou_Notif::getNewsletterFrequency(),
+			'newsletter_nomobile'	=> !Kidzou_Notif::isActiveOnMobile(),
+			'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
+			'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
+			'slug'					=> $post->post_name,
+			'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
+											'voteUp'		=> site_url().'/api/vote/up/',
+											'voteDown'		=> site_url().'/api/vote/down/',
+											'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
+											'getNonce'		=> site_url().'/api/get_nonce/')
+		)
+	);
+
+}
+
+
+
+/**
+ * Rendu d'un post au sein d'un portfolio 
+ *
+ * @param fullwidth on|off
+ * @param render_featured : True si les posts featured doivent etre rendus différemment des autres
+ */
+function kz_render_post($post, $fullwidth, $show_title, $show_categories, $background_layout, $distance = '', $render_featured = true) {
+
+	$category_classes = array();
+	$categories = get_the_terms( get_the_ID(), 'category' );
+	if ( $categories ) {
+		foreach ( $categories as $category ) {
+			$category_classes[] = 'project_category_' . $category->slug;
+			$categories_included[] = $category->term_id;
+		}
+	}
+
+	$category_classes = implode( ' ', $category_classes );
+
+	$featured = (Kidzou_Featured::isFeatured() && $render_featured);
+	$kz_class = 'kz_portfolio_item '.($featured ? 'kz_portfolio_item_featured': '');
+
+	$thumb = '';
+
+	$width = ('on' === $fullwidth ?  1080 : ($featured ? 600 : 400)); 
+	$height = 'on' === $fullwidth ?  9999 : 284;
+	$classtext = 'on' === $fullwidth ? 'et_pb_post_main_image' : '';
+	$titletext = get_the_title();
+	$thumbnail = get_thumbnail( $width, $height, $classtext, $titletext, $titletext, false ); //, 'et-pb-portfolio-image' 
+	
+	$thumb = $thumbnail["thumb"];
+
+	$event_meta = '';
+	$location_meta = '';
+	$output = '';
+
+	//les posts dont l'adresse est renseignée : on affiche la ville pour donner un repère rapide au user
+	if (Kidzou_Geoloc::has_post_location()) {
+		$location = Kidzou_Geoloc::get_post_location();
+		$location_meta = '<div class="portfolio_meta"><i class="fa fa-map-marker"></i>'.$location['location_city'].'</div>'; 
+	}
+
+	//pour les posts de type event, la date est affichée
+	if (Kidzou_Events::isTypeEvent()) {
+
+		$location = Kidzou_Events::getEventDates();
+
+		$start 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['start_date'], new DateTimeZone('Europe/Paris'));
+		$end 	= DateTime::createFromFormat('Y-m-d H:i:s', $location['end_date'], new DateTimeZone('Europe/Paris'));
+
+		$formatter = new IntlDateFormatter('fr_FR',
+                                            IntlDateFormatter::SHORT,
+                                            IntlDateFormatter::NONE,
+                                            'Europe/Paris',
+                                            IntlDateFormatter::GREGORIAN,
+                                            'dd/MM/yyyy');
+
+		$formatter->setPattern('cccc dd LLLL');
+
+		$formatted = '';
+
+		//mieux vaut prévenir les erreurs que les guérir
+		//c'est arrivé pour je ne sais quelle raison que les dates soient en erreur auquel cas 
+		//DateTime::createFromFormat() retourne "false"
+		if ($start!==false && $end!==false) {
+
+			if ($start->format("Y-m-d") == $end->format("Y-m-d"))
+				$formatted = __( 'Le ', 'Divi' ).$formatter->format($start);
+			else
+				$formatted = __( 'Du ','Divi').$formatter->format($start).__(' au ','Divi').$formatter->format($end);
+		
+		 	$event_meta = '<div class="portfolio_meta"><i class="fa fa-calendar"></i>'.$formatted.'</div>'; 
+		}
+	} 
+
+	//la distance au post est affichée de facon "intelligente"
+	if ($distance != '') {
+
+		if (floatval($distance)<1) {
+			$distance = (round($distance, 2)*1000). ' m'; 
+		} else {
+			$distance = round($distance, 1) . ' Km'; 
+		}
+
+		$distance = '<div class="portfolio_meta"><i class="fa fa-location-arrow"></i>'.$distance.'</div>' ;
+	}
+
+	//rendu du thumbnail
+	if ( '' !== $thumb ) {
+
+		$image = print_thumbnail( $thumb, $thumbnail["use_timthumb"], $titletext, $width, $height , '', false); //pas d'echo 
+
+		//Rendu des post featured
+		if ( $featured ) {
+
+			//ultérieur, pour intégration Facebook ?
+			$fb = '';
+
+			$output .= sprintf("<div class='kz_portfolio_featured_hover'>
+									%s 
+									<a href='%s'><span class='votable'></span><h2>%s</h2></a>
+									%s
+									%s
+									%s
+									%s
+									%s
+								</div>",
+					'',// Kidzou_Vote::get_vote_template(get_the_ID(), 'font-2x', false, false),
+					get_permalink(),
+					get_the_title(),
+					kz_get_post_meta(),
+					$distance,
+					$event_meta,
+					$location_meta,
+					$fb);
+
+			$output = sprintf("
+						%s <a href='%s'>%s</a>								
+				",
+				$output,
+				get_permalink(),
+				$image
+				);
+		} else  {
+			//$output .= Kidzou_Vote::get_vote_template(get_the_ID(), 'hovertext votable_template', false, false);
+
+			if ( 'on' !== $fullwidth ) { 
+			
+				$output = sprintf("
+					<a href='%s'>
+						<span class='et_portfolio_image'>
+							<span class='votable'></span> %s %s
+							<span class='et_overlay'></span>
+						</span><!--  et_portfolio_image -->
+					</a>
+					",
+					get_permalink(),
+					$output,
+					$image
+				);
+
+			} 
+		}
+
+	}
+
+	//le titre
+	if ( 'on' === $show_title && !$featured) {
+		$output .= '<h2><a href="'.get_the_permalink().'">'.get_the_title().'</a></h2>';
+	}
+
+	//les cats
+	if ( 'on' === $show_categories && !$featured ) {
+		$output .= '<p class="post-meta">'.get_the_term_list( get_the_ID(), "category", '', ', ' ).'</p>';
+	}
+
+	if (!$featured) {
+		$output .= $event_meta.$location_meta;
+		$output .= $distance;
+	}
+
+	//pour des raisons de SEO (Code to Text Ratio) on rend le short desc du post meme s'il n'est pas affiché
+	$output .= '<div style="display:none;">'.get_the_excerpt().'</div>';
+
+	return sprintf("<div id='post-%1s' class='%2s'>%3s</div>",
+		get_the_ID(),
+		implode(' ', get_post_class( 'et_pb_portfolio_item '.$kz_class. ' '. $category_classes, get_the_ID() )),
+		$output
+	);
+}
+
+
 /** 
  * Rendu d'un single via ReactJS executé sur le serveur par V8JS
  * @todo
@@ -1107,44 +1386,7 @@ function kz_single_vote($post_id=0) {
 
 }
 
-/**
- * Rendu du fly-in de notification sur les posts
- *
- */
-function kz_notification() {
 
-	global $post;
-
-	wp_enqueue_style( 'endbox', 	get_stylesheet_directory_uri().'/js/css/endpage-box.css' , array(), Kidzou::VERSION );
-
-	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
-	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
-	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
-	wp_enqueue_script( 'storage', 		plugins_url( ).'/kidzou-4/assets/js/kidzou-storage.js', array( ), Kidzou::VERSION, true); // 'ko', 'ko-mapping'
-
-	// wp_enqueue_script( 'portfolio-components', get_stylesheet_directory_uri().'/js/portfolio.js', array('react-dom'), Kidzou::VERSION, true); //ko
-
-	wp_enqueue_script('endbox',	 	get_stylesheet_directory_uri().'/js/jquery.endpage-box.min.js' ,array('jquery'), Kidzou::VERSION, true);
-	wp_enqueue_script('notif', 		get_stylesheet_directory_uri().'/js/notif.js', array('portfolio-components'), Kidzou::VERSION, true); //ko
-
-	wp_localize_script('notif', 'kidzou_notif', array(
-			'messages'				=> Kidzou_Notif::get_messages(),
-			'activate'				=> Kidzou_Notif::isActive(),
-			'message_title'			=> __( 'A voir &eacute;galement :', 'Divi' ),
-			'newsletter_context'	=> Kidzou_Notif::getNewsletterFrequency(),
-			'newsletter_nomobile'	=> !Kidzou_Notif::isActiveOnMobile(),
-			'api_voted_by_user'		=> site_url().'/api/vote/voted_by_user/',
-			'current_user_id'		=> (is_user_logged_in() ? get_current_user_id() : 0),
-			'slug'					=> $post->post_name,
-			'vote_apis'				=> array('getVotes'		=> site_url().'/api/vote/get_votes_status/',
-											'voteUp'		=> site_url().'/api/vote/up/',
-											'voteDown'		=> site_url().'/api/vote/down/',
-											'isVotedByUser' => site_url().'/api/vote/isVotedByUser/',
-											'getNonce'		=> site_url().'/api/get_nonce/')
-		)
-	);
-
-}
 
 
 /**
