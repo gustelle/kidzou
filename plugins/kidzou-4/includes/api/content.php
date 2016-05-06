@@ -151,8 +151,8 @@ class JSON_API_Content_Controller {
 			if ($end_date==null || $end_date=='')
 				$end_date = $start_date;
 
-			$date_s = DateTime::createFromFormat('Y-m-d H:i:s', $start_date);
-			$date_e = DateTime::createFromFormat('Y-m-d H:i:s', $end_date);
+			$date_s = DateTime::createFromFormat('Y-m-d H:i:s', $start_date, new DateTimeZone('Europe/Paris'));
+			$date_e = DateTime::createFromFormat('Y-m-d H:i:s', $end_date, new DateTimeZone('Europe/Paris'));
 
 			if (!$date_s || !$date_e) {
 			    $json_api->error("Format de date invalide");
