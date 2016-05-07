@@ -132,9 +132,10 @@ module.exports = function(grunt) {
 	grunt.registerTask('perf',['perfbudget']);
 
 	//lancement de grunt par defaut
+	//passage des Hint de qualité sur les .js 
 	grunt.registerTask('default', ['jshint','copy:divi', 'copy:k4']);
 
-	//pour compiler les jsx
+	//compilation des JSX en .js
 	grunt.registerTask('deploy', ['babel','copy:divi', 'copy:k4']);
 
 
