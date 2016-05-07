@@ -26,6 +26,10 @@ var Post = React.createClass({
 
 		post_id = "post-" + self.props.ID;
 
+		var addressDisplay = self.props.has_location && self.props.location.location_address != '' ? 'block' : 'none';
+		var phoneDisplay = self.props.has_location && self.props.location.location_phone_number != '' ? 'block' : 'none';
+		var websiteDisplay = self.props.has_location && self.props.location.location_website != '' ? 'block' : 'none';
+
 		return React.createElement(
 			'div',
 			null,
@@ -67,19 +71,19 @@ var Post = React.createClass({
 												{ className: 'et_pb_text et_pb_bg_layout_light et_pb_text_align_left' },
 												React.createElement(
 													'p',
-													{ className: 'location' },
+													{ className: 'location', style: { display: addressDisplay } },
 													React.createElement('i', { className: 'fa fa-map-marker' }),
 													self.props.location.location_address
 												),
 												React.createElement(
 													'p',
-													{ className: 'location' },
+													{ className: 'location', style: { display: phoneDisplay } },
 													React.createElement('i', { className: 'fa fa-phone' }),
 													self.props.location.location_phone_number
 												),
 												React.createElement(
 													'p',
-													{ className: 'location' },
+													{ className: 'location', style: { display: websiteDisplay } },
 													React.createElement('i', { className: 'fa fa-tablet' }),
 													React.createElement(
 														'a',

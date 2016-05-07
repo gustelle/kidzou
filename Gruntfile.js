@@ -133,6 +133,8 @@ module.exports = function(grunt) {
 
 	//lancement de grunt par defaut
 	grunt.registerTask('default', ['jshint','copy:divi', 'copy:k4']);
+
+	//pour compiler les jsx
 	grunt.registerTask('deploy', ['babel','copy:divi', 'copy:k4']);
 
 

@@ -278,7 +278,7 @@ var PostPreview = React.createClass({
       isTypeEvent : isTypeEvent,
       startDate   : isTypeEvent ? moment(self.props.data.dates.start_date, 'YYYY-MM-DD HH:mm:ss') : '',
       endDate     : isTypeEvent ? moment(self.props.data.dates.end_date, 'YYYY-MM-DD HH:mm:ss') : '',
-      singleDay   : (isTypeEvent && noEndDate) || (isTypeEvent && self.props.data.dates.start_date===self.props.data.dates.end_date),
+      singleDay   : (isTypeEvent && noEndDate) || (isTypeEvent && moment(self.props.data.dates.start_date, 'YYYY-MM-DD HH:mm:ss').dayOfYear()===moment(self.props.data.dates.end_date, 'YYYY-MM-DD HH:mm:ss').dayOfYear()),
       isLoaded    : false, //marker pour le rafraichissement des votes au départ
     };
   },
