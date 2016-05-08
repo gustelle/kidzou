@@ -1047,29 +1047,28 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
                 // ACTUAL DECLARATION OF SECTIONS
                 $this->sections[] = array(
-                    'title'     => __('Int&eacute;gration avec Apache mod_pagespeed', 'kidzou'),
+                    'title'     => __('Apache mod_pagespeed', 'kidzou'),
                     'icon'      => 'fa fa-bolt',
                     'fields'    => array(
 
-                            array(
-                                'id'=>'perf_js_no_async',
-                                'type' => 'multi_text',
-                                'title' => __('Prot&eacute;ger les scripts suivants de l&apos;optimisation defer/async', 'kidzou'),
-                                'subtitle' => __('Cela pose le tag <em>data-pagespeed-no-defer</em> sur les scripts concern&eacute;s', 'kidzou'),
-                            ),
+                        array(
+                            'id'=>'perf_js_no_async',
+                            'type' => 'multi_text',
+                            'title' => __('Prot&eacute;ger les scripts suivants de l&apos;optimisation defer/async', 'kidzou'),
+                            'subtitle' => __('Cela pose le tag <em>data-pagespeed-no-defer</em> sur les scripts concern&eacute;s', 'kidzou'),
+                        ),
 
+                        array(
+                            'id'        => 'perf_remove_css_id',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
+                            'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
 
-                            array(
-                                'id'        => 'perf_remove_css_id',
-                                'type'      => 'checkbox',
-                                'default'      => '0',
-                                'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
-                                'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
-
-                            ),
-                            
-                        )
-                    );
+                        ),
+                        
+                    )
+                );
 
                     $this->sections[] = array(
                         'title'     => __('Notes de Livraisons', 'kidzou'),

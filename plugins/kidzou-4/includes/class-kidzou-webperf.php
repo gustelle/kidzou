@@ -20,7 +20,6 @@ class Kidzou_WebPerf {
 	 * @var      object
 	 */
 	protected static $instance = null;
-	
 
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
@@ -32,6 +31,7 @@ class Kidzou_WebPerf {
 
 		if (!Kidzou_Utils::is_really_admin())
 		{
+
 			//protecter des scripts contre l'optimisation defer_javascript 
 			add_filter('script_loader_tag', array($this,'no_defer'), 11, 2);
 
@@ -69,12 +69,12 @@ class Kidzou_WebPerf {
 	 */
 	public static function no_defer($html, $handle) {
 
-		$list = Kidzou_Utils::get_option('perf_css_no_combine', array());
-
+		$list = Kidzou_Utils::get_option('perf_js_no_async', array()) ;
+		
 		if (!is_admin() && count($list)>0 )
 		{
-			foreach ($list as $excluded) {
-				if (trim($excluded)==$handle) return preg_replace("/<script/", "<script data-pagespeed-no-defer", $html);
+			foreach ($list as $exclusion) {
+				if (trim($exclusion)==$handle) return preg_replace("/<script/", "<script data-pagespeed-no-defer", $html);
 			}
 			return $html;
 		}
