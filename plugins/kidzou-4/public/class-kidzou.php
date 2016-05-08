@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Spring16+fix2';
+	const VERSION = 'Spring16-HomePortfolio';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Des correctifs pour mes 40 ans";
+	public static $version_description = "Un portfolio plus vivant";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
