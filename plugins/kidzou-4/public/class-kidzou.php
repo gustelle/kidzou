@@ -30,7 +30,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Spring16-HomePortfolio';
+	const VERSION = 'Spring16-mod_pagespeed';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +39,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Un portfolio plus vivant";
+	public static $version_description = "Amélioration de l'integration avec mod_pagespeed";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
