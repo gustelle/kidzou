@@ -1047,34 +1047,15 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
 
                 // ACTUAL DECLARATION OF SECTIONS
                 $this->sections[] = array(
-                    'title'     => __('Performances', 'kidzou'),
+                    'title'     => __('Apache mod_pagespeed', 'kidzou'),
                     'icon'      => 'fa fa-bolt',
                     'fields'    => array(
-
-                            array(
-                                'id'        => 'perf_activate_js',
-                                'type'      => 'checkbox',
-                                'default'   => '0',
-                                'title'     => __('Optimiser le chargement des JS par ajout de l&apos;attribut <em>async defer</em>', 'kidzou'),
-                                'subtitle'  => __('Les JS seront mis en footer et charg&eacute;s en <em>async defer</em>', 'kidzou'),
-
-                            ),
 
                             array(
                                 'id'=>'perf_js_no_async',
                                 'type' => 'multi_text',
                                 'title' => __('Exclure les Javascripts suivants d&apos;un chargement asynchrone', 'kidzou'),
-                                'subtitle' => __('Cela n&apos;est utile que si les chargements asynchrones sont actifs', 'kidzou'),
-                            ),
-
-
-                            array(
-                                'id'        => 'perf_activate_css',
-                                'type'      => 'checkbox',
-                                'default'      => '0',
-                                'title'     => __('Optimiser le chargement des CSS', 'kidzou'),
-                                'subtitle'  => __('Les CSS seront charg&eacute;s en background en asynchrone par un Javascript', 'kidzou'),
-
+                                'subtitle' => __('Les scripts concern&eacute;s seront prot&eacute;g&eacute;s par <em>data-pagespeed-no-defer<em>', 'kidzou'),
                             ),
 
                             array(
@@ -1085,35 +1066,7 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                                 'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
 
                             ),
-
-                            array(
-                                'id'=>'perf_css_in_header',
-                                'type' => 'multi_text',
-                                'title' => __('Ne pas optimiser les CSS suivantes', 'kidzou'),
-                                'subtitle' => __('Les CSS list&eacute;es seront charg&eacute;es dans le footer. Il faut saisir les handle des CSS - Un handle par ligne', 'kidzou'),
-                            ),
-
-                            // array(
-                            //     'id'=>'perf_js_root_dependency',
-                            //     'type' => 'multi_text',
-                            //     'title' => __('Charger les Javascripts suivants en priorit&eacute;', 'kidzou'),
-                            //     'subtitle' => __('Ce sont par exemple les Javascripts qui sont utilis&eacute;s par les autres', 'kidzou'),
-                            // ),
-
-                            // array(
-                            //     'id'        => 'perf_add_async_attr',
-                            //     'type'      => 'checkbox',
-                            //     'default'      => '0',
-                            //     'title'     => __('Charger les Javascripts avec l&apos;attribut async', 'kidzou'),
-                            // ),
-
                             
-                            array(
-                                'id'=>'perf_css_no_combine',
-                                'type' => 'multi_text',
-                                'title' => __('Ne pas combiner les CSS suivants avec les autres', 'kidzou'),
-                                'subtitle' => __('Cela n&apos;est utile que si les l&apos;option de combinaison CSS est active', 'kidzou'),
-                            ),
                             
                         )
                     );
