@@ -2,8 +2,14 @@
 <h5>Mai 2016</h5>
 <ul>
 	<li>Dynamisation des portfolio de posts pour les événements de longue durée</li>
+	<li>Fix : Amélioration de performance dans l'intégration Redux/Kidzou/GravityForms sur $users_list (import_author_id)</li>
+	<li>Fix : Compatibilité Wordpress 4.5.2 (désactivation Web API de Gravity Forms)</li>
+	<li>Redirection vers une page custom pour la saisie d'événement</li>
 
-	<li>TODO : faire fonctionner mod_pagespeed avec react en prod</li>
+	<li>TOFIX : get_users_list() dans options-init.php:1286 appelé de nombreuses fois</li>
+	<li>TOFIX : Les URL lille/agenda/ renvoient un 404</li>
+
+	<li>TODO : Simplifier le formulaire de saisie d'article pour les contributeurs</li>
 	<li>TODO : React Vote</li>
 	<li>TODO : faire fonctionner mod_pagespeed avec react en prod (fix du reload de page)</li>
 	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>

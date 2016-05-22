@@ -69,27 +69,9 @@ module.exports = function(grunt) {
 		  }
 		},
 
-		//compilation des JSX React
-		// babel: {
-		// 	options: {
-		// 		plugins: ['transform-react-jsx'],
-		// 		presets: ['es2015', 'react']	
-		// 	},
-		// 	jsx: {
-		// 		files: [{
-		// 		  expand: true,
-		// 		  cwd: '<%= cfg.kidzou_path %>/admin/assets/js/jsx/', // Custom folder
-		// 		  src: ['*.jsx'],
-		// 		  dest: '<%= cfg.kidzou_path %>/admin/assets/js', // Custom folder
-		// 		  ext: '.js'
-		// 		}]
-		// 	}
-		// },
-
-
 		babel: {
 			options: {
-				plugins: ['transform-react-jsx'],
+				plugins: ['transform-object-rest-spread','transform-react-jsx'],
 				presets: ['es2015', 'react']
 			},
 			jsx: {

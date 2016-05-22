@@ -10,13 +10,7 @@
  */
 
 /**
- * Plugin class. This class should ideally be used to work with the
- * public-facing side of the WordPress site.
- *
- * If you're interested in introducing administrative or dashboard
- * functionality, then refer to `class-plugin-name-admin.php`
- *
- * @TODO: Rename this class to a proper name for your plugin.
+ * Entry plugin class, Gere les réglages généraux 
  *
  * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
@@ -30,7 +24,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Spring16-mod_pagespeed';
+	const VERSION = 'Spring16-others';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -39,7 +33,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "Amélioration de l'integration avec mod_pagespeed";
+	public static $version_description = "compatibilité Wordpress 4.5.2";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
@@ -115,6 +109,9 @@ class Kidzou {
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
 		add_action('wp_head', array( $this, 'insert_pub_header'));
 
+
+		//redirection après login
+		add_filter( 'login_redirect', array($this, 'login_redirect'), 10, 3 );
 	}
 
 
@@ -589,9 +586,7 @@ class Kidzou {
 	 * @since    1.0.0
 	 */
 	public function enqueue_styles() {
-		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );
-		wp_enqueue_style( 'fontello', "https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
-	
+		wp_enqueue_style( $this->plugin_slug . '-plugin-styles', plugins_url( 'assets/css/public.css', __FILE__ ), array(), self::VERSION );	
 	}
 
 	/**
@@ -872,4 +867,28 @@ class Kidzou {
 		return $form;
 	}
 
+	/**
+	 * Gere les options de redirection vers une page custom après que le user se soit authentifié 
+	 * (à condition que le user ne soit pas admin)
+	 * Les users admin sont redirigés vers /wp-admin 
+	 *
+	 */
+	public function login_redirect($redirect_to, $request, $user) {
+
+		if ( isset( $user->roles ) && is_array( $user->roles ) ) {
+			//check for admins
+			if ( in_array( 'administrator', $user->roles ) ) {
+				// redirect them to the default place
+				return $redirect_to;
+			} else if (Kidzou_Utils::get_option('login_redirect',false)) {
+				// redirect them to the custom page
+				return get_permalink(Kidzou_Utils::get_option('login_redirect_page', 0));
+			} else {
+				return $redirect_to;
+			}
+
+		} else {
+			return $redirect_to;
+		}
+	}
 }

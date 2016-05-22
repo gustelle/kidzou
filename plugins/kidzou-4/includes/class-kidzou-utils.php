@@ -344,6 +344,73 @@ class Kidzou_Utils {
 	}
 
 	/**
+	 * Télécharge un media au format Base64 dans le fichier d'upload Wordpress
+	 *
+	 * @param data String le binaire au format Base64
+	 * @param filename String le nom du media a enregistrer
+	 * @param parent_id int ID du WP_Post auquel est attaché le media
+	 * @return (int|WP_Error) The post ID on success. The value 0 or WP_Error on failure.
+	 *
+	 **/
+	public static function uploadBase64($filename='', $data='', $parent_id=0) {
+
+		if ($data=='') return new WP_Error( 'no data', __( "Pour enregistrer une image au format Base64, encore faut il des données", "kidzou" ) );
+
+	    if ($filename=='') $filename = 'uploaded_'.uniqid();
+
+	    preg_match('/^data:(.+);base64,/', $data, $type);
+
+	    Kidzou_Utils::log('uploadBase64 : '.$type[0], true);
+
+		$upload_dir       = wp_upload_dir();
+
+		// @new
+		$upload_path      = str_replace( '/', DIRECTORY_SEPARATOR, $upload_dir['path'] ) . DIRECTORY_SEPARATOR;
+
+		$parts = preg_split('/[,]/', $data);
+		$img = $parts[1];
+
+		$decoded          = base64_decode($img) ;
+
+		$hashed_filename  = md5( $filename . microtime() ) . '_' . $filename;
+
+		// @new
+		$image_upload     = file_put_contents( $upload_path . $hashed_filename, $decoded );
+
+		//HANDLE UPLOADED FILE
+		if( !function_exists( 'wp_handle_sideload' ) ) {
+		  require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		}
+
+		// @new
+		$file             = array();
+		$file['error']    = '';
+		$file['tmp_name'] = $upload_path . $hashed_filename;
+		$file['name']     = $hashed_filename;
+		$file['type']     = $type[0];
+		$file['size']     = filesize( $upload_path . $hashed_filename );
+
+		// upload file to server
+		// @new use $file instead of $image_upload
+		$file_return      = wp_handle_sideload( $file, array( 'test_form' => false ) );
+
+		$filename = $file_return['file'];
+		$attachment = array(
+			'post_mime_type' => $file_return['type'],
+			'post_title' => preg_replace('/\.[^.]+$/', '', basename($filename)),
+			'post_content' => '',
+			'post_status' => 'inherit',
+			'guid' => $wp_upload_dir['url'] . '/' . basename($filename)
+		);
+		$attach_id = wp_insert_attachment( $attachment, $filename, $parent_id ); 
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+
+		return $attach_id;
+	}
+
+	/**
 	 * renvoie l'URL de la thumbnail d'un post
 	 *
 	 * @return URL (String)
