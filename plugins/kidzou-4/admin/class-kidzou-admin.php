@@ -402,7 +402,7 @@ class Kidzou_Admin {
 	public function enqueue_admin_styles() {
 
 		//on a besoin de font awesome dans le paneau d'admin
-		wp_enqueue_style( 'fontello', "https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css", null, '3.0.2' );
+		wp_enqueue_style( 'fontello', "https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css", null, '3.0.2' );
 		wp_enqueue_style( 'kidzou-admin-styles', plugins_url( 'assets/css/admin.css', __FILE__ ), array(), Kidzou::VERSION );
 
 	}

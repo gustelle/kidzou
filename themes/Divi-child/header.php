@@ -124,13 +124,14 @@
 							__('Vos favoris','Divi')
 						);	
 
-						echo '&nbsp;|&nbsp;';
-
-						printf(
-							'<a href="%1$s" class="font-bigger"><i class="fa fa-pencil"></i><span>%2$s</span></a>&nbsp;', 
-							get_admin_url(),
-							current_user_can('edit_posts') ? 'G&eacute;rer vos articles' : 'Votre profil'
-						);	
+						if (current_user_can('edit_posts') && Kidzou_Utils::get_option('login_redirect', false)) {
+							echo '&nbsp;|&nbsp;';
+							printf(
+								'<a href="%1$s" class="font-bigger"><i class="fa fa-plus"></i><span>%2$s</span></a>&nbsp;', 
+								get_permalink(Kidzou_Utils::get_option('login_redirect_page', 0)),
+								'Ajouter un &eacute;v&eacute;nement' 
+							);	
+						}
 
 						echo '&nbsp;|&nbsp;<a class="font-bigger" href="'.wp_logout_url( get_permalink() ).'" title="'.__('Deconnexion','Divi').'">'.__('Deconnexion','Divi').'</a>';
 
