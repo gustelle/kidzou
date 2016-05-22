@@ -229,21 +229,30 @@ class JSON_API_Content_Controller {
 			foreach ($urlMedia as $media) {
 				$image_src = media_sideload_image($media, $post_id, $titre, 'src');
 
-				//beurk...
-				//recuperer l'attachment 
-				global $wpdb;
-				$query = "SELECT ID FROM {$wpdb->posts} WHERE guid='$image_src'";
-				$attach_id 	= $wpdb->get_var($query);
-				$attach_data = wp_generate_attachment_metadata( $attach_id, get_attached_file( $attach_id ) );
-				wp_update_attachment_metadata( $attach_id, $attach_data );
+				if (!is_wp_error($image_src)) {
+					//beurk...
+					//recuperer l'attachment 
+					global $wpdb;
+					$query = "SELECT ID FROM {$wpdb->posts} WHERE guid='$image_src'";
+					$attach_id 	= $wpdb->get_var($query);
+					
+					if (wp_attachment_is_image($attach_id)) {
 
-				if (!$has_thumb && wp_attachment_is_image($attach_id)) {
-					set_post_thumbnail($post_id, $attach_id);
-					$has_thumb = true;
+						$attach_data = wp_generate_attachment_metadata( $attach_id, get_attached_file( $attach_id ) );
+						wp_update_attachment_metadata( $attach_id, $attach_data );
+
+						if (!$has_thumb) {
+							set_post_thumbnail($post_id, $attach_id);
+							$has_thumb = true;
+						} else {
+							//add to gallery
+							$gallery_ids[] = $attach_id;
+						}
+					}
 				} else {
-					//add to gallery
-					$gallery_ids[] = $attach_id;
+					Kidzou_Utils::log($image_src, true);
 				}
+				
 			}
 		}
 
@@ -256,7 +265,7 @@ class JSON_API_Content_Controller {
 					//add to gallery
 					$gallery_ids[] = $attach_id;
 				}
-				Kidzou_Utils::log('attached to '.$post_id. ' : '.$attach_id, true);
+				// Kidzou_Utils::log('attached to '.$post_id. ' : '.$attach_id, true);
 			}
 		}
 
