@@ -3710,6 +3710,7 @@ body .form_saved_message {
 .kz_form .form_hint {display: block; padding:10px; margin: 10px 0;} 
 .kz_form .form_hint.valid {background-color:#ccedc9 ; color: #28921f;} 
 .kz_form .form_hint.invalid {background-color: #f9eaec; color: #ED5565 ;} 
+.kz_form .form_hint.progress {background-color:#FFC000 ; color: currentColor;} 
 
 @media only screen and ( max-width: 479px ) {
 	.kz_form_field  {

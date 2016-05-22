@@ -159,9 +159,15 @@ var EventForm = React.createClass({
 
       //dates
       if (self.dates.state.from == null || self.dates.state.to == null) {
-        self._datesHint.onError('Merci d\'indiquer la date');
+        self._datesHint.onError('Merci d\'indiquer la date de debut et de fin');
         isError = true;
       }
+
+      if (self.state.uploadedMedia.length == 0 && self.state.urlMedia.length == 0) {
+        self._mediaHint.onError('Au moins une image est necessaire');
+        isError = true;
+      }
+
       //uploadedMedia
       if (isError) errorCallback();else successCallback();
     };
@@ -211,17 +217,20 @@ var EventForm = React.createClass({
             jQuery.post(import_jsvars.api_create_post + '?nonce=' + data.nonce + '&key=' + import_jsvars.api_key, sendit).done(function (resp) {
               if (!resp.status || resp.status == 'error') {
                 console.log('error', resp);
+                self.setState({ submitButtonState: 'error' });
                 self.submitMessage.onError('Une erreur s\'est produite !');
               }
 
               //ce marker va bloquer la revalidation du form
+              self.setState({ submitButtonState: 'success' });
+              self.submitMessage.onProgress('Votre evenement a ete cree, vous allez etre redirige vers sa pre-visualisation');
               self.setState({ postCreated: true });
-              self.submitButton.disable();
-              self.submitMessage.onSuccess('Votre evenement a ete cree, vous allez etre redirige vers sa pre-visualisation');
+              // self.submitButton.disable();
               //rediriger vers un preview du post
               window.location = resp.post_preview_url;
             }).fail(function (e) {
               console.log('fail', e);
+              self.setState({ submitButtonState: 'error' });
               self.submitMessage.onError('Une erreur s\'est produite !');
             });
           }
@@ -235,11 +244,9 @@ var EventForm = React.createClass({
         //on success
         // console.debug('checkForm success');
         sendData();
-        self.setState({ submitButtonState: 'success' });
       }, function () {
         //on failure
         // console.debug('checkForm failure');
-        self.setState({ submitButtonState: 'error' });
       });
     }
   },
@@ -719,7 +726,7 @@ var EventForm = React.createClass({
         React.createElement(HintMessage, { ref: function ref(c) {
             return _this.submitMessage = c;
           } }),
-        React.createElement(
+        !this.state.postCreated && React.createElement(
           ProgressButton,
           { type: 'submit',
             durationSuccess: 2000,
