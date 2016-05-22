@@ -24,7 +24,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'Spring16-others';
+	const VERSION = 'EventEditor_fix1';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -33,7 +33,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	public static $version_description = "compatibilité Wordpress 4.5.2";
+	public static $version_description = "Page custom de creation d'evenement";
 
 	/**
 	 * @TODO - Rename "plugin-name" to the name of your plugin
