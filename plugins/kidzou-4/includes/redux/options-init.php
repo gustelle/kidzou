@@ -140,7 +140,11 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
             }
 
             //pour selectionner un user dans les options d'import de contenu
-            $users_list = get_users_list('contributeur_pro');
+            $_users = get_users(array('role'=>'contributeur_pro', 'fields' => array( 'ID','user_login','display_name' )));
+            $users_list = array();
+            foreach ($_users as $_u) {
+                $users_list[$_u->ID]= $_u->user_login.' ('.$_u->display_name.')';
+            }
 
             //intégration Gravity Forms
             $gf = false;
@@ -157,16 +161,19 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 }
                 
                 //une fois le formulaire selectionné, on va chercher les champs
-                $selected_form = $previous_options['gf_form_id'];
                 $fields_options = array();
-                if (intval($selected_form)>0) {
-                    $fields = GFAPI::get_form( $selected_form );
-                    $fields = $fields['fields'];
-                    foreach ($fields as $field) {
-                        // eécho $field->id;
-                        $fields_options[$field->id] = $field->label; 
+                if ( isset($previous_options['gf_form_id']) ) {
+                    $selected_form = $previous_options['gf_form_id'];
+                    if (intval($selected_form)>0) {
+                        $fields = GFAPI::get_form( $selected_form );
+                        $fields = $fields['fields'];
+                        foreach ($fields as $field) {
+                            // eécho $field->id;
+                            $fields_options[$field->id] = $field->label; 
+                        }
                     }
                 }
+                
             }
 
 
@@ -183,6 +190,22 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                             'data'      => 'page',
                             'title'     => __('Page de login', 'kidzou'),
                             'subtitle'  => __('Ben c&apos;est l&agrave; qu&apos;on se connecte', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'login_redirect',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Rediriger l&apos;utilisateur apr&egrave;s login', 'kidzou'),
+                            'subtitle'  => __('Sinon, le user atteri dans l&apos;interface d&apos;admin', 'kidzou'),
+                        ),
+
+                        array(
+                            'id'        => 'login_redirect_page',
+                            'type'      => 'select',
+                            'data'      => 'page',
+                            'title'     => __('Page de redirection apr&egrave;s login', 'kidzou'),
+                            'subtitle'  => __('Ne fonctionne que si l&apos;option ci-dessus est coch&eacute;e', 'kidzou'),
                         ),
 
                         array(
@@ -1222,25 +1245,6 @@ if (!function_exists('get_mailchimp_lists')):
         // Kidzou_Utils::log($lists);
         
         return $lists;
-    }
- 
-endif;
-
-/**
- * Options de selection d'un user
- **/
-if (!function_exists('get_users_list')):
- 
-    function get_users_list($role) {
-
-        $list = array();
-
-        $users= get_users( array('role'=>$role) );
-        foreach ( $users as $user ) {
-            $list[$user->ID] = $user->user_login.' ('.$user->display_name.')';
-        }
-        
-        return $list;
     }
  
 endif;

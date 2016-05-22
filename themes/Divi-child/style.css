@@ -72,7 +72,7 @@ body.et_boxed_layout {
 a { text-decoration: none; color: #7EBEC5; }
 a:hover { text-decoration: none; }
 .clear { clear: both; }
-.ui-tabs-hide { display: none; }
+.hide,.ui-tabs-hide { display: none; }
 br.clear { margin: 0px; padding: 0px; }
 
 h1, h2, h3, h4, h5, h6 { color: #333; padding-bottom: 10px; line-height: 1em; font-weight: 500; }
@@ -3670,3 +3670,67 @@ body .form_saved_message {
 	margin: 1em;
 	padding: 1em;
 }
+
+
+
+/*-------------------[Formulaires, ex: saisie d'événement]------------------*/
+
+.kz_form_field {width: 100%; margin-bottom: 1em;}
+.kz_form_field > * { padding: 1em 0; }
+.kz_form_field label {font-size: 1.7em; font-weight: 500; width: 100%; padding-bottom: 0.8em; display: block; font-family:'Bree Serif',Georgia,"Times New Roman",serif;}
+.kz_form_field textarea, .kz_form_field input {font-size: 1.3em; font-weight: 400; width: 100%; padding: 14px; padding-right: 0; display: block; color: #666; background-color: #fff; font-weight: 400; -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
+.kz_form_field textarea:focus, .kz_form_field input:focus, .kz_form_field input[type]:focus {   
+    border-color: #1ea4e8;
+    box-shadow: 0 1px 1px #a0cee5 inset, 0 0 8px #a0cee5;
+    outline: 0 none;
+}
+.kz_form_field_group { border-top : 1px solid #e7e7e7; padding: 20px; margin-top: 40px;}
+.kz_form_field_group h2 {padding-bottom: 20px;}
+.kz_form_field_group .kz_form_field {margin-bottom: 2em;}
+.kz_form_field_group .kz_form_field input, .kz_form_field_group .kz_form_field textarea {border:1px solid #bbb; display:inline-block; vertical-align:top;}
+.kz_form_field_group .kz_form_field label, .kz_form_field .inline label { display:inline-block; width: 20%; font-size: 1.2em; padding-bottom:0; vertical-align:top;}
+.kz_form_field_group .kz_form_field input, .kz_form_field_group .kz_form_field textarea, .kz_form_field .inline input, .kz_form_field .inline textarea { display:inline-block; width: 50%; }
+
+.kz_form_field .mandatory, .kz_form_field_group .mandatory {color:#ED5565;}
+
+.kz_form_field_group .mediaPreview {display: inline; margin: 0 10px;}
+.kz_form_field_group .mediaPreview i { display: block; text-align: center; }
+.kz_form_field_group .mediaPreview .previewBlock, 
+.kz_form_field_group .mediaPreview .noPreview,
+.kz_form_field_group .mediaPreview .incorrectType {display: inline-block; height: 200px; margin-left: 10px; max-width: 200px}
+.kz_form_field_group .mediaPreview img {display: block; max-width: 140px; max-height: 140px; padding: 10px; vertical-align: middle; margin-top: 10px; margin-left: 10px; overflow: hidden;}
+.kz_form_field_group .mediaPreview img+a {display: inline-block; text-align: center; width: 100%}
+.kz_form_field_group .mediaPreview .noPreview {border: 3px dashed #e7e7e7; padding: 10px; vertical-align: top; }
+.kz_form_field_group .mediaPreview .incorrectType {background-color:#ED5565; color:#fff; padding: 10px; vertical-align: top; }
+
+.kz_form_field_group .mediaDropZone {display: inline-block; padding: 10px; margin: 10px; font-size: 1.1em;width: 200px;height: 200px;border: 3px dashed #e7e7e7;-moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
+.kz_form_field_group .kz_box, .kz_form_field .kz_box {padding: 20px 20px; width: auto; margin: 10px; -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
+.kz_form_field_group .kz_box .fa, .kz_form_field .kz_box .fa {background-color: white;text-align: center; vertical-align: middle;padding-right: 0;  -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px;}
+
+.kz_form .form_hint {display: block; padding:10px; margin: 10px 0;} 
+.kz_form .form_hint.valid {background-color:#ccedc9 ; color: #28921f;} 
+.kz_form .form_hint.invalid {background-color: #f9eaec; color: #ED5565 ;} 
+
+@media only screen and ( max-width: 479px ) {
+	.kz_form_field  {
+	}	
+}
+
+@media only screen and (max-width: 767px) {
+	.kz_form_field .inline label,
+	.kz_form_field .inline input, 
+	.kz_form_field .inline textarea, 
+	.kz_form_field_group .kz_form_field input, 
+	.kz_form_field_group .kz_form_field textarea { width: 100% !important; }
+	.kz_form_field_group .kz_form_field label {display: block; width: 100%; padding-bottom: 10px;}
+	.kz_form_field_group .kz_box, .kz_form_field .kz_box {padding: 0 !important;}
+}
+@media only screen and (max-width: 980px) {
+	.kz_form_field {text-align: left;}
+	.kz_form_field .inline label,
+	.kz_form_field .inline input, 
+	.kz_form_field .inline textarea, 
+	.kz_form_field_group .kz_form_field input, 
+	.kz_form_field_group .kz_form_field textarea { width: 70%; }
+}
+

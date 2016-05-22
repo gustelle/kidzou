@@ -13,7 +13,6 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Kidzou 4
- * Plugin URI:        @TODO
  * Description:       4e version de la plateforme de contenu dédié à la famille, a l'occasion du 4e anniversaire de Kidzou
  * Version:           1.0.0
  * Author:            Guillaume Patin
@@ -22,7 +21,6 @@
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
- * GitHub Plugin URI: https://github.com/<owner>/<repo>
  * WordPress-Plugin-Boilerplate: v2.6.1
  */
 
@@ -36,9 +34,9 @@ if ( ! defined( 'WPINC' ) ) {
  *----------------------------------------------------------------------------*/
 
 $directories = array(
-            'public/', //obligé pour Kidzou.php
-            'public/includes/', //obligé pour le traitement des shortcodes dans l'admin
-            'includes/',
+            'public/',          //loads class-kidzou.php
+            // 'public/includes/', 
+            'includes/',        //loads the core business classes
             'includes/query/',
             'includes/TGM/',
             'includes/Carbon/',
@@ -111,15 +109,8 @@ if ( is_admin() || defined( 'DOING_CRON' ) ) {
             'admin/',
             'admin/includes/',
             'admin/views/',
-            'admin/includes/simplehtmldom/'
-            // 'admin/includes/stringEncode/',
-            // 'admin/includes/PHPHtmlParser/',
-            // 'admin/includes/PHPHtmlParser/Dom/',
-            // 'admin/includes/PHPHtmlParser/Exceptions/',
+            // 'admin/includes/simplehtmldom/'
     );
-
-    //importer en premier cette classe pour éviter erreur d'import de PHPHtmlParser
-    // include_once 'admin/includes/PHPHtmlParser/CurlInterface.php';
 
     foreach ($admin_directories as $admin_directory) {
         foreach(glob( plugin_dir_path( __FILE__ ) .$admin_directory . "*.php") as $admin_class) {

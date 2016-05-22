@@ -60,7 +60,6 @@ class Kidzou_Metropole {
 
 		if (!Kidzou_Utils::is_really_admin())
 		{
-			// self::$locator = new Kidzou_Geolocator();
 
 			//Le filtrage n'est pas actif pour certaines requetes, typiquement les API
 			add_filter( 'post_link', array( $this, 'rewrite_post_link' ) , 10, 2 );
@@ -768,8 +767,6 @@ class Kidzou_Metropole {
 	 */
 	public  function rewrite_post_link( $permalink, $post ) {
 
-		// $locator = self::$locator;
-
 		if ($this->is_request_metro_filter() )
 		{
 			$m = urlencode($this->get_request_metropole());
@@ -797,8 +794,6 @@ class Kidzou_Metropole {
 	 */
 	public function rewrite_page_link( $link, $page ) {
 
-		// $locator = self::$locator;
-
 		if ($this->is_request_metro_filter())
 		{
 			$m = urlencode($this->get_request_metropole());
@@ -825,8 +820,6 @@ class Kidzou_Metropole {
 	 */
 	public function rewrite_term_link( $url, $term, $taxonomy ) {
 
-		// $locator = self::$locator;
-
 		if ($this->is_request_metro_filter())
 		{
 
@@ -844,12 +837,40 @@ class Kidzou_Metropole {
 		//supprimer le TAG si pas de metropole en requete
 		if (preg_match('/'.self::REWRITE_TAG.'/', $url))
 			$url = str_replace( self::REWRITE_TAG, '' , $url );
-
-		//recuperer la trace complete d'appel pour les cas ou l'URL n'est pas convertie (il reste des %kz_metropole%)
-		// if (preg_match('/'.Kidzou_GeoHelper::REWRITE_TAG.'/', $url))
-		//  	Kidzou_Utils::printStackTrace();
 	 
 	    return $url; 
+	}
+
+	/**
+	 * Le post est associé à la metropole du user
+	 * 
+	 * @see Kidzou_Admin::enrich_profile() Association d'un user avec une métropole
+	 * @param int $post_id The ID of the post currently being edited.
+	 **/
+	private function set_user_metropole($post_id, $user_id=0)
+	{
+	    if (!$post_id) return;
+
+	    if ($user_id=0) {
+	    	$user_id = get_current_user_id();
+	    }
+
+	    if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
+			return ;
+
+	    //la metropole est la metropole de rattachement du user
+	    $metropoles = wp_get_object_terms( $user_id, 'ville', array('fields' => 'all') );
+
+	    if (!empty($metropoles) && count($metropoles)>0) {
+		    //bon finalement on prend la premiere metropole
+		    $ametro = $metropoles[0];
+		    $metro_id = $ametro->term_id;
+	    } else {
+
+	    	$metro_id = Kidzou_Utils::get_option('geo_default_metropole'); //init : ville par defaut
+	    }
+
+	    $result = wp_set_post_terms( $post_id, array( intval($metro_id) ), 'ville' );
 	}
 
 
