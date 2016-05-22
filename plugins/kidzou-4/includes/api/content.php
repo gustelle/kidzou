@@ -129,7 +129,7 @@ class JSON_API_Content_Controller {
 				'post_author'		=>	$author_id,
 				'post_title'		=>	wp_strip_all_tags($titre),
 				'post_content'		=>  $description.'<br/>'.$infos.'<br/>'.$template_append,
-				'post_status'		=>	'draft',
+				'post_status'		=>	'pending',
 				'post_type'			=>	'post',
 			)
 		);
