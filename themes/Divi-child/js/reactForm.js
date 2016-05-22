@@ -21,6 +21,7 @@ var HintMessage = React.createClass({
     return {
       valid: false,
       show: false,
+      progress: false,
       iconClass: '',
       message: '',
       _isMounted: false
@@ -37,11 +38,12 @@ var HintMessage = React.createClass({
 
   render: function render() {
     var validClass = this.state.valid ? 'form_hint valid' : 'form_hint invalid';
+    var displayClass = this.state.progress ? 'form_hint progress' : validClass;
     var displayStyle = this.state.show ? { display: 'block' } : { display: 'none' };
     // console.debug('HintMessage', this.state.message);
     return React.createElement(
       'div',
-      { className: validClass, style: displayStyle },
+      { className: displayClass, style: displayStyle },
       React.createElement('i', { className: this.state.iconClass }),
       this.state.message
     );
@@ -52,7 +54,8 @@ var HintMessage = React.createClass({
       self.setState({
         valid: true,
         show: true,
-        iconClass: 'fa fa-spinner fa-spin',
+        progress: true,
+        iconClass: 'fa fa-spinner fa-spin fa-2x',
         message: _message
       });
     }
@@ -63,7 +66,8 @@ var HintMessage = React.createClass({
       self.setState({
         valid: true,
         show: true,
-        iconClass: 'fa fa-check',
+        progress: false,
+        iconClass: 'fa fa-check fa-2x',
         message: _message
       });
       if (autoFadeOut) {
@@ -71,6 +75,7 @@ var HintMessage = React.createClass({
           self.setState({
             valid: false,
             show: false,
+            progress: false,
             iconClass: '',
             message: ''
           });
@@ -84,6 +89,7 @@ var HintMessage = React.createClass({
       self.setState({
         valid: false,
         show: true,
+        progress: false,
         iconClass: 'fa fa-exclamation-circle',
         message: _message
       });
@@ -92,6 +98,7 @@ var HintMessage = React.createClass({
           self.setState({
             valid: false,
             show: false,
+            progress: false,
             iconClass: '',
             message: ''
           });
