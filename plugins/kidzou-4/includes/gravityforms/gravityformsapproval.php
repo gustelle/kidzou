@@ -334,7 +334,7 @@ if ( class_exists( 'GFForms' ) ) {
 					foreach ( $entries as $entry ) {
 						$form = GFAPI::get_form( $entry['form_id'] );
 						if ($entry['created_by']=='') {
-							Kidzou_Utils::log("$entry[created_by] was null, set to current user", true);
+							Kidzou_Utils::log("entry[created_by] was null, set to current user", true);
 							$entry['created_by'] = $current_user->ID ;
 						}
 						$user = get_user_by( 'id', (int) $entry['created_by'] );

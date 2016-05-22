@@ -541,40 +541,12 @@ class Kidzou_Admin {
 	    } else {
 
 	    	//la metropole est la metropole de rattachement du user
-	    	$this->set_user_metropole($post_id);
+	    	// $this->set_user_metropole($post_id);
+	    	Kidzou_Metropole::set_user_metropole($post_id);
 	    } 
 
 	}
 
-	/**
-	 * Le post est associé à la metropole du user
-	 * 
-	 * @see Kidzou_Admin::enrich_profile() Association d'un user avec une métropole
-	 * @param int $post_id The ID of the post currently being edited.
-	 **/
-	private function set_user_metropole($post_id)
-	{
-	    if (!$post_id) return;
-
-	    if( wp_is_post_revision( $post_id) || wp_is_post_autosave( $post_id ) ) 
-			return ;
-
-	    $user_id = get_current_user_id();
-
-	    //la metropole est la metropole de rattachement du user
-	    $metropoles = wp_get_object_terms( $user_id, 'ville', array('fields' => 'all') );
-
-	    if (!empty($metropoles) && count($metropoles)>0) {
-		    //bon finalement on prend la premiere metropole
-		    $ametro = $metropoles[0];
-		    $metro_id = $ametro->term_id;
-	    } else {
-
-	    	$metro_id = Kidzou_Utils::get_option('geo_default_metropole'); //init : ville par defaut
-	    }
-
-	    $result = wp_set_post_terms( $post_id, array( intval($metro_id) ), 'ville' );
-	}
 
 
 	/**

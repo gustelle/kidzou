@@ -1,5 +1,6 @@
 <?php
 
+
 add_action( 'after_setup_theme', 'override_divi_parent_functions');
 
 /**
@@ -77,6 +78,9 @@ function override_divi_parent_functions()
 	//surcharge des JS du parent
 	add_action( 'wp_enqueue_scripts', 'kz_divi_load_scripts' ,99);
 
+	//ajout de CSS
+	add_action( 'wp_enqueue_scripts', 'kz_divi_load_styles' ,100);
+
 	//Alterer les queries des archives : pas de limite / pas de paging
 	add_action( "pre_get_posts", "filter_archive_query" );
 
@@ -95,12 +99,8 @@ function override_divi_parent_functions()
 	remove_shortcode('et_pb_login');
 	add_shortcode( 'et_pb_login', 'kz_pb_login' );
 
-
-	//depuis WP 4.2, WP ajoute des scripts et styles pour supporter les Emojis, 
-	//on s'en fout ?? 
-	//@see https://wordpress.org/support/topic/emoji-and-smiley-js-and-css-added-to-head
-	// remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-	// remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	//formulaire de saisie d'événement
+	add_shortcode( 'event_form', 'kz_event_form' );
 }
 
 
@@ -275,6 +275,11 @@ function kz_divi_load_scripts ()
 	) );
 }
 
+function kz_divi_load_styles ()
+{
+	wp_enqueue_style( 'font-awesome', 'https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css', false, '4.6.3' );
+}
+
 /**
  *
  */
@@ -431,6 +436,94 @@ function kz_pb_login( $atts, $content = null )
 	}
 
 	return $output;
+}
+
+/**
+ * Le formulaire de saisie d'événement est un composant React
+ */
+function kz_event_form( $atts, $content = null ) 
+{
+
+	wp_enqueue_script('react',			'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.js',			array('classnames'), '0.14.7', true);
+	wp_enqueue_script('react-dom',		'https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.js',		array('react'), '0.14.7', true);	
+	wp_enqueue_script('classnames',		'https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js',		array(), '2.2.3', true);
+	wp_enqueue_script('moment',			'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js',	array('jquery'), '2.11.2', true);
+	wp_enqueue_script('moment-locale',	'https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js',		array('moment'), '2.11.2', true);
+	wp_enqueue_script('tweenmax',		'https://cdnjs.cloudflare.com/ajax/libs/gsap/1.18.2/TweenMax.min.js',		array(), '1.18.2', true);
+	wp_enqueue_script('fbImport', 		get_stylesheet_directory_uri().'/js/fbImport.js', 							array(), Kidzou::VERSION, true); 
+	wp_enqueue_script('progressButton', get_stylesheet_directory_uri().'/js/lib/progressButton.js', 				array('react-dom'), Kidzou::VERSION, true); 
+	wp_enqueue_script('dropZone',		get_stylesheet_directory_uri().'/js/lib/dropZone.js', 						array('react-dom'), Kidzou::VERSION, true); 
+	wp_enqueue_script('daypicker-locale-utils', get_stylesheet_directory_uri().'/js/lib/react-DayPicker-LocaleUtils.js', array('moment' ), '1.0', true);
+	wp_enqueue_script('daypicker-date-utils', 	get_stylesheet_directory_uri().'/js/lib/react-DayPicker-DateUtils.js',  array( ), '1.0', true);
+	wp_enqueue_script('daypicker', 		get_stylesheet_directory_uri().'/js/lib/react-DayPicker.js' , 		array( 'daypicker-locale-utils', 'daypicker-date-utils', 'react-dom'), '1.0', true);
+	wp_enqueue_script('radio-group', 	get_stylesheet_directory_uri().'/js/lib/react-radio-group.js', 		array('react-dom'), '1.0', true);
+	wp_enqueue_script('geosuggest', 	get_stylesheet_directory_uri().'/js/lib/react-geosuggest.min.js', 	array('react-dom', 'google-maps'), '1.0', true);
+	wp_enqueue_script('google-maps', 	"https://maps.googleapis.com/maps/api/js?libraries=places&sensor=false",array() ,"1.0", false);
+
+	wp_enqueue_script('reactForm', 		get_stylesheet_directory_uri().'/js/reactForm.js' ,				array('react-dom'), Kidzou::VERSION, true);			
+	wp_enqueue_script( 'eventForm',  	get_stylesheet_directory_uri().'/js/eventForm.js', 				array( 'react-dom', 'progressButton', 'dropZone', 'daypicker', 'radio-group' ), Kidzou::VERSION, true );
+
+	wp_localize_script('fbImport', 'import_jsvars', array(
+			'facebook_appId'		=> Kidzou_Utils::get_option('fb_app_id',''),
+			'facebook_appSecret'	=> Kidzou_Utils::get_option('fb_app_secret',''),
+			'api_create_post'		=> site_url()."/api/content/create_post/",
+			'api_create_post_nonce'	=> site_url().'/api/get_nonce/?controller=content&method=create_post',
+			'api_key'				=> Kidzou_Utils::get_option('api_public_key')[0],
+		)
+	);
+	
+	wp_enqueue_style('progressButton', 	get_stylesheet_directory_uri().'/js/lib/css/progressButton.css', array(), Kidzou::VERSION);
+	wp_enqueue_style('daypicker', 		get_stylesheet_directory_uri().'/js/lib/css/react-DayPicker.css', array(), Kidzou::VERSION);
+	wp_enqueue_style('geosuggest', 		get_stylesheet_directory_uri().'/js/lib/css/geosuggest.css', array(), Kidzou::VERSION);
+
+	////////////////////////////////////////////////////////////////////
+	///
+	/// Reactisation du bazar
+	///
+	////////////////////////////////////////////////////////////////////
+
+	if (!class_exists('ReactJS'))
+		include get_stylesheet_directory().'/includes/react/ReactJS.php';
+
+	$react = new ReactJS(
+	  	// location of React's code and dependencies
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom-server.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/locale/fr.js').
+		file_get_contents('https://cdnjs.cloudflare.com/ajax/libs/classnames/2.2.3/index.min.js'),
+		// app code
+		file_get_contents('js/lib/dropZone.js', 					FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/lib/progressButton.js', 				FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/lib/react-DayPicker-LocaleUtils.js', 	FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/lib/react-DayPicker-DateUtils.js', 	FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/lib/react-radio-group.js', 			FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/eventForm.js', 						FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/reactForm.js', 						FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/lib/react-geosuggest.min.js',			FILE_USE_INCLUDE_PATH).
+		file_get_contents('js/lib/react-DayPicker.js', 				FILE_USE_INCLUDE_PATH)
+	);
+	
+ 	////////////////////////////////////////////////////////////////////
+ 	////////////////////////////////////////////////////////////////////
+ 	//////////////////////////////////////////////////////////////////// 
+
+	$data = array();
+	$react->setComponent('EventForm', $data);
+
+	$form = sprintf('<div id="react_event_form">%1s</div>',
+		$react->getMarkup()
+	);
+
+	$footer_script = $react->getJS('#react_event_form', "EventForm");
+		 	
+ 	//injecter les scripts en footer pour éviter de polluer le HTML
+ 	add_action( 'wp_footer', function() use ($footer_script) { 
+ 		echo '<script>'.$footer_script.'</script>';
+ 	}, 999 );
+
+	return $form;
 }
 
 /**

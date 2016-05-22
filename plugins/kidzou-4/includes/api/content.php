@@ -56,6 +56,7 @@ class JSON_API_Content_Controller {
 
 		//attention aux différentes permissions pour créer un contenu
 		$is_author 		= Kidzou_Utils::current_user_can('can_edit_customer') ;
+		$user_id 		= get_current_user_id();
 		$feedback 		= array();
 
 		$data 			= $_POST['data'];
@@ -64,6 +65,9 @@ class JSON_API_Content_Controller {
 		$description 	= $data['description'];
 		$adresse 		= $data['adresse'];
 		$infos 			= $data['infos'];
+		$urlMedia		= $data['urlMedia'];
+		$uploadedMedia 	= $data['uploadedMedia'];
+
 		$name 			= $titre; 
 
 		//contact info
@@ -106,15 +110,18 @@ class JSON_API_Content_Controller {
 		if ( $is_author && isset($_POST['author_id']) ) {
 			$author_id = intval($_POST['author_id']);
 		} else {
-			//si il n'y pas de user (ex: import depuis un plugin chrome) cette fonction renvoie "0"
-			$author_id = get_current_user_id();
+			//si l'auteur n'est pas passé, l'auteur est le user courant
+			$author_id = $user_id;
 		}
 
-		//recuperer le user "KidzouTeam" si aucun author n'est détecté
+		//recuperer le user "KidzouTeam" si aucun author n'est détecté ni aucun user
+		//pour rappel, à ce stade, l'auteur est le user si il n'est pas spécifié en requete
 		if (!$author_id>0) {
 			$author_id 	= Kidzou_Utils::get_option('import_author_id');
 			Kidzou_Utils::log('Import externe, user d\'import : '. $author_id, true);
-		}
+		} 
+
+		$post_content = $description.'<br/>'.$infos.'<br/>'.$template_append;
 
 		//créer le post 
 		$post_id = wp_insert_post(
@@ -167,7 +174,6 @@ class JSON_API_Content_Controller {
 		if ($is_author) {
 
 			//créer le customer si le user à les bons droits
-			// if (Kidzou_Utils::current_user_is('author')) {
 			$customer_id = wp_insert_post(
 				array(
 					'post_author'		=>	$author_id,
@@ -199,12 +205,76 @@ class JSON_API_Content_Controller {
 					$feedback[] = $ret->get_error_message();
 				}
 			}
+		} else {
+			//on récupére le customer du user et on l'attache au post
+			$customer_ids = Kidzou_Customer::getCustomersIDByUserID($user_id);
+			$ids = array();
+			$ids[] = $post_id;
+
+			//tant pis, on prend le premier client du user si il y en a plusieurs...
+			Kidzou_Customer::setPosts($customer_ids[0], $ids);
+
+			//attachement du post à la métropole du user
+			Kidzou_Metropole::set_user_metropole($post_id, $user_id);
+		}
+
+		$gallery_ids = [];
+		$has_thumb = false;
+
+		if ($urlMedia && count($urlMedia)>0) {
+			require_once(ABSPATH . 'wp-admin/includes/media.php');
+			require_once(ABSPATH . 'wp-admin/includes/file.php');
+			require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+			foreach ($urlMedia as $media) {
+				$image_src = media_sideload_image($media, $post_id, $titre, 'src');
+
+				//beurk...
+				//recuperer l'attachment 
+				global $wpdb;
+				$query = "SELECT ID FROM {$wpdb->posts} WHERE guid='$image_src'";
+				$attach_id 	= $wpdb->get_var($query);
+				$attach_data = wp_generate_attachment_metadata( $attach_id, get_attached_file( $attach_id ) );
+				wp_update_attachment_metadata( $attach_id, $attach_data );
+
+				if (!$has_thumb && wp_attachment_is_image($attach_id)) {
+					set_post_thumbnail($post_id, $attach_id);
+					$has_thumb = true;
+				} else {
+					//add to gallery
+					$gallery_ids[] = $attach_id;
+				}
+			}
+		}
+
+		if ($uploadedMedia && count($uploadedMedia)>0) {
+			foreach ($uploadedMedia as $media) {
+				$attach_id = Kidzou_Utils::uploadBase64($media['name'],$media['data'], $post_id);
+				if (!$has_thumb && wp_attachment_is_image($attach_id)) {
+					set_post_thumbnail($post_id, $attach_id);
+				} else if (wp_attachment_is_image($attach_id)) {
+					//add to gallery
+					$gallery_ids[] = $attach_id;
+				}
+				Kidzou_Utils::log('attached to '.$post_id. ' : '.$attach_id, true);
+			}
+		}
+
+		//ajout des media en tant que gallery
+		if (count($gallery_ids)>0) {
+			$gallery_shortcode = '[gallery ids="'.implode(",", $gallery_ids).'"]';		
+			$my_post = array(
+			      'ID'           => $post_id,
+			      'post_content' => $post_content.$gallery_shortcode,
+			  );
+			wp_update_post( $my_post );
 		}
 
 		return array(
 			'post_id'	=> $post_id,
 			'customer_id'=> $customer_id,
 			'post_edit_url'=> admin_url( 'post.php?post='.$post_id.'&action=edit' ),
+			'post_preview_url' => site_url().'?preview=true&p='.$post_id,
 			'customer_edit_url'=> admin_url( 'post.php?post='.$customer_id.'&action=edit' ),
 			'errors'	=> $feedback
 		);

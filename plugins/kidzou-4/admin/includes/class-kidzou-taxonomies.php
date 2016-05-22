@@ -19,12 +19,6 @@ class Kidzou_Taxonomies {
 	 */
 	protected static $instance = null;
 
-	// /**
-	//  *
-	//  * @var      array
-	//  */
-	// protected static $coords = array();
-
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
@@ -41,31 +35,6 @@ class Kidzou_Taxonomies {
 		add_action('create_ville', 	array( $this, 'rebuild_geo_rules') );
 		add_action('edit_ville', 	array( $this, 'rebuild_geo_rules') );
 		add_action('delete_ville', 	array( $this, 'rebuild_geo_rules') );
-
-		//Plugin Geo Data Store
-		// if (class_exists('sc_GeoDataStore')) {
-
-		// 	//hook sur le plugin pour intégration spécifique
-		// 	remove_action( 'added_post_meta', array( 'sc_GeoDataStore', 'after_post_meta' ), 10 );
-		// 	remove_action( 'updated_post_meta', array( 'sc_GeoDataStore', 'after_post_meta' ), 10);
-  //           remove_action( 'updated_postmeta', array( 'sc_GeoDataStore', 'after_post_meta' ), 10);
-
-  //           add_action( 'added_post_meta', array( $this, 'after_post_meta' ), 10, 4 );
-		// 	add_action( 'updated_post_meta', array( $this, 'after_post_meta' ), 10, 4);
-  //           add_action( 'updated_postmeta', array( $this, 'after_post_meta' ), 10, 4);
-
-		// 	//intégration 'standard' du plugin
-		// 	add_filter( 'sc_geodatastore_meta_keys', array( $this, 'store_geo_data') );
-
-		// 	/**
-		// 	 * Au changement de statut d'un post on resynchronise le Geo Data Store
-		// 	 *
-		// 	 * @see Geo Data Store
-		// 	 * @link http://codex.wordpress.org/Post_Status_Transitions
-		// 	 */
-		// 	add_action(  'transition_post_status',  array($this,'on_all_status_transitions'), 10, 3 );
-
-		// }
 
 	}
 
@@ -155,8 +124,6 @@ class Kidzou_Taxonomies {
 		}
 
         flush_rewrite_rules();
-		// Kidzou_Utils::log('Rewrite rules rafraichies et transients de geoloc nettoyes');
-
 	}
 
 
