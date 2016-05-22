@@ -24,7 +24,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'EventEditor_fix2';
+	const VERSION = 'EventEditor_fix5';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.

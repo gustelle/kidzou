@@ -133,8 +133,6 @@ var EventForm = React.createClass({
     e.preventDefault();
     var self = this;
 
-    self.setState({ submitButtonState: 'loading' });
-
     var checkForm = function checkForm(successCallback, errorCallback) {
 
       var isError = false;
@@ -169,7 +167,11 @@ var EventForm = React.createClass({
       }
 
       //uploadedMedia
-      if (isError) errorCallback();else successCallback();
+      if (isError) {
+        errorCallback();
+      } else {
+        successCallback();
+      }
     };
 
     var sendData = function sendData() {
@@ -222,7 +224,7 @@ var EventForm = React.createClass({
               }
 
               //ce marker va bloquer la revalidation du form
-              self.setState({ submitButtonState: 'success' });
+              self.setState({ submitButtonState: 'disabled' });
               self.submitMessage.onProgress('Votre evenement a ete cree, vous allez etre redirige vers sa pre-visualisation');
               self.setState({ postCreated: true });
               // self.submitButton.disable();
@@ -239,14 +241,15 @@ var EventForm = React.createClass({
     };
 
     //
-    if (!this.state.postCreated) {
+    if (!self.state.postCreated) {
+
+      self.setState({ submitButtonState: 'progress' });
       checkForm(function () {
         //on success
-        // console.debug('checkForm success');
         sendData();
       }, function () {
         //on failure
-        // console.debug('checkForm failure');
+        self.setState({ submitButtonState: 'error' });
       });
     }
   },
