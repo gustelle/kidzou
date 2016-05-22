@@ -189,7 +189,7 @@ var TextField = React.createClass({
     );
   },
 
-  onChange : function() {
+  onChange : function(e) {
     this.setState({value: e.target.value});
   }
 });

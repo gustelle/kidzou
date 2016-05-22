@@ -360,7 +360,7 @@ class Kidzou_Utils {
 
 	    preg_match('/^data:(.+);base64,/', $data, $type);
 
-	    Kidzou_Utils::log('uploadBase64 : '.$type[0], true);
+	    Kidzou_Utils::log('uploadBase64 : '.$type[1], true);
 
 		$upload_dir       = wp_upload_dir();
 
@@ -371,6 +371,11 @@ class Kidzou_Utils {
 		$img = $parts[1];
 
 		$decoded          = base64_decode($img) ;
+
+		if (!$decoded) {
+			Kidzou_Utils::log('erreur d\'import', true);
+			return 0;
+		} 
 
 		$hashed_filename  = md5( $filename . microtime() ) . '_' . $filename;
 
@@ -387,7 +392,7 @@ class Kidzou_Utils {
 		$file['error']    = '';
 		$file['tmp_name'] = $upload_path . $hashed_filename;
 		$file['name']     = $hashed_filename;
-		$file['type']     = $type[0];
+		$file['type']     = $type[1];
 		$file['size']     = filesize( $upload_path . $hashed_filename );
 
 		// upload file to server
@@ -403,10 +408,17 @@ class Kidzou_Utils {
 			'guid' => $wp_upload_dir['url'] . '/' . basename($filename)
 		);
 		$attach_id = wp_insert_attachment( $attachment, $filename, $parent_id ); 
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-		$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
-		wp_update_attachment_metadata( $attach_id, $attach_data );
 
+		if (!$attach_id) {
+			Kidzou_Utils::log('erreur wp_insert_attachment', true);
+			return 0;
+		}
+		if (wp_attachment_is_image($attach_id)) {
+			require_once(ABSPATH . 'wp-admin/includes/image.php');
+			$attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+			wp_update_attachment_metadata( $attach_id, $attach_data );
+		}
+		
 		return $attach_id;
 	}
 
