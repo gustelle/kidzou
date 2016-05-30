@@ -3679,6 +3679,19 @@ body .form_saved_message {
 .kz_form_field > * { padding: 1em 0; }
 .kz_form_field label {font-size: 1.7em; font-weight: 500; width: 100%; padding-bottom: 0.8em; display: block; font-family:'Bree Serif',Georgia,"Times New Roman",serif;}
 .kz_form_field textarea, .kz_form_field input {font-size: 1.3em; font-weight: 400; width: 100%; padding: 14px; padding-right: 0; display: block; color: #666; background-color: #fff; font-weight: 400; -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
+.kz_form_field_group button, .kz_form_field button {
+	background-color: #FFC000;
+    border: none;
+    border-radius: 3px;
+    color: currentColor;
+    cursor: pointer;
+    padding: 14px 20px;
+    text-decoration: none;
+    text-align: center;
+    display: inline-block;
+    font-size: 20px; 
+    font-weight: 400;
+}
 .kz_form_field textarea:focus, .kz_form_field input:focus, .kz_form_field input[type]:focus {   
     border-color: #1ea4e8;
     box-shadow: 0 1px 1px #a0cee5 inset, 0 0 8px #a0cee5;
@@ -3711,6 +3724,11 @@ body .form_saved_message {
 .kz_form .form_hint.valid {background-color:#ccedc9 ; color: #28921f;} 
 .kz_form .form_hint.invalid {background-color: #f9eaec; color: #ED5565 ;} 
 .kz_form .form_hint.progress {background-color:#FFC000 ; color: currentColor;} 
+
+input[type="text"]+.input_append, input[type='textarea']+.input_append{
+	position: absolute;
+	left: 80%;
+} 
 
 @media only screen and ( max-width: 479px ) {
 	.kz_form_field  {
