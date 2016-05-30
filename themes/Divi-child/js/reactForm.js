@@ -187,7 +187,12 @@ var TextField = React.createClass({
           name: this.props.name,
           value: this.state.value,
           onChange: this.onChange,
-          placeholder: this.props.placeholder })
+          placeholder: this.props.placeholder }),
+        this.props.append && React.createElement(
+          'span',
+          { className: 'input_append' },
+          this.props.append()
+        )
       ),
       this.props.type == 'textarea' && React.createElement(
         'div',
