@@ -174,6 +174,10 @@ var TextField = React.createClass({
                value={this.state.value}
                onChange={this.onChange}
               placeholder={this.props.placeholder} />
+          {
+            this.props.append &&
+            <span className="input_append">{this.props.append()}</span>
+          }
         </div>  
       }
       {

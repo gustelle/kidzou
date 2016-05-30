@@ -12,10 +12,11 @@ var EventForm = React.createClass({
     return {
       importButtonState: '',
       submitButtonState: '',
-      submitButtonLabel: 'J\'ai temriné, pre-visualiser mon événement',
+      submitButtonLabel: 'J\'ai terminé, pre-visualiser mon événement',
       postCreated: false,
       facebookUrl: '',
       uploadedMedia: [],
+      skipPlaceSuggest: false,
       adresse: {
         suggested: false,
         imported: false,
@@ -243,7 +244,7 @@ var EventForm = React.createClass({
     //
     if (!self.state.postCreated) {
 
-      self.setState({ submitButtonState: 'progress' });
+      self.setState({ submitButtonState: 'loading' });
       checkForm(function () {
         //on success
         sendData();
@@ -314,7 +315,36 @@ var EventForm = React.createClass({
   },
 
   /**
-   * When a wants to change the place selected
+   * When a user wants to skip the suggestions
+   */
+  onSkipSuggest: function onSkipSuggest(e) {
+    e.preventDefault();
+    // console.debug('skipSuggest')
+    this.setState({
+      skipPlaceSuggest: true
+    });
+  },
+
+  /**
+   * When a user wants to activate suggestions after having skipped them
+   */
+  onActivateSuggest: function onActivateSuggest(e) {
+    e.preventDefault();
+    // console.debug('activateSuggest')
+    this.setState({
+      skipPlaceSuggest: false
+    });
+  },
+
+  /**
+   * When a user gets out of the place suggest field
+   */
+  onSuggestBlur: function onSuggestBlur() {
+    // console.debug('onSuggestBlur')
+  },
+
+  /**
+   * When a wants to reset the address (selected or not)
    */
   onResetPlace: function onResetPlace() {
     var self = this;
@@ -322,14 +352,16 @@ var EventForm = React.createClass({
   },
 
   /**
-   * Upload des media [image, audio, pdf] et stockage sous forme Base64
+   * When user drops a media [image, audio, pdf] 
+   * - Check de la taille du media (<2M)
+   * - Stockage dans le navigateur sous forme Base64
    */
   onDrop: function onDrop(files) {
     var self = this;
     var media = self.state.uploadedMedia;
     var errors = self.state.tooBigMedia;
     files.map(function (file, index) {
-      console.log('file size is ', file.size / 1024 / 1024);
+      // console.log('file size is ', file.size/1024/1024);
       if (file.size / 1024 / 1024 < 2) {
         var reader = new FileReader();
         reader.onload = function () {
@@ -570,6 +602,36 @@ var EventForm = React.createClass({
           React.createElement(
             'div',
             { className: 'kz_form_field' },
+            !this.state.skipPlaceSuggest && React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'p',
+                null,
+                'Kidzou vous propose les lieux connus par Google lors de votre saisie de l\'adresse'
+              ),
+              React.createElement(
+                'button',
+                { onClick: this.onSkipSuggest },
+                React.createElement('i', { className: 'fa fa-magic' }),
+                'Désactiver les suggestions de lieux'
+              )
+            ),
+            this.state.skipPlaceSuggest && React.createElement(
+              'div',
+              null,
+              React.createElement(
+                'p',
+                null,
+                'La suggestion des lieux connus par Google est désactivée'
+              ),
+              React.createElement(
+                'button',
+                { onClick: this.onActivateSuggest },
+                React.createElement('i', { className: 'fa fa-magic' }),
+                'Activer les suggestions de lieux'
+              )
+            ),
             React.createElement(
               'label',
               { htmlFor: 'event_venue' },
@@ -581,6 +643,10 @@ var EventForm = React.createClass({
               types: suggestTypes,
               autoActivateFirstSuggest: 'true',
               onFocus: this.onSuggestFocus,
+              skipSuggest: function skipSuggest() {
+                return _this.state.skipPlaceSuggest;
+              },
+              onBlur: this.onSuggestBlur,
               ref: function ref(c) {
                 return _this._suggest = c;
               } })

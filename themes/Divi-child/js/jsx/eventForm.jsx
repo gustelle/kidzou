@@ -9,10 +9,11 @@ var EventForm = React.createClass({
     return {
       importButtonState : '',
       submitButtonState : '',
-      submitButtonLabel : 'J\'ai temriné, pre-visualiser mon événement',
+      submitButtonLabel : 'J\'ai terminé, pre-visualiser mon événement',
       postCreated : false,
       facebookUrl : '',
       uploadedMedia : [],
+      skipPlaceSuggest : false,
       adresse : {
         suggested : false,
         imported : false,
@@ -253,7 +254,7 @@ var EventForm = React.createClass({
 
     if (!self.state.postCreated) {
 
-      self.setState({submitButtonState: 'progress'});
+      self.setState({submitButtonState: 'loading'});
       checkForm(
         function(){
         //on success
@@ -328,7 +329,36 @@ var EventForm = React.createClass({
   },
 
   /**
-   * When a wants to change the place selected
+   * When a user wants to skip the suggestions
+   */
+  onSkipSuggest: function(e) {
+    e.preventDefault();
+    // console.debug('skipSuggest')
+    this.setState({
+      skipPlaceSuggest : true
+    })
+  },
+
+  /**
+   * When a user wants to activate suggestions after having skipped them
+   */
+  onActivateSuggest: function(e) {
+    e.preventDefault();
+    // console.debug('activateSuggest')
+    this.setState({
+      skipPlaceSuggest : false
+    })
+  },
+
+  /**
+   * When a user gets out of the place suggest field
+   */
+  onSuggestBlur: function() {
+    // console.debug('onSuggestBlur')
+  },
+
+  /**
+   * When a wants to reset the address (selected or not)
    */
   onResetPlace: function() {
     var self = this;
@@ -336,14 +366,16 @@ var EventForm = React.createClass({
   },
 
   /**
-   * Upload des media [image, audio, pdf] et stockage sous forme Base64
+   * When user drops a media [image, audio, pdf] 
+   * - Check de la taille du media (<2M)
+   * - Stockage dans le navigateur sous forme Base64
    */
   onDrop: function (files) {
     var self = this;
     var media = self.state.uploadedMedia;
     var errors = self.state.tooBigMedia;
     files.map(function(file, index){
-      console.log('file size is ', file.size/1024/1024);
+      // console.log('file size is ', file.size/1024/1024);
       if ((file.size/1024/1024) < 2) {
         var reader = new FileReader();
         reader.onload = function(){
@@ -460,6 +492,20 @@ var EventForm = React.createClass({
             (!this.state.adresse.name || !this.state.adresse.street) &&
             <div>
               <div className="kz_form_field">
+                {
+                  !this.state.skipPlaceSuggest &&
+                  <div>
+                    <p>Kidzou vous propose les lieux connus par Google lors de votre saisie de l&apos;adresse</p>
+                    <button onClick={this.onSkipSuggest}><i className="fa fa-magic"></i>D&eacute;sactiver les suggestions de lieux</button>
+                  </div>
+                }
+                {
+                  this.state.skipPlaceSuggest &&
+                  <div>
+                    <p>La suggestion des lieux connus par Google est d&eacute;sactiv&eacute;e</p>
+                    <button onClick={this.onActivateSuggest}><i className="fa fa-magic"></i>Activer les suggestions de lieux</button>
+                  </div>
+                }
                 <label htmlFor="event_venue">Nom du lieu : </label>
                 <Geosuggest
                   placeholder="Ex : Musée de plein air"
@@ -467,15 +513,15 @@ var EventForm = React.createClass({
                   types={suggestTypes}
                   autoActivateFirstSuggest='true'
                   onFocus={this.onSuggestFocus} 
+                  skipSuggest={() => this.state.skipPlaceSuggest}
+                  onBlur={this.onSuggestBlur}
                   ref={(c) => this._suggest = c}  />
               </div>
-
               <TextField 
                 name="event_address"
                 label="Adresse"
                 placeholder="Ex : 135 avenue de Bretagne 59000 Lille" 
                 ref={(c) => this.adresseStreet = c} />
-
             </div>
           }
          
