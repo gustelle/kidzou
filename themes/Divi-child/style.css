@@ -3671,7 +3671,12 @@ body .form_saved_message {
 	padding: 1em;
 }
 
+.kz_box {padding: 20px 20px; width: auto; margin: 10px; -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
+.kz_box .fa {background-color: white;text-align: center; vertical-align: middle;padding-right: 0;  -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px;}
 
+.valid {background-color:#ccedc9 ; color: #28921f;} 
+.invalid {background-color: #f9eaec; color: #ED5565 ;} 
+.progress {background-color:#FFC000 ; color: currentColor;} 
 
 /*-------------------[Formulaires, ex: saisie d'événement]------------------*/
 
@@ -3717,13 +3722,9 @@ body .form_saved_message {
 .kz_form_field_group .mediaPreview .incorrectType {background-color:#ED5565; color:#fff; padding: 10px; vertical-align: top; }
 
 .kz_form_field_group .mediaDropZone {display: inline-block; padding: 10px; margin: 10px; font-size: 1.1em;width: 200px;height: 200px;border: 3px dashed #e7e7e7;-moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
-.kz_form_field_group .kz_box, .kz_form_field .kz_box {padding: 20px 20px; width: auto; margin: 10px; -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px ;}
-.kz_form_field_group .kz_box .fa, .kz_form_field .kz_box .fa {background-color: white;text-align: center; vertical-align: middle;padding-right: 0;  -moz-border-radius: 3px ; -webkit-border-radius: 3px ; border-radius: 3px;}
 
 .kz_form .form_hint {display: block; padding:10px; margin: 10px 0;} 
-.kz_form .form_hint.valid {background-color:#ccedc9 ; color: #28921f;} 
-.kz_form .form_hint.invalid {background-color: #f9eaec; color: #ED5565 ;} 
-.kz_form .form_hint.progress {background-color:#FFC000 ; color: currentColor;} 
+
 
 input[type="text"]+.input_append, input[type='textarea']+.input_append{
 	position: absolute;

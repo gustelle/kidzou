@@ -28,6 +28,8 @@ var Post = React.createClass({
     var phoneDisplay 	= (self.props.has_location && self.props.location.location_phone_number!='' ? 'block' : 'none');
     var websiteDisplay 	= (self.props.has_location && self.props.location.location_website!='' ? 'block' : 'none');
 
+    var editPostLink 	= self.props.admin_url + 'post.php?action=edit&post='+ self.props.ID;
+
     return (
 
     	<div>
@@ -40,6 +42,16 @@ var Post = React.createClass({
 						<div className="et_pb_row">
 							<div className="et_pb_column et_pb_column_3_4">
 								<div className="et_pb_row_inner">
+									{
+				    					self.props.is_preview &&
+				    					<div className="et_pb_promo et_pb_bg_layout_dark et_pb_text_align_center" style={{backgroundColor:'#ed0a71'}}>
+				    						<div className="et_pb_promo_description">
+				    							<h3>Cet article est en attente de validation par l&eacute;quipe Kidzou</h3>
+				    							<p>Vous pouvez modifier le contenu de cet article en suivant le lien ci-dessous</p>
+				    						</div>
+				    						<a className="et_pb_promo_button" href={editPostLink}>Modifier cet article</a>
+				    					</div>
+				    				}
 									<div className="et_pb_column et_pb_column_3_8 et_pb_column_inner" dangerouslySetInnerHTML={{__html: self.props.html_thumb}}></div>
 									<div className="et_pb_column et_pb_column_3_8 et_pb_column_inner">
 										<div className="et_pb_text et_pb_bg_layout_light et_pb_text_align_left">

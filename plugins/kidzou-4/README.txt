@@ -1,13 +1,25 @@
+<h4>Event Editor</h4>
+<h5>Juin 2016</h5>
+<ul>
+	<li>Page custom de saisie d'événement</li>
+	<li>Message sur les previews de post pour prévénir que c'est un preview</li>
+
+	<li>TODO : React Vote</li>
+	<li>TODO : faire fonctionner mod_pagespeed avec react en prod (fix du reload de page)</li>
+	<li>TODO : les auteurs voient la liste des autres article d'un client mais ils n'ont pas le droit d'y accéder...que fait-on ?</li>
+	<li>TODO : Fix de paramétrage, les contributeurs peuvent créer des articles en recette</li>
+	<li>TODO : selection d'un client à l'import depuis le plugin chrome</li>
+	<li>TODO : Import de nouvelles sources depuis le plugin chrome</li>
+</ul>
+
 <h4>Spring 16</h4>
 <h5>Mai 2016</h5>
 <ul>
 	<li>Dynamisation des portfolio de posts pour les événements de longue durée</li>
 	<li>Fix : Amélioration de performance dans l'intégration Redux/Kidzou/GravityForms sur $users_list (import_author_id)</li>
 	<li>Fix : Compatibilité Wordpress 4.5.2 (désactivation Web API de Gravity Forms)</li>
-	<li>Redirection vers une page custom pour la saisie d'événement</li>
-
-	<li>TOFIX : get_users_list() dans options-init.php:1286 appelé de nombreuses fois</li>
-	<li>TOFIX : Les URL lille/agenda/ renvoient un 404</li>
+	<li>Fix : get_users_list() dans options-init.php:1286 appelé de nombreuses fois</li>
+	<li>Fix : Les URL lille/agenda/ renvoient un 404</li>
 
 	<li>TODO : Simplifier le formulaire de saisie d'article pour les contributeurs</li>
 	<li>TODO : React Vote</li>
