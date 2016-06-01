@@ -608,13 +608,19 @@ var EventForm = React.createClass({
               React.createElement(
                 'p',
                 null,
-                'Kidzou vous propose les lieux connus par Google lors de votre saisie de l\'adresse'
+                'Kidzou vous propose les adresses connues par ',
+                React.createElement(
+                  'a',
+                  { href: 'https://www.google.com/business/' },
+                  'Google'
+                ),
+                ' lors de votre saisie de l\'adresse'
               ),
               React.createElement(
-                'button',
-                { onClick: this.onSkipSuggest },
+                'a',
+                { onClick: this.onSkipSuggest, style: { cursor: 'pointer' } },
                 React.createElement('i', { className: 'fa fa-magic' }),
-                'Désactiver les suggestions de lieux'
+                'Les suggestions ne sont pas satisfaisantes : désactiver les suggestions'
               )
             ),
             this.state.skipPlaceSuggest && React.createElement(
@@ -626,10 +632,10 @@ var EventForm = React.createClass({
                 'La suggestion des lieux connus par Google est désactivée'
               ),
               React.createElement(
-                'button',
-                { onClick: this.onActivateSuggest },
+                'a',
+                { onClick: this.onActivateSuggest, style: { cursor: 'pointer' } },
                 React.createElement('i', { className: 'fa fa-magic' }),
-                'Activer les suggestions de lieux'
+                'Activer les suggestions d\'adresse'
               )
             ),
             React.createElement(

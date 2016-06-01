@@ -495,15 +495,15 @@ var EventForm = React.createClass({
                 {
                   !this.state.skipPlaceSuggest &&
                   <div>
-                    <p>Kidzou vous propose les lieux connus par Google lors de votre saisie de l&apos;adresse</p>
-                    <button onClick={this.onSkipSuggest}><i className="fa fa-magic"></i>D&eacute;sactiver les suggestions de lieux</button>
+                    <p>Kidzou vous propose les adresses connues par <a href="https://www.google.com/business/">Google</a> lors de votre saisie de l&apos;adresse</p>
+                    <a onClick={this.onSkipSuggest} style={{cursor:'pointer'}}><i className="fa fa-magic"></i>Les suggestions ne sont pas satisfaisantes : d&eacute;sactiver les suggestions</a>
                   </div>
                 }
                 {
                   this.state.skipPlaceSuggest &&
                   <div>
                     <p>La suggestion des lieux connus par Google est d&eacute;sactiv&eacute;e</p>
-                    <button onClick={this.onActivateSuggest}><i className="fa fa-magic"></i>Activer les suggestions de lieux</button>
+                    <a onClick={this.onActivateSuggest} style={{cursor:'pointer'}}><i className="fa fa-magic"></i>Activer les suggestions d&apos;adresse</a>
                   </div>
                 }
                 <label htmlFor="event_venue">Nom du lieu : </label>
