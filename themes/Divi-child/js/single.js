@@ -30,6 +30,8 @@ var Post = React.createClass({
 		var phoneDisplay = self.props.has_location && self.props.location.location_phone_number != '' ? 'block' : 'none';
 		var websiteDisplay = self.props.has_location && self.props.location.location_website != '' ? 'block' : 'none';
 
+		var editPostLink = self.props.admin_url + 'post.php?action=edit&post=' + self.props.ID;
+
 		return React.createElement(
 			'div',
 			null,
@@ -52,6 +54,29 @@ var Post = React.createClass({
 								React.createElement(
 									'div',
 									{ className: 'et_pb_row_inner' },
+									self.props.is_preview && React.createElement(
+										'div',
+										{ className: 'et_pb_promo et_pb_bg_layout_dark et_pb_text_align_center', style: { backgroundColor: '#ed0a71' } },
+										React.createElement(
+											'div',
+											{ className: 'et_pb_promo_description' },
+											React.createElement(
+												'h3',
+												null,
+												'Cet article est en attente de validation par léquipe Kidzou'
+											),
+											React.createElement(
+												'p',
+												null,
+												'Vous pouvez modifier le contenu de cet article en cliquant ci-dessous.'
+											)
+										),
+										React.createElement(
+											'a',
+											{ className: 'et_pb_promo_button', href: editPostLink },
+											'Modifier cet article'
+										)
+									),
 									React.createElement('div', { className: 'et_pb_column et_pb_column_3_8 et_pb_column_inner', dangerouslySetInnerHTML: { __html: self.props.html_thumb } }),
 									React.createElement(
 										'div',

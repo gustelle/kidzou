@@ -14,6 +14,7 @@
 					<article id="post-<?php the_ID(); ?>" <?php post_class( 'et_pb_post' ); ?>>
 
 				<?php
+
 					$thumb = '';
 
 					$width = (int) apply_filters( 'et_pb_index_blog_image_width', 1080 );

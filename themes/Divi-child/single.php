@@ -1,4 +1,4 @@
 <?php 
-render_react_single();
+	render_react_single();
 ?>
 
