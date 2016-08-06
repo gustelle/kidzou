@@ -350,7 +350,7 @@ function get_post_footer()
 }
 
 /**
- * Le formulaire de login n'est pas affiché qd le user est logué
+ * Le formulaire de login ne doit pas s'afficher qd le user est logué
  */
 function kz_pb_login( $atts, $content = null ) 
 {
@@ -379,7 +379,7 @@ function kz_pb_login( $atts, $content = null )
 		$form = '';
 
 		// if ( !is_user_logged_in() ) {
-			$username = __( 'Username', 'Divi' );
+			$username = 'Nom d\'utilisateur';//__( 'Username', 'Divi' );
 			$password = __( 'Password', 'Divi' );
 
 			$form = sprintf( '
@@ -456,7 +456,7 @@ function kz_event_form( $atts, $content = null )
         		[et_pb_row]
         			[et_pb_column type="1_2"]
         				[et_pb_text admin_label="Text" background_layout="light" text_orientation="left"]<h2>Vous devez vous connecter pour consulter ce contenu !</h2>[/et_pb_text]
-        				[et_pb_text admin_label="Text" background_layout="light" text_orientation="left"]<p>Connectez-vous par votre r&eaucte;seau social favori : </p>[TheChamp-Login][/et_pb_text]
+        				[et_pb_text admin_label="Text" background_layout="light" text_orientation="left"]<p>Connectez-vous par votre r&eacute;seau social favori : </p>[TheChamp-Login][/et_pb_text]
         			[/et_pb_column]
         			[et_pb_column type="1_2"]
         				[et_pb_login admin_label="Login" title="Connexion" current_page_redirect="off" use_background_color="off" background_color="#1ea4e8" background_layout="light" text_orientation="left"]

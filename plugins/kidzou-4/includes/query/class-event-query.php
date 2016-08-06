@@ -76,7 +76,7 @@ class Event_Query extends WP_Query {
     /**
      * ne pas laisser de trace après que la query soit faite
      */
-    remove_filter( 'the_posts', array($this, 'change_order') );
+    remove_filter( 'the_posts', array($this, 'reorder') );
 
 
   }

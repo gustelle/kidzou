@@ -1,8 +1,46 @@
+<h4>Ghost</h4>
+<h5>Ete 2016</h5>
+<ul>
+	<li>Changement de plateforme technique et de theme
+		<ul>
+			<li>Socle 	: KeystoneJS</li>
+			<li>Templates : React (https://github.com/keystonejs/generator-keystone-react)</li>
+			<li>Comments : ?</li>
+			<li>Images : http://cloudinary.com/</li>
+			<li>Templates de pages : ?</li>
+			<li>Order by (date, vote, ...) : ?</li>
+			<li>Metadata : ?</li>
+			<li>Theme 	: ?</li>
+			<li>Backup 	: ?</li>
+			<li>Search 	: ?</li>
+			<li>Related posts : ?</li>
+			<li>Cookie notice : ?</li>
+			<li>Geo Datastore : ? stocker sous forme http://geojson.org/geojson-spec.html</li>
+			<li>Vote : ?</li>
+			<li>Meta : ?</li>
+			<li>Notif : ?</li>
+			<li>Metropole : ?</li>
+			<li>customer : ?</li>
+			<li>Sitemap : http://academy.ghost.org/how-do-i-submit-my-sitemap-to-google/</li>
+			<li>Réglages Kidzou : ?</li>
+			<li>Social login : ?</li>
+			<li>Social sharing : ?</li>
+			<li>Reprise des permaliens : ?</li>
+			<li>Reprise des media : ?</li>
+			<li>Forms : ?</li>
+		</ul>
+	</li>
+</ul>
+
 <h4>Event Editor</h4>
 <h5>Juin 2016</h5>
 <ul>
 	<li>Page custom de saisie d'événement</li>
 	<li>Message sur les previews de post pour prévénir que c'est un preview</li>
+	<li>Suppression du filtre 'crp_posts_from_date' et mise en configuration de ce réglage dans les réglages du plugin</li>
+	<li>Fix : coquille sur le placeholder du login dans le form de login</li>
+	<li>Inclusion de <code><link rel='subresource'></code>  pour charger les resources critiques en priorité</li>
+	<li>Inclusion de <code><link rel='prerender'></code>  pour pré-charger certaines pages (accueil et agenda)</li>
 
 	<li>TODO : React Vote</li>
 	<li>TODO : faire fonctionner mod_pagespeed avec react en prod (fix du reload de page)</li>
