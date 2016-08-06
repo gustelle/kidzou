@@ -8,19 +8,19 @@ Controller Author: Kidzou
 
 class JSON_API_Search_Controller {
 
-	public function suggest() {
+	// public function suggest() {
 
-		global $json_api;
-		$term 	= $json_api->query->term;
+	// 	global $json_api;
+	// 	$term 	= $json_api->query->term;
 	  	
-		// $result = Kidzou_Vote::plusOne($id, $user_hash);
+	// 	// $result = Kidzou_Vote::plusOne($id, $user_hash);
 
-		return array(
-			"taxonomies" => array("category" => array('test')),
-			"posts" => array("posts" => array("post")),
-		);
+	// 	return array(
+	// 		"taxonomies" => array("category" => array('test')),
+	// 		"posts" => array("posts" => array("post")),
+	// 	);
 
-	}
+	// }
 
 	public function getUsersBy() {
 

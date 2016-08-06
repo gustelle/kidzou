@@ -68,7 +68,7 @@ var Post = React.createClass({
 											React.createElement(
 												'p',
 												null,
-												'Vous pouvez modifier le contenu de cet article en cliquant ci-dessous.'
+												'Vous pouvez modifier le contenu de cet article en suivant le lien ci-dessous'
 											)
 										),
 										React.createElement(

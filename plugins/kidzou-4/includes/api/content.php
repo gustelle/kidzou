@@ -538,10 +538,13 @@ class JSON_API_Content_Controller {
 	}
 
 	/**
-	 * Contextual Related Posts
+	 * Ce service fournit les Posts similaires au post dont l'ID est transmis en parametre.
+	 * Les posts similaires sont relatifs à la metropole courante
+	 *
+	 * Ce service filtre les events non actifs si un event est candidat aux résultats
 	 *
 	 * @param post_id : le post pour lequel il faut rechercher des similarités
-	 * @todo coupler ca à la geolocalisation pour ne retenir que les related qui sont pas trop éloignés
+	 * @param limit : nombre de posts à retourner en résultat
 	 *
 	 */
 	public function get_related_posts(){
@@ -552,21 +555,15 @@ class JSON_API_Content_Controller {
 		$id = $json_api->query->post_id;
 		$limit = $json_api->query->limit;
 
-		if ( !Kidzou_API::isPublicKey($key) ) 
-			$json_api->error("Cle invalide ");
+		if ( !Kidzou_API::isPublicKey($key) ) $json_api->error("Cle invalide ");
 		
-		if ( !is_int(intval($id)) )  
-			$json_api->error("post_id non reconnu");
+		if ( !is_int(intval($id)) )  $json_api->error("post_id non reconnu");
 
-		if ( !is_int(intval($limit)) )  
-			$limit=3;
+		if ( !is_int(intval($limit)) )  $limit=3;
 
 		$locator = Kidzou_Metropole::get_instance();
 		$results = $locator->get_related_posts();
 
-
-		// if (function_exists('get_crp_posts_id'))
-		// 	$results = get_crp_posts_id(array( 'postid' => $id, 'limit' => $limit ));
 
 		//filtrer les résultats
 		$filtered = array();
@@ -574,11 +571,11 @@ class JSON_API_Content_Controller {
         foreach ($results as $id) {
             $post = get_post($id);
             setup_postdata($post);
-            $is_event               = Kidzou_Events::isTypeEvent(get_the_ID());
+            $is_event = Kidzou_Events::isTypeEvent(get_the_ID());
             
             //exit les events non actifs
             if ($is_event && !Kidzou_Events::isEventActive(get_the_ID()))
-                    continue;
+               continue;
             
             $filtered[] = $id;
         }

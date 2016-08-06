@@ -35,6 +35,20 @@
 	
 	<?php wp_head(); ?>
 
+	<link rel="subresource" href="wp-includes/js/jquery/jquery.js" >
+	<link rel="subresource" href="wp-content/themes/Divi-child/style.css" >
+
+	<?php
+		global $post;
+		$page_name = $post->post_name;
+		if ($page_name=='accueil') {
+			echo '<link rel="prerender" href="'.site_url().'/agenda/">';
+		} else if ($page_name=='agenda') {
+			echo '<link rel="prerender" href="'.site_url().'/">';
+		}
+		
+	?>
+
 </head>
 <body <?php body_class(); ?>>
 
