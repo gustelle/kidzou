@@ -99,11 +99,11 @@ class Kidzou {
 		add_filter('json_api_search_controller_path',  array( $this, 'set_search_controller_path') );
 		add_filter('json_api_content_controller_path',  array( $this, 'set_content_controller_path') );
 		add_filter('json_api_mailchimp_controller_path',  array( $this, 'set_mailchimp_controller_path') );
-		add_filter('json_api_config_controller_path',  array( $this, 'set_config_controller_path') );
-		add_filter('json_api_social_controller_path',  array( $this, 'set_social_controller_path') );
-		add_filter('json_api_utils_controller_path',  array( $this, 'set_utils_controller_path') );
 		add_filter('json_api_import_controller_path',  array( $this, 'set_import_controller_path') );
 		add_filter('json_api_taxonomy_controller_path',  array( $this, 'set_tax_controller_path') );
+
+		//test API.AI
+		add_filter('json_api_ai_controller_path',  array( $this, 'set_ai_controller_path') );
 
 		//JS externes pour Google analytics et Pub
 		add_action('wp_footer', array( $this, 'insert_analytics_tag'));
@@ -186,10 +186,10 @@ class Kidzou {
 	        array(
 	            'name'               => 'Google Analytics Dashboard for WP', // The plugin name.
 	            'slug'               => 'google-analytics-dashboard-for-wp', // The plugin slug (typically the folder name).
-	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
 	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
-	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
-	            'force_deactivation' => true, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
 	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
 	        ),
 
@@ -683,11 +683,9 @@ class Kidzou {
 		$controllers[] = 'Search';
 		$controllers[] = 'Content';
 		$controllers[] = 'Mailchimp';
-		$controllers[] = 'Config';
-		$controllers[] = 'Social';
-		$controllers[] = 'Utils';
 		$controllers[] = 'Import';
 		$controllers[] = 'Taxonomy';
+		$controllers[] = 'AI';
 
 		return $controllers;
 	}
@@ -708,20 +706,14 @@ class Kidzou {
 	public function set_mailchimp_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/mailchimp.php";
 	}
-	public function set_config_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/../includes/api/config.php";
-	}
-	public function set_social_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/../includes/api/social.php";
-	}
-	public function set_utils_controller_path() {
-	  return plugin_dir_path( __FILE__ ) ."/../includes/api/utils.php";
-	}
 	public function set_import_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/import.php";
 	}
 	public function set_tax_controller_path() {
 	  return plugin_dir_path( __FILE__ ) ."/../includes/api/tax.php";
+	}
+	public function set_ai_controller_path() {
+	  return plugin_dir_path( __FILE__ ) ."/../includes/api/ai.php";
 	}
 
 	/**
