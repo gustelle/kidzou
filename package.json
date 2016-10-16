@@ -1,6 +1,6 @@
 {
   "name": "kidzou",
-  "version": "2014.08.24",
+  "version": "kidzou-5",
   "description": "Le site des parents et des enfants autour de Lille",
   "main": "Gruntfile.js",
   "scripts": {

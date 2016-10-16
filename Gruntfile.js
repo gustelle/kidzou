@@ -38,10 +38,23 @@ module.exports = function(grunt) {
 				]
 			},
 
+			extraChild: {
+				files: [
+				 	{expand:true, cwd: '<%= cfg.extra_path %>', src: ['**','!css/dev/**'], dest: '<%= cfg.wp_extra_theme_root %>'},
+				]
+			},
+
 			//déploiement des fichiers du plugin Kidzou-4
 			k4: {
 				files: [
 					{expand:true, cwd: '<%= cfg.kidzou_path %>', src: ['**'], dest: '<%= cfg.wp_kidzou_root %>'}, // includes files in path and its subdirs,
+				]
+			},
+
+			//déploiement des fichiers du plugin Kidzou-5
+			k5: {
+				files: [
+					{expand:true, cwd: '<%= cfg.kidzou_5_path %>', src: ['**'], dest: '<%= cfg.wp_kidzou_5_root %>'}, // includes files in path and its subdirs,
 				]
 			},
 		},
@@ -115,10 +128,14 @@ module.exports = function(grunt) {
 
 	//lancement de grunt par defaut
 	//passage des Hint de qualité sur les .js 
-	grunt.registerTask('default', ['jshint','copy:divi', 'copy:k4']);
+	grunt.registerTask('k4', ['jshint','copy:divi', 'copy:k4']);
+
+	//Kidzou V et son theme Extra
+	grunt.registerTask('compile', ['babel']);
+	grunt.registerTask('default', ['copy:extraChild','copy:k5']);
 
 	//compilation des JSX en .js
-	grunt.registerTask('deploy', ['babel','copy:divi', 'copy:k4']);
+	// grunt.registerTask('deploy', ['babel','copy:divi', 'copy:k4']);
 
 
 };
