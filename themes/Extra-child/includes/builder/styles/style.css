@@ -1,0 +1,6 @@
+
+.et-pb-all-modules .et_pb_featured_events_slider:before, .et_pb_saved_layouts_list .et_pb_featured_events_slider:before { content: '\6b'; }
+.et-pb-all-modules .et_pb_events:before, .et_pb_saved_layouts_list .et_pb_events:before { content: '\7b'; }
+.et-pb-all-modules .et_pb_events_carousel:before, .et_pb_saved_layouts_list .et_pb_events_carousel:before { content: '\6a'; }
+.et-pb-all-modules .et_pb_events_blog_feed_masonry:before, .et_pb_saved_layouts_list .et_pb_events_blog_feed_masonry:before { content: '\6c'; }
+.et-pb-all-modules .et_pb_events_blog_feed_standard:before, .et_pb_saved_layouts_list .et_pb_events_blog_feed_standard:before { content: '\6d'; }

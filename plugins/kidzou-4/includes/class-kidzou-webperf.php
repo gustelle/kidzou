@@ -4,7 +4,7 @@ add_action( 'plugins_loaded', array( 'Kidzou_WebPerf', 'get_instance' ), 100 );
 
 
 /**
- * Intégration avec Apache mod_pagespeed, notamment pour protéger certains scripts et permettre les combinaisons CSS
+ * Intégration avec Apache mod_pagespeed, notamment pour poser des tags qui empeche mod_pagespeed de toucher certains éléments CSS ou JS
  *
  * @package Kidzou
  * @author  Guillaume Patin <guillaume@kidzou.fr>
@@ -21,7 +21,6 @@ class Kidzou_WebPerf {
 	 */
 	protected static $instance = null;
 
-
 	/**
 	 * Instanciation impossible de l'exterieur, la classe est statique
 	 * and styles.
@@ -33,7 +32,7 @@ class Kidzou_WebPerf {
 		if (!Kidzou_Utils::is_really_admin())
 		{
 
-			//protection des async/defer
+			//protecter des scripts contre l'optimisation defer_javascript 
 			add_filter('script_loader_tag', array($this,'no_defer'), 11, 2);
 
 			//supprimer les id des css (https://blog.codecentric.de/en/2011/10/wordpress-and-mod_pagespeed-why-combine_css-does-not-work/)
@@ -59,7 +58,6 @@ class Kidzou_WebPerf {
 
 		return self::$instance;
 	}
-
 
 
 	/**

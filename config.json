@@ -1,11 +1,15 @@
 {
 "plugins_root" : "plugins",
 "kidzou_path" : "plugins/kidzou-4/",
+"kidzou_5_path" : "plugins/kidzou-5/",
+"extra_path" : "themes/Extra-child/",
 "theme_path" : "themes/Divi-child/",
 "theme_parent_path" : "themes/Divi/",
+"wp_extra_theme_root" : "/Users/guillaume/Sites/wordpress/wp-content/themes/Extra-child/",
 "wp_theme_root" : "/Users/guillaume/Sites/wordpress/wp-content/themes/Divi-child/",
 "wp_theme_parent_root" : "/Users/guillaume/Sites/wordpress/wp-content/themes/Divi/",
 "wp_plugins_root" : "/Users/guillaume/Sites/wordpress/wp-content/plugins/",
 "wp_kidzou_root" : "/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-4",
+"wp_kidzou_5_root" : "/Users/guillaume/Sites/wordpress/wp-content/plugins/kidzou-5",
 "perf_api_key" : "A.3a80d0143024fccd375b277d90f0a07c"
 }

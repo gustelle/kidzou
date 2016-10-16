@@ -101,16 +101,16 @@ class Event_Query extends WP_Query {
       if (Kidzou_Events::isTypeEvent($p->ID)) {
 
         $duration = Kidzou_Events::getDurationInDays($p->ID);
-        Kidzou_Utils::log('Duration {'.$p->ID.'} : '.$duration . ' days ', true);
+        // Kidzou_Utils::log('Duration {'.$p->ID.'} : '.$duration . ' days ', true);
 
         if ($duration>13) {
-          Kidzou_Utils::log('Lowest priority {'.$p->ID.'} : ', true);
+          // Kidzou_Utils::log('Lowest priority {'.$p->ID.'} : ', true);
           $lowest_prio[] = $p;
         } else if ($duration>6) {
-          Kidzou_Utils::log('Low priority {'.$p->ID.'} : ', true);
+          // Kidzou_Utils::log('Low priority {'.$p->ID.'} : ', true);
           $low_prio[] = $p;
         }else {
-          Kidzou_Utils::log('Med priority {'.$p->ID.'} : ', true);
+          // Kidzou_Utils::log('Med priority {'.$p->ID.'} : ', true);
           $med_prio[] = $p;
         }
 
@@ -119,7 +119,7 @@ class Event_Query extends WP_Query {
       }
 
       if (Kidzou_Featured::isFeatured($p->ID)) {
-        Kidzou_Utils::log('High priority {'.$p->ID.'} ', true);
+        // Kidzou_Utils::log('High priority {'.$p->ID.'} ', true);
         $high_prio[] = $p;
       }
 

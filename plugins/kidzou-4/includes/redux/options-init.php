@@ -1074,25 +1074,24 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     'icon'      => 'fa fa-bolt',
                     'fields'    => array(
 
-                            array(
-                                'id'=>'perf_js_no_async',
-                                'type' => 'multi_text',
-                                'title' => __('Exclure les Javascripts suivants d&apos;un chargement asynchrone', 'kidzou'),
-                                'subtitle' => __('Les scripts concern&eacute;s seront prot&eacute;g&eacute;s par <em>data-pagespeed-no-defer<em>', 'kidzou'),
-                            ),
+                        array(
+                            'id'=>'perf_js_no_async',
+                            'type' => 'multi_text',
+                            'title' => __('Prot&eacute;ger les scripts suivants de l&apos;optimisation defer/async', 'kidzou'),
+                            'subtitle' => __('Cela pose le tag <em>data-pagespeed-no-defer</em> sur les scripts concern&eacute;s', 'kidzou'),
+                        ),
 
-                            array(
-                                'id'        => 'perf_remove_css_id',
-                                'type'      => 'checkbox',
-                                'default'      => '0',
-                                'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
-                                'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
+                        array(
+                            'id'        => 'perf_remove_css_id',
+                            'type'      => 'checkbox',
+                            'default'      => '0',
+                            'title'     => __('Supprimer les ID des balises <em><link></em> de chargement CSS', 'kidzou'),
+                            'subtitle'  => __('N&eacute;cessaire pour s&apos;int&eacute;grer avec mod_pagespeed', 'kidzou'),
 
-                            ),
-                            
-                            
-                        )
-                    );
+                        ),
+                        
+                    )
+                );
 
                     $this->sections[] = array(
                         'title'     => __('Notes de Livraisons', 'kidzou'),
