@@ -16,7 +16,7 @@ function extra_child_enqueue_styles() {
 
     //ajout de font-awesome pour les icones sur les adresse et dates
     wp_enqueue_style( 'font-awesome',
-        'http://netdna.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.css',
+        is_ssl() ? 'https://netdna.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.css' : 'http://netdna.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.css',
         array(),
         '4.6.3'
     );

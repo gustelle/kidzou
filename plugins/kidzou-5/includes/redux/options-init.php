@@ -319,25 +319,25 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                     );
 
 
-                    /**
-                     * Sous section des permissions sur les clients
-                     */
-                    $this->sections[] = array(
-                        'icon'       => 'el el-torso',
-                        'title'      => __( 'Clients', 'kidzou' ),
-                        'subsection' => true,
-                        'fields'     => array(
+                    // /**
+                    //  * Sous section des permissions sur les clients
+                    //  */
+                    // $this->sections[] = array(
+                    //     'icon'       => 'el el-torso',
+                    //     'title'      => __( 'Clients', 'kidzou' ),
+                    //     'subsection' => true,
+                    //     'fields'     => array(
 
-                            array(
-                                'id'       => 'can_edit_customer',
-                                'type'     => 'select',
-                                'title'    => __('Editer un client', 'kidzou'), 
-                                // 'subtitle'  => __('Typiquement lorsqu&apos;on choisit un lieu sur un article affect&eacute; &agrave; un client, qui a le droit d&apos;utiliser ce lieu pour l&apos;injecter dans la fiche client ? de telle sorte que les prochains articles affect&eacute;s &agrave; ce client seront automatiquement pr&eacute;-rempli avec la m&ecirc;me adresse ?', 'kidzou'),
-                                'data'      => 'roles'
-                            ),
+                    //         array(
+                    //             'id'       => 'can_edit_customer',
+                    //             'type'     => 'select',
+                    //             'title'    => __('Editer un client', 'kidzou'), 
+                    //             // 'subtitle'  => __('Typiquement lorsqu&apos;on choisit un lieu sur un article affect&eacute; &agrave; un client, qui a le droit d&apos;utiliser ce lieu pour l&apos;injecter dans la fiche client ? de telle sorte que les prochains articles affect&eacute;s &agrave; ce client seront automatiquement pr&eacute;-rempli avec la m&ecirc;me adresse ?', 'kidzou'),
+                    //             'data'      => 'roles'
+                    //         ),
                             
-                        )
-                    );
+                    //     )
+                    // );
 
                     /**
                      * Sous section des permissions pour les contributeurs
@@ -550,53 +550,53 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 );
                 
                 //API
-                $this->sections[] = array(
-                    'title'     => __('API Kidzou', 'kidzou'),
-                    'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
-                    'icon'      => 'el el-puzzle',
-                    'fields'    => array(
+                // $this->sections[] = array(
+                //     'title'     => __('API Kidzou', 'kidzou'),
+                //     'desc'      => __('R&eacute;glages des API Kidzou', 'kidzou'),
+                //     'icon'      => 'el el-puzzle',
+                //     'fields'    => array(
 
-                        array(
-                            'id'        => 'excerpts_max_days',
-                            'type'      => 'spinner',
-                            'title'     => __('Jusque combien de jours l\'utilisateur peut-il remonter pour exporter les extraits ?', 'kidzou'),
-                            'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
-                            'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
-                            'default'  => '7',
-                            'min'      => '0',
-                            'step'     => '1',
-                            'max'      => '30'
-                        ),
+                //         array(
+                //             'id'        => 'excerpts_max_days',
+                //             'type'      => 'spinner',
+                //             'title'     => __('Jusque combien de jours l\'utilisateur peut-il remonter pour exporter les extraits ?', 'kidzou'),
+                //             'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
+                //             'desc'     => __('Attention &agrave; la performance pour les synchro de contenu', 'kidzou'),
+                //             'default'  => '7',
+                //             'min'      => '0',
+                //             'step'     => '1',
+                //             'max'      => '30'
+                //         ),
 
-                        array(
-                            'id'        => 'api_usage_history',
-                            'type'      => 'spinner',
-                            'title'     => __('Combien de jours d\'historique pour l\'utilisation des API ?', 'kidzou'),
-                            'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
-                            'desc'     => __('30 jours me semble un max', 'kidzou'),
-                            'default'  => '7',
-                            'min'      => '1',
-                            'step'     => '1',
-                            'max'      => '30'
-                        ),
+                //         array(
+                //             'id'        => 'api_usage_history',
+                //             'type'      => 'spinner',
+                //             'title'     => __('Combien de jours d\'historique pour l\'utilisation des API ?', 'kidzou'),
+                //             'subtitle'  => __('Cela peut impacter la performance du site', 'kidzou'),
+                //             'desc'     => __('30 jours me semble un max', 'kidzou'),
+                //             'default'  => '7',
+                //             'min'      => '1',
+                //             'step'     => '1',
+                //             'max'      => '30'
+                //         ),
 
-                        array(
-                            'id'        => 'api_public_key',
-                            'type'      => 'multi_text',
-                            'subtitle'  => 'Cl&eacute; g&eacute;n&eacute;r&eacute;e au hasard :'.md5(uniqid()),
-                            'title'     => __('Cle publique pour utilisation des API sans authentification', 'kidzou'),
-                        ),
+                //         array(
+                //             'id'        => 'api_public_key',
+                //             'type'      => 'multi_text',
+                //             'subtitle'  => 'Cl&eacute; g&eacute;n&eacute;r&eacute;e au hasard :'.md5(uniqid()),
+                //             'title'     => __('Cle publique pour utilisation des API sans authentification', 'kidzou'),
+                //         ),
 
-                        array(
-                            'id'       => 'api_activate_cors',
-                            'type'     => 'checkbox',
-                            'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
-                            'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
-                            'default'  => '0',// 1 = on | 0 = off
-                        ),
+                //         array(
+                //             'id'       => 'api_activate_cors',
+                //             'type'     => 'checkbox',
+                //             'title'    => __('Autoriser les CORS (Cross Origin Resource Sharing)', 'kidzou'), 
+                //             'subtitle'  => __('Cela permet l\'appel d\'API en dehors du domaine Kidzou', 'kidzou'),
+                //             'default'  => '0',// 1 = on | 0 = off
+                //         ),
 
-                    )
-                );
+                //     )
+                // );
     
                 //import
                 $this->sections[] = array(
@@ -632,97 +632,97 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                 );
                 
                 //intégration Gravity Forms
-                if ($gf) {
+                // if ($gf) {
 
-                    $this->sections[] = array(
-                        'title'     => __('Gravity Forms', 'kidzou'),
-                        'desc'      => __('Int&eacute;gration avec le plugin Gravity Forms pour exposition dans la config Kidzou', 'kidzou'),
-                        'icon'      => 'el el-check',
-                        'fields'    => array(
+                //     $this->sections[] = array(
+                //         'title'     => __('Gravity Forms', 'kidzou'),
+                //         'desc'      => __('Int&eacute;gration avec le plugin Gravity Forms pour exposition dans la config Kidzou', 'kidzou'),
+                //         'icon'      => 'el el-check',
+                //         'fields'    => array(
 
-                            array(
-                                'id'        => 'gf_form_id',
-                                'type'      => 'select',
-                                'title'     => __('Formulaire d&apos;envoi de photo ?', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $form_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_form_id',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Formulaire d&apos;envoi de photo ?', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $form_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_image_base64',
-                                'type'      => 'select',
-                                'title'     => __('Quel est le champ qui recevra la photo au format Base64 dans Gravity Forms WebAPI ?', 'kidzou'),
-                                // 'desc'     => __('', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_image_base64',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Quel est le champ qui recevra la photo au format Base64 dans Gravity Forms WebAPI ?', 'kidzou'),
+                //                 // 'desc'     => __('', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_image_url',
-                                'type'      => 'select',
-                                'title'     => __('Quel est le champ qui recevra l\'URL de l\'image t&eacute;l&eacute;charg&eacute;e ?', 'kidzou'),
-                                // 'desc'     => __('', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_image_url',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Quel est le champ qui recevra l\'URL de l\'image t&eacute;l&eacute;charg&eacute;e ?', 'kidzou'),
+                //                 // 'desc'     => __('', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_user_id',
-                                'type'      => 'select',
-                                'title'     => __('Quel est le champ qui recevra le login de l&apos;utilisateur courant ?', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_user_id',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Quel est le champ qui recevra le login de l&apos;utilisateur courant ?', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_user_email',
-                                'type'      => 'select',
-                                'title'     => __('Le champ qui contient le mail du user', 'kidzou'),
-                                'subtitle'  => __('Ce champ sera rempli automatiquement en fonction du ID du user, il servira pour notifier le user', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_user_email',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Le champ qui contient le mail du user', 'kidzou'),
+                //                 'subtitle'  => __('Ce champ sera rempli automatiquement en fonction du ID du user, il servira pour notifier le user', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_post_id',
-                                'type'      => 'select',
-                                'title'     => __('Quel est le champ qui recevra le ID de l&apos;article courant ?', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_post_id',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Quel est le champ qui recevra le ID de l&apos;article courant ?', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_comment',
-                                'type'      => 'select',
-                                'title'     => __('Quel est le champ qui recevra le commentaire de la photo ?', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_comment',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Quel est le champ qui recevra le commentaire de la photo ?', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_field_title',
-                                'type'      => 'select',
-                                'title'     => __('Quel est le champ qui recevra le titre de la photo ?', 'kidzou'),
-                                'multi'    => false,
-                                'options'  => $fields_options
-                            ),
+                //             array(
+                //                 'id'        => 'gf_field_title',
+                //                 'type'      => 'select',
+                //                 'title'     => __('Quel est le champ qui recevra le titre de la photo ?', 'kidzou'),
+                //                 'multi'    => false,
+                //                 'options'  => $fields_options
+                //             ),
 
-                            array(
-                                'id'        => 'gf_webapi_public_key',
-                                'type'      => 'text',
-                                'title'     => __('Public Key pour utilisation de WebAPI', 'kidzou'),
-                            ),
+                //             array(
+                //                 'id'        => 'gf_webapi_public_key',
+                //                 'type'      => 'text',
+                //                 'title'     => __('Public Key pour utilisation de WebAPI', 'kidzou'),
+                //             ),
 
-                            array(
-                                'id'        => 'gf_webapi_private_key',
-                                'type'      => 'text',
-                                'title'     => __('Private Key pour utilisation de WebAPI', 'kidzou'),
-                            ),
+                //             array(
+                //                 'id'        => 'gf_webapi_private_key',
+                //                 'type'      => 'text',
+                //                 'title'     => __('Private Key pour utilisation de WebAPI', 'kidzou'),
+                //             ),
 
 
-                        )
-                    );
-                }
+                //         )
+                //     );
+                // }
 
                 //evenements
                 $this->sections[] = array(
@@ -808,12 +808,12 @@ if (!class_exists('admin_folder_Redux_Framework_config')) {
                                 'textarea_rows'    => 10
                             )
                         ),
-                        array(
-                            'id'       => 'customer_analytics_activate',
-                            'type'     => 'checkbox',
-                            'title'    => __('Ouvrir l&apos;acc&egrave;s aux analytics pour les Pro', 'kidzou'), 
-                            'default'  => '0'// 1 = on | 0 = off
-                        ),
+                        // array(
+                        //     'id'       => 'customer_analytics_activate',
+                        //     'type'     => 'checkbox',
+                        //     'title'    => __('Ouvrir l&apos;acc&egrave;s aux analytics pour les Pro', 'kidzou'), 
+                        //     'default'  => '0'// 1 = on | 0 = off
+                        // ),
                         
                     )
                 );
