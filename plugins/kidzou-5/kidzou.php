@@ -14,7 +14,7 @@
  * @wordpress-plugin
  * Plugin Name:       Kidzou V
  * Description:       5e version de la plateforme Kidzou, Grosse simplification des features développées en Kidzou 4
- * Version:           0.0.2
+ * Version:           0.1
  * Author:            Guillaume Patin
  * Author URI:        @gustelle
  * Text Domain:       fr_FR
