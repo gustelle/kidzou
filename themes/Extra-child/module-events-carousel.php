@@ -49,18 +49,8 @@ if ( $module_posts->have_posts() ) :
 						<div class="post-meta vcard">
 						<?php 
 							if (Kidzou_Events::isTypeEvent()) {
-								setlocale(LC_TIME, "fr_FR");
-								$dates = Kidzou_Events::getEventDates();
-								$start_day = explode(" ", $dates['start_date']);
-								$end_day = explode(" ", $dates['end_date']);
-								if ($start_day==$end_day) {
-									echo sprintf('<p><i class="fa fa-calendar fa-fw"></i> Le %s</p>',
-													strftime("%d %B", strtotime($dates['start_date'])));
-								} else {
-									echo sprintf('<p><i class="fa fa-calendar fa-fw"></i> Du %s au %s</p>',
-													strftime("%d %B", strtotime($dates['start_date'])),
-													strftime("%d %B", strtotime($dates['end_date'])));
-								}
+
+								echo_formatted_events_dates();
 							}
 
 							if (Kidzou_Geoloc::has_post_location()) {
