@@ -54,7 +54,12 @@ function after_init() {
 	require_once $stylesheet_directory.'/includes/modules.php';
 }
 
-echo_formatted_events_dates() {
+/**
+ * Une string formattée avec les dates d'événement.
+ * Typiquement "Du ... au ..." ou alors "Le ..."
+ * 
+ */
+function the_event_dates() {
 
     $dates = Kidzou_Events::getEventDates();
     $start  = DateTime::createFromFormat('Y-m-d H:i:s', $dates['start_date'], new DateTimeZone('Europe/Paris'));
@@ -69,7 +74,7 @@ echo_formatted_events_dates() {
 
     $formatter->setPattern('cccc dd LLLL');
 
-    if ($$start->format("Y-m-d") == $end->format("Y-m-d")) {
+    if ($start->format("Y-m-d") == $end->format("Y-m-d")) {
         echo sprintf('<p><i class="fa fa-calendar fa-fw"></i> Le %s</p>',
                         $formatter->format($start));
     } else {

@@ -25,7 +25,7 @@
 								<?php 
 									$location_maps = '';
 									if (Kidzou_Events::isTypeEvent()) {
-										echo_formatted_events_dates();
+										the_event_dates();
 									}
 
 									if (Kidzou_Geoloc::has_post_location()) {
@@ -216,7 +216,16 @@
 									));
 									?></div>
 									<h4 class="title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h4>
-									<p class="date"><?php extra_the_post_date(); ?></p>
+									<?php 
+										if (Kidzou_Events::isTypeEvent()) { ?>
+											<?php 
+												the_event_dates(); 
+												if (Kidzou_Geoloc::has_post_location()) {
+													$location = Kidzou_Geoloc::get_post_location();
+													echo '<i class="fa fa-map-pin fa-fw"></i>&nbsp;'.$location['location_city'];
+												}
+										 } 
+									?>
 								</div>
 								<?php endwhile; ?>
 								<?php wp_reset_postdata(); ?>
