@@ -54,5 +54,30 @@ function after_init() {
 	require_once $stylesheet_directory.'/includes/modules.php';
 }
 
+echo_formatted_events_dates() {
+
+    $dates = Kidzou_Events::getEventDates();
+    $start  = DateTime::createFromFormat('Y-m-d H:i:s', $dates['start_date'], new DateTimeZone('Europe/Paris'));
+    $end    = DateTime::createFromFormat('Y-m-d H:i:s', $dates['end_date'], new DateTimeZone('Europe/Paris'));
+
+    $formatter = new IntlDateFormatter('fr_FR',
+                                        IntlDateFormatter::SHORT,
+                                        IntlDateFormatter::NONE,
+                                        'Europe/Paris',
+                                        IntlDateFormatter::GREGORIAN,
+                                        'dd/MM/yyyy');
+
+    $formatter->setPattern('cccc dd LLLL');
+
+    if ($$start->format("Y-m-d") == $end->format("Y-m-d")) {
+        echo sprintf('<p><i class="fa fa-calendar fa-fw"></i> Le %s</p>',
+                        $formatter->format($start));
+    } else {
+        echo sprintf('<p><i class="fa fa-calendar fa-fw"></i> Du %s au %s</p>',
+                        $formatter->format($start),
+                        $formatter->format($end));
+    }
+}
+
 
 ?>
