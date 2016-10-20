@@ -22,7 +22,7 @@
 					<?php 
 						if (Kidzou_Events::isTypeEvent()) {
 							
-							echo_formatted_events_dates();
+							the_event_dates();
 						}
 
 						if (Kidzou_Geoloc::has_post_location()) {
