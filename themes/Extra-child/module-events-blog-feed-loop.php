@@ -34,7 +34,7 @@ while ( $module_posts->have_posts() ) : $module_posts->the_post();
 				<div class="post-meta vcard">
 				<?php 
 					if (Kidzou_Events::isTypeEvent()) {
-						the_event_dates();
+						the_event_dates('short');
 					}
 
 					if (Kidzou_Geoloc::has_post_location()) {

@@ -15,7 +15,6 @@
 						<div class="post-meta vcard">
 						<?php 
 							if (Kidzou_Events::isTypeEvent()) {
-								
 								the_event_dates();
 							}
 

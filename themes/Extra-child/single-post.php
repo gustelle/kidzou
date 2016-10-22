@@ -219,7 +219,7 @@
 									<?php 
 										if (Kidzou_Events::isTypeEvent()) { ?>
 											<?php 
-												the_event_dates(); 
+												the_event_dates('short'); 
 												if (Kidzou_Geoloc::has_post_location()) {
 													$location = Kidzou_Geoloc::get_post_location();
 													echo '<i class="fa fa-map-pin fa-fw"></i>&nbsp;'.$location['location_city'];
