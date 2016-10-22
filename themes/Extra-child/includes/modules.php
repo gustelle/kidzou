@@ -726,82 +726,83 @@ class ET_Builder_Module_Featured_Events_Slider extends ET_Builder_Module_Feature
 		foreach ( $this->get_fields() as $name => $field ) {
 			$this->whitelisted_fields[] = $name;
 		}
+		
+		// cause un bug d'affichage CSS
+		// $this->main_css_element = '%%order_class%%';
 
-		$this->main_css_element = '%%order_class%%';
+		// $this->advanced_options = array(
+		// 	'fonts'                 => array(
+		// 		'title' => array(
+		// 			'label'          => esc_html__( 'Title', 'et_builder' ),
+		// 			'css'            => array(
+		// 				'main'      => "{$this->main_css_element} .hentry h3",
+		// 				'color'     => "{$this->main_css_element} .hentry h3 a",
+		// 				'important' => 'all',
+		// 			),
+		// 			'letter_spacing' => array(
+		// 				'range_settings' => array(
+		// 					'min'  => 0,
+		// 					'max'  => 30,
+		// 					'step' => 0.1,
+		// 				),
+		// 			),
+		// 		),
+		// 		'meta'  => array(
+		// 			'label' => esc_html__( 'Meta', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry .post-meta, {$this->main_css_element} .hentry .post-meta .comment-bubble:before, {$this->main_css_element} .hentry .post-meta .rating-star:before",
+		// 			),
+		// 		),
+		// 	),
+		// 	'custom_margin_padding' => array(),
+		// );
 
-		$this->advanced_options = array(
-			'fonts'                 => array(
-				'title' => array(
-					'label'          => esc_html__( 'Title', 'et_builder' ),
-					'css'            => array(
-						'main'      => "{$this->main_css_element} .hentry h3",
-						'color'     => "{$this->main_css_element} .hentry h3 a",
-						'important' => 'all',
-					),
-					'letter_spacing' => array(
-						'range_settings' => array(
-							'min'  => 0,
-							'max'  => 30,
-							'step' => 0.1,
-						),
-					),
-				),
-				'meta'  => array(
-					'label' => esc_html__( 'Meta', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry .post-meta, {$this->main_css_element} .hentry .post-meta .comment-bubble:before, {$this->main_css_element} .hentry .post-meta .rating-star:before",
-					),
-				),
-			),
-			'custom_margin_padding' => array(),
-		);
-
-		$this->custom_css_options = array(
-			'post_hentry'            => array(
-				'label'    => esc_html__( 'Post Entry', 'et_builder' ),
-				'selector' => '.hentry',
-			),
-			'post_caption'           => array(
-				'label'    => esc_html__( 'Post Caption', 'et_builder' ),
-				'selector' => '.hentry .post-content-box',
-			),
-			'post_title'             => array(
-				'label'    => esc_html__( 'Post Title', 'et_builder' ),
-				'selector' => '.hentry h3 a',
-			),
-			'post_meta'              => array(
-				'label'    => esc_html__( 'Post Meta', 'et_builder' ),
-				'selector' => '.hentry .post-meta',
-			),
-			'post_meta_icon'         => array(
-				'label'    => esc_html__( 'Post Meta Icons (Rating &amp; Comment)', 'et_builder' ),
-				'selector' => '.hentry .post-meta .post-meta-icon:before',
-			),
-			'pagination_item'        => array(
-				'label'    => esc_html__( 'Pagination Item', 'et_builder' ),
-				'selector' => '.slick-dots li button',
-			),
-			'pagination_item_active' => array(
-				'label'    => esc_html__( 'Pagination Item Active', 'et_builder' ),
-				'selector' => '.slick-dots li.slick-active button',
-			),
-			'nav'                    => array(
-				'label'    => esc_html__( 'Nav', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a',
-			),
-			'nav_hover'              => array(
-				'label'    => esc_html__( 'Nav Hover', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a:hover',
-			),
-			'nav_icon'               => array(
-				'label'    => esc_html__( 'Nav Icon', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a:before',
-			),
-			'nav_icon_hover'         => array(
-				'label'    => esc_html__( 'Nav Icon Hover', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a:hover:before',
-			),
-		);
+		// $this->custom_css_options = array(
+		// 	'post_hentry'            => array(
+		// 		'label'    => esc_html__( 'Post Entry', 'et_builder' ),
+		// 		'selector' => '.hentry',
+		// 	),
+		// 	'post_caption'           => array(
+		// 		'label'    => esc_html__( 'Post Caption', 'et_builder' ),
+		// 		'selector' => '.hentry .post-content-box',
+		// 	),
+		// 	'post_title'             => array(
+		// 		'label'    => esc_html__( 'Post Title', 'et_builder' ),
+		// 		'selector' => '.hentry h3 a',
+		// 	),
+		// 	'post_meta'              => array(
+		// 		'label'    => esc_html__( 'Post Meta', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta',
+		// 	),
+		// 	'post_meta_icon'         => array(
+		// 		'label'    => esc_html__( 'Post Meta Icons (Rating &amp; Comment)', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta .post-meta-icon:before',
+		// 	),
+		// 	'pagination_item'        => array(
+		// 		'label'    => esc_html__( 'Pagination Item', 'et_builder' ),
+		// 		'selector' => '.slick-dots li button',
+		// 	),
+		// 	'pagination_item_active' => array(
+		// 		'label'    => esc_html__( 'Pagination Item Active', 'et_builder' ),
+		// 		'selector' => '.slick-dots li.slick-active button',
+		// 	),
+		// 	'nav'                    => array(
+		// 		'label'    => esc_html__( 'Nav', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a',
+		// 	),
+		// 	'nav_hover'              => array(
+		// 		'label'    => esc_html__( 'Nav Hover', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a:hover',
+		// 	),
+		// 	'nav_icon'               => array(
+		// 		'label'    => esc_html__( 'Nav Icon', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a:before',
+		// 	),
+		// 	'nav_icon_hover'         => array(
+		// 		'label'    => esc_html__( 'Nav Icon Hover', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a:hover:before',
+		// 	),
+		// );
 	}
 
 }
@@ -820,156 +821,156 @@ class ET_Builder_Module_Events_Blog_Feed extends ET_Builder_Module_Events {
 			$this->whitelisted_fields[] = $name;
 		}
 
-		$this->main_css_element = '%%order_class%%';
+		// $this->main_css_element = '%%order_class%%';
 
-		$this->advanced_options = array(
-			'fonts'                 => array(
-				'header' => $this->set_frequent_advanced_options( 'header' ),
-				'title'  => array(
-					'label'          => esc_html__( 'Title', 'et_builder' ),
-					'css'            => array(
-						'main'      => "{$this->main_css_element} .hentry h2",
-						'color'     => "{$this->main_css_element} .hentry h2 a",
-						'important' => 'all',
-					),
-					'letter_spacing' => array(
-						'range_settings' => array(
-							'min'  => 0,
-							'max'  => 30,
-							'step' => 0.1,
-						),
-					),
-				),
-				'meta'   => array(
-					'label' => esc_html__( 'Meta', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry .post-meta, {$this->main_css_element} .hentry .post-meta .comment-bubble:before, {$this->main_css_element} .hentry .post-meta .rating-star:before",
-					),
-				),
-				'body'   => array(
-					'label' => esc_html__( 'Body', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry .excerpt p",
-					),
-				),
-			),
-			'button'                => array(
-				'read_more' => array(
-					'label' => esc_html__( 'Read More Button', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry .read-more-button",
-					),
-				),
-			),
-			'background'            => array(
-				'css'      => array(
-					'main' => "{$this->main_css_element}, {$this->main_css_element} .module-head",
-				),
-				'settings' => array(
-					'color' => 'alpha',
-				),
-			),
-			'custom_margin_padding' => array(),
-		);
+		// $this->advanced_options = array(
+		// 	'fonts'                 => array(
+		// 		'header' => $this->set_frequent_advanced_options( 'header' ),
+		// 		'title'  => array(
+		// 			'label'          => esc_html__( 'Title', 'et_builder' ),
+		// 			'css'            => array(
+		// 				'main'      => "{$this->main_css_element} .hentry h2",
+		// 				'color'     => "{$this->main_css_element} .hentry h2 a",
+		// 				'important' => 'all',
+		// 			),
+		// 			'letter_spacing' => array(
+		// 				'range_settings' => array(
+		// 					'min'  => 0,
+		// 					'max'  => 30,
+		// 					'step' => 0.1,
+		// 				),
+		// 			),
+		// 		),
+		// 		'meta'   => array(
+		// 			'label' => esc_html__( 'Meta', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry .post-meta, {$this->main_css_element} .hentry .post-meta .comment-bubble:before, {$this->main_css_element} .hentry .post-meta .rating-star:before",
+		// 			),
+		// 		),
+		// 		'body'   => array(
+		// 			'label' => esc_html__( 'Body', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry .excerpt p",
+		// 			),
+		// 		),
+		// 	),
+		// 	'button'                => array(
+		// 		'read_more' => array(
+		// 			'label' => esc_html__( 'Read More Button', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry .read-more-button",
+		// 			),
+		// 		),
+		// 	),
+		// 	'background'            => array(
+		// 		'css'      => array(
+		// 			'main' => "{$this->main_css_element}, {$this->main_css_element} .module-head",
+		// 		),
+		// 		'settings' => array(
+		// 			'color' => 'alpha',
+		// 		),
+		// 	),
+		// 	'custom_margin_padding' => array(),
+		// );
 
-		$this->custom_css_options = array(
-			'head'                               => array(
-				'label'    => esc_html__( 'Module Head', 'et_builder' ),
-				'selector' => '.module-head',
-			),
-			'header'                             => array(
-				'label'    => esc_html__( 'Module Header', 'et_builder' ),
-				'selector' => '.module-head h1',
-			),
-			'post_hentry'                        => array(
-				'label'    => esc_html__( 'Post Entry', 'et_builder' ),
-				'selector' => '.hentry',
-			),
-			'post_title'                         => array(
-				'label'    => esc_html__( 'Post Title', 'et_builder' ),
-				'selector' => '.hentry h2 a',
-			),
-			'post_meta'                          => array(
-				'label'    => esc_html__( 'Post Meta', 'et_builder' ),
-				'selector' => '.hentry .post-meta',
-			),
-			'post_meta_icon'                     => array(
-				'label'    => esc_html__( 'Post Meta Icons (Rating &amp; Comment)', 'et_builder' ),
-				'selector' => '.hentry .post-meta .post-meta-icon:before',
-			),
-			'post_excerpt'                       => array(
-				'label'    => esc_html__( 'Post Excerpt', 'et_builder' ),
-				'selector' => '.hentry .excerpt',
-			),
-			'post_read_more'                     => array(
-				'label'    => esc_html__( 'Post Read More', 'et_builder' ),
-				'selector' => '.hentry .read-more-button',
-			),
-			'post_read_more_icon'                => array(
-				'label'    => esc_html__( 'Post Read More Icon', 'et_builder' ),
-				'selector' => '.hentry .read-more-button:after',
-			),
-			'post_featured_image'                => array(
-				'label'    => esc_html__( 'Post Featured Image', 'et_builder' ),
-				'selector' => '.hentry .featured-image img',
-			),
-			'post_overlay'                       => array(
-				'label'    => esc_html__( 'Post Overlay', 'et_builder' ),
-				'selector' => '.hentry .et_pb_extra_overlay',
-			),
-			'post_overlay_icon'                  => array(
-				'label'    => esc_html__( 'Post Overlay Icon', 'et_builder' ),
-				'selector' => '.hentry .et_pb_extra_overlay:before',
-			),
-			'post_review_score_bar'              => array(
-				'label'    => esc_html__( 'Post Review Score Bar', 'et_builder' ),
-				'selector' => '.hentry .score-bar',
-			),
-			'post_format_gallery_nav'            => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a',
-			),
-			'post_format_gallery_nav_icon'       => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav Icon', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a:before',
-			),
-			'post_format_gallery_nav_hover'      => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav Hover', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a:hover',
-			),
-			'post_format_gallery_nav_hover_icon' => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav Icon Hover', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a:hover:before',
-			),
-			'post_format_audio_wrapper'          => array(
-				'label'    => esc_html__( 'Post Format Audio Wrapper', 'et_builder' ),
-				'selector' => '.hentry .audio-wrapper',
-			),
-			'post_format_audio_player'           => array(
-				'label'    => esc_html__( 'Post Format Audio Player', 'et_builder' ),
-				'selector' => '.hentry .mejs-container',
-			),
-			'post_format_link_background'        => array(
-				'label'    => esc_html__( 'Post Format Link Background', 'et_builder' ),
-				'selector' => '.hentry .link-format',
-			),
-			'post_format_quote_background'       => array(
-				'label'    => esc_html__( 'Post Format Quote Background', 'et_builder' ),
-				'selector' => '.hentry .quote-format',
-			),
-			'pagination_background'              => array(
-				'label'    => esc_html__( 'Pagination Background', 'et_builder' ),
-				'selector' => '.pagination',
-			),
-			'pagination_item'                    => array(
-				'label'    => esc_html__( 'Pagination Item', 'et_builder' ),
-				'selector' => '.pagination li',
-			),
-			'pagination_item_active'             => array(
-				'label'    => esc_html__( 'Pagination Item Active', 'et_builder' ),
-				'selector' => '.pagination li.active',
-			),
-		);
+		// $this->custom_css_options = array(
+		// 	'head'                               => array(
+		// 		'label'    => esc_html__( 'Module Head', 'et_builder' ),
+		// 		'selector' => '.module-head',
+		// 	),
+		// 	'header'                             => array(
+		// 		'label'    => esc_html__( 'Module Header', 'et_builder' ),
+		// 		'selector' => '.module-head h1',
+		// 	),
+		// 	'post_hentry'                        => array(
+		// 		'label'    => esc_html__( 'Post Entry', 'et_builder' ),
+		// 		'selector' => '.hentry',
+		// 	),
+		// 	'post_title'                         => array(
+		// 		'label'    => esc_html__( 'Post Title', 'et_builder' ),
+		// 		'selector' => '.hentry h2 a',
+		// 	),
+		// 	'post_meta'                          => array(
+		// 		'label'    => esc_html__( 'Post Meta', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta',
+		// 	),
+		// 	'post_meta_icon'                     => array(
+		// 		'label'    => esc_html__( 'Post Meta Icons (Rating &amp; Comment)', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta .post-meta-icon:before',
+		// 	),
+		// 	'post_excerpt'                       => array(
+		// 		'label'    => esc_html__( 'Post Excerpt', 'et_builder' ),
+		// 		'selector' => '.hentry .excerpt',
+		// 	),
+		// 	'post_read_more'                     => array(
+		// 		'label'    => esc_html__( 'Post Read More', 'et_builder' ),
+		// 		'selector' => '.hentry .read-more-button',
+		// 	),
+		// 	'post_read_more_icon'                => array(
+		// 		'label'    => esc_html__( 'Post Read More Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .read-more-button:after',
+		// 	),
+		// 	'post_featured_image'                => array(
+		// 		'label'    => esc_html__( 'Post Featured Image', 'et_builder' ),
+		// 		'selector' => '.hentry .featured-image img',
+		// 	),
+		// 	'post_overlay'                       => array(
+		// 		'label'    => esc_html__( 'Post Overlay', 'et_builder' ),
+		// 		'selector' => '.hentry .et_pb_extra_overlay',
+		// 	),
+		// 	'post_overlay_icon'                  => array(
+		// 		'label'    => esc_html__( 'Post Overlay Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .et_pb_extra_overlay:before',
+		// 	),
+		// 	'post_review_score_bar'              => array(
+		// 		'label'    => esc_html__( 'Post Review Score Bar', 'et_builder' ),
+		// 		'selector' => '.hentry .score-bar',
+		// 	),
+		// 	'post_format_gallery_nav'            => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a',
+		// 	),
+		// 	'post_format_gallery_nav_icon'       => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a:before',
+		// 	),
+		// 	'post_format_gallery_nav_hover'      => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav Hover', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a:hover',
+		// 	),
+		// 	'post_format_gallery_nav_hover_icon' => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav Icon Hover', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a:hover:before',
+		// 	),
+		// 	'post_format_audio_wrapper'          => array(
+		// 		'label'    => esc_html__( 'Post Format Audio Wrapper', 'et_builder' ),
+		// 		'selector' => '.hentry .audio-wrapper',
+		// 	),
+		// 	'post_format_audio_player'           => array(
+		// 		'label'    => esc_html__( 'Post Format Audio Player', 'et_builder' ),
+		// 		'selector' => '.hentry .mejs-container',
+		// 	),
+		// 	'post_format_link_background'        => array(
+		// 		'label'    => esc_html__( 'Post Format Link Background', 'et_builder' ),
+		// 		'selector' => '.hentry .link-format',
+		// 	),
+		// 	'post_format_quote_background'       => array(
+		// 		'label'    => esc_html__( 'Post Format Quote Background', 'et_builder' ),
+		// 		'selector' => '.hentry .quote-format',
+		// 	),
+		// 	'pagination_background'              => array(
+		// 		'label'    => esc_html__( 'Pagination Background', 'et_builder' ),
+		// 		'selector' => '.pagination',
+		// 	),
+		// 	'pagination_item'                    => array(
+		// 		'label'    => esc_html__( 'Pagination Item', 'et_builder' ),
+		// 		'selector' => '.pagination li',
+		// 	),
+		// 	'pagination_item_active'             => array(
+		// 		'label'    => esc_html__( 'Pagination Item Active', 'et_builder' ),
+		// 		'selector' => '.pagination li.active',
+		// 	),
+		// );
 	}
 
 
@@ -1227,140 +1228,140 @@ class ET_Builder_Module_Events_Blog_Feed_Masonry extends ET_Builder_Module_Event
 			$this->whitelisted_fields[] = $name;
 		}
 
-		$this->main_css_element = '%%order_class%%';
+		// $this->main_css_element = '%%order_class%%';
 
-		$this->advanced_options = array(
-			'fonts'                 => array(
-				'title' => array(
-					'label'          => esc_html__( 'Title', 'et_builder' ),
-					'css'            => array(
-						'main'      => "{$this->main_css_element} .hentry h2",
-						'color'     => "{$this->main_css_element} .hentry h2 a",
-						'important' => 'all',
-					),
-					'letter_spacing' => array(
-						'range_settings' => array(
-							'min'  => 0,
-							'max'  => 30,
-							'step' => 0.1,
-						),
-					),
-				),
-				'meta'  => array(
-					'label' => esc_html__( 'Meta', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry .post-meta, {$this->main_css_element} .hentry .post-meta .comment-bubble:before, {$this->main_css_element} .hentry .post-meta .rating-star:before",
-					),
-				),
-				'body'  => array(
-					'label' => esc_html__( 'Body', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry p",
-					),
-				),
-			),
-			'border'                => array(
-				'css' => array(
-					'main' => ".posts-blog-feed-module.masonry{$this->main_css_element} .hentry",
-				),
-			),
-			'button'                => array(
-				'read_more' => array(
-					'label' => esc_html__( 'Read More Button', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .hentry .read-more-button",
-					),
-				),
-			),
-			'custom_margin_padding' => array(),
-		);
+		// $this->advanced_options = array(
+		// 	'fonts'                 => array(
+		// 		'title' => array(
+		// 			'label'          => esc_html__( 'Title', 'et_builder' ),
+		// 			'css'            => array(
+		// 				'main'      => "{$this->main_css_element} .hentry h2",
+		// 				'color'     => "{$this->main_css_element} .hentry h2 a",
+		// 				'important' => 'all',
+		// 			),
+		// 			'letter_spacing' => array(
+		// 				'range_settings' => array(
+		// 					'min'  => 0,
+		// 					'max'  => 30,
+		// 					'step' => 0.1,
+		// 				),
+		// 			),
+		// 		),
+		// 		'meta'  => array(
+		// 			'label' => esc_html__( 'Meta', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry .post-meta, {$this->main_css_element} .hentry .post-meta .comment-bubble:before, {$this->main_css_element} .hentry .post-meta .rating-star:before",
+		// 			),
+		// 		),
+		// 		'body'  => array(
+		// 			'label' => esc_html__( 'Body', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry p",
+		// 			),
+		// 		),
+		// 	),
+		// 	'border'                => array(
+		// 		'css' => array(
+		// 			'main' => ".posts-blog-feed-module.masonry{$this->main_css_element} .hentry",
+		// 		),
+		// 	),
+		// 	'button'                => array(
+		// 		'read_more' => array(
+		// 			'label' => esc_html__( 'Read More Button', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .hentry .read-more-button",
+		// 			),
+		// 		),
+		// 	),
+		// 	'custom_margin_padding' => array(),
+		// );
 
-		$this->custom_css_options = array(
-			'post_hentry'                        => array(
-				'label'    => esc_html__( 'Post Entry', 'et_builder' ),
-				'selector' => '.hentry',
-			),
-			'post_title'                         => array(
-				'label'    => esc_html__( 'Post Title', 'et_builder' ),
-				'selector' => '.hentry h2 a',
-			),
-			'post_meta'                          => array(
-				'label'    => esc_html__( 'Post Meta', 'et_builder' ),
-				'selector' => '.hentry .post-meta',
-			),
-			'post_meta_icon'                     => array(
-				'label'    => esc_html__( 'Post Meta Icons (Rating &amp; Comment)', 'et_builder' ),
-				'selector' => '.hentry .post-meta .post-meta-icon:before',
-			),
-			'post_excerpt'                       => array(
-				'label'    => esc_html__( 'Post Excerpt', 'et_builder' ),
-				'selector' => '.hentry .excerpt',
-			),
-			'post_read_more'                     => array(
-				'label'    => esc_html__( 'Post Read More', 'et_builder' ),
-				'selector' => '.hentry .read-more-button',
-			),
-			'post_read_more_icon'                => array(
-				'label'    => esc_html__( 'Post Read More Icon', 'et_builder' ),
-				'selector' => '.hentry .read-more-button:after',
-			),
-			'post_featured_image'                => array(
-				'label'    => esc_html__( 'Post Featured Image', 'et_builder' ),
-				'selector' => '.hentry .featured-image img',
-			),
-			'post_overlay'                       => array(
-				'label'    => esc_html__( 'Post Overlay', 'et_builder' ),
-				'selector' => '.hentry .et_pb_extra_overlay',
-			),
-			'post_overlay_icon'                  => array(
-				'label'    => esc_html__( 'Post Overlay Icon', 'et_builder' ),
-				'selector' => '.hentry .et_pb_extra_overlay:before',
-			),
-			'post_review_score_bar'              => array(
-				'label'    => esc_html__( 'Post Review Score Bar', 'et_builder' ),
-				'selector' => '.hentry .score-bar',
-			),
-			'post_format_gallery_nav'            => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a',
-			),
-			'post_format_gallery_nav_icon'       => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav Icon', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a:before',
-			),
-			'post_format_gallery_nav_hover'      => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav Hover', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a:hover',
-			),
-			'post_format_gallery_nav_hover_icon' => array(
-				'label'    => esc_html__( 'Post Format Gallery Nav Icon Hover', 'et_builder' ),
-				'selector' => '.hentry .et-pb-slider-arrows a:hover:before',
-			),
-			'post_format_audio_wrapper'          => array(
-				'label'    => esc_html__( 'Post Format Audio Wrapper', 'et_builder' ),
-				'selector' => '.hentry .audio-wrapper',
-			),
-			'post_format_audio_player'           => array(
-				'label'    => esc_html__( 'Post Format Audio Player', 'et_builder' ),
-				'selector' => '.hentry .mejs-container',
-			),
-			'post_format_link_background'        => array(
-				'label'    => esc_html__( 'Post Format Link Background', 'et_builder' ),
-				'selector' => '.hentry .link-format',
-			),
-			'post_format_quote_background'       => array(
-				'label'    => esc_html__( 'Post Format Quote Background', 'et_builder' ),
-				'selector' => '.hentry .quote-format',
-			),
-			'pagination_item'                    => array(
-				'label'    => esc_html__( 'Pagination Item', 'et_builder' ),
-				'selector' => '.pagination li',
-			),
-			'pagination_item_active'             => array(
-				'label'    => esc_html__( 'Pagination Item Active', 'et_builder' ),
-				'selector' => '.pagination li.active',
-			),
-		);
+		// $this->custom_css_options = array(
+		// 	'post_hentry'                        => array(
+		// 		'label'    => esc_html__( 'Post Entry', 'et_builder' ),
+		// 		'selector' => '.hentry',
+		// 	),
+		// 	'post_title'                         => array(
+		// 		'label'    => esc_html__( 'Post Title', 'et_builder' ),
+		// 		'selector' => '.hentry h2 a',
+		// 	),
+		// 	'post_meta'                          => array(
+		// 		'label'    => esc_html__( 'Post Meta', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta',
+		// 	),
+		// 	'post_meta_icon'                     => array(
+		// 		'label'    => esc_html__( 'Post Meta Icons (Rating &amp; Comment)', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta .post-meta-icon:before',
+		// 	),
+		// 	'post_excerpt'                       => array(
+		// 		'label'    => esc_html__( 'Post Excerpt', 'et_builder' ),
+		// 		'selector' => '.hentry .excerpt',
+		// 	),
+		// 	'post_read_more'                     => array(
+		// 		'label'    => esc_html__( 'Post Read More', 'et_builder' ),
+		// 		'selector' => '.hentry .read-more-button',
+		// 	),
+		// 	'post_read_more_icon'                => array(
+		// 		'label'    => esc_html__( 'Post Read More Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .read-more-button:after',
+		// 	),
+		// 	'post_featured_image'                => array(
+		// 		'label'    => esc_html__( 'Post Featured Image', 'et_builder' ),
+		// 		'selector' => '.hentry .featured-image img',
+		// 	),
+		// 	'post_overlay'                       => array(
+		// 		'label'    => esc_html__( 'Post Overlay', 'et_builder' ),
+		// 		'selector' => '.hentry .et_pb_extra_overlay',
+		// 	),
+		// 	'post_overlay_icon'                  => array(
+		// 		'label'    => esc_html__( 'Post Overlay Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .et_pb_extra_overlay:before',
+		// 	),
+		// 	'post_review_score_bar'              => array(
+		// 		'label'    => esc_html__( 'Post Review Score Bar', 'et_builder' ),
+		// 		'selector' => '.hentry .score-bar',
+		// 	),
+		// 	'post_format_gallery_nav'            => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a',
+		// 	),
+		// 	'post_format_gallery_nav_icon'       => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a:before',
+		// 	),
+		// 	'post_format_gallery_nav_hover'      => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav Hover', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a:hover',
+		// 	),
+		// 	'post_format_gallery_nav_hover_icon' => array(
+		// 		'label'    => esc_html__( 'Post Format Gallery Nav Icon Hover', 'et_builder' ),
+		// 		'selector' => '.hentry .et-pb-slider-arrows a:hover:before',
+		// 	),
+		// 	'post_format_audio_wrapper'          => array(
+		// 		'label'    => esc_html__( 'Post Format Audio Wrapper', 'et_builder' ),
+		// 		'selector' => '.hentry .audio-wrapper',
+		// 	),
+		// 	'post_format_audio_player'           => array(
+		// 		'label'    => esc_html__( 'Post Format Audio Player', 'et_builder' ),
+		// 		'selector' => '.hentry .mejs-container',
+		// 	),
+		// 	'post_format_link_background'        => array(
+		// 		'label'    => esc_html__( 'Post Format Link Background', 'et_builder' ),
+		// 		'selector' => '.hentry .link-format',
+		// 	),
+		// 	'post_format_quote_background'       => array(
+		// 		'label'    => esc_html__( 'Post Format Quote Background', 'et_builder' ),
+		// 		'selector' => '.hentry .quote-format',
+		// 	),
+		// 	'pagination_item'                    => array(
+		// 		'label'    => esc_html__( 'Pagination Item', 'et_builder' ),
+		// 		'selector' => '.pagination li',
+		// 	),
+		// 	'pagination_item_active'             => array(
+		// 		'label'    => esc_html__( 'Pagination Item Active', 'et_builder' ),
+		// 		'selector' => '.pagination li.active',
+		// 	),
+		// );
 	}
 
 	function shortcode_atts() {
@@ -1456,101 +1457,101 @@ class ET_Builder_Module_Events_Carousel extends ET_Builder_Module_Events {
 			$this->whitelisted_fields[] = $name;
 		}
 
-		$this->main_css_element = '%%order_class%%';
+		// $this->main_css_element = '%%order_class%%';
 
-		$this->advanced_options = array(
-			'fonts'                 => array(
-				'header'    => $this->set_frequent_advanced_options( 'header' ),
-				'subheader' => $this->set_frequent_advanced_options( 'subheader' ),
-				'title'     => array(
-					'label'          => esc_html__( 'Title', 'et_builder' ),
-					'css'            => array(
-						'main'      => "{$this->main_css_element} .hentry h3",
-						'color'     => "{$this->main_css_element} .hentry h3 a",
-						'important' => 'all',
-					),
-					'letter_spacing' => array(
-						'range_settings' => array(
-							'min'  => 0,
-							'max'  => 30,
-							'step' => 0.1,
-						),
-					),
-				),
-				'meta'      => array(
-					'label' => esc_html__( 'Meta', 'et_builder' ),
-					'css'   => array(
-						'main' => "{$this->main_css_element} .post-meta",
-					),
-				),
-			),
-			'background'            => array(
-				'css'      => array(
-					'main' => "{$this->main_css_element}",
-				),
-				'settings' => array(
-					'color' => 'alpha',
-				),
-			),
-			'border'                => array(
-				'css' => array(
-					'main'      => "{$this->main_css_element}",
-					'important' => 'all',
-				),
-			),
-			'custom_margin_padding' => array(),
-		);
+		// $this->advanced_options = array(
+		// 	'fonts'                 => array(
+		// 		'header'    => $this->set_frequent_advanced_options( 'header' ),
+		// 		'subheader' => $this->set_frequent_advanced_options( 'subheader' ),
+		// 		'title'     => array(
+		// 			'label'          => esc_html__( 'Title', 'et_builder' ),
+		// 			'css'            => array(
+		// 				'main'      => "{$this->main_css_element} .hentry h3",
+		// 				'color'     => "{$this->main_css_element} .hentry h3 a",
+		// 				'important' => 'all',
+		// 			),
+		// 			'letter_spacing' => array(
+		// 				'range_settings' => array(
+		// 					'min'  => 0,
+		// 					'max'  => 30,
+		// 					'step' => 0.1,
+		// 				),
+		// 			),
+		// 		),
+		// 		'meta'      => array(
+		// 			'label' => esc_html__( 'Meta', 'et_builder' ),
+		// 			'css'   => array(
+		// 				'main' => "{$this->main_css_element} .post-meta",
+		// 			),
+		// 		),
+		// 	),
+		// 	'background'            => array(
+		// 		'css'      => array(
+		// 			'main' => "{$this->main_css_element}",
+		// 		),
+		// 		'settings' => array(
+		// 			'color' => 'alpha',
+		// 		),
+		// 	),
+		// 	'border'                => array(
+		// 		'css' => array(
+		// 			'main'      => "{$this->main_css_element}",
+		// 			'important' => 'all',
+		// 		),
+		// 	),
+		// 	'custom_margin_padding' => array(),
+		// );
 
-		$this->custom_css_options = array(
-			'head'              => array(
-				'label'    => esc_html__( 'Module Head', 'et_builder' ),
-				'selector' => '.module-head',
-			),
-			'header'            => array(
-				'label'    => esc_html__( 'Module Header', 'et_builder' ),
-				'selector' => '.module-head h1',
-			),
-			'subheader'         => array(
-				'label'    => esc_html__( 'Module Subheader', 'et_builder' ),
-				'selector' => '.module-head .module-filter',
-			),
-			'post_hentry'       => array(
-				'label'    => esc_html__( 'Post Entry', 'et_builder' ),
-				'selector' => '.hentry',
-			),
-			'post_title'        => array(
-				'label'    => esc_html__( 'Post Title', 'et_builder' ),
-				'selector' => '.hentry h3 a',
-			),
-			'post_meta'         => array(
-				'label'    => esc_html__( 'Post Meta', 'et_builder' ),
-				'selector' => '.hentry .post-meta',
-			),
-			'post_overlay'      => array(
-				'label'    => esc_html__( 'Post Overlay', 'et_builder' ),
-				'selector' => '.hentry .et_pb_extra_overlay',
-			),
-			'post_overlay_icon' => array(
-				'label'    => esc_html__( 'Post Overlay Icon', 'et_builder' ),
-				'selector' => '.hentry .et_pb_extra_overlay:before',
-			),
-			'nav'               => array(
-				'label'    => esc_html__( 'Nav', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a',
-			),
-			'nav_hover'         => array(
-				'label'    => esc_html__( 'Nav Hover', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a:hover',
-			),
-			'nav_icon'          => array(
-				'label'    => esc_html__( 'Nav Icon', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a:before',
-			),
-			'nav_icon_hover'    => array(
-				'label'    => esc_html__( 'Nav Icon Hover', 'et_builder' ),
-				'selector' => '.et-pb-slider-arrows a:hover:before',
-			),
-		);
+		// $this->custom_css_options = array(
+		// 	'head'              => array(
+		// 		'label'    => esc_html__( 'Module Head', 'et_builder' ),
+		// 		'selector' => '.module-head',
+		// 	),
+		// 	'header'            => array(
+		// 		'label'    => esc_html__( 'Module Header', 'et_builder' ),
+		// 		'selector' => '.module-head h1',
+		// 	),
+		// 	'subheader'         => array(
+		// 		'label'    => esc_html__( 'Module Subheader', 'et_builder' ),
+		// 		'selector' => '.module-head .module-filter',
+		// 	),
+		// 	'post_hentry'       => array(
+		// 		'label'    => esc_html__( 'Post Entry', 'et_builder' ),
+		// 		'selector' => '.hentry',
+		// 	),
+		// 	'post_title'        => array(
+		// 		'label'    => esc_html__( 'Post Title', 'et_builder' ),
+		// 		'selector' => '.hentry h3 a',
+		// 	),
+		// 	'post_meta'         => array(
+		// 		'label'    => esc_html__( 'Post Meta', 'et_builder' ),
+		// 		'selector' => '.hentry .post-meta',
+		// 	),
+		// 	'post_overlay'      => array(
+		// 		'label'    => esc_html__( 'Post Overlay', 'et_builder' ),
+		// 		'selector' => '.hentry .et_pb_extra_overlay',
+		// 	),
+		// 	'post_overlay_icon' => array(
+		// 		'label'    => esc_html__( 'Post Overlay Icon', 'et_builder' ),
+		// 		'selector' => '.hentry .et_pb_extra_overlay:before',
+		// 	),
+		// 	'nav'               => array(
+		// 		'label'    => esc_html__( 'Nav', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a',
+		// 	),
+		// 	'nav_hover'         => array(
+		// 		'label'    => esc_html__( 'Nav Hover', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a:hover',
+		// 	),
+		// 	'nav_icon'          => array(
+		// 		'label'    => esc_html__( 'Nav Icon', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a:before',
+		// 	),
+		// 	'nav_icon_hover'    => array(
+		// 		'label'    => esc_html__( 'Nav Icon Hover', 'et_builder' ),
+		// 		'selector' => '.et-pb-slider-arrows a:hover:before',
+		// 	),
+		// );
 	}
 
 		function set_additional_fields() {
