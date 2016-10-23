@@ -10,9 +10,6 @@
 *
 * sudo nano /var/www/.htaccess
 *
-#######################################################################
-# Reecriture des URLS metropole (suppression de la feature metropole) #
-#######################################################################
 RewriteRule ^(lille|littoral|regional|valenciennes)/(agenda|les-recommandations)/?$ /rubrique/$2  [R=301,NC,L]
 RewriteRule ^(lille|littoral|regional|valenciennes)/(rubrique|ville|divers|age|famille|nature)/(.*)/?$ /$2/$3 [R=301,NC,L]
 
@@ -31,4 +28,8 @@ RewriteRule ^(lille|littoral|regional|valenciennes)/(rubrique|ville|divers|age|f
 ## Suppression du role Contributeur Pro ##
 * Supprimer tous les droits sur le role "Contributeur Pro" dans Utilisateurs/Capabilities
 * Basculer tous les users Contributeur Pro -> Contributeur ("Tous les utilisateurs > Contributeur Pro > CHanger de role pour ...")
+
+* desactiver la meta Super Socialize
+* desactiver Jetpack du menu
+* desactiver les metabox Extra pour les contributeurs
 
