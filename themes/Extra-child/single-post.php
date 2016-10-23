@@ -23,11 +23,11 @@
 								<?php if (Kidzou_Events::isTypeEvent() || Kidzou_Geoloc::has_post_location()) { ?>
 								<div class="event-meta">
 								<?php 
-									$location_maps = '';
 									if (Kidzou_Events::isTypeEvent()) {
 										the_event_dates();
 									}
 
+									$location_maps = '';
 									if (Kidzou_Geoloc::has_post_location()) {
 										$location = Kidzou_Geoloc::get_post_location();
 										$location_address = '';
@@ -68,7 +68,6 @@
 							<?php if ( ( et_has_post_format() && et_has_format_content() ) || ( has_post_thumbnail() && is_post_extra_featured_image_enabled() ) ) { ?>
 							<div class="post-thumbnail header">
 								<?php
-								if ($location_maps!=='') echo $location_maps;
 								$score_bar = extra_get_the_post_score_bar();
 								$thumb_args = array( 'size' => 'extra-image-single-post' );
 								require locate_template( 'post-top-content.php' );
@@ -154,6 +153,9 @@
 									}
 								</style>
 							</div>
+
+							<?php if ($location_maps!=='') echo $location_maps; ?>
+
 
 							<?php $post_below_ad = extra_display_ad( 'post_below', false ); ?>
 							<?php if ( !empty( $post_below_ad ) ) { ?>
