@@ -55,6 +55,16 @@ function after_init() {
 }
 
 /**
+ * Suppression du Post Type 'Projects' inutilisé dans notre thème
+ *
+ **/
+add_action('init', 'unregister_projects_post_type', PHP_INT_MAX);
+function unregister_projects_post_type(){
+    unregister_post_type( 'project' );
+}
+
+
+/**
  * Une string formattée avec les dates d'événement.
  * Typiquement "Du ... au ..." ou alors "Le ..."
  *
