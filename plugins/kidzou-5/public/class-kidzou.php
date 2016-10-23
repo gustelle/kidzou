@@ -24,7 +24,7 @@ class Kidzou {
 	 *
 	 * @var     string
 	 */
-	const VERSION = 'kidzou-V-0.6';
+	const VERSION = 'kidzou-V-0.7';
 
 	/**
 	 * Plugin version, used for cache-busting of style and script file references.
@@ -171,7 +171,16 @@ class Kidzou {
 	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
 	        ),
 
-	        //ajouter NEXTEND, REDUX
+	        array(
+	            'name'               => 'Jetpack par WordPress.com', // The plugin name.
+	            'slug'               => 'jetpack', // The plugin slug (typically the folder name).
+	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
+	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
+	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
+	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
+	        ),
+
 
 	        array(
 	            'name'               => 'Redux Framework', // The plugin name.
@@ -180,16 +189,6 @@ class Kidzou {
 	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
 	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
 	            'force_deactivation' => true, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
-	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
-	        ),
-
-	        array(
-	            'name'               => 'Google Analytics Dashboard for WP', // The plugin name.
-	            'slug'               => 'google-analytics-dashboard-for-wp', // The plugin slug (typically the folder name).
-	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
-	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
-	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
-	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
 	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
 	        ),
 
@@ -204,44 +203,14 @@ class Kidzou {
 	        ),
 
 	        array(
-	            'name'               => 'Contextual Related Posts', // The plugin name.
-	            'slug'               => 'contextual-related-posts', // The plugin slug (typically the folder name).
-	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
-	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
-	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
-	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
-	            'external_url'       => '', // If set, overrides default API URL and points to an external URL.
-	        ),
-
-	        array(
-	            'name'               => 'Adminimize', // The plugin name.
-	            'slug'               => 'adminimize', // The plugin slug (typically the folder name).
-	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
-	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
-	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
-	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
-	        	'external_url'       => '', // If set, overrides default API URL and points to an external URL.
-	        ),
-
-	        array(
 	            'name'               => 'Capability Manager Enhanced', // The plugin name.
 	            'slug'               => 'capability-manager-enhanced', // The plugin slug (typically the folder name).
-	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
+	            'required'           => true, // If false, the plugin is only 'recommended' instead of required.
 	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
-	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
+	            'force_activation'   => true, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
 	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
 	        	'external_url'       => '', // If set, overrides default API URL and points to an external URL.
 	        ),
-
-	        array(
-	            'name'               => 'Erident Custom Login and Dashboard', // The plugin name.
-	            'slug'               => 'erident-custom-login-and-dashboard', // The plugin slug (typically the folder name).
-	            'required'           => false, // If false, the plugin is only 'recommended' instead of required.
-	            'version'            => '', // E.g. 1.0.0. If set, the active plugin must be this version or higher.
-	            'force_activation'   => false, // If true, plugin is activated upon theme activation and cannot be deactivated until theme switch.
-	            'force_deactivation' => false, // If true, plugin is deactivated upon theme switch, useful for theme-specific plugins.
-	        	'external_url'       => '', // If set, overrides default API URL and points to an external URL.
-	        )
 
 	    );
 
