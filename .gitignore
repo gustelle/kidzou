@@ -1,3 +1,7 @@
 plato_reports/
 doc/
 docs/
+
+.ftppass
+contributors.txt
+readme-prod.md
